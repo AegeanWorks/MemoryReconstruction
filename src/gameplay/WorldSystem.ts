@@ -404,67 +404,199 @@ export class WorldSystem implements IGameModule {
 
   private generateTiles(x: number, y: number, _biome: BiomeConfig): TileData[][] {
     const tiles: TileData[][] = [];
-    const chunkPixelSize = this.chunkSize;
+    const width = 16;
+    const height = 16;
 
-    for (let ty = 0; ty < chunkPixelSize; ty += TILE_SIZE) {
-      // 32px tiles
+    // Initialize all tiles as empty space
+    for (let ty = 0; ty < height; ty++) {
       const row: TileData[] = [];
-      for (let tx = 0; tx < chunkPixelSize; tx += TILE_SIZE) {
-        const worldX = x * chunkPixelSize + tx;
-        const worldY = y * chunkPixelSize + ty;
-
-        // Multi-layer noise for terrain
-        const elevation = this.getNoise(worldX * 0.005, worldY * 0.005, 2);
-        const detail = this.getNoise(worldX * 0.02, worldY * 0.02, 3);
-        const structure = this.getNoise(worldX * 0.01, worldY * 0.01, 4);
-
-        let tileType: TileType = 'empty';
-        let variant = 0;
-        let height = 0;
-        const properties: TileProperties = { solid: false };
-
-        // Terrain generation logic
-        if (elevation > 0.6) {
-          // High ground - walls and platforms
-          if (structure > 0.7) {
-            tileType = 'wall';
-            properties.solid = true;
-            variant = Math.floor(detail * 3);
-          } else {
-            tileType = 'platform';
-            properties.solid = true;
-            variant = Math.floor(detail * 2);
-          }
-          height = Math.floor(elevation * 10);
-        } else if (elevation > 0.3) {
-          // Mid ground - floors
-          tileType = 'floor';
-          properties.solid = true;
-          variant = Math.floor(detail * 4);
-          height = Math.floor(elevation * 5);
-        } else if (elevation > 0.1) {
-          // Low ground - hazards or water
-          if (detail > 0.7) {
-            tileType = 'hazard';
-            properties.solid = false;
-            properties.damage = 10;
-            variant = Math.floor(detail * 2);
-          } else {
-            tileType = 'water';
-            properties.solid = false;
-            variant = 0;
-          }
-        } else if (structure > 0.85) {
-          // Rare structures
-          tileType = 'secret';
-          properties.solid = false;
-          properties.interactive = 'secret';
-          variant = 0;
-        }
-
-        row.push({ type: tileType, variant, height, properties });
+      for (let tx = 0; tx < width; tx++) {
+        row.push({
+          type: 'empty',
+          variant: 0,
+          height: 0,
+          properties: { solid: false },
+        });
       }
       tiles.push(row);
+    }
+
+    const setTile = (
+      tx: number,
+      ty: number,
+      type: TileType,
+      variant = 0,
+      extraProps: Partial<TileProperties> = {}
+    ) => {
+      if (tx < 0 || tx >= width || ty < 0 || ty >= height) return;
+      const isSolid = type === 'floor' || type === 'wall' || type === 'platform';
+      const properties: TileProperties = {
+        solid: isSolid,
+        ...(type === 'hazard' ? { damage: 10 } : {}),
+        ...(type === 'ladder' ? { climbable: true } : {}),
+        ...extraProps,
+      };
+      tiles[ty][tx] = {
+        type,
+        variant,
+        height: isSolid ? 1 : 0,
+        properties,
+      };
+    };
+
+    const fillH = (
+      x1: number,
+      x2: number,
+      ty: number,
+      type: TileType,
+      variantMod = 4,
+      props?: Partial<TileProperties>
+    ) => {
+      for (let tx = x1; tx <= x2; tx++) {
+        const v = Math.abs(this.hash(x * 100 + tx, y * 100 + ty)) % variantMod;
+        setTile(tx, ty, type, v, props);
+      }
+    };
+
+    const fillV = (
+      tx: number,
+      y1: number,
+      y2: number,
+      type: TileType,
+      variantMod = 4,
+      props?: Partial<TileProperties>
+    ) => {
+      for (let ty = y1; ty <= y2; ty++) {
+        const v = Math.abs(this.hash(x * 100 + tx, y * 100 + ty)) % variantMod;
+        setTile(tx, ty, type, v, props);
+      }
+    };
+
+    // Deterministic room archetype selection based on coordinates
+    const isSpawn = x === 0 && y === 0;
+    const seed = Math.abs(this.hash(x * 73856093, y * 19349663));
+    const archetype = isSpawn ? 0 : seed % 6;
+
+    // Bedrock foundation at bottom: ty = 14..15 is always solid bedrock across all chunks
+    fillH(0, 15, 15, 'wall');
+
+    switch (archetype) {
+      case 0: // Grand Promenade / Spawn Sanctuary
+        // Continuous main floor at ty = 12..13
+        fillH(0, 15, 12, 'floor');
+        fillH(0, 15, 13, 'wall');
+        fillH(0, 15, 14, 'wall');
+        // Mid-level platform walkway
+        fillH(3, 12, 8, 'platform');
+        // Upper balcony ledges
+        fillH(1, 4, 5, 'platform');
+        fillH(11, 14, 5, 'platform');
+        // Ladders connecting tiers
+        fillV(4, 5, 11, 'ladder');
+        fillV(11, 5, 11, 'ladder');
+        // Architectural framing pillars
+        fillV(1, 0, 3, 'wall');
+        fillV(14, 0, 3, 'wall');
+        break;
+
+      case 1: // Stepped Ruins / Terraced Hall
+        // Left terrace
+        fillH(0, 4, 12, 'floor');
+        fillH(0, 4, 13, 'wall');
+        fillH(0, 4, 14, 'wall');
+        // Center raised terrace
+        fillH(5, 10, 9, 'floor');
+        fillH(5, 10, 10, 'wall');
+        fillH(5, 10, 11, 'wall');
+        fillH(5, 10, 12, 'wall');
+        fillH(5, 10, 13, 'wall');
+        fillH(5, 10, 14, 'wall');
+        // Right terrace
+        fillH(11, 15, 12, 'floor');
+        fillH(11, 15, 13, 'wall');
+        fillH(11, 15, 14, 'wall');
+        // Steps/platforms connecting terraces
+        setTile(4, 11, 'platform');
+        setTile(11, 11, 'platform');
+        // Upper platform
+        fillH(3, 12, 5, 'platform');
+        fillV(7, 5, 8, 'ladder');
+        break;
+
+      case 2: // Sunken Reservoir / Overpass Bridge
+        // Solid floor on left and right borders
+        fillH(0, 4, 12, 'floor');
+        fillH(0, 4, 13, 'wall');
+        fillH(0, 4, 14, 'wall');
+        fillH(11, 15, 12, 'floor');
+        fillH(11, 15, 13, 'wall');
+        fillH(11, 15, 14, 'wall');
+        // Sunken water basin in center
+        fillH(5, 10, 13, 'water');
+        fillH(5, 10, 14, 'water');
+        // Overhead bridge spanning the water
+        fillH(4, 11, 10, 'platform');
+        // Upper balcony and ladder
+        fillH(1, 6, 6, 'platform');
+        fillV(3, 6, 11, 'ladder');
+        break;
+
+      case 3: // Hazard Pit with Stepping Platforms
+        // Solid borders
+        fillH(0, 3, 12, 'floor');
+        fillH(0, 3, 13, 'wall');
+        fillH(0, 3, 14, 'wall');
+        fillH(12, 15, 12, 'floor');
+        fillH(12, 15, 13, 'wall');
+        fillH(12, 15, 14, 'wall');
+        // Recessed spike pit at bottom
+        fillH(4, 11, 14, 'hazard');
+        // Stepping platforms across pit
+        fillH(4, 6, 11, 'platform');
+        fillH(7, 8, 9, 'platform');
+        fillH(9, 11, 11, 'platform');
+        // Upper walkway with ladder
+        fillH(2, 13, 5, 'platform');
+        fillV(2, 5, 11, 'ladder');
+        break;
+
+      case 4: // Twin Towers / Vertical Transit Chamber
+        // Ground floor
+        fillH(0, 15, 12, 'floor');
+        fillH(0, 15, 13, 'wall');
+        fillH(0, 15, 14, 'wall');
+        // Vertical ladder shafts
+        fillV(2, 0, 11, 'ladder');
+        fillV(13, 0, 11, 'ladder');
+        // Multi-level walkways
+        fillH(3, 12, 8, 'platform');
+        fillH(3, 12, 4, 'platform');
+        // Fortress columns
+        fillV(1, 0, 11, 'wall');
+        fillV(14, 0, 11, 'wall');
+        // Passage opening in fortress walls at ground level
+        setTile(1, 10, 'empty');
+        setTile(1, 11, 'empty');
+        setTile(14, 10, 'empty');
+        setTile(14, 11, 'empty');
+        break;
+
+      case 5: // Altar of Memories & Secret Crypt
+        // Ground floor
+        fillH(0, 15, 12, 'floor');
+        fillH(0, 15, 13, 'wall');
+        fillH(0, 15, 14, 'wall');
+        // Raised central dais
+        fillH(6, 9, 11, 'floor');
+        // Upper platform ledges
+        fillH(1, 5, 7, 'platform');
+        fillH(10, 14, 7, 'platform');
+        fillV(5, 7, 11, 'ladder');
+        fillV(10, 7, 11, 'ladder');
+        // Secret wall leading to a hidden nook on the right
+        setTile(14, 11, 'secret');
+        setTile(15, 11, 'secret');
+        break;
     }
 
     return tiles;
@@ -697,6 +829,17 @@ export class WorldSystem implements IGameModule {
       if (chunk) loaded.push(chunk);
     }
     return loaded;
+  }
+
+  getCurrentChunk(): { x: number; y: number } | null {
+    if (this.lastChunkX === null || this.lastChunkY === null) {
+      return { x: 0, y: 0 };
+    }
+    return { x: this.lastChunkX, y: this.lastChunkY };
+  }
+
+  getActiveChunks(): string[] {
+    return Array.from(this.loadedChunks);
   }
 
   update(_deltaTime: number): void {

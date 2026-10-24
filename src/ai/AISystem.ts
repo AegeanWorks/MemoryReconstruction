@@ -126,7 +126,7 @@ export class AISystem implements IGameModule {
     this.eventBus.on('ai:requestDecision', (data: any) => this.requestDecision(data.context));
     this.eventBus.on('ai:requestObservation', () => this.provideObservation());
     this.eventBus.on('ai:requestState', () => this.provideState());
-    this.eventBus.on(GameEvents.RLM_STATE_SNAPSHOT, () => this.createSnapshot());
+    this.eventBus.on(GameEvents.RLM_STATE_SNAPSHOT, () => this.createSnapshot(true));
     this.eventBus.on(GameEvents.RLM_STATE_RESTORE, (data: any) => this.restoreState(data.state));
 
     this.eventBus.emit('aiSystem:ready', { rlmEnabled: this.rlmEnabled });
@@ -402,11 +402,13 @@ export class AISystem implements IGameModule {
 
   // RLM State Management
 
-  private createSnapshot(): void {
+  private createSnapshot(force = false): void {
     if (!this.rlmEnabled || !this.gameApp) return;
 
-    this.frameSinceSnapshot++;
-    if (this.frameSinceSnapshot < this.snapshotInterval) return;
+    if (!force) {
+      this.frameSinceSnapshot++;
+      if (this.frameSinceSnapshot < this.snapshotInterval) return;
+    }
     this.frameSinceSnapshot = 0;
 
     const gameState = this.gameApp.serialize();
@@ -531,8 +533,8 @@ export class AISystem implements IGameModule {
   }
 
   update(_deltaTime: number): void {
-    // Periodic snapshot
-    if (this.rlmEnabled && this.gameApp) {
+    // Auto-snapshot only when an active AI agent is observing or benchmark is running
+    if (this.rlmEnabled && this.gameApp && this.activeAgent) {
       this.createSnapshot();
     }
   }

@@ -1130,6 +1130,45 @@ export class PlayerSystem implements IGameModule {
     this.state.position = { x, y };
   }
 
+  grantStarterKit(): void {
+    const starterWeapon: InventoryItem = {
+      id: 'memory_blade',
+      type: 'weapon',
+      name: 'Memory Blade',
+      description: 'A blade forged from crystallized memories.',
+      rarity: 'rare',
+      stats: { damage: 15, critChance: 0.1, speed: 1.2 },
+      quantity: 1,
+      maxStack: 1,
+    };
+    const starterArmor: InventoryItem = {
+      id: 'scavenger_vest',
+      type: 'armor',
+      name: "Scavenger's Vest",
+      description: 'Patchwork armor stitched from ruins.',
+      rarity: 'common',
+      stats: { armor: 15, moveSpeed: 10 },
+      quantity: 1,
+      maxStack: 1,
+    };
+    const starterElixirs: InventoryItem = {
+      id: 'memory_elixir',
+      type: 'consumable',
+      name: 'Memory Elixir',
+      description: 'Restores health and mana.',
+      rarity: 'common',
+      stats: { heal: 50, manaRestore: 30 },
+      quantity: 3,
+      maxStack: 10,
+    };
+
+    this.addItem(starterWeapon);
+    this.addItem(starterArmor);
+    this.addItem(starterElixirs);
+    this.equipItem('memory_blade');
+    this.equipItem('scavenger_vest');
+  }
+
   addStatPoints(stat: keyof PlayerStats, amount: number): void {
     if (this.progression.statPoints >= amount) {
       (this.stats as any)[stat] += amount;
@@ -1210,6 +1249,27 @@ export class PlayerSystem implements IGameModule {
     if (ability && ability.level < ability.maxLevel) {
       ability.level++;
       return true;
+    }
+    return false;
+  }
+
+  upgradeOrUnlockAbility(abilityId: string): boolean {
+    const ability = this.abilities.get(abilityId);
+    if (!ability) return false;
+    if (this.progression.statPoints <= 0) return false;
+
+    if (!ability.unlocked) {
+      if (this.unlockAbility(abilityId)) {
+        this.progression.statPoints--;
+        this.eventBus.emit('player:abilityUnlocked', { abilityId });
+        return true;
+      }
+    } else if (ability.level < ability.maxLevel) {
+      if (this.upgradeAbility(abilityId)) {
+        this.progression.statPoints--;
+        this.eventBus.emit('player:abilityUpgraded', { abilityId, level: ability.level });
+        return true;
+      }
     }
     return false;
   }

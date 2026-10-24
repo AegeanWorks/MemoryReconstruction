@@ -370,6 +370,10 @@ export class ActorRenderer implements IGameModule {
     const layer = this.renderSystem.getLayer('midground');
     if (!layer) return;
 
+    const playerPos = this.playerSystem.getState().position;
+    const CULL_X = 900;
+    const CULL_Y = 600;
+
     const live = new Set<string>();
     for (const [id, entity] of this.combatSystem.getEntities()) {
       const atlasKey = ENEMY_ALIASES[entity.type] ?? entity.type; // aikit:allow-secret
@@ -388,6 +392,14 @@ export class ActorRenderer implements IGameModule {
         actor = this.createEnemy(id, entity, definition, layer);
         this.actors.set(id, actor);
       }
+
+      const dx = Math.abs(entity.position.x - playerPos.x);
+      const dy = Math.abs(entity.position.y - playerPos.y);
+      if (dx > CULL_X || dy > CULL_Y) {
+        actor.container.visible = false;
+        continue;
+      }
+      actor.container.visible = true;
 
       actor.container.position.set(entity.position.x, entity.position.y + 6);
       actor.facing = entity.sprite.facing;

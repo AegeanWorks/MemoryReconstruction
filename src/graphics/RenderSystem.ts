@@ -279,14 +279,8 @@ export class RenderSystem implements IGameModule {
     if (!this.app) return;
 
     this.lightContainer = new PIXI.Container();
-    this.lightContainer.name = 'lights';
+    this.lightContainer.label = 'lights';
     this.layers.get('effects')?.addChild(this.lightContainer);
-
-    // Add ambient light as a base layer
-    const ambient = new PIXI.Graphics();
-    ambient.rect(0, 0, this.app.screen.width, this.app.screen.height);
-    ambient.fill({ color: this.ambientLight.color, alpha: this.ambientLight.intensity });
-    this.lightContainer.addChildAt(ambient, 0);
   }
 
   private setupParticles(): void {

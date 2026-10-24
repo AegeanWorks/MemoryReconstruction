@@ -142,6 +142,15 @@ async function main(): Promise<void> {
       ai: configManager.get('ai'),
     });
 
+    // Grant starter equipment if fresh run without existing save
+    if (
+      playerSystem.getInventory().length === 0 &&
+      !playerSystem.getEquipment().weapon &&
+      !saveSystem.hasSave()
+    ) {
+      playerSystem.grantStarterKit();
+    }
+
     updateLoading(95, 'Starting game...');
 
     // Hide loading screen
