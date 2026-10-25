@@ -119,6 +119,29 @@ export class Sound {
         case 'levelUp':
           this.arpeggio([523, 659, 784, 1047], 0.07, 0.14);
           break;
+        case 'graze':
+          this.tone(1400, 2200, 0.07, 'sine', 0.05, 'graze');
+          break;
+        case 'resonance':
+          if (e.count === 3 || e.count === 6 || e.count === 10)
+            this.tone(440 + e.count * 40, 880 + e.count * 40, 0.12, 'triangle', 0.07);
+          break;
+        case 'resonanceBreak':
+          this.tone(240, 120, 0.3, 'sawtooth', 0.12);
+          break;
+        case 'lootSurge':
+          this.arpeggio(
+            e.kind === 'jackpot' ? [659, 880, 1109, 1319, 1760] : [659, 880, 1109],
+            0.07,
+            0.12
+          );
+          break;
+        case 'flawlessRoom':
+          this.arpeggio([784, 988, 1319], 0.06, 0.09);
+          break;
+        case 'objectiveComplete':
+          this.chord([392, 523, 659, 784], 0.7, 0.14);
+          break;
         case 'roomLocked':
           this.thump(70, 0.5, 'lock');
           this.tone(110, 108, 0.8, 'sawtooth', 0.06);

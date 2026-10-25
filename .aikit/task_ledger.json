@@ -1,67 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "core-rebuild",
-    "last_phase": "in_progress",
+    "task_id": "addictivity-qol",
+    "last_phase": "phase 5",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1792919410.0207546,
-    "owner": "claude-code:32f4dd2c",
-    "started_by": "claude-code:32f4dd2c",
-    "continuations": [
-      {
-        "agent": "antigravity:caeab849",
-        "from": "claude-code:32f4dd2c",
-        "at": 1792924515.2665439
-      }
-    ],
-    "completed_at": 1792924515.2665448
+    "updated_at": 1792963448.4270525,
+    "owner": "kilo:addictivity",
+    "started_by": "kilo:addictivity",
+    "continuations": [],
+    "completed_at": 1792963460.702878
   },
   "checkpoints": [
-    {
-      "task_id": "rc-stabilization",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'rc-stabilization' completed successfully.",
-      "status": "completed",
-      "timestamp": 1792674058.5966508,
-      "timestamp_str": "2026-10-22 16:00:58"
-    },
-    {
-      "task_id": "usable-loot",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Item use/equip: useItem heals/restores/invincibility/converts memory/unlocks abilities; equipItem/unequipSlot with weapon/armor/accessory slots and equipment-aware derived stats; equipment serialized and cleared by permadeath; inventory overlay with Use/Equip/Unequip actions and live refresh; [2/2] docs/ADR-013 and full gates. 110 tests.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792676989.4597201,
-      "timestamp_str": "2026-10-22 16:49:49",
-      "impact_assessment": {
-        "why": "Loot tables produced equipment and consumables that could not be used, making the loot loop dead weight and the tutorial dishonest",
-        "benefits": "Dropped items now change the next fight, equipment persists across saves, and permadeath cleanly removes run gear",
-        "risks": "contract: EquipmentState, use/equip APIs, inventory events; dependency: MenuSystem now depends on playerSystem; concurrency: no other writer; state: equipment and inventory serialize, unsimulated item stats remain stored but inactive",
-        "mitigation": "Unit-test consumption, stat application/removal, save round-trip and permadeath clearing; keep UI DOM-only; rerun all gates"
-      }
-    },
-    {
-      "task_id": "usable-loot",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[milestone 2/2] Phase 4: 110 tests across 11 files, 7/7 gates green (test, lint, typecheck, build, hygiene, guidelines, secrets), ADR-013, README/ARCHITECTURE updates, diff check clean. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792676994.011145,
-      "timestamp_str": "2026-10-22 16:49:54"
-    },
-    {
-      "task_id": "usable-loot",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'usable-loot' completed successfully.",
-      "status": "completed",
-      "timestamp": 1792676994.2191362,
-      "timestamp_str": "2026-10-22 16:49:54"
-    },
     {
       "task_id": "usable-loot",
       "phase": "phase 4",
@@ -256,6 +206,55 @@
       "timestamp_str": "2026-10-25 13:35:15",
       "agent": "antigravity:caeab849",
       "continued_from": "claude-code:32f4dd2c"
+    },
+    {
+      "task_id": "addictivity-qol",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/6] Plan behavioral-psychology mechanics (resonance streak, graze near-miss, variable-ratio loot surges, floor objectives) and QoL (HUD meters, reroll, pause summary, map legend)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792959426.3349533,
+      "timestamp_str": "2026-10-25 23:17:06",
+      "agent": "kilo:addictivity",
+      "impact_assessment": {
+        "why": "cyberpulse's literature-grounded engagement design is missing from Memory Reconstruction: rewards are flat, dodging is unrewarded, and the HUD gives no mastery or goal feedback",
+        "benefits": "Reward prediction error and near-miss payoffs, loss-averse streaks, Zeigarnik floor goals, autonomy via rerolls, clearer competence feedback",
+        "risks": "contract: SimEvent, Player, RunState and HUD APIs extend; dependency: none added; concurrency: single-threaded sim only; state: new player fields serialize in run save and must restore safely",
+        "mitigation": "Add fields with defaults, route all randomness through World.rng, unit-test each mechanic deterministically, then Playwright-playtest every screen"
+      }
+    },
+    {
+      "task_id": "addictivity-qol",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/6] Engagement mechanics and QoL implemented and verified: flow streaks, grazes, variable-ratio loot surges, floor objective bonus, flawless rooms, shard rerolls, pause summary, map ticks/pulses, dimmed HUD; 75 tests green, 7/7 gates, Playwright playtest of title, room lock, combat, flow/graze, reroll, map, pause and death screens with no console errors. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792962201.5342343,
+      "timestamp_str": "2026-10-26 00:03:21",
+      "agent": "kilo:addictivity"
+    },
+    {
+      "task_id": "addictivity-qol",
+      "phase": "phase 5",
+      "phase_num": 5,
+      "description": "[6/6] Verification follow-up: reroll keeps chest/shrine luck and charges nothing when the pool is empty, held R cannot multi-spend, room damage only counts inside a locked room, last chest after the boss still claims the floor bonus, Flow meter no longer shifts the HUD when idle, objective line throttled to 5 Hz; 76 tests green, 7/7 gates, Playwright confirms idle flow, single-charge reroll, post-boss chest claim, pause summary and map. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792963448.4270525,
+      "timestamp_str": "2026-10-26 00:24:08",
+      "agent": "kilo:addictivity"
+    },
+    {
+      "task_id": "addictivity-qol",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'addictivity-qol' completed successfully.",
+      "status": "completed",
+      "timestamp": 1792963460.7028792,
+      "timestamp_str": "2026-10-26 00:24:20",
+      "agent": "kilo:addictivity"
     }
   ]
 }

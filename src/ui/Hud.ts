@@ -4,7 +4,7 @@
  */
 import { biomeInfo, MEMORY_FRAGMENTS } from '../sim/content';
 import type { SimEvent } from '../sim/events';
-import { xpForLevel } from '../sim/run';
+import { resonanceMultiplier, RESONANCE_MAX, RESONANCE_WINDOW, xpForLevel } from '../sim/run';
 import type { World } from '../sim/world';
 import { assetUrl, h } from './dom';
 import { drawMap } from './Minimap';
@@ -31,9 +31,13 @@ export class Hud {
   private readonly hp = bar('hp', true, true);
   private readonly mana = bar('mana', true);
   private readonly xp = bar('thin xp', false);
+  private readonly flowFill = h('div', { class: 'flow-fill' });
+  private readonly flowLabel = h('span', { class: 'flow-label' });
+  private readonly flow = h('div', { class: 'hud-flow idle' }, this.flowFill, this.flowLabel);
   private readonly pips = h('div', { class: 'pips' });
   private readonly potions = h('span');
   private readonly floorName = h('div', { class: 'hud-floor' });
+  private readonly objectives = h('div', { class: 'hud-objectives' });
   private readonly bossName = h('div', { class: 'boss-name' });
   private readonly boss = bar('boss', false, true);
   private readonly bossBar = h('div', { class: 'boss-bar hidden' }, this.bossName, this.boss.root);
@@ -70,6 +74,8 @@ export class Hud {
   private readonly written = new Map<HTMLElement | CSSStyleDeclaration, string>();
   private time = 0;
   private mapTimer = 0;
+  private objectiveTimer = 0;
+  private objectiveText = '';
 
   constructor() {
     const shardIcon = h('img', { src: assetUrl('sprites/ui/fragment_shard.png'), alt: '' });
@@ -81,6 +87,7 @@ export class Hud {
       this.hp.root,
       this.mana.root,
       this.xp.root,
+      this.flow,
       h(
         'div',
         { class: 'hud-row' },
@@ -97,6 +104,7 @@ export class Hud {
     this.root.append(
       vitals,
       this.floorName,
+      this.objectives,
       this.bossBar,
       map,
       this.prompt,
@@ -107,6 +115,11 @@ export class Hud {
 
   setVisible(visible: boolean): void {
     this.root.classList.toggle('hidden', !visible);
+  }
+
+  /** Fades the HUD while a full-screen menu is open, so nothing collides with it. */
+  setDimmed(dimmed: boolean): void {
+    this.root.classList.toggle('dim', dimmed);
   }
 
   /** Hides the controls hint after the first floor. */
@@ -162,6 +175,13 @@ export class Hud {
       if (e.type === 'notice') this.toast(e.text, true);
       if (e.type === 'fragmentFound') this.showFragment(e.fragmentId);
       if (e.type === 'levelUp') this.toast(`Level ${e.level}`);
+      if (e.type === 'resonance' && (e.count === 3 || e.count === 6 || e.count === 10))
+        this.toast(`Flow x${e.multiplier.toFixed(2)}`);
+      if (e.type === 'resonanceBreak' && e.count >= 3) this.toast('Flow lost', true);
+      if (e.type === 'lootSurge')
+        this.toast(e.kind === 'jackpot' ? 'Memory surge!' : 'A rich vein', e.kind === 'jackpot');
+      if (e.type === 'objectiveComplete') this.toast(`Floor restored · +${e.shards} shards`);
+      if (e.type === 'flawlessRoom') this.toast(`Flawless · +${e.shards} shards`);
     }
   }
 
@@ -181,8 +201,26 @@ export class Hud {
     this.setText(this.shards, `${p.shards}`);
     this.updatePips(p.dashCharges, s.dashCharges);
 
+    // The meter keeps its row when idle, so the vitals never jump between states.
+    const flowActive = p.resonance > 0;
+    this.flow.classList.toggle('idle', !flowActive);
+    this.setWidth(this.flowFill, flowActive ? p.resonanceTime / RESONANCE_WINDOW : 0);
+    this.setText(
+      this.flowLabel,
+      flowActive
+        ? `FLOW ${Math.min(p.resonance, RESONANCE_MAX)} · x${resonanceMultiplier(p.resonance).toFixed(2)}`
+        : 'FLOW —'
+    );
+
     const biome = biomeInfo(world.plan.biome);
     this.setText(this.floorName, `Depth ${world.run.depth + 1} · ${biome.name}`);
+    // Objectives only change on events, so recompute a few times a second.
+    this.objectiveTimer -= dt;
+    if (this.objectiveTimer <= 0) {
+      this.objectiveTimer = 0.2;
+      this.objectiveText = objectiveLine(world);
+    }
+    this.setText(this.objectives, this.objectiveText);
 
     const boss = world.activeBoss();
     this.bossBar.classList.toggle('hidden', !boss || boss.state === 'spawning');
@@ -225,4 +263,15 @@ export class Hud {
       if (span.style.height !== height) span.style.height = height;
     });
   }
+}
+
+/** One line of optional-objective progress for the HUD. */
+function objectiveLine(world: World): string {
+  const goal = world.floorObjectives();
+  if (goal.claimed) return 'Floor restored · bonus claimed';
+  const parts = [`Rooms ${goal.roomsCleared}/${goal.roomsTotal}`];
+  if (goal.chestFound) parts.push(`Chest ${goal.chestUsed ? '✓' : '○'}`);
+  if (goal.wellFound) parts.push(`Well ${goal.wellUsed ? '✓' : '○'}`);
+  parts.push(goal.complete ? 'Bonus ready' : 'Full clear for bonus');
+  return parts.join('  ·  ');
 }

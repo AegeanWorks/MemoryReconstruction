@@ -34,6 +34,8 @@ export interface Arena {
   chaseDirection(x: number, y: number): { x: number; y: number } | undefined;
   /** Freezes the simulation briefly to sell a heavy hit. */
   hitstop(seconds: number): void;
+  /** Rewards a near miss with mana, dash charge and a refreshed flow window. */
+  graze(x: number, y: number): void;
 }
 
 export function angleBetween(x0: number, y0: number, x1: number, y1: number): number {

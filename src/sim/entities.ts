@@ -38,6 +38,12 @@ export interface Player {
   dashDirY: number;
   /** Enemies already hit by the current dash (Phantom Rush). */
   dashHits: number[];
+  /** Enemies already grazed by the current dash. */
+  dashGrazes: number[];
+  /** Kills in the current flow streak (0 when the window lapsed). */
+  resonance: number;
+  /** Seconds left before the flow streak lapses. */
+  resonanceTime: number;
   boltCooldown: number;
   invulnerable: number;
   knockX: number;
@@ -103,6 +109,8 @@ export interface Projectile {
   /** Extra enemies it may pass through. */
   pierce: number;
   hitIds: number[];
+  /** Player has already been rewarded for a near miss on this shot. */
+  grazed?: boolean;
 }
 
 export type PickupKind = 'shard' | 'health' | 'potion' | 'fragment';

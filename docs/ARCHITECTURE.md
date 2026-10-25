@@ -62,6 +62,12 @@ Rules that matter when changing the sim:
   `Arena` interface, which keeps the module graph acyclic.
 - **Fairness.** Enemies hurt only through telegraphed attacks: windup, then
   attack, then a recovery window the player can punish.
+- **Engagement rewards live in the sim.** `run.ts` holds the Flow streak
+  constants and `resonanceMultiplier`; `world.ts` decides every payout: kills
+  inside `RESONANCE_WINDOW` build the streak, `graze()` pays a near miss,
+  `rollSurge()` rolls the variable-ratio shard drop, `floorObjectives()` and
+  `claimFloorBonus()` own the full-clear bonus, and every event is emitted for
+  the view, sound and HUD to read. Nothing here depends on the screen.
 
 ### Floors
 
@@ -75,6 +81,12 @@ Entering a combat or boss room (fully past its doorway) locks its doors and
 spawns waves. Clearing it unlocks the doors. The treasure room holds a chest
 (upgrade pick plus a memory fragment), the shrine holds a Memory Well (shards
 buy healing and a pick), and the boss drops a fragment and opens the exit rift.
+
+Clearing a room without taking damage pays a flawless bonus. A floor also has
+an optional full-clear goal: every combat room and every chest before the
+guardian falls, which pays shards and a potion once. `claimFloorBonus` is
+checked both when the boss falls and when the last chest is opened, so the
+order the player takes them in does not matter.
 
 ## View (`src/view`)
 
@@ -94,8 +106,12 @@ buy healing and a pick), and the boss drops a fragment and opens the exit rift.
 ## UI (`src/ui`)
 
 DOM elements over the canvas, styled by `ui.css`. `Hud` writes only changed
-values each frame. `Screens` shows one menu at a time. `Minimap` draws visited
-rooms and their neighbours to a canvas.
+values each frame and shows the Flow meter (dimmed when idle) plus the floor
+objective line, which is recomputed a few times a second instead of every
+frame. `Screens` shows one menu at a time: the pause panel summarises the run,
+and an upgrade screen can reroll its offer for shards. `Minimap` draws visited
+rooms and their neighbours, ticks cleared rooms, and pulses unclaimed chests
+and wells. The HUD fades while a menu is open.
 
 ## Persistence (`src/save`)
 

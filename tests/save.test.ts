@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SaveStore, defaultMeta, recordRun, type KeyValueStore } from '../src/save/SaveStore';
-import { createRun } from '../src/sim/run';
+import { createRun, restoreRun } from '../src/sim/run';
 
 function memoryStorage(): KeyValueStore & { data: Map<string, string> } {
   const data = new Map<string, string>();
@@ -62,6 +62,24 @@ describe('SaveStore', () => {
     expect(store.loadMeta()).toEqual(defaultMeta());
     expect(store.saveMeta(defaultMeta())).toBe(false);
     expect(() => store.clearRun()).not.toThrow();
+  });
+
+  it('defaults engagement fields on snapshots saved before they existed', () => {
+    const raw = JSON.parse(JSON.stringify(createRun(7, []))) as Record<string, unknown>;
+    const player = raw.player as Record<string, unknown>;
+    const stats = raw.stats as Record<string, unknown>;
+    delete player.resonance;
+    delete player.resonanceTime;
+    delete player.dashGrazes;
+    delete stats.grazes;
+    delete stats.bestResonance;
+    delete stats.surges;
+    delete stats.floorsRestored;
+    const restored = restoreRun(raw);
+    expect(restored?.player.resonance).toBe(0);
+    expect(restored?.player.dashGrazes).toEqual([]);
+    expect(restored?.stats.bestResonance).toBe(0);
+    expect(restored?.stats.floorsRestored).toBe(0);
   });
 
   it('merges a run into meta progress', () => {

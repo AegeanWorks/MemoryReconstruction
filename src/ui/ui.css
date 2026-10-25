@@ -94,6 +94,39 @@
 .bar.xp .bar-fill {
   background: linear-gradient(90deg, var(--gold-deep), var(--gold));
 }
+.hud.dim {
+  opacity: 0.22;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.hud-flow {
+  position: relative;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  border: 1px solid rgba(111, 231, 255, 0.35);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: opacity 0.25s;
+}
+.hud-flow.idle {
+  opacity: 0.5;
+}
+.flow-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, rgba(111, 231, 255, 0.55), rgba(255, 217, 138, 0.55));
+  transition: width 0.1s linear;
+}
+.flow-label {
+  position: relative;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--cyan);
+  text-shadow: 0 1px 3px #000;
+}
 .bar-text {
   position: absolute;
   inset: 0;
@@ -171,9 +204,21 @@
   white-space: nowrap;
 }
 
+.hud-objectives {
+  position: absolute;
+  top: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+  text-shadow: 0 2px 6px #000;
+  white-space: nowrap;
+}
+
 .boss-bar {
   position: absolute;
-  top: 44px;
+  top: 66px;
   left: 50%;
   transform: translateX(-50%);
   width: min(560px, 70vw);
@@ -339,9 +384,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 18px;
-  padding: 24px;
+  justify-content: safe center;
+  gap: 14px;
+  padding: 20px;
   background: radial-gradient(ellipse at center, rgba(10, 8, 20, 0.55), rgba(4, 3, 10, 0.92));
   animation: fade-in 0.35s ease;
   pointer-events: auto;
@@ -546,6 +591,44 @@
 .stats dd {
   text-align: right;
   font-weight: 600;
+}
+
+.stats-panel {
+  width: min(400px, 88vw);
+  padding: 18px 22px;
+}
+.pause-panel {
+  width: min(440px, 88vw);
+  max-height: none;
+  display: grid;
+  gap: 14px;
+}
+.pause-objective {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cyan);
+  text-align: center;
+}
+.echoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.echo-chip {
+  font-size: 11px;
+  padding: 3px 9px;
+  border: 1px solid var(--panel-edge);
+  border-radius: 999px;
+  color: var(--ink-dim);
+  background: rgba(255, 255, 255, 0.03);
+}
+.reroll-menu {
+  width: min(220px, 80vw);
+  margin-top: 0;
+}
+.btn.reroll {
+  font-size: 14px;
 }
 
 .panel {

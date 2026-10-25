@@ -3,7 +3,7 @@
  * a time on top of the HUD.
  */
 import { CORE_MEMORIES, FLOOR_PLANS, MEMORY_FRAGMENTS, biomeInfo } from '../sim/content';
-import type { RunState, UpgradeChoice } from '../sim/run';
+import { resonanceMultiplier, type RunState, type UpgradeChoice } from '../sim/run';
 import { upgradeDef } from '../sim/upgrades';
 import type { World } from '../sim/world';
 import type { Meta, Settings } from '../save/SaveStore';
@@ -94,11 +94,13 @@ export function pauseScreen(opts: {
   onSettings: () => void;
   onControls: () => void;
   onAbandon: () => void;
+  world?: World;
 }): HTMLElement {
   return h(
     'div',
     { class: 'screen' },
     h('div', { class: 'heading' }, 'Paused'),
+    opts.world ? pauseSummary(opts.world) : null,
     h(
       'div',
       { class: 'menu' },
@@ -110,6 +112,42 @@ export function pauseScreen(opts: {
   );
 }
 
+/** Where the player stands this run, shown while paused. */
+function pauseSummary(world: World): HTMLElement {
+  const run = world.run;
+  const owned = Object.entries(run.player.upgrades).filter(([, n]) => n > 0);
+  return h(
+    'div',
+    { class: 'panel pause-panel' },
+    h('div', { class: 'pause-objective' }, objectiveSummary(world)),
+    runStats(run),
+    owned.length > 0
+      ? h(
+          'div',
+          { class: 'echoes' },
+          ...owned.map(([id, count]) =>
+            h(
+              'span',
+              { class: 'echo-chip' },
+              `${upgradeDef(id).name}${count > 1 ? ` ×${count}` : ''}`
+            )
+          )
+        )
+      : h('div', { class: 'meta-line' }, 'No echoes gathered yet')
+  );
+}
+
+/** One line of optional-objective progress for the map and pause panels. */
+function objectiveSummary(world: World): string {
+  const goal = world.floorObjectives();
+  if (goal.claimed) return 'Floor restored · bonus claimed';
+  const parts = [`Rooms ${goal.roomsCleared}/${goal.roomsTotal}`];
+  if (goal.chestFound) parts.push(`Chest ${goal.chestUsed ? 'opened' : 'unopened'}`);
+  if (goal.wellFound) parts.push(`Well ${goal.wellUsed ? 'used' : 'unused'}`);
+  parts.push(goal.complete ? 'bonus ready' : 'full clear for a bonus');
+  return parts.join('  ·  ');
+}
+
 const SOURCE_TITLES: Record<UpgradeChoice['source'], string> = {
   level: 'Choose an Echo',
   chest: 'The Chest Remembers',
@@ -119,7 +157,8 @@ const SOURCE_TITLES: Record<UpgradeChoice['source'], string> = {
 export function choiceScreen(
   choice: UpgradeChoice,
   taken: Record<string, number>,
-  onPick: (id: string) => void
+  onPick: (id: string) => void,
+  reroll?: { cost: number; shards: number; onReroll: () => void }
 ): { el: HTMLElement; onKey: (e: KeyboardEvent) => void } {
   const cards = choice.options.map((id, i) => {
     const def = upgradeDef(id);
@@ -140,16 +179,32 @@ export function choiceScreen(
     card.addEventListener('click', () => onPick(id));
     return card;
   });
+  const affordable = !!reroll && reroll.shards >= reroll.cost;
+  const rerollButton =
+    reroll && choice.options.length > 0
+      ? button(`Reroll · ${reroll.cost} shards`, () => reroll.onReroll(), 'btn reroll')
+      : null;
+  if (rerollButton) rerollButton.disabled = !affordable;
   const el = h(
     'div',
     { class: 'screen' },
     h('div', { class: 'heading' }, SOURCE_TITLES[choice.source]),
     h('div', { class: 'cards' }, ...cards),
-    h('div', { class: 'meta-line' }, 'Click a card, or press 1 / 2 / 3')
+    rerollButton ? h('div', { class: 'menu reroll-menu' }, rerollButton) : null,
+    h(
+      'div',
+      { class: 'meta-line' },
+      rerollButton
+        ? 'Click a card, press 1 / 2 / 3, or R to reroll'
+        : 'Click a card, or press 1 / 2 / 3'
+    )
   );
   const onKey = (e: KeyboardEvent): void => {
     const index = ['Digit1', 'Digit2', 'Digit3'].indexOf(e.code);
     if (index >= 0 && choice.options[index]) onPick(choice.options[index]);
+    // Ignore auto-repeat so holding R cannot spend several rerolls at once.
+    if (e.code === 'KeyR' && !e.repeat && reroll && affordable && choice.options.length > 0)
+      reroll.onReroll();
     if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') {
       const focused = cards.indexOf(document.activeElement as HTMLButtonElement);
       const next = (focused + (e.code === 'ArrowRight' ? 1 : cards.length - 1)) % cards.length;
@@ -169,6 +224,10 @@ function runStats(run: RunState): HTMLElement {
     ['Level', `${run.player.level}`],
     ['Enemies defeated', `${run.stats.kills}`],
     ['Rooms cleared', `${run.stats.roomsCleared}`],
+    ['Best flow', `x${resonanceMultiplier(run.stats.bestResonance).toFixed(2)}`],
+    ['Near misses', `${run.stats.grazes}`],
+    ['Loot surges', `${run.stats.surges}`],
+    ['Floors restored', `${run.stats.floorsRestored}`],
     ['Memories recovered', `${run.fragmentsFound.length}`],
     ['Time', minutes(run.stats.elapsed)],
   ];
@@ -187,7 +246,7 @@ export function deathScreen(run: RunState, onRetry: () => void, onTitle: () => v
         ? 'But what you recovered stays with you.'
         : 'The world fades. Try again.'
     ),
-    runStats(run),
+    h('div', { class: 'panel stats-panel' }, runStats(run)),
     h(
       'div',
       { class: 'menu' },
@@ -203,7 +262,7 @@ export function victoryScreen(run: RunState, onTitle: () => void): HTMLElement {
     { class: 'screen' },
     h('div', { class: 'title' }, 'The World Remembers'),
     h('div', { class: 'subtitle' }, 'The Keeper is still. The Sanctuary is whole again.'),
-    runStats(run),
+    h('div', { class: 'panel stats-panel' }, runStats(run)),
     h('div', { class: 'menu' }, button('Return to Title', onTitle, 'btn primary'))
   );
 }
@@ -317,7 +376,9 @@ export function controlsScreen(onBack: () => void): HTMLElement {
     h(
       'div',
       { class: 'meta-line' },
-      'Red shapes on the ground warn of an attack. Dash out of them, then strike back.'
+      [
+        'Red shapes warn of an attack. Dash through the edge for a Graze (mana + flow), chain kills to build Flow, and clear every room plus the chest for a floor bonus. Upgrade cards: 1 / 2 / 3 to pick, R to reroll.',
+      ].join('')
     ),
     h('div', { class: 'menu' }, button('Back', onBack))
   );
@@ -335,6 +396,7 @@ export function mapScreen(world: World, onClose: () => void): HTMLElement {
       `Depth ${world.run.depth + 1} · ${biomeInfo(world.plan.biome).name}`
     ),
     canvas,
+    h('div', { class: 'meta-line' }, objectiveSummary(world)),
     h('div', { class: 'meta-line' }, 'Gold: treasure  ·  Cyan: memory well  ·  Red: guardian'),
     h('div', { class: 'menu' }, button('Close', onClose))
   );

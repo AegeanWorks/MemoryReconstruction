@@ -4,6 +4,7 @@ import { NO_INPUT, type InputFrame } from '../../src/sim/entities';
 import type { SimEvent } from '../../src/sim/events';
 import { createRun, restoreRun, xpForLevel } from '../../src/sim/run';
 import { TILE_SIZE } from '../../src/sim/tiles';
+import { UPGRADES } from '../../src/sim/upgrades';
 import { World } from '../../src/sim/world';
 
 const DT = 1 / 60;
@@ -258,6 +259,143 @@ describe('World', () => {
       return JSON.stringify([p.x, p.y, p.health, world.enemies.map((e) => [e.x, e.y, e.health])]);
     };
     expect(script(newWorld(9))).toBe(script(newWorld(9)));
+  });
+
+  it('builds a flow streak across quick kills and breaks it on a hit', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'start');
+    const p = world.player;
+    const first = world.spawnEnemy('scavenger', p.x + 40, p.y, -1);
+    const second = world.spawnEnemy('scavenger', p.x - 40, p.y, -1);
+    first.state = second.state = 'chase';
+    world.damageEnemy(first, 99999, 'melee', false, 0);
+    world.damageEnemy(second, 99999, 'melee', false, 0);
+    expect(p.resonance).toBe(2);
+    expect(world.run.stats.bestResonance).toBe(2);
+    const events = world.step(NO_INPUT, DT);
+    expect(events.some((e) => e.type === 'resonance' && e.count === 2)).toBe(true);
+
+    world.damagePlayer(10, p.x + 50, p.y, 0);
+    const hurt = world.step(NO_INPUT, DT);
+    expect(p.resonance).toBe(0);
+    expect(hurt.some((e) => e.type === 'resonanceBreak' && e.count === 2)).toBe(true);
+  });
+
+  it('rewards a near miss while dashing through an enemy', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'start');
+    const p = world.player;
+    p.mana = 0;
+    const enemy = world.spawnEnemy('scavenger', p.x + 32, p.y, -1);
+    enemy.state = 'stagger';
+    enemy.stateTime = 99;
+    enemy.cooldown = 99;
+    let events: SimEvent[] = [];
+    for (let i = 0; i < 12; i++)
+      events.push(...world.step({ ...NO_INPUT, dash: true, moveX: 1 }, DT));
+    expect(world.run.stats.grazes).toBeGreaterThan(0);
+    expect(events.some((e) => e.type === 'graze')).toBe(true);
+  });
+
+  it('pays a flawless bonus only for rooms cleared without being hit', () => {
+    const clean = newWorld();
+    const roomId = teleportToRoom(clean, 'combat');
+    stepFor(clean, 0.5);
+    let events: SimEvent[] = [];
+    for (let i = 0; i < 4 && clean.rooms[roomId].phase === 'active'; i++) {
+      for (const e of clean.enemies) e.state = 'chase';
+      for (const e of [...clean.enemies]) clean.damageEnemy(e, 99999, 'melee', false, 0);
+      clearChoices(clean);
+      events.push(...stepFor(clean, 1));
+      clearChoices(clean);
+    }
+    expect(events.some((e) => e.type === 'flawlessRoom' && e.shards > 0)).toBe(true);
+
+    const hit = newWorld();
+    const hitRoom = teleportToRoom(hit, 'combat');
+    stepFor(hit, 0.4);
+    hit.damagePlayer(5, hit.player.x + 20, hit.player.y, 0);
+    events = [];
+    for (let i = 0; i < 4 && hit.rooms[hitRoom].phase === 'active'; i++) {
+      for (const e of hit.enemies) e.state = 'chase';
+      for (const e of [...hit.enemies]) hit.damageEnemy(e, 99999, 'melee', false, 0);
+      clearChoices(hit);
+      events.push(...stepFor(hit, 1));
+      clearChoices(hit);
+    }
+    expect(events.some((e) => e.type === 'flawlessRoom')).toBe(false);
+  });
+
+  it('rerolls a pending choice for shards and refuses when broke', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'start');
+    const p = world.player;
+    const enemy = world.spawnEnemy('scavenger', p.x + 40, p.y, -1);
+    enemy.state = 'chase';
+    p.xp = xpForLevel(1) - 1;
+    world.damageEnemy(enemy, 99999, 'melee', false, 0);
+    expect(world.awaitingChoice).toBe(true);
+    p.shards = 100;
+    const cost = world.rerollCost();
+    expect(world.rerollChoices()).toBe(true);
+    expect(p.shards).toBe(100 - cost);
+    p.shards = 0;
+    expect(world.rerollChoices()).toBe(false);
+
+    // When every upgrade is maxed there is nothing to offer, so nothing is charged.
+    const spent = newWorld();
+    spent.run.player.upgrades = Object.fromEntries(UPGRADES.map((u) => [u.id, u.maxStacks]));
+    spent.run.pendingChoices.push({ source: 'level', options: ['vitality'] });
+    spent.player.shards = 500;
+    expect(spent.rerollChoices()).toBe(false);
+    expect(spent.player.shards).toBe(500);
+  });
+
+  it('pays the floor bonus for clearing every room and the chest', () => {
+    const world = newWorld();
+    for (const room of world.floor.rooms)
+      if (room.kind === 'combat') world.rooms[room.id].phase = 'cleared';
+    const chest = world.interactables.find((i) => i.kind === 'chest')!;
+    world.player.x = chest.x;
+    world.player.y = chest.y + 20;
+    world.step({ ...NO_INPUT, interact: true }, DT);
+    clearChoices(world);
+    expect(world.floorObjectives().complete).toBe(false);
+
+    teleportToRoom(world, 'boss');
+    stepFor(world, 1.5);
+    const boss = world.activeBoss()!;
+    stepFor(world, 0.8);
+    world.damageEnemy(boss, 999999, 'melee', false, 0);
+    clearChoices(world);
+    const events = stepFor(world, 1);
+    expect(world.floorObjectives().complete).toBe(true);
+    expect(world.floorObjectives().claimed).toBe(true);
+    expect(world.run.stats.floorsRestored).toBe(1);
+    expect(events.some((e) => e.type === 'objectiveComplete' && e.shards > 0)).toBe(true);
+  });
+
+  it('pays the floor bonus for a chest opened after the guardian falls', () => {
+    const world = newWorld();
+    for (const room of world.floor.rooms)
+      if (room.kind === 'combat') world.rooms[room.id].phase = 'cleared';
+    teleportToRoom(world, 'boss');
+    stepFor(world, 1.5);
+    const boss = world.activeBoss()!;
+    stepFor(world, 0.8);
+    world.damageEnemy(boss, 999999, 'melee', false, 0);
+    clearChoices(world);
+    stepFor(world, 1);
+    expect(world.floorObjectives().complete).toBe(false);
+    expect(world.floorObjectives().claimed).toBe(false);
+
+    const chest = world.interactables.find((i) => i.kind === 'chest')!;
+    world.player.x = chest.x;
+    world.player.y = chest.y + 20;
+    const events = world.step({ ...NO_INPUT, interact: true }, DT);
+    clearChoices(world);
+    expect(world.floorObjectives().claimed).toBe(true);
+    expect(events.some((e) => e.type === 'objectiveComplete')).toBe(true);
   });
 
   it('round-trips a run through JSON', () => {

@@ -89,6 +89,45 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
       ctx.arc(x + rw / 2, y + rh / 2, Math.max(3, scale * 1.6), 0, Math.PI * 2);
       ctx.fill();
     }
+    // A cleared combat room gets a tick, so progress is readable at a glance.
+    if (room.kind === 'combat' && state.phase === 'cleared' && visited) {
+      ctx.strokeStyle = 'rgba(157, 243, 255, 0.85)';
+      ctx.lineWidth = 1.5;
+      const cx = x + rw - Math.max(5, scale);
+      const cy = y + Math.max(5, scale);
+      const s = Math.max(3, scale * 0.9);
+      ctx.beginPath();
+      ctx.moveTo(cx - s, cy);
+      ctx.lineTo(cx - s * 0.2, cy + s * 0.7);
+      ctx.lineTo(cx + s, cy - s * 0.7);
+      ctx.stroke();
+    }
+  }
+
+  // Unclaimed objectives pulse so a missed chest or well is easy to find again.
+  const pulse = 0.55 + 0.45 * Math.sin(time * 4);
+  for (const item of world.interactables) {
+    if (item.used || (item.kind !== 'chest' && item.kind !== 'shrine')) continue;
+    const room = world.floor.rooms.find(
+      (r) =>
+        item.x >= r.x * TILE_SIZE &&
+        item.x <= (r.x + r.w) * TILE_SIZE &&
+        item.y >= r.y * TILE_SIZE &&
+        item.y <= (r.y + r.h) * TILE_SIZE
+    );
+    if (room && !known.has(room.id)) continue;
+    ctx.strokeStyle =
+      item.kind === 'chest' ? `rgba(255, 217, 138, ${pulse})` : `rgba(111, 231, 255, ${pulse})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(
+      ox + (item.x / TILE_SIZE) * scale,
+      oy + (item.y / TILE_SIZE) * scale,
+      Math.max(4, scale * 2) + pulse * 2,
+      0,
+      Math.PI * 2
+    );
+    ctx.stroke();
   }
 
   // Exit portal once open.

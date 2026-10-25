@@ -91,6 +91,7 @@ export class App {
     const mouse = this.input.mouse;
     this.renderer.setAimScreen(mouse.x, mouse.y);
     this.renderer.render(this.state === 'playing' ? this.accumulator / STEP : 1, dt);
+    this.hud.setDimmed(this.state === 'paused' || this.state === 'map' || this.state === 'choice');
     if (this.world && this.state !== 'title') this.hud.update(this.world, dt);
     requestAnimationFrame((t) => this.frame(t));
   }
@@ -238,18 +239,36 @@ export class App {
 
   private showChoice(): void {
     const world = this.world!;
-    const choice = this.world!.run.pendingChoices[0];
+    const choice = world.run.pendingChoices[0];
     if (!choice) return;
     this.state = 'choice';
     this.input.releaseAll();
-    const { el, onKey } = choiceScreen(choice, world.player.upgrades, (id) => {
-      this.sound.click();
-      world.chooseUpgrade(id);
-      this.screens.close();
-      if (world.awaitingChoice) this.showChoice();
-      else this.resume();
-    });
-    this.screens.show(el, onKey);
+    const render = (): void => {
+      const { el, onKey } = choiceScreen(
+        choice,
+        world.player.upgrades,
+        (id) => {
+          this.sound.click();
+          world.chooseUpgrade(id);
+          this.screens.close();
+          if (world.awaitingChoice) this.showChoice();
+          else this.resume();
+        },
+        {
+          cost: world.rerollCost(),
+          shards: world.player.shards,
+          onReroll: () => {
+            this.sound.click();
+            if (world.rerollChoices()) render();
+            else if (world.player.shards < world.rerollCost())
+              this.hud.toast(`Reroll needs ${world.rerollCost()} shards`, true);
+            else this.hud.toast('No echoes left to offer', true);
+          },
+        }
+      );
+      this.screens.show(el, onKey);
+    };
+    render();
   }
 
   private endRun(won: boolean): void {
@@ -274,6 +293,7 @@ export class App {
     this.input.releaseAll();
     this.screens.show(
       pauseScreen({
+        world: this.world,
         onResume: () => this.click(() => this.resume()),
         onSettings: () => this.click(() => this.showSettings(() => this.pause())),
         onControls: () => this.click(() => this.screens.show(controlsScreen(() => this.pause()))),

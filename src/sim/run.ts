@@ -19,6 +19,26 @@ export interface RunStats {
   elapsed: number;
   damageDealt: number;
   roomsCleared: number;
+  /** Near misses rewarded during a dash. */
+  grazes: number;
+  /** Highest flow streak reached. */
+  bestResonance: number;
+  /** Variable-ratio loot surges seen. */
+  surges: number;
+  /** Floors restored to completion for the bonus. */
+  floorsRestored: number;
+}
+
+/** Kills in one flow streak. */
+export const RESONANCE_MAX = 10;
+/** Reward bonus per streak step, i.e. up to +50% XP and shards. */
+export const RESONANCE_STEP = 0.05;
+/** Seconds after a kill before the streak lapses. */
+export const RESONANCE_WINDOW = 3;
+
+/** XP and shard multiplier for a flow streak count. */
+export function resonanceMultiplier(count: number): number {
+  return 1 + Math.max(0, Math.min(RESONANCE_MAX, count)) * RESONANCE_STEP;
 }
 
 export interface RunState {
@@ -41,7 +61,16 @@ export function createRun(seed: number, knownFragments: readonly string[]): RunS
     seed: seed >>> 0,
     depth: 0,
     player: createPlayer(0, 0),
-    stats: { kills: 0, elapsed: 0, damageDealt: 0, roomsCleared: 0 },
+    stats: {
+      kills: 0,
+      elapsed: 0,
+      damageDealt: 0,
+      roomsCleared: 0,
+      grazes: 0,
+      bestResonance: 0,
+      surges: 0,
+      floorsRestored: 0,
+    },
     fragmentsFound: [],
     knownFragments: [...knownFragments],
     pendingChoices: [],
@@ -103,6 +132,14 @@ export function restoreRun(data: unknown): RunState | undefined {
   run.player.health = Math.min(health, run.player.stats.maxHealth);
   run.player.mana = Math.min(mana, run.player.stats.maxMana);
   run.player.dashCharges = Math.min(dash, run.player.stats.dashCharges);
+  // Fields added after v1 shipped default safely on older snapshots.
+  run.player.resonance ??= 0;
+  run.player.resonanceTime ??= 0;
+  run.player.dashGrazes ??= [];
+  run.stats.grazes ??= 0;
+  run.stats.bestResonance ??= 0;
+  run.stats.surges ??= 0;
+  run.stats.floorsRestored ??= 0;
   run.pendingChoices = Array.isArray(run.pendingChoices) ? run.pendingChoices : [];
   return run;
 }

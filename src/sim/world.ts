@@ -13,7 +13,14 @@ import { FlowField } from './pathing';
 import { moveAndCollide, separate } from './physics';
 import { updatePlayer } from './player';
 import { Rng, floorSeed } from './rng';
-import { applyChoice, grantXp, type RunState } from './run';
+import {
+  applyChoice,
+  grantXp,
+  resonanceMultiplier,
+  RESONANCE_MAX,
+  RESONANCE_WINDOW,
+  type RunState,
+} from './run';
 import { TILE_SIZE } from './tiles';
 import { rollChoices } from './upgrades';
 
@@ -30,6 +37,28 @@ const INTERACT_RADIUS = 44;
 /** Seconds between flow-field refreshes; the player moves under two tiles in that time. */
 const FLOW_REFRESH = 0.2;
 const HURT_IFRAMES = 0.75;
+/** Shards refunded per graze, and dash charge restored. */
+const GRAZE_MANA = 8;
+const GRAZE_DASH = 0.25;
+/** Near-miss margin for enemy projectiles. */
+const GRAZE_SHOT = 18;
+/** Variable-ratio shard rolls: jackpot below this, rich below the second. */
+const SURGE_JACKPOT = 0.06;
+const SURGE_RICH = 0.24;
+
+/** Progress of the optional full-clear objective on this floor. */
+export interface FloorObjectives {
+  roomsCleared: number;
+  roomsTotal: number;
+  chestFound: boolean;
+  chestUsed: boolean;
+  wellFound: boolean;
+  wellUsed: boolean;
+  /** Every combat room cleared and every chest opened. */
+  complete: boolean;
+  /** The bonus has already been paid for this floor. */
+  claimed: boolean;
+}
 
 export class World implements Arena {
   readonly floor: FloorMap;
@@ -52,6 +81,9 @@ export class World implements Arena {
   private victoryDelay = -1;
   private readonly flow: FlowField;
   private flowTimer = 0;
+  private bonusClaimed = false;
+  /** Damage taken since the active room was locked, for the flawless bonus. */
+  private roomDamage = 0;
 
   constructor(readonly run: RunState) {
     this.plan = floorPlan(run.depth);
@@ -174,6 +206,57 @@ export class World implements Arena {
     this.freeze = Math.max(this.freeze, seconds);
   }
 
+  /** Rewards a near miss: mana, a sliver of dash charge and a longer flow window. */
+  graze(x: number, y: number): void {
+    const p = this.player;
+    if (p.action === 'dead') return;
+    p.mana = Math.min(p.stats.maxMana, p.mana + GRAZE_MANA);
+    p.dashCharges = Math.min(p.stats.dashCharges, p.dashCharges + GRAZE_DASH);
+    p.resonanceTime = Math.max(p.resonanceTime, RESONANCE_WINDOW * 0.5);
+    this.run.stats.grazes++;
+    this.emit({ type: 'graze', x, y });
+  }
+
+  /** Optional full-clear objective, surfaced by the HUD and the map. */
+  floorObjectives(): FloorObjectives {
+    const rooms = this.floor.rooms.filter((r) => r.kind === 'combat' || r.kind === 'boss');
+    const cleared = rooms.filter((r) => this.rooms[r.id].phase === 'cleared').length;
+    const chest = this.interactables.filter((i) => i.kind === 'chest');
+    const well = this.interactables.filter((i) => i.kind === 'shrine');
+    const chestUsed = chest.length > 0 && chest.every((i) => i.used);
+    const wellUsed = well.length > 0 && well.every((i) => i.used);
+    return {
+      roomsCleared: cleared,
+      roomsTotal: rooms.length,
+      chestFound: chest.length > 0,
+      chestUsed,
+      wellFound: well.length > 0,
+      wellUsed,
+      complete: cleared === rooms.length && (!chest.length || chestUsed),
+      claimed: this.bonusClaimed,
+    };
+  }
+
+  /** Shards a choice reroll costs on this floor. */
+  rerollCost(): number {
+    return 20 + 10 * this.run.depth;
+  }
+
+  /** Buys a fresh set of options for the pending choice. Returns false when unaffordable. */
+  rerollChoices(): boolean {
+    const choice = this.run.pendingChoices[0];
+    if (!choice || choice.options.length === 0) return false;
+    const cost = this.rerollCost();
+    if (this.player.shards < cost) return false;
+    // Chest and shrine offers keep their better odds; only a level-up is a plain roll.
+    const luck = choice.source === 'level' ? 'normal' : 'generous';
+    const options = rollChoices(this.rng, this.player.upgrades, 3, luck);
+    if (options.length === 0) return false;
+    this.player.shards -= cost;
+    choice.options = options;
+    return true;
+  }
+
   damageEnemy(
     enemy: Enemy,
     amount: number,
@@ -220,6 +303,11 @@ export class World implements Arena {
     p.health = Math.max(0, p.health - taken);
     p.invulnerable = HURT_IFRAMES;
     p.hurtFlash = 0.25;
+    const room = this.currentRoom();
+    if (room && this.rooms[room.id].phase === 'active') this.roomDamage += taken;
+    if (p.resonance > 0) this.emit({ type: 'resonanceBreak', count: p.resonance });
+    p.resonance = 0;
+    p.resonanceTime = 0;
     const away = Math.atan2(p.y - fromY, p.x - fromX);
     p.knockX += Math.cos(away) * knockback;
     p.knockY += Math.sin(away) * knockback;
@@ -288,6 +376,8 @@ export class World implements Arena {
       this.dropFragment(target.x + 40, target.y);
       this.dropShards(target.x, target.y, 8 + 4 * this.run.depth);
       this.emit({ type: 'interact', kind: 'chest', x: target.x, y: target.y });
+      // The guardian may already be down: the last chest still closes the goal.
+      if (this.floorObjectives().complete) this.claimFloorBonus({ x: target.x, y: target.y + 24 });
     } else if (target.kind === 'shrine') {
       if (p.shards < target.cost) {
         this.emit({ type: 'notice', text: `The well asks for ${target.cost} shards` });
@@ -341,6 +431,7 @@ export class World implements Arena {
   private activateRoom(room: Room): void {
     const state = this.rooms[room.id];
     state.phase = 'active';
+    this.roomDamage = 0;
     this.setRoomLocked(room, true);
     this.emit({ type: 'roomLocked', roomId: room.id });
     if (room.kind === 'boss') {
@@ -390,13 +481,47 @@ export class World implements Arena {
     this.run.stats.roomsCleared++;
     this.emit({ type: 'roomCleared', roomId: room.id });
     const c = roomCentrePx(room);
+    // Untouched health is its own reward: finishing a room clean pays extra.
+    if (this.roomDamage === 0) {
+      const shards = 6 + 3 * this.run.depth;
+      this.dropShards(c.x, c.y, shards);
+      this.emit({ type: 'flawlessRoom', roomId: room.id, shards });
+    }
     if (room.kind === 'boss') {
       this.dropFragment(c.x + 40, c.y);
+      this.claimFloorBonus(c);
       if (this.run.depth >= FINAL_DEPTH) this.victoryDelay = 2.5;
       else this.addInteractable('portal', c.x, c.y, 0);
       return;
     }
     if (this.rng.chance(0.35)) this.dropPickup('health', c.x, c.y, 15);
+  }
+
+  /**
+   * Pays the optional full-clear bonus when the boss falls. Leaving rooms
+   * unvisited is the player's choice, but the closed loop is worth chasing.
+   */
+  private claimFloorBonus(c: { x: number; y: number }): void {
+    const goal = this.floorObjectives();
+    if (!goal.complete || this.bonusClaimed) {
+      if (!this.bonusClaimed) {
+        const missing = goal.roomsTotal - goal.roomsCleared;
+        this.emit({
+          type: 'notice',
+          text:
+            missing > 0
+              ? `${missing} room${missing === 1 ? '' : 's'} still echo unanswered`
+              : 'A chest lies unopened',
+        });
+      }
+      return;
+    }
+    this.bonusClaimed = true;
+    this.run.stats.floorsRestored++;
+    const shards = 40 + 10 * this.run.depth;
+    this.dropShards(c.x, c.y, shards);
+    this.dropPickup('potion', c.x - 30, c.y, 1);
+    this.emit({ type: 'objectiveComplete', shards });
   }
 
   private setRoomLocked(room: Room, locked: boolean): void {
@@ -418,16 +543,44 @@ export class World implements Arena {
     }
     const p = this.player;
     p.mana = Math.min(p.stats.maxMana, p.mana + p.stats.manaOnKill);
-    const xp = Math.round(enemy.def.xp * (1 + 0.1 * run.depth) * (enemy.elite ? 2 : 1));
+    // A kill inside the flow window builds a streak that raises rewards;
+    // taking a hit drops it, so keeping it alive is a risk the player owns.
+    p.resonance = p.resonanceTime > 0 ? Math.min(RESONANCE_MAX, p.resonance + 1) : 1;
+    p.resonanceTime = RESONANCE_WINDOW;
+    run.stats.bestResonance = Math.max(run.stats.bestResonance, p.resonance);
+    const flow = resonanceMultiplier(p.resonance);
+    this.emit({ type: 'resonance', count: p.resonance, multiplier: flow });
+
+    const xp = Math.round(enemy.def.xp * (1 + 0.1 * run.depth) * (enemy.elite ? 2 : 1) * flow);
     const levels = grantXp(run, xp, () => rollChoices(this.rng, p.upgrades));
     if (levels > 0) this.emit({ type: 'levelUp', level: p.level });
-    this.dropShards(
-      enemy.x,
-      enemy.y,
-      enemy.isBoss ? 30 : this.rng.int(1, 3) + (enemy.elite ? 5 : 0)
-    );
+
+    const base = enemy.isBoss ? 30 : this.rng.int(1, 3) + (enemy.elite ? 5 : 0);
+    const surge = this.rollSurge();
+    const shards = Math.round(base * flow * surge.factor);
+    this.dropShards(enemy.x, enemy.y, shards);
+    if (surge.kind) {
+      run.stats.surges++;
+      // Only a jackpot is worth a potion; a rich vein is just extra shards.
+      if (surge.kind === 'jackpot') this.dropPickup('potion', enemy.x, enemy.y - 20, 1);
+      this.emit({
+        type: 'lootSurge',
+        x: enemy.x,
+        y: enemy.y,
+        kind: surge.kind,
+        amount: shards,
+      });
+    }
     if (!enemy.isBoss && this.rng.chance(0.07)) this.dropPickup('health', enemy.x, enemy.y, 12);
     if (!enemy.isBoss && this.rng.chance(0.025)) this.dropPickup('potion', enemy.x, enemy.y, 1);
+  }
+
+  /** One variable-ratio roll: mostly normal, sometimes rich, rarely a jackpot. */
+  private rollSurge(): { kind?: 'rich' | 'jackpot'; factor: number } {
+    const roll = this.rng.next();
+    if (roll < SURGE_JACKPOT) return { kind: 'jackpot', factor: 5 };
+    if (roll < SURGE_RICH) return { kind: 'rich', factor: 2.5 };
+    return { factor: 1 };
   }
 
   private dropShards(x: number, y: number, total: number): void {
@@ -481,11 +634,24 @@ export class World implements Arena {
       b.y += b.vy * dt;
       let dead = b.life <= 0 || this.grid.isSolidAtPixel(b.x, b.y);
       if (!dead && b.owner === 'enemy') {
-        if (p.action !== 'dead' && circlesTouch(b.x, b.y, b.radius, p.x, p.y, p.radius - 2)) {
+        const touch = circlesTouch(b.x, b.y, b.radius, p.x, p.y, p.radius - 2);
+        if (p.action !== 'dead' && touch) {
           if (p.invulnerable <= 0) {
             this.damagePlayer(b.damage, b.x - b.vx, b.y - b.vy, 180);
             dead = true;
+          } else if (p.dashTime > 0 && !b.grazed) {
+            b.grazed = true;
+            this.graze(b.x, b.y);
           }
+        } else if (
+          p.action !== 'dead' &&
+          p.dashTime > 0 &&
+          !b.grazed &&
+          circlesTouch(b.x, b.y, b.radius, p.x, p.y, p.radius + GRAZE_SHOT)
+        ) {
+          // Dashing through the edge of a shot pays off instead of only avoiding it.
+          b.grazed = true;
+          this.graze(b.x, b.y);
         }
       } else if (!dead) {
         for (const e of this.enemies) {

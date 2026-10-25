@@ -19,6 +19,12 @@ export type SimEvent =
   | { type: 'potion'; healed: number }
   | { type: 'pickup'; kind: PickupKind; x: number; y: number; amount: number }
   | { type: 'levelUp'; level: number }
+  | { type: 'resonance'; count: number; multiplier: number }
+  | { type: 'resonanceBreak'; count: number }
+  | { type: 'graze'; x: number; y: number }
+  | { type: 'lootSurge'; x: number; y: number; kind: 'rich' | 'jackpot'; amount: number }
+  | { type: 'objectiveComplete'; shards: number }
+  | { type: 'flawlessRoom'; roomId: number; shards: number }
   | { type: 'roomLocked'; roomId: number }
   | { type: 'roomCleared'; roomId: number }
   | { type: 'bossIntro'; name: string }

@@ -62,12 +62,30 @@ Death ends the run, but **memory fragments** you recover are kept forever. Gathe
 
 - **Readable combat**: every enemy attack has a red ground telegraph (arc, line, circle or aim line) before it lands; enemies never deal contact damage.
 - **Three-hit combo** with a wide, heavy finisher; a dash with invulnerability frames and two charges; a mana-powered bolt; hit-stop, screen shake, sparks and damage numbers.
+- **Flow streaks and grazes**: kills inside a 3 s window build a Flow streak worth up to +50% XP and shards, and taking a hit drops it; dashing past or through the edge of an attack is a *graze* that refunds mana, part of a dash charge and flow-window time.
+- **Variable-ratio loot surges**: shard drops sometimes roll a rich vein (2.5x, ~18%) or a memory surge (5x, ~6%), each with its own sound and banner.
+- **Optional floor objective**: clear every combat room and open the chest before the guardian falls for a shard-and-potion *floor restored* bonus; a room cleared without taking damage also pays a *flawless* bonus. Progress is shown in the HUD and on the map, with a tick on cleared rooms and a pulse on unclaimed chests and wells.
+- **QoL**: reroll an upgrade offer for shards (key **R**), a pause summary with the run's Flow, graze, surge and floor-restoration record plus the echoes you own, a dimmed HUD behind menus, and map legend/objective lines.
 - **Six biomes, thirteen enemies, six bosses**: melee bruisers, skirmishers that circle and lunge, casters that kite and fire spreads, brutes with ground slams, and bosses with three health phases and rotating patterns (bullet rings, charges, volleys, summons).
 - **18 upgrades** offered as cards on level-up (common, rare and epic), from treasure chests and from Memory Wells that trade shards for healing and a pick.
 - **Top-down 2.5D look**: procedurally painted biome tiles with lit wall faces and ambient occlusion, depth-sorted sprites, glows, a darkness vignette around the player and ambient dust.
 - **Synthesized audio**: every sound and the ambient score are generated with the Web Audio API.
 - **Saves**: the run is saved at each floor's entrance (*Continue* on the title screen); settings and recovered memories persist in the browser.
 - **Keyboard and mouse or gamepad.**
+
+### Why these mechanics
+
+The engagement pass is grounded in the same behavioral-game-design literature that shapes CyberPulse's design notes:
+
+| Principle | Source | In Memory Reconstruction |
+| --------- | ------ | ------------------------ |
+| Variable-ratio reinforcement, reward prediction error | Skinner; Schultz | Rich vein and memory surge loot rolls per kill |
+| Near-miss striatal response | Clark et al., 2009 | Graze rewards for slipping past an attack instead of only avoiding it |
+| Loss aversion / prospect theory | Kahneman & Tversky | Flow streak is a stake you can lose: any hit resets it |
+| Flow channel | Csikszentmihalyi | Streak multiplier tightens the 3 s window: risk rises with reward |
+| Zeigarnik effect | Zeigarnik | Visible floor objective (rooms + chest) and unclaimed markers on the map |
+| Competence & autonomy (PENS) | Ryan & Deci | Flawless-room bonus, rerollable offers, mastery recorded on the pause and death screens |
+| Goal gradient | Kivetz et al. | Objective line counts down as the floor nears completion |
 
 ## Quick Start
 
@@ -97,6 +115,8 @@ npm run build      # production build in dist/
 | Interact         | E / F            | Y            |
 | Map              | Tab / M          | Back         |
 | Pause            | Esc / P          | Start        |
+| Pick a card      | 1 / 2 / 3        | -            |
+| Reroll cards     | R                | -            |
 
 ## How It Is Built
 

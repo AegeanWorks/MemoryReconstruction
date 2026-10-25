@@ -141,6 +141,35 @@ export class Effects {
           this.ring(playerX, playerY, 120, 0xffd98a, 0.6);
           this.number(playerX, playerY - 40, 'LEVEL UP', 0xffd98a, 20);
           break;
+        case 'graze':
+          this.ring(e.x, e.y, 26, 0x6fe7ff, 0.22);
+          this.burst(e.x, e.y, 0x9df3ff, 6, 80, 0.22, 3);
+          this.number(e.x, e.y - 8, 'GRAZE', 0x9df3ff, 12);
+          break;
+        case 'resonance':
+          if (e.count === 3 || e.count === 6 || e.count === 10)
+            this.ring(playerX, playerY, 60 + e.count * 4, 0x6fe7ff, 0.45);
+          break;
+        case 'resonanceBreak':
+          this.ring(playerX, playerY, 70, 0xff5a5a, 0.4);
+          break;
+        case 'lootSurge':
+          this.ring(e.x, e.y, e.kind === 'jackpot' ? 100 : 70, 0xffd98a, 0.5);
+          this.number(
+            e.x,
+            e.y - 24,
+            e.kind === 'jackpot' ? `JACKPOT +${e.amount}` : `RICH +${e.amount}`,
+            0xffd98a,
+            e.kind === 'jackpot' ? 20 : 15
+          );
+          break;
+        case 'flawlessRoom':
+          this.number(playerX, playerY - 30, `FLAWLESS +${e.shards}`, 0x9df3ff, 15);
+          break;
+        case 'objectiveComplete':
+          this.ring(playerX, playerY, 200, 0xffd98a, 0.8);
+          this.number(playerX, playerY - 46, `FLOOR RESTORED +${e.shards}`, 0xffd98a, 18);
+          break;
         case 'interact':
           this.burst(e.x, e.y, 0xffd98a, 24, 120, 0.8, 5);
           break;
@@ -258,7 +287,13 @@ export class Effects {
       },
     });
     text.anchor.set(0.5);
-    text.position.set(x + (this.random() - 0.5) * 14, y);
+    // Stack labels that land together instead of drawing them on top of each other.
+    let lift = 0;
+    for (const other of this.texts)
+      if (other.age < 0.4 && Math.abs(other.text.x - x) < 90 && Math.abs(other.text.y - y) < 34)
+        lift += 17;
+    const lane = Math.min(6, Math.round(lift / 17));
+    text.position.set(x + (this.random() - 0.5) * 14 + (lane % 2) * 30, y - lane * 17);
     text.resolution = 2;
     this.layer.addChild(text);
     this.texts.push({ text, vy: -70, age: 0, life: 0.8 });

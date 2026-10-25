@@ -23,6 +23,8 @@ const BOLT_COOLDOWN = 0.3;
 const BOLT_SPREAD = 0.2;
 const POTION_HEAL = 0.45;
 const SHOCKWAVE_RADIUS = 90;
+/** Extra reach beyond the bodies for a dash to count as a near miss. */
+const GRAZE_REACH = 24;
 
 export function createPlayer(x: number, y: number): Player {
   const stats = computeStats({});
@@ -50,6 +52,9 @@ export function createPlayer(x: number, y: number): Player {
     dashDirX: 1,
     dashDirY: 0,
     dashHits: [],
+    dashGrazes: [],
+    resonance: 0,
+    resonanceTime: 0,
     boltCooldown: 0,
     invulnerable: 0,
     knockX: 0,
@@ -83,6 +88,8 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
   p.hurtFlash = Math.max(0, p.hurtFlash - dt);
   p.boltCooldown = Math.max(0, p.boltCooldown - dt);
   p.comboWindow = Math.max(0, p.comboWindow - dt);
+  p.resonanceTime = Math.max(0, p.resonanceTime - dt);
+  if (p.resonanceTime === 0) p.resonance = 0;
   p.mana = Math.min(s.maxMana, p.mana + s.manaRegen * dt);
   if (p.dashCharges < s.dashCharges)
     p.dashCharges = Math.min(s.dashCharges, p.dashCharges + dt / s.dashRecharge);
@@ -137,6 +144,7 @@ function startDash(arena: Arena, dirX: number, dirY: number): void {
   p.dashDirX = dirX;
   p.dashDirY = dirY;
   p.dashHits = [];
+  p.dashGrazes = [];
   p.invulnerable = Math.max(p.invulnerable, DASH_IFRAMES);
   // Dashing cancels a swing; the combo stays alive for a dash-then-strike.
   p.swingTime = -1;
@@ -150,19 +158,25 @@ function updateDash(arena: Arena, dt: number): void {
   p.dashTime -= dt;
   p.action = 'dash';
   moveAndCollide(arena.grid, p, p.dashDirX * DASH_SPEED * dt, p.dashDirY * DASH_SPEED * dt);
-  if (!p.stats.dashStrike) return;
   for (const enemy of arena.enemies) {
-    if (enemy.state === 'spawning' || enemy.state === 'dying' || p.dashHits.includes(enemy.id))
+    if (enemy.state === 'spawning' || enemy.state === 'dying') continue;
+    const dist = Math.hypot(enemy.x - p.x, enemy.y - p.y);
+    const touch = enemy.radius + p.radius;
+    if (p.stats.dashStrike && !p.dashHits.includes(enemy.id) && dist <= touch + 6) {
+      p.dashHits.push(enemy.id);
+      const hit = rollDamage(
+        arena.rng,
+        p.stats.meleeDamage * 0.8,
+        p.stats.critChance,
+        p.stats.critMultiplier
+      );
+      arena.damageEnemy(enemy, hit.amount, 'dash', hit.crit, 120);
       continue;
-    if (Math.hypot(enemy.x - p.x, enemy.y - p.y) > enemy.radius + p.radius + 6) continue;
-    p.dashHits.push(enemy.id);
-    const hit = rollDamage(
-      arena.rng,
-      p.stats.meleeDamage * 0.8,
-      p.stats.critChance,
-      p.stats.critMultiplier
-    );
-    arena.damageEnemy(enemy, hit.amount, 'dash', hit.crit, 120);
+    }
+    // Slipping past a body without striking it is a near miss worth rewarding.
+    if (dist > touch + GRAZE_REACH || p.dashGrazes.includes(enemy.id)) continue;
+    p.dashGrazes.push(enemy.id);
+    arena.graze(enemy.x, enemy.y);
   }
 }
 
