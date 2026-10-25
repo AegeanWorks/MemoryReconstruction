@@ -1,7 +1,7 @@
 {
   "name": "memory-reconstruction",
   "version": "0.1.0",
-  "description": "Action-Roguelike Metroidvania - Memory Reconstruction",
+  "description": "Memory Reconstruction - a top-down action roguelike",
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
@@ -15,23 +15,14 @@
     "lint": "eslint src",
     "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
     "typecheck": "tsc --noEmit",
-    "ai:benchmark": "node scripts/ai-benchmark.js",
-    "ai:replay": "node scripts/ai-replay.js",
-    "generate:assets": "node scripts/generate-assets.js",
     "generate:art": "python scripts/generate_art_assets.py"
   },
   "dependencies": {
-    "@pixi/filter-bloom": "^5.1.1",
-    "@pixi/filter-color-matrix": "^7.4.3",
-    "@pixi/sound": "^5.0.0",
-    "ecsy": "^0.2.0",
     "pixi.js": "^8.0.0",
-    "seedrandom": "^3.0.5",
     "zod": "^3.22.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@types/seedrandom": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitest/coverage-v8": "^1.0.0",

@@ -2,6 +2,13 @@
 
 **This document must be read by every AI agent working on this project.**
 
+> **Current architecture:** the module-contract, event-bus and RLM sections
+> below describe the original design, which was replaced by a deterministic
+> `src/sim` core with separate view, UI and app layers (ADR-016). The goals
+> still apply: readable code, seeded determinism, a headless simulation,
+> serializable state and layered visuals. For how they are met now, see
+> [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 ## Core Principles
 
 ### 1. AI Compatibility (Universal)

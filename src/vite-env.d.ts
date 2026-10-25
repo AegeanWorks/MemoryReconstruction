@@ -23,10 +23,7 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-// Global game access for debugging
+// Automated playtests and the console reach the running game through this handle.
 interface Window {
-  __GAME__: any;
-  __MODULE_REGISTRY__: any;
-  __TESTING_HARNESS__: any;
-  __GAME_RNG__: () => number;
+  __MR__?: import('./app/App').App;
 }

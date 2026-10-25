@@ -19,14 +19,6 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@core/*": ["src/core/*"],
-      "@engine/*": ["src/engine/*"],
-      "@graphics/*": ["src/graphics/*"],
-      "@audio/*": ["src/audio/*"],
-      "@gameplay/*": ["src/gameplay/*"],
-      "@ai/*": ["src/ai/*"],
-      "@testing/*": ["src/testing/*"],
-      "@utils/*": ["src/utils/*"],
       "@assets/*": ["assets/*"],
       "@data/*": ["src/data/*"]
     },

@@ -13,7 +13,7 @@
     html, body, #game-container { width: 100%; height: 100%; overflow: hidden; }
     body { background: #0a0a0f; font-family: 'Inter', sans-serif; color: #e8e8e8; }
     #game-container { position: relative; }
-    canvas { display: block; width: 100%; height: 100%; }
+    #game-container > canvas { display: block; width: 100%; height: 100%; }
     .loading-screen {
       position: absolute; inset: 0; display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 1rem;
@@ -34,6 +34,7 @@
 </head>
 <body>
   <div id="game-container">
+    <div id="ui"></div>
     <div class="loading-screen" id="loading-screen">
       <div class="loading-title">MEMORY RECONSTRUCTION</div>
       <div class="loading-bar"><div class="loading-progress" id="loading-progress"></div></div>

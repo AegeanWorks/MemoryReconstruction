@@ -1,117 +1,81 @@
-import { describe, expect, it, beforeEach } from 'vitest';
-import { EventBus } from '@core/EventBus';
-import { SaveSystem } from '@gameplay/SaveSystem';
+import { describe, expect, it } from 'vitest';
+import { SaveStore, defaultMeta, recordRun, type KeyValueStore } from '../src/save/SaveStore';
+import { createRun } from '../src/sim/run';
 
-class MockStorage implements Storage {
-  private store = new Map<string, string>();
-
-  get length(): number {
-    return this.store.size;
-  }
-
-  clear(): void {
-    this.store.clear();
-  }
-
-  getItem(key: string): string | null {
-    return this.store.get(key) ?? null;
-  }
-
-  key(index: number): string | null {
-    return Array.from(this.store.keys())[index] ?? null;
-  }
-
-  removeItem(key: string): void {
-    this.store.delete(key);
-  }
-
-  setItem(key: string, value: string): void {
-    this.store.set(key, value);
-  }
+function memoryStorage(): KeyValueStore & { data: Map<string, string> } {
+  const data = new Map<string, string>();
+  return {
+    data,
+    getItem: (k) => data.get(k) ?? null,
+    setItem: (k, v) => void data.set(k, v),
+    removeItem: (k) => void data.delete(k),
+  };
 }
 
-describe('SaveSystem', () => {
-  let bus: EventBus;
-  let storage: MockStorage;
-  let saveSystem: SaveSystem;
-
-  beforeEach(async () => {
-    bus = new EventBus();
-    storage = new MockStorage();
-    saveSystem = new SaveSystem(bus, storage);
-
-    const mockGameApp = {
-      serialize: () => ({
-        version: '0.1.0',
-        timestamp: 1234567890,
-        seed: 42,
-        running: true,
-        paused: false,
-        frameCount: 100,
-        playTime: 120,
-        modules: {
-          playerSystem: {
-            version: '1.0.0',
-            timestamp: 1234567890,
-            data: {
-              stats: { health: 80, maxHealth: 100 },
-              progression: { level: 3, memoryFragments: 15 },
-            },
-            checksum: 'player',
-          },
-        },
-        rngState: '12345',
-      }),
-      deserialize: async (_state: any) => {},
-    };
-
-    await saveSystem.initialize({
-      eventBus: bus,
-      config: {},
-      sharedState: new Map([['gameApplication', mockGameApp]]),
-    });
+describe('SaveStore', () => {
+  it('returns defaults when nothing is saved', () => {
+    const store = new SaveStore(memoryStorage());
+    expect(store.loadMeta()).toEqual(defaultMeta());
+    expect(store.hasRun()).toBe(false);
   });
 
-  it('detects when no save file exists', () => {
-    expect(saveSystem.hasSave()).toBe(false);
-    expect(saveSystem.getSaveMetadata()).toBeNull();
+  it('round-trips meta and runs', () => {
+    const store = new SaveStore(memoryStorage());
+    const meta = { ...defaultMeta(), fragments: ['fragment_001'], runs: 2 };
+    store.saveMeta(meta);
+    expect(store.loadMeta()).toEqual(meta);
+    const run = createRun(42, []);
+    run.depth = 3;
+    store.saveRun(run);
+    expect(store.loadRun()?.depth).toBe(3);
+    store.clearRun();
+    expect(store.hasRun()).toBe(false);
   });
 
-  it('saves game state and generates readable metadata', () => {
-    const result = saveSystem.saveGame();
-    expect(result.success).toBe(true);
-    expect(saveSystem.hasSave()).toBe(true);
-
-    const meta = saveSystem.getSaveMetadata();
-    expect(meta).not.toBeNull();
-    expect(meta?.level).toBe(3);
-    expect(meta?.fragments).toBe(15);
-    expect(meta?.playTime).toContain('2m');
+  it('falls back to defaults on corrupt or old-format data', () => {
+    const storage = memoryStorage();
+    const store = new SaveStore(storage);
+    storage.data.set('memory-reconstruction.meta.v1', '{not json');
+    expect(store.loadMeta()).toEqual(defaultMeta());
+    storage.data.set(
+      'memory-reconstruction.meta.v1',
+      JSON.stringify({ version: 1, fragments: 'x' })
+    );
+    expect(store.loadMeta()).toEqual(defaultMeta());
+    storage.data.set('memory-reconstruction.run.v1', JSON.stringify({ version: 0 }));
+    expect(store.loadRun()).toBeUndefined();
   });
 
-  it('loads saved game state through gameApplication', async () => {
-    saveSystem.saveGame();
-    let loadedState: any = null;
-
-    saveSystem.setGameApp({
-      serialize: () => ({}) as any,
-      deserialize: async (state: any) => {
-        loadedState = state;
+  it('keeps working when storage throws (private mode, quota)', () => {
+    const broken: KeyValueStore = {
+      getItem: () => {
+        throw new Error('denied');
       },
-    });
-
-    const result = await saveSystem.loadGame();
-    expect(result.success).toBe(true);
-    expect(loadedState).not.toBeNull();
-    expect(loadedState.seed).toBe(42);
-    expect(loadedState.modules.playerSystem.data.progression.level).toBe(3);
+      setItem: () => {
+        throw new Error('quota');
+      },
+      removeItem: () => {
+        throw new Error('denied');
+      },
+    };
+    const store = new SaveStore(broken);
+    expect(store.loadMeta()).toEqual(defaultMeta());
+    expect(store.saveMeta(defaultMeta())).toBe(false);
+    expect(() => store.clearRun()).not.toThrow();
   });
 
-  it('deletes existing save', () => {
-    saveSystem.saveGame();
-    expect(saveSystem.hasSave()).toBe(true);
-
-    saveSystem.deleteSave();
-    expect(saveSystem.hasSave()).toBe(false);
+  it('merges a run into meta progress', () => {
+    const run = createRun(1, []);
+    run.depth = 2;
+    run.fragmentsFound = ['fragment_001', 'fragment_002'];
+    const meta = recordRun(
+      { ...defaultMeta(), fragments: ['fragment_001'], bestDepth: 1 },
+      run,
+      false
+    );
+    expect(meta.fragments.sort()).toEqual(['fragment_001', 'fragment_002']);
+    expect(meta.runs).toBe(1);
+    expect(meta.bestDepth).toBe(3);
+    expect(recordRun(meta, run, true).victories).toBe(1);
   });
 });

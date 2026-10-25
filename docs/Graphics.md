@@ -37,7 +37,7 @@ assets/
   banner.png
   sprites/player/                idle, walk, attack, dash strips
   sprites/enemies/               4x4 sheets: idle, walk, attack, death
-  sprites/tilesets/              4 variants x 9 tile rows per biome
+  sprites/tilesets/              legacy side-view tiles (unused by the top-down renderer)
   sprites/backgrounds/           parallax backdrop per biome
   sprites/props/                 fountains, statues, doors, rifts, chests
   sprites/ui/                    health, mana, stamina, memory icons
@@ -50,10 +50,11 @@ assets/
 
 - `player.animations[state]` - texture strip, frame count, FPS, loop flag.
 - `enemies[id]` - 64x64 grid, 4 columns, 4 rows, origin and animation rows.
-- `tilesets[biome]` - 32px tiles, 4 variants, row map for
-  `empty/floor/wall/platform/hazard/water/ladder/door/secret`.
-- `backgrounds`, `props`, `ui`, `particles` - texture paths used by the HUD
-  and future scene decoration.
+- `tilesets[biome]` - legacy side-view tiles; the game paints its top-down
+  tiles at runtime instead (see Runtime).
+- `props` - chests, wells, the exit rift and obstacle statues/trees/crystals.
+- `ui` - shard, fragment and potion icons used by the HUD and pickups.
+- `backgrounds`, `particles` - not used by the current renderer.
 
 The atlas is bundled at build time, while the images are served from the
 `assets` public directory. Both development and production use the same
@@ -61,19 +62,21 @@ The atlas is bundled at build time, while the images are served from the
 
 ## Runtime
 
-- **RenderSystem** loads tileset atlases and biome backdrops, renders a
-  camera-aware tiling backdrop, and exposes `getTileTexture()`.
-- **WorldSystem** generates 32px tiles and draws each tile from the biome
-  atlas, clamping variant indices safely.
-- **ActorRenderer** loads player strips and enemy sheets, animates actors from
-  gameplay state, flips them by facing, follows the player with the camera, and
-  draws a themed health/mana/stamina HUD plus the memory-fragment counter and
-  level on the UI layer.
-- **MemoryFragmentSystem** turns `memoryFragment` world spawns into bobbing
-  memory-light sprites on the midground layer and removes them when collected.
-- **Layers**: background(0) -> midground(100) -> foreground(200) ->
-  effects(300) -> ui(1000), with a backdrop at z-index -1000.
-- **Post-processing** remains bloom, vignette and color grading.
+- **Tiles** are painted with Canvas2D when a floor loads (`src/view/tileArt.ts`),
+  using the per-biome render palettes in `src/view/palette.ts`. Floors get
+  subtle per-tile variants; walls show a lit brick face wherever floor lies to
+  their south and a dark cap above it, which gives the 3/4 top-down depth.
+  Floors beside walls receive ambient-occlusion overlays.
+- **Actors** use the atlas sheets: the player's idle/walk/attack/dash strips
+  (flipped by aim) and each enemy's idle/attack/death rows. Several generated
+  enemy walk rows have blank odd frames, so walking reuses the idle row with a
+  bob.
+- **Lighting** is a screen-space darkness vignette centred on the player plus
+  additive glows on the player, projectiles, pickups, glyphs and the rift.
+- **Layers**, bottom to top: tiles, ground (telegraphs, glows, pickups),
+  depth-sorted actors and props, effects, overlay (projectiles, health bars),
+  then the vignette and hurt flash.
+- The `.wgsl` shaders under `assets/shaders/` are not used by the renderer.
 
 ## Characters
 
@@ -102,5 +105,5 @@ near-black with cyan rifts; the sanctuary is ivory and gold.
 
 ## Verification
 
-- `npm test` checks that the atlas references real generated files.
+- `npm test` checks that every image the atlas references exists.
 - `npm run build` copies `assets/` into `dist/` and bundles the atlas metadata.

@@ -1,133 +1,23 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "balance-harness",
-    "last_phase": "phase 4",
+    "task_id": "core-rebuild",
+    "last_phase": "in_progress",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1792686075.458965,
-    "completed_at": 1792686075.6773243
+    "updated_at": 1792919410.0207546,
+    "owner": "claude-code:32f4dd2c",
+    "started_by": "claude-code:32f4dd2c",
+    "continuations": [
+      {
+        "agent": "antigravity:caeab849",
+        "from": "claude-code:32f4dd2c",
+        "at": 1792924515.2665439
+      }
+    ],
+    "completed_at": 1792924515.2665448
   },
   "checkpoints": [
-    {
-      "task_id": "boss-intent-and-guards",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/4] Execute authored boss phase abilities: forgotten_army summons echoes, void_domain/true_ending ring projectiles, timeline_shift teleports safely, reconstruction_beam fires a spread; [2/4] Balance/guards: exclude bosses from random elites, count a run completion once until death, clear inventory on permadeath; [3/4] Extract victory summary into a pure tested helper; [4/4] ADR/docs/tests/7-gate check",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792664984.751487,
-      "timestamp_str": "2026-10-22 13:29:44",
-      "impact_assessment": {
-        "why": "Verification found boss phase abilities were announced but never executed, elite multipliers could stack on bosses, completedRuns could be farmed without dying, permadeath left run loot in inventory, and victory formatting was only DOM-covered",
-        "benefits": "Boss phases now change the fight, deep bosses stay hand-tuned instead of randomly elite, run completion and permadeath semantics are enforceable, and victory data is unit-testable",
-        "risks": "contract: new combat:bossAbility event and pure victorySummary module; dependency: none; concurrency: no other writer; state: runCompleted flag and inventory reset must not wipe meta stats",
-        "mitigation": "Keep ability effects deterministic, guard teleport with solid-tile checks, test phase ability counts/projectiles, elite exclusion, runCompletion guard, permadeath inventory reset and victory summary, then rerun all gates"
-      }
-    },
-    {
-      "task_id": "boss-intent-and-guards",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "[milestones 1-3/4] Boss phase abilities execute (summons, rings, teleport, spread); bosses excluded from random elites; run completion guarded once per run; permadeath clears run inventory; victory summary extracted and tested; collection snapshots prevent phase-spawned minions being hit by the triggering swing. 97 tests. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792665419.4135993,
-      "timestamp_str": "2026-10-22 13:36:59"
-    },
-    {
-      "task_id": "boss-intent-and-guards",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[milestone 4/4] Phase 4: 97 tests across 10 files, 7/7 gates green (test, lint, typecheck, build, hygiene, guidelines, secrets), ADR-011, README/ARCHITECTURE updates, diff check clean. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792665425.7155068,
-      "timestamp_str": "2026-10-22 13:37:05"
-    },
-    {
-      "task_id": "boss-intent-and-guards",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'boss-intent-and-guards' completed successfully.",
-      "status": "completed",
-      "timestamp": 1792665425.9799726,
-      "timestamp_str": "2026-10-22 13:37:05"
-    },
-    {
-      "task_id": "boss-intent-and-guards",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "Post-completion verification: DoT ticks now cross boss phase thresholds, entity updates snapshot their collection, and the runCompleted guard round-trips through save/load. 99 tests, 7/7 gates, diff check clean. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792672785.4720845,
-      "timestamp_str": "2026-10-22 15:39:45"
-    },
-    {
-      "task_id": "boss-intent-and-guards",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'boss-intent-and-guards' completed successfully.",
-      "status": "completed",
-      "timestamp": 1792672785.700924,
-      "timestamp_str": "2026-10-22 15:39:45"
-    },
-    {
-      "task_id": "boss-intent-and-guards",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "Final verification: DoT phase transitions, entity-loop snapshot, serialized runCompleted guard, and keeper phase ability tests (timeline_shift, reconstruction_beam, true_ending). 100 tests, 7/7 gates, diff check clean. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792673029.690666,
-      "timestamp_str": "2026-10-22 15:43:49"
-    },
-    {
-      "task_id": "boss-intent-and-guards",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'boss-intent-and-guards' completed successfully.",
-      "status": "completed",
-      "timestamp": 1792673030.1664214,
-      "timestamp_str": "2026-10-22 15:43:50"
-    },
-    {
-      "task_id": "rc-stabilization",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/4] Add GitHub Actions CI for npm ci, lint, test, typecheck and build; [2/4] Bring the in-game tutorial in line with the current combat/run mechanics; [3/4] Add content-data integrity tests for enemies/items/loot/phase/elite invariants; [4/4] Docs/ADR and full gate check",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792673452.0638883,
-      "timestamp_str": "2026-10-22 15:50:52",
-      "impact_assessment": {
-        "why": "The project has no CI, the onboarding text still describes radial slashes, and content JSON is only validated indirectly by whichever code happens to import it",
-        "benefits": "Every push gets an objective quality gate, new players learn the actual mechanics, and broken loot/phase/stats data fails tests before it reaches playtests",
-        "risks": "contract: new tests only, CI workflow; dependency: none; concurrency: no other writer; state: no runtime state changes",
-        "mitigation": "Keep the CI workflow on the declared Node engine, test only authored data invariants, and rerun all local gates"
-      }
-    },
-    {
-      "task_id": "rc-stabilization",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "[milestones 1-3/4] CI workflow, tutorial rewrite, content-data tests, README tree/CI docs, ADR-012. 107 tests. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792674037.8364348,
-      "timestamp_str": "2026-10-22 16:00:37"
-    },
-    {
-      "task_id": "rc-stabilization",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[milestone 4/4] Phase 4: 107 tests across 11 files, 7/7 gates green, diff check clean, ADR-012, README/ARCHITECTURE updated. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792674058.3210082,
-      "timestamp_str": "2026-10-22 16:00:58"
-    },
     {
       "task_id": "rc-stabilization",
       "phase": "completed",
@@ -225,6 +115,147 @@
       "status": "completed",
       "timestamp": 1792686075.6773257,
       "timestamp_str": "2026-10-22 19:21:15"
+    },
+    {
+      "task_id": "gameplay-overhaul",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/5] Plan terrain overhaul, lag elimination, minimap, inventory, and skills UI",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792877567.0920095,
+      "timestamp_str": "2026-10-25 00:32:47",
+      "agent": "unidentified",
+      "impact_assessment": {
+        "why": "Fix disjointed terrain generator, eliminate 500ms lag spikes and visual lighting glitch, provide proper coherent map and complete menu system with settings, inventory, and skills",
+        "benefits": "Smooth 60 FPS gameplay, beautiful coherent procedural level design with rooms/platforms, functional minimap, full inventory and skills upgrade UI",
+        "risks": "contract: existing tile query and entity spawn tests must pass; dependency: zero new external packages; concurrency: async chunk queue must not starve game loop; state: player save/load and progression schemas must remain backward compatible",
+        "mitigation": "Preserve WorldSystem public API contracts (isSolidAt, getTileAt, getLoadedChunks), test with headless browser and Vitest suite at each step"
+      }
+    },
+    {
+      "task_id": "gameplay-overhaul",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "Overhaul terrain generator, lag elimination, minimap, inventory, and skills UI; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792878540.4365175,
+      "timestamp_str": "2026-10-25 00:49:00",
+      "agent": "unidentified"
+    },
+    {
+      "task_id": "gameplay-overhaul",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'gameplay-overhaul' completed successfully.",
+      "status": "completed",
+      "timestamp": 1792878554.656773,
+      "timestamp_str": "2026-10-25 00:49:14",
+      "agent": "unidentified"
+    },
+    {
+      "task_id": "topdown-qol",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/4] Plan top-down 2.5D dungeon map and addictivity/QoL features",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792878809.8458943,
+      "timestamp_str": "2026-10-25 00:53:29",
+      "agent": "unidentified",
+      "impact_assessment": {
+        "why": "Map generation used side-scrolling platformer assumptions with ladders and bottom bedrock instead of top-down 2.5D dungeon navigation; gameplay needs addictiveness juice (combo multipliers, dash-strikes, loot magnets) and QoL enhancements (quick-heal hotkey Q, floating loot feedback, interactive minimap)",
+        "benefits": "Transforms world into a true top-down 2.5D Metroidvania dungeon with 4-way navigable corridors, creates exhilarating combat feel with combo surge and dash-strikes, and dramatically improves player quality of life",
+        "risks": "contract: none, WorldSystem public API preserved; dependency: none, uses existing PixiJS and internal modules; concurrency: none, single-threaded browser loop; state: tile solid flags must treat floor as walkable and walls as barriers",
+        "mitigation": "Ensure doorways align across all chunk boundaries (N/S/E/W doors at center tiles); verify walkable floor semantics in collision queries; test thoroughly via headless Playwright browser"
+      },
+      "handoff": {
+        "next": "Implement top-down room archetypes and doorway corridors in WorldSystem.ts"
+      }
+    },
+    {
+      "task_id": "topdown-qol",
+      "phase": "abandoned",
+      "phase_num": 2,
+      "description": "Task 'topdown-qol' abandoned: Superseded by core rebuild; unfinished changes preserved on branch wip/topdown-qol-abandoned (e22ffb9)",
+      "status": "abandoned",
+      "timestamp": 1792881032.9899716,
+      "timestamp_str": "2026-10-25 01:30:32",
+      "agent": "claude-code:32f4dd2c",
+      "continued_from": "unidentified"
+    },
+    {
+      "task_id": "core-rebuild",
+      "phase": "in_progress",
+      "phase_num": 2,
+      "description": "[1/5] Rebuild as top-down action roguelike: sim foundation (rng, content, dungeon, physics), sim gameplay, Pixi view, DOM UI + meta, polish",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792881128.0708804,
+      "timestamp_str": "2026-10-25 01:32:08",
+      "agent": "claude-code:32f4dd2c",
+      "impact_assessment": {
+        "why": "User reports graphics, UI and mechanics are all broken: side-view platformer tiles drawn top-down, overlapping HUD text, per-frame minimap crash, 19.6k-line tangle; user chose top-down plus a core rebuild",
+        "benefits": "Coherent playable game; headless deterministic sim that tests can drive; readable top-down 2.5D art; DOM UI that lays out correctly",
+        "risks": "contract: replaces src/core,engine,graphics,gameplay,ai,testing,ui modules and window.__TESTING_HARNESS__; dependency: none added, unused ecsy/@pixi filters removed; concurrency: none, single rAF loop; state: old localStorage saves become incompatible",
+        "mitigation": "Old work kept on branch wip/topdown-qol-abandoned; versioned save schema with zod validation that ignores old saves; each milestone passes aikit check before the next; Playwright playtest of every screen"
+      }
+    },
+    {
+      "task_id": "core-rebuild",
+      "phase": "in_progress",
+      "phase_num": 3,
+      "description": "[2/5] Milestone 1 done (src/sim rng, tiles, dungeon, physics, content + tests; aikit check 7/7). Next: sim gameplay (player, enemies, combat, upgrades, world step)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792881750.418766,
+      "timestamp_str": "2026-10-25 01:42:30",
+      "agent": "claude-code:32f4dd2c"
+    },
+    {
+      "task_id": "core-rebuild",
+      "phase": "in_progress",
+      "phase_num": 3,
+      "description": "[3/5] Milestone 2 done (sim player, enemies+bosses, combat, upgrades, run, world + tests; check 7/7). Next: Pixi view, new main.ts, remove old systems",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792882272.2124913,
+      "timestamp_str": "2026-10-25 01:51:12",
+      "agent": "claude-code:32f4dd2c"
+    },
+    {
+      "task_id": "core-rebuild",
+      "phase": "in_progress",
+      "phase_num": 3,
+      "description": "[4/5] Milestones 3+4 done together (App needs both): Pixi view, input, DOM HUD/screens/minimap, save store, synth audio, new main.ts; old src systems + their 12 tests removed; 62 tests; check 7/7; Playwright tour of all 6 biomes clean. Next: balance bot, polish, README/docs/ADR, dep cleanup",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792918351.3548884,
+      "timestamp_str": "2026-10-25 11:52:31",
+      "agent": "claude-code:32f4dd2c"
+    },
+    {
+      "task_id": "core-rebuild",
+      "phase": "in_progress",
+      "phase_num": 4,
+      "description": "[5/5] Polish done: flow-field chasing, corner slipping, portal by interaction, event queue across steps, balance tuned via headless bot (40 runs, no soft-locks), docs/README/ADR-016, unused deps removed; 69 tests; check 7/7; Playwright E2E 8/8. checklists: passed. Uncommitted: commit not authorized (PRINCIPLE-018 R1)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1792919410.0207546,
+      "timestamp_str": "2026-10-25 12:10:10",
+      "agent": "claude-code:32f4dd2c"
+    },
+    {
+      "task_id": "core-rebuild",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'core-rebuild' completed successfully.",
+      "status": "completed",
+      "timestamp": 1792924515.2665458,
+      "timestamp_str": "2026-10-25 13:35:15",
+      "agent": "antigravity:caeab849",
+      "continued_from": "claude-code:32f4dd2c"
     }
   ]
 }
