@@ -8,7 +8,21 @@ import biomesJson from '@data/biomes.json';
 import enemiesJson from '@data/enemies.json';
 import loreJson from '@data/lore.json';
 
-export type BiomeId = 'ruins' | 'forest' | 'caves' | 'crystal' | 'void' | 'sanctuary';
+export type BiomeId =
+  | 'ruins'
+  | 'forest'
+  | 'caves'
+  | 'crystal'
+  | 'ash'
+  | 'foundry'
+  | 'abyss'
+  | 'void'
+  | 'frost'
+  | 'mire'
+  | 'bloom'
+  | 'hive'
+  | 'catacomb'
+  | 'sanctuary';
 
 /** How an enemy fights; several data behaviours share one archetype. */
 export type Archetype = 'melee' | 'skirmisher' | 'caster' | 'brute' | 'boss';
@@ -46,6 +60,8 @@ export interface EnemyDef {
   sprite: string;
   /** Display height in pixels. */
   displayHeight: number;
+  /** Optional sprite tint, so a reused sheet still reads as a new enemy. */
+  tint?: number;
 }
 
 export interface FloorPlan {
@@ -55,6 +71,12 @@ export interface FloorPlan {
   boss: string;
   roomCount: number;
   finale: boolean;
+  /** Cell pattern for this section. */
+  layout: 'branch' | 'ring' | 'spine' | 'grid' | 'diamond' | 'cross';
+  /** A boss-only episode: one arena, no trash. */
+  bossOnly?: boolean;
+  /** Banner title for an episode instead of the biome name. */
+  trialName?: string;
 }
 
 export interface MemoryFragment {
@@ -98,7 +120,66 @@ const SPRITE_KEYS: Record<string, string> = {
   crystal_guardian: 'crystalGuardian',
   prism_entity: 'prismEntity',
   void_walker: 'voidWalker',
+  // Later sections reuse existing art until dedicated sheets exist.
+  cinder_wisp: 'spirit',
+  magma_hound: 'wildling',
+  drowned: 'caveDweller',
+  tide_caller: 'prismEntity',
+  // The shadow sheet is near-black, so a tint cannot lift it; late mobs borrow
+  // mid-tone sheets and take their colour from tint. Bosses have own sheets.
+  frost_stalker: 'crystalGuardian',
+  glass_sentinel: 'guardian',
+  bloom_crawler: 'caveDweller',
+  petal_witch: 'spirit',
+  cog_hound: 'cogHound',
+  solder_wisp: 'solderWisp',
+  bog_leech: 'bogLeech',
+  plague_caster: 'plagueCaster',
+  bombardier: 'bombardier',
+  hive_drone: 'hiveDrone',
+  hive_guard: 'hiveGuard',
+  catacomb_archer: 'catacombArcher',
+  bone_knight: 'boneKnight',
+  grave_hound: 'graveHound',
+  void_cantor: 'voidCantor',
+  hive_queen: 'hiveQueen',
+  bone_tyrant: 'boneTyrant',
+  choir_hierophant: 'choirHierophant',
+  hollow_behemoth: 'hollowBehemoth',
+  cinder_warden: 'cinderWarden',
+  leviathan: 'leviathan',
+  frost_warden: 'frostWarden',
+  thorn_matriarch: 'thornMatriarch',
+  forgotten: 'forgottenGiant',
+  clockwork_regent: 'clockworkRegent',
+  mire_sovereign: 'mireSovereign',
 };
+
+/**
+ * Late enemies share sheets with older ones, so each gets a tint that matches
+ * its section (ember, deep water, ice, bloom) and stays readable in the dark.
+ */
+const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
+  Object.entries({
+    cinder_wisp: 0xffb070,
+    magma_hound: 0xff9060,
+    drowned: 0x8fe8dc,
+    tide_caller: 0x9fefff,
+    frost_stalker: 0xbfeaff,
+    glass_sentinel: 0xaad8ff,
+    bloom_crawler: 0xbaffc4,
+    petal_witch: 0xffb0e6,
+  }).map(([id, color]) => [id, pastel(color)])
+);
+
+/** Tint is multiplicative, so dark shared sheets need a mostly-white mix. */
+function pastel(color: number): number {
+  const mix = (channel: number): number => Math.round(channel * 0.35 + 255 * 0.65);
+  const r = mix((color >> 16) & 0xff);
+  const g = mix((color >> 8) & 0xff);
+  const b = mix(color & 0xff);
+  return (r << 16) | (g << 8) | b;
+}
 
 export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
@@ -108,6 +189,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     boss: 'guardian',
     roomCount: 7,
     finale: false,
+    layout: 'branch',
   },
   {
     depth: 1,
@@ -116,6 +198,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     boss: 'spirit',
     roomCount: 8,
     finale: false,
+    layout: 'ring',
   },
   {
     depth: 2,
@@ -124,6 +207,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     boss: 'crystal_golem',
     roomCount: 9,
     finale: false,
+    layout: 'spine',
   },
   {
     depth: 3,
@@ -132,22 +216,119 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     boss: 'crystal_guardian',
     roomCount: 9,
     finale: false,
+    layout: 'grid',
   },
   {
     depth: 4,
-    biome: 'void',
-    roster: ['void_walker', 'prism_entity', 'shadow'],
-    boss: 'forgotten',
+    biome: 'ash',
+    roster: ['cinder_wisp', 'magma_hound', 'bombardier'],
+    boss: 'cinder_warden',
     roomCount: 10,
     finale: false,
+    layout: 'branch',
   },
   {
     depth: 5,
+    biome: 'frost',
+    roster: [],
+    boss: 'choir_hierophant',
+    roomCount: 1,
+    finale: false,
+    layout: 'grid',
+    bossOnly: true,
+    trialName: 'Echo Trial: The Frozen Choir',
+  },
+  {
+    depth: 6,
+    biome: 'foundry',
+    roster: ['cog_hound', 'solder_wisp', 'bombardier'],
+    boss: 'clockwork_regent',
+    roomCount: 10,
+    finale: false,
+    layout: 'grid',
+  },
+  {
+    depth: 7,
+    biome: 'abyss',
+    roster: ['drowned', 'tide_caller', 'cinder_wisp'],
+    boss: 'leviathan',
+    roomCount: 10,
+    finale: false,
+    layout: 'ring',
+  },
+  {
+    depth: 8,
+    biome: 'void',
+    roster: ['void_walker', 'prism_entity', 'shadow', 'void_cantor'],
+    boss: 'forgotten',
+    roomCount: 11,
+    finale: false,
+    layout: 'spine',
+  },
+  {
+    depth: 9,
+    biome: 'frost',
+    roster: ['frost_stalker', 'glass_sentinel', 'drowned'],
+    boss: 'frost_warden',
+    roomCount: 11,
+    finale: false,
+    layout: 'grid',
+  },
+  {
+    depth: 10,
+    biome: 'void',
+    roster: [],
+    boss: 'hollow_behemoth',
+    roomCount: 1,
+    finale: false,
+    layout: 'grid',
+    bossOnly: true,
+    trialName: 'Echo Trial: The Nameless',
+  },
+  {
+    depth: 11,
+    biome: 'mire',
+    roster: ['bog_leech', 'plague_caster', 'drowned'],
+    boss: 'mire_sovereign',
+    roomCount: 12,
+    finale: false,
+    layout: 'branch',
+  },
+  {
+    depth: 12,
+    biome: 'bloom',
+    roster: ['bloom_crawler', 'petal_witch', 'frost_stalker'],
+    boss: 'thorn_matriarch',
+    roomCount: 12,
+    finale: false,
+    layout: 'ring',
+  },
+  {
+    depth: 13,
+    biome: 'hive',
+    roster: ['hive_drone', 'hive_guard', 'cinder_wisp'],
+    boss: 'hive_queen',
+    roomCount: 12,
+    finale: false,
+    layout: 'diamond',
+  },
+  {
+    depth: 14,
+    biome: 'catacomb',
+    roster: ['bone_knight', 'catacomb_archer', 'hive_guard', 'grave_hound'],
+    boss: 'bone_tyrant',
+    roomCount: 13,
+    finale: false,
+    layout: 'cross',
+  },
+  {
+    depth: 15,
     biome: 'sanctuary',
     roster: ['void_walker', 'memory_echo', 'prism_entity'],
     boss: 'keeper',
     roomCount: 5,
     finale: true,
+    layout: 'branch',
   },
 ];
 
@@ -181,6 +362,7 @@ function toEnemyDef(raw: RawEnemy, asBoss: boolean): EnemyDef {
     xp: raw.stats.xpValue,
     sprite: SPRITE_KEYS[raw.id] ?? raw.id,
     displayHeight: Math.max(48, raw.sprite.height) * (asBoss ? 1.5 : 1),
+    tint: ENEMY_TINTS[raw.id],
   };
 }
 
@@ -209,6 +391,12 @@ export function floorPlan(depth: number): FloorPlan {
 }
 
 export const FINAL_DEPTH = FLOOR_PLANS.length - 1;
+
+/** The echo guardian that waits in a mid-floor arena: another section's boss. */
+export function arenaBossFor(depth: number): string {
+  const pool = FLOOR_PLANS.filter((plan, index) => plan.boss !== 'keeper' && index !== depth);
+  return pool[(depth * 5 + 3) % pool.length].boss;
+}
 
 interface RawLore {
   memoryFragments: Record<string, { text: string; location: string }>;

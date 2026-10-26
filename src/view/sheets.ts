@@ -17,6 +17,13 @@ export interface ActorSheet {
   death: Animation;
   /** Present for the player only. */
   dash?: Animation;
+  /** Player strips for the other stances. */
+  idleSpear?: Animation;
+  idleGreatsword?: Animation;
+  walkSpear?: Animation;
+  walkGreatsword?: Animation;
+  attackSpear?: Animation;
+  attackGreatsword?: Animation;
   originX: number;
   originY: number;
   frameHeight: number;
@@ -81,7 +88,9 @@ function strip(
 
 async function loadTexture(path: string): Promise<Texture> {
   const texture = await Assets.load<Texture>(url(path));
-  texture.source.scaleMode = 'linear';
+  // Pixel art stays crisp: bilinear filtering was the main source of the
+  // "blurry boss" look, especially when a 64px sheet was scaled to 144px.
+  texture.source.scaleMode = 'nearest';
   return texture;
 }
 
@@ -94,11 +103,28 @@ async function loadPlayer(): Promise<ActorSheet> {
     const texture = await loadTexture(a.texture);
     return { frames: strip(texture, 0, a.frames, w, h), fps: a.fps, loop: a.loop };
   };
-  const [idle, walk, attack, dash] = await Promise.all([
+  const [
+    idle,
+    walk,
+    attack,
+    dash,
+    idleSpear,
+    idleGreatsword,
+    walkSpear,
+    walkGreatsword,
+    attackSpear,
+    attackGreatsword,
+  ] = await Promise.all([
     anim('idle'),
     anim('walk'),
     anim('attack'),
     anim('dash'),
+    anim('idle_spear'),
+    anim('idle_greatsword'),
+    anim('walk_spear'),
+    anim('walk_greatsword'),
+    anim('attack_spear'),
+    anim('attack_greatsword'),
   ]);
   // The player sheet has no death strip; the idle pose fades out instead.
   return {
@@ -106,6 +132,12 @@ async function loadPlayer(): Promise<ActorSheet> {
     walk,
     attack,
     dash,
+    idleSpear,
+    idleGreatsword,
+    walkSpear,
+    walkGreatsword,
+    attackSpear,
+    attackGreatsword,
     death: { ...idle, loop: false },
     originX: p.origin.x,
     originY: p.origin.y,

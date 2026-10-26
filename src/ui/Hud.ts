@@ -5,6 +5,7 @@
 import { biomeInfo, MEMORY_FRAGMENTS } from '../sim/content';
 import type { SimEvent } from '../sim/events';
 import { resonanceMultiplier, RESONANCE_MAX, RESONANCE_WINDOW, xpForLevel } from '../sim/run';
+import { weaponDef } from '../sim/weapons';
 import type { World } from '../sim/world';
 import { assetUrl, h } from './dom';
 import { drawMap } from './Minimap';
@@ -35,6 +36,7 @@ export class Hud {
   private readonly flowLabel = h('span', { class: 'flow-label' });
   private readonly flow = h('div', { class: 'hud-flow idle' }, this.flowFill, this.flowLabel);
   private readonly pips = h('div', { class: 'pips' });
+  private readonly kit = h('div', { class: 'hud-kit' });
   private readonly potions = h('span');
   private readonly floorName = h('div', { class: 'hud-floor' });
   private readonly objectives = h('div', { class: 'hud-objectives' });
@@ -76,6 +78,8 @@ export class Hud {
   private mapTimer = 0;
   private objectiveTimer = 0;
   private objectiveText = '';
+  /** Suppresses the duplicate floor/objective lines while the cinematic banner is up. */
+  private bannerTimer = 0;
 
   constructor() {
     const shardIcon = h('img', { src: assetUrl('sprites/ui/fragment_shard.png'), alt: '' });
@@ -93,7 +97,8 @@ export class Hud {
         { class: 'hud-row' },
         h('span', { class: 'chip' }, 'Dash', this.pips),
         h('span', { class: 'chip' }, potionIcon, this.potions, h('span', { class: 'key' }, 'Q'))
-      )
+      ),
+      this.kit
     );
     const map = h(
       'div',
@@ -120,6 +125,14 @@ export class Hud {
   /** Fades the HUD while a full-screen menu is open, so nothing collides with it. */
   setDimmed(dimmed: boolean): void {
     this.root.classList.toggle('dim', dimmed);
+  }
+
+  /** Hides the persistent floor line while the same text plays as a banner. */
+  showBanner(seconds = 3.3): void {
+    this.bannerTimer = seconds;
+    this.root.classList.add('banner-open');
+    // A toast from the previous floor must not survive into the new one's banner.
+    this.toasts.replaceChildren();
   }
 
   /** Hides the controls hint after the first floor. */
@@ -169,7 +182,6 @@ export class Hud {
         this.toast(
           world.floor.rooms[e.roomId].kind === 'boss' ? 'The guardian falls' : 'Room cleared'
         );
-      if (e.type === 'bossIntro') this.toast(e.name, true);
       if (e.type === 'bossPhase')
         this.toast(e.phase === 2 ? 'It grows desperate' : 'It grows angry', true);
       if (e.type === 'notice') this.toast(e.text, true);
@@ -182,11 +194,17 @@ export class Hud {
         this.toast(e.kind === 'jackpot' ? 'Memory surge!' : 'A rich vein', e.kind === 'jackpot');
       if (e.type === 'objectiveComplete') this.toast(`Floor restored · +${e.shards} shards`);
       if (e.type === 'flawlessRoom') this.toast(`Flawless · +${e.shards} shards`);
+      if (e.type === 'equipment')
+        this.toast(`${e.rarity} ${e.slot} · ${e.name}${e.auto ? ' equipped' : ''}`);
     }
   }
 
   update(world: World, dt: number): void {
     this.time += dt;
+    if (this.bannerTimer > 0) {
+      this.bannerTimer -= dt;
+      if (this.bannerTimer <= 0) this.root.classList.remove('banner-open');
+    }
     const p = world.player;
     const s = p.stats;
     this.setText(this.level, `Level ${p.level}`);
@@ -200,6 +218,10 @@ export class Hud {
     this.setText(this.potions, `${p.potions}/${s.maxPotions}`);
     this.setText(this.shards, `${p.shards}`);
     this.updatePips(p.dashCharges, s.dashCharges);
+    this.setText(
+      this.kit,
+      `${weaponDef(p.weapon).name} 1-3  ·  Art ${p.artCooldown <= 0 ? 'V' : `${p.artCooldown.toFixed(1)}s`}  ·  Bombs ${p.bombs} G  ·  Traps ${p.traps} T`
+    );
 
     // The meter keeps its row when idle, so the vitals never jump between states.
     const flowActive = p.resonance > 0;
@@ -213,7 +235,10 @@ export class Hud {
     );
 
     const biome = biomeInfo(world.plan.biome);
-    this.setText(this.floorName, `Depth ${world.run.depth + 1} · ${biome.name}`);
+    this.setText(
+      this.floorName,
+      `Section ${world.run.depth + 1} · ${world.plan.trialName ?? biome.name}`
+    );
     // Objectives only change on events, so recompute a few times a second.
     this.objectiveTimer -= dt;
     if (this.objectiveTimer <= 0) {
@@ -223,7 +248,7 @@ export class Hud {
     this.setText(this.objectives, this.objectiveText);
 
     const boss = world.activeBoss();
-    this.bossBar.classList.toggle('hidden', !boss || boss.state === 'spawning');
+    this.bossBar.classList.toggle('hidden', !boss);
     if (boss) {
       this.setText(this.bossName, boss.def.name);
       this.setWidth(this.boss.fill, boss.health / boss.maxHealth);
@@ -233,12 +258,29 @@ export class Hud {
     const near = world.nearbyInteractable();
     this.prompt.classList.toggle('hidden', !near);
     if (near) {
-      const label =
-        near.kind === 'portal'
-          ? 'Step through the rift'
-          : near.kind === 'chest'
-            ? 'Open the memory chest'
-            : `Offer ${near.cost} shards to the Memory Well (heal + upgrade)`;
+      let label: string;
+      switch (near.kind) {
+        case 'portal':
+          label = 'Step through the rift';
+          break;
+        case 'chest':
+          label = 'Open the memory chest';
+          break;
+        case 'archive':
+          label = 'Read the memory archive';
+          break;
+        case 'fountain':
+          label = 'Drink from the fountain';
+          break;
+        case 'lever':
+          label = 'Pull the lever';
+          break;
+        case 'merchant':
+          label = `Trade ${near.cost} shards for a relic`;
+          break;
+        default:
+          label = `Offer ${near.cost} shards to the Memory Well (heal + upgrade)`;
+      }
       this.setText(this.prompt, `[E]  ${label}`);
     }
 

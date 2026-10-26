@@ -7,7 +7,7 @@
  */
 import type { InputFrame } from '../sim/entities';
 
-export type MenuAction = 'pause' | 'confirm' | 'map';
+export type MenuAction = 'pause' | 'confirm' | 'map' | 'inventory';
 
 const KEYS = {
   up: ['KeyW', 'ArrowUp'],
@@ -19,6 +19,9 @@ const KEYS = {
   dash: ['Space', 'ShiftLeft', 'ShiftRight'],
   potion: ['KeyQ'],
   interact: ['KeyE', 'KeyF'],
+  bomb: ['KeyG'],
+  trap: ['KeyT'],
+  art: ['KeyV'],
 } as const;
 
 const STICK_DEADZONE = 0.22;
@@ -29,7 +32,15 @@ export class Input {
   private mouseY = 0;
   private mouseLeft = false;
   private mouseRight = false;
-  private latched = { dash: false, potion: false, interact: false };
+  private latched = {
+    dash: false,
+    potion: false,
+    interact: false,
+    weapon: -1,
+    bomb: false,
+    trap: false,
+    art: false,
+  };
   private padButtons: boolean[] = [];
   private padAim: { x: number; y: number } | undefined;
   /** True after the last aim came from a gamepad stick rather than the mouse. */
@@ -70,9 +81,16 @@ export class Input {
     if (KEYS.dash.includes(e.code as never)) this.latched.dash = true;
     if (KEYS.potion.includes(e.code as never)) this.latched.potion = true;
     if (KEYS.interact.includes(e.code as never)) this.latched.interact = true;
+    if (KEYS.bomb.includes(e.code as never)) this.latched.bomb = true;
+    if (KEYS.trap.includes(e.code as never)) this.latched.trap = true;
+    if (KEYS.art.includes(e.code as never)) this.latched.art = true;
+    if (e.code === 'Digit1') this.latched.weapon = 0;
+    if (e.code === 'Digit2') this.latched.weapon = 1;
+    if (e.code === 'Digit3') this.latched.weapon = 2;
     if (e.code === 'Escape' || e.code === 'KeyP') this.onMenu('pause');
     if (e.code === 'Tab' || e.code === 'KeyM') this.onMenu('map');
     if (e.code === 'Enter') this.onMenu('confirm');
+    if (e.code === 'KeyI') this.onMenu('inventory');
   }
 
   /** Drops held state, e.g. when the window loses focus or a menu opens. */
@@ -80,7 +98,15 @@ export class Input {
     this.held.clear();
     this.mouseLeft = false;
     this.mouseRight = false;
-    this.latched = { dash: false, potion: false, interact: false };
+    this.latched = {
+      dash: false,
+      potion: false,
+      interact: false,
+      weapon: -1,
+      bomb: false,
+      trap: false,
+      art: false,
+    };
   }
 
   private any(codes: readonly string[]): boolean {
@@ -99,6 +125,12 @@ export class Input {
     if (edge(0) || edge(5)) this.latched.dash = true; // A / RB
     if (edge(2)) this.latched.potion = true; // X
     if (edge(3)) this.latched.interact = true; // Y
+    if (edge(10)) this.latched.bomb = true; // L3
+    if (edge(11)) this.latched.trap = true; // R3
+    if (edge(4)) this.latched.art = true; // LB
+    if (edge(12)) this.latched.weapon = 0; // D-pad up
+    if (edge(14)) this.latched.weapon = 1; // D-pad left
+    if (edge(15)) this.latched.weapon = 2; // D-pad right
     if (edge(9)) this.onMenu('pause'); // Start
     if (edge(8)) this.onMenu('map'); // Back
     if (edge(1)) this.onMenu('confirm'); // B
@@ -146,8 +178,20 @@ export class Input {
       dash: this.latched.dash,
       potion: this.latched.potion,
       interact: this.latched.interact,
+      weapon: this.latched.weapon,
+      bomb: this.latched.bomb,
+      trap: this.latched.trap,
+      art: this.latched.art,
     };
-    this.latched = { dash: false, potion: false, interact: false };
+    this.latched = {
+      dash: false,
+      potion: false,
+      interact: false,
+      weapon: -1,
+      bomb: false,
+      trap: false,
+      art: false,
+    };
     return frame;
   }
 }

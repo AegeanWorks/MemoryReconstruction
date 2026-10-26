@@ -28,6 +28,28 @@ describe('content', () => {
     expect(enemyDef('guardian', true).maxHealth).toBeGreaterThan(enemyDef('guardian').maxHealth);
   });
 
+  it('grows the expedition to sixteen sections including echo trials', () => {
+    expect(FLOOR_PLANS).toHaveLength(16);
+    expect(FLOOR_PLANS[15].finale).toBe(true);
+    expect(FLOOR_PLANS[14].roomCount).toBeGreaterThan(FLOOR_PLANS[0].roomCount);
+    expect(new Set(FLOOR_PLANS.map((plan) => plan.biome)).size).toBeGreaterThanOrEqual(14);
+    expect(FLOOR_PLANS[4].biome).toBe('ash');
+    expect(FLOOR_PLANS[6].biome).toBe('foundry');
+    expect(FLOOR_PLANS[9].biome).toBe('frost');
+    expect(FLOOR_PLANS[11].biome).toBe('mire');
+    expect(FLOOR_PLANS[13].biome).toBe('hive');
+    expect(FLOOR_PLANS[14].biome).toBe('catacomb');
+    expect(FLOOR_PLANS.filter((plan) => plan.bossOnly)).toHaveLength(2);
+    expect(FLOOR_PLANS.filter((plan) => plan.bossOnly).map((plan) => plan.boss)).toEqual([
+      'choir_hierophant',
+      'hollow_behemoth',
+    ]);
+  });
+
+  it('uses more than one map layout', () => {
+    expect(new Set(FLOOR_PLANS.map((plan) => plan.layout)).size).toBeGreaterThanOrEqual(6);
+  });
+
   it('only references fragments that exist', () => {
     const ids = new Set(MEMORY_FRAGMENTS.map((f) => f.id));
     for (const core of CORE_MEMORIES) for (const f of core.fragments) expect(ids.has(f)).toBe(true);

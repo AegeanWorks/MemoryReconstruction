@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `4`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `38`
+- **Total Top-Level Functions**: `49`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `1592`
+- **Total Source Lines**: `2488`
 
 ---
 
@@ -19,7 +19,7 @@
 ### [`scripts/generate_art_assets.py`](scripts/generate_art_assets.py)
 > *Generate the Memory Reconstruction art set.*
 
-**Size**: `1178` lines (`53325` bytes)
+**Size**: `2074` lines (`103559` bytes)
 
 **Functions:**
 - `def rgba(color, alpha)`
@@ -33,7 +33,7 @@
 - `def save_cell(img, cell, path)`
 - `def mix(a, b, t)`
 - `def player_scarf(state, t, bob)`
-- `def player_frame(state, frame, frames)`
+- `def player_frame(state, frame, frames, weapon)`
 - `def _enemy_common(draw, cell, style, row, frame, t)`
 - `def _construct(draw, cell, style, row, frame, t)`
 - `def _hunched(draw, cell, style, row, frame, t)`
@@ -41,7 +41,18 @@
 - `def _beast(draw, cell, style, row, frame, t)`
 - `def _duelist(draw, cell, style, row, frame, t)`
 - `def _keeper(draw, cell, style, row, frame, t)`
-- `def enemy_frame(kind, row, frame, frames)`
+- `def _warden(draw, cell, style, row, frame, t)`
+- `def _serpent(draw, cell, style, row, frame, t)`
+- `def _matriarch(draw, cell, style, row, frame, t)`
+- `def _regent(draw, cell, style, row, frame, t)`
+- `def _sovereign(draw, cell, style, row, frame, t)`
+- `def _giant(draw, cell, style, row, frame, t)`
+- `def _queen(draw, cell, style, row, frame, t)`
+- `def _tyrant(draw, cell, style, row, frame, t)`
+- `def _hound(draw, cell, style, row, frame, t)`
+- `def _hierophant(draw, cell, style, row, frame, t)`
+- `def _behemoth(draw, cell, style, row, frame, t)`
+- `def enemy_frame(kind, row, frame, frames, cell)`
 - `def tile_image(biome, tile_type, variant)`
 - `def background_image(biome)`
 - `def prop_image(kind)`

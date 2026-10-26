@@ -12,6 +12,8 @@ const KIND_COLOR: Record<Room['kind'], string> = {
   treasure: '#ffd98a',
   shrine: '#6fe7ff',
   boss: '#ff4d5e',
+  arena: '#ff9a5e',
+  library: '#b8a4ff',
 };
 
 /** Rooms worth showing: visited ones and their direct neighbours. */

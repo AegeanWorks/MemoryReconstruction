@@ -3,7 +3,9 @@
  * can be inspected or snapshotted without custom code.
  */
 import type { EnemyDef } from './content';
+import type { EquipmentItem, EquipmentSlots } from './equipment';
 import type { PlayerStats } from './upgrades';
+import type { WeaponId } from './weapons';
 
 export type PlayerAction = 'idle' | 'move' | 'attack' | 'dash' | 'dead';
 
@@ -19,6 +21,20 @@ export interface Player {
   stats: PlayerStats;
   /** Upgrade id -> times taken. */
   upgrades: Record<string, number>;
+  /** Current melee stance. */
+  weapon: WeaponId;
+  /** Throwable bombs carried. */
+  bombs: number;
+  /** Placeable traps carried. */
+  traps: number;
+  /** Seconds until the stance weapon art is ready again. */
+  artCooldown: number;
+  /** Worn relics, one per slot. */
+  equipment: EquipmentSlots;
+  /** Unequipped relics carried this expedition. */
+  inventory: EquipmentItem[];
+  /** Monotonic id for new relic drops. */
+  nextEquipmentId: number;
   level: number;
   xp: number;
   shards: number;
@@ -57,7 +73,24 @@ export type EnemyState =
 
 /** Boss and caster attack shapes, also used by the view to draw telegraphs. */
 export type AttackKind =
-  'strike' | 'lunge' | 'slam' | 'shot' | 'spread' | 'ring' | 'charge' | 'volley' | 'summon';
+  | 'strike'
+  | 'lunge'
+  | 'slam'
+  | 'shot'
+  | 'spread'
+  | 'ring'
+  | 'charge'
+  | 'volley'
+  | 'summon'
+  | 'beam'
+  | 'mortar'
+  | 'mines'
+  | 'spiral'
+  | 'blink'
+  | 'bomb'
+  | 'swarm'
+  | 'hook'
+  | 'quake';
 
 export interface Enemy {
   id: number;
@@ -113,7 +146,44 @@ export interface Projectile {
   grazed?: boolean;
 }
 
-export type PickupKind = 'shard' | 'health' | 'potion' | 'fragment';
+/** A delayed ground explosion (mortars, rockfall, mines). */
+export interface Blast {
+  id: number;
+  x: number;
+  y: number;
+  radius: number;
+  /** Seconds until it detonates. */
+  delay: number;
+  damage: number;
+}
+
+/** A thrown bomb: arcs, bounces off walls, fuses, then explodes. */
+export interface Bomb {
+  id: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  /** Seconds until it explodes. */
+  fuse: number;
+  radius: number;
+  damage: number;
+  owner: 'player' | 'enemy';
+}
+
+/** A proximity mine that arms after a short delay. */
+export interface Mine {
+  id: number;
+  x: number;
+  y: number;
+  damage: number;
+  /** Seconds until armed. */
+  arm: number;
+  /** Seconds until it fizzles out. */
+  life: number;
+}
+
+export type PickupKind = 'shard' | 'health' | 'potion' | 'fragment' | 'equipment' | 'bomb' | 'trap';
 
 export interface Pickup {
   id: number;
@@ -123,13 +193,25 @@ export interface Pickup {
   amount: number;
   /** Fragment id for kind 'fragment'. */
   fragmentId?: string;
+  /** Relic for kind 'equipment'. */
+  equipment?: EquipmentItem;
   /** Seconds since dropped; shards scatter briefly before homing. */
   age: number;
   vx: number;
   vy: number;
 }
 
-export type InteractableKind = 'chest' | 'shrine' | 'portal';
+export type InteractableKind =
+  | 'chest'
+  | 'shrine'
+  | 'portal'
+  | 'lever'
+  | 'fountain'
+  | 'merchant'
+  | 'structure'
+  | 'npc'
+  | 'gate'
+  | 'archive';
 
 export interface Interactable {
   id: number;
@@ -137,8 +219,44 @@ export interface Interactable {
   x: number;
   y: number;
   used: boolean;
-  /** Shards a shrine upgrade costs. */
+  /** Shards a shrine or merchant purchase costs. */
   cost: number;
+  /** Room a lever disables hazards in. */
+  roomId?: number;
+  /** Sanctuary structure id (hearth, armory, ...). */
+  structureId?: string;
+  /** Sanctuary NPC id. */
+  npcId?: string;
+  /** Floating name shown above Sanctuary stations. */
+  label?: string;
+  /** A chest that turns out to be a mimic. */
+  mimic?: boolean;
+}
+
+export type HazardKind = 'spike' | 'flame' | 'poison' | 'rockfall' | 'barrel' | 'trap';
+export type HazardPhase = 'idle' | 'warning' | 'active';
+
+/** A passive floor danger or a destructible barrel. */
+export interface Hazard {
+  id: number;
+  kind: HazardKind;
+  x: number;
+  y: number;
+  radius: number;
+  roomId: number;
+  phase: HazardPhase;
+  /** Seconds until the next phase change. */
+  timer: number;
+  period: number;
+  damage: number;
+  hp: number;
+  maxHp: number;
+  disabled: boolean;
+  /**
+   * Player-placed traps do not fire while their owner is still standing on
+   * them; they arm once the player steps clear, then treat everyone equally.
+   */
+  safePlayer?: boolean;
 }
 
 /** One frame of player intent, produced by the input layer or a test. */
@@ -154,6 +272,14 @@ export interface InputFrame {
   dash: boolean;
   potion: boolean;
   interact: boolean;
+  /** Weapon index to switch to, or -1 to keep the current one. */
+  weapon: number;
+  /** Throw a bomb this frame. */
+  bomb: boolean;
+  /** Place a trap this frame. */
+  trap: boolean;
+  /** Trigger the stance weapon art. */
+  art: boolean;
 }
 
 export const NO_INPUT: Readonly<InputFrame> = {
@@ -166,4 +292,8 @@ export const NO_INPUT: Readonly<InputFrame> = {
   dash: false,
   potion: false,
   interact: false,
+  weapon: -1,
+  bomb: false,
+  trap: false,
+  art: false,
 };

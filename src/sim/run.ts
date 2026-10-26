@@ -27,6 +27,8 @@ export interface RunStats {
   surges: number;
   /** Floors restored to completion for the bonus. */
   floorsRestored: number;
+  /** Section guardians defeated. */
+  bossKills: number;
 }
 
 /** Kills in one flow streak. */
@@ -70,6 +72,7 @@ export function createRun(seed: number, knownFragments: readonly string[]): RunS
       bestResonance: 0,
       surges: 0,
       floorsRestored: 0,
+      bossKills: 0,
     },
     fragmentsFound: [],
     knownFragments: [...knownFragments],
@@ -128,11 +131,18 @@ export function restoreRun(data: unknown): RunState | undefined {
   const health = run.player.health;
   const mana = run.player.mana;
   const dash = run.player.dashCharges;
+  // Fields added after v1 shipped default safely on older snapshots.
+  run.player.weapon ??= 'sword';
+  run.player.bombs ??= 0;
+  run.player.traps ??= 0;
+  run.player.artCooldown ??= 0;
+  run.player.equipment ??= { weapon: null, armor: null, trinket: null };
+  run.player.inventory ??= [];
+  run.player.nextEquipmentId ??= 1;
   refreshStats(run.player);
   run.player.health = Math.min(health, run.player.stats.maxHealth);
   run.player.mana = Math.min(mana, run.player.stats.maxMana);
   run.player.dashCharges = Math.min(dash, run.player.stats.dashCharges);
-  // Fields added after v1 shipped default safely on older snapshots.
   run.player.resonance ??= 0;
   run.player.resonanceTime ??= 0;
   run.player.dashGrazes ??= [];
@@ -140,6 +150,7 @@ export function restoreRun(data: unknown): RunState | undefined {
   run.stats.bestResonance ??= 0;
   run.stats.surges ??= 0;
   run.stats.floorsRestored ??= 0;
+  run.stats.bossKills ??= 0;
   run.pendingChoices = Array.isArray(run.pendingChoices) ? run.pendingChoices : [];
   return run;
 }

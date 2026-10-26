@@ -19,6 +19,15 @@ const WINDUP: Record<AttackKind, number> = {
   charge: 0.65,
   volley: 0.55,
   summon: 0.8,
+  beam: 0.85,
+  mortar: 0.7,
+  mines: 0.6,
+  spiral: 0.75,
+  blink: 0.4,
+  bomb: 0.6,
+  swarm: 0.8,
+  hook: 0.45,
+  quake: 0.75,
 };
 
 /** Seconds the attack phase lasts. */
@@ -32,15 +41,34 @@ const ACTIVE: Record<AttackKind, number> = {
   charge: 0.6,
   volley: 0.5,
   summon: 0.1,
+  beam: 0.2,
+  mortar: 0.15,
+  mines: 0.15,
+  spiral: 0.15,
+  blink: 0.15,
+  bomb: 0.15,
+  swarm: 0.15,
+  hook: 0.15,
+  quake: 0.15,
 };
 
 const BOSS_PATTERNS: Record<string, AttackKind[]> = {
-  guardian: ['slam', 'charge', 'spread', 'slam'],
-  spirit: ['ring', 'volley', 'summon', 'ring'],
-  crystal_golem: ['slam', 'ring', 'charge', 'slam'],
-  crystal_guardian: ['charge', 'spread', 'charge', 'ring'],
-  forgotten: ['ring', 'summon', 'charge', 'volley'],
-  keeper: ['ring', 'charge', 'volley', 'summon', 'slam', 'spread'],
+  guardian: ['slam', 'charge', 'spread', 'beam'],
+  spirit: ['ring', 'volley', 'summon', 'spiral'],
+  crystal_golem: ['slam', 'ring', 'mortar', 'slam'],
+  crystal_guardian: ['charge', 'spread', 'beam', 'blink'],
+  cinder_warden: ['slam', 'mortar', 'spread', 'beam'],
+  leviathan: ['charge', 'ring', 'volley', 'spiral'],
+  forgotten: ['ring', 'summon', 'blink', 'mines'],
+  frost_warden: ['spread', 'beam', 'ring', 'slam'],
+  thorn_matriarch: ['summon', 'volley', 'mines', 'ring'],
+  clockwork_regent: ['mortar', 'beam', 'spiral', 'charge'],
+  mire_sovereign: ['mines', 'spiral', 'summon', 'mortar'],
+  hive_queen: ['summon', 'swarm', 'bomb', 'spiral'],
+  bone_tyrant: ['quake', 'hook', 'bomb', 'charge'],
+  choir_hierophant: ['beam', 'spiral', 'swarm', 'hook'],
+  hollow_behemoth: ['quake', 'charge', 'mines', 'mortar'],
+  keeper: ['ring', 'beam', 'bomb', 'quake', 'blink', 'summon'],
 };
 
 /** Boss phase tuning: cooldown factor, ring bullets, bullet speed. */
@@ -211,7 +239,16 @@ function chase(arena: Arena, enemy: Enemy, dt: number): void {
           def.speed,
           dt
         );
-      if (enemy.cooldown <= 0 && sight && dist < 380) beginWindup(arena, enemy, defaultAttack(def));
+      if (enemy.cooldown <= 0 && sight && dist < 380) {
+        const bomber = def.id === 'bombardier' || def.id === 'hive_drone';
+        const late: AttackKind[] = ['shot', 'mortar', 'mines', 'spiral'];
+        // Deep casters unlock lane beams and pulls, so the caster answer is not
+        // always "strafe and shoot".
+        if (arena.depth >= 8) late.push('beam');
+        if (arena.depth >= 10) late.push('hook');
+        const kind = bomber ? 'bomb' : arena.depth >= 4 ? arena.rng.pick(late) : defaultAttack(def);
+        beginWindup(arena, enemy, kind);
+      }
       break;
     }
     case 'skirmisher': {
@@ -220,7 +257,15 @@ function chase(arena: Arena, enemy: Enemy, dt: number): void {
       if (arena.rng.chance(dt * 0.5)) enemy.strafe *= -1;
       if (circling) step(arena, enemy, -ny * enemy.strafe, nx * enemy.strafe, def.speed * 0.9, dt);
       else step(arena, enemy, toward.x, toward.y, def.speed, dt);
-      if (enemy.cooldown <= 0 && sight && dist < 175) beginWindup(arena, enemy, 'lunge');
+      if (enemy.cooldown <= 0 && sight && dist < 175) {
+        const kind =
+          arena.depth >= 8 && arena.rng.chance(0.22)
+            ? 'bomb'
+            : arena.depth >= 6 && arena.rng.chance(0.35)
+              ? 'blink'
+              : 'lunge';
+        beginWindup(arena, enemy, kind);
+      }
       break;
     }
     case 'boss': {
@@ -267,7 +312,12 @@ function beginWindup(arena: Arena, enemy: Enemy, kind: AttackKind): void {
 
 function windup(arena: Arena, enemy: Enemy): void {
   // Ranged attackers keep tracking until the last moment; melee commits early.
-  const tracks = enemy.attack === 'shot' || enemy.attack === 'spread' || enemy.attack === 'volley';
+  const tracks =
+    enemy.attack === 'shot' ||
+    enemy.attack === 'spread' ||
+    enemy.attack === 'volley' ||
+    enemy.attack === 'beam' ||
+    enemy.attack === 'mortar';
   if (tracks && enemy.stateTime > 0.15) {
     const angle = angleBetween(enemy.x, enemy.y, arena.player.x, arena.player.y);
     enemy.dirX = Math.cos(angle);
@@ -319,12 +369,125 @@ function launch(arena: Arena, enemy: Enemy): void {
     case 'summon':
       summon(arena, enemy);
       break;
+    case 'beam': {
+      // A long line attack: dodge out of the lane, not away from the caster.
+      const length = 620;
+      const width = enemy.isBoss ? 34 : 24;
+      const ex = enemy.x + Math.cos(angle) * length;
+      const ey = enemy.y + Math.sin(angle) * length;
+      if (segmentDistance(p.x, p.y, enemy.x, enemy.y, ex, ey) <= width / 2 + p.radius)
+        arena.damagePlayer(def.damage, enemy.x, enemy.y, 220);
+      arena.emit({ type: 'beam', x: enemy.x, y: enemy.y, angle, length, width });
+      arena.emit({ type: 'shake', strength: 6 });
+      break;
+    }
+    case 'mortar':
+      for (const offset of [-70, 0, 70]) {
+        const a = angle + Math.PI / 2;
+        arena.spawnBlast(
+          p.x + Math.cos(a) * offset,
+          p.y + Math.sin(a) * offset,
+          enemy.isBoss ? 52 : 40,
+          0.62,
+          def.damage
+        );
+      }
+      break;
+    case 'mines':
+      for (let i = 0; i < 3; i++) {
+        const a = arena.rng.range(0, Math.PI * 2);
+        arena.spawnMine(
+          p.x + Math.cos(a) * 56,
+          p.y + Math.sin(a) * 56,
+          Math.round(def.damage * 0.9)
+        );
+      }
+      break;
+    case 'spiral': {
+      const count = enemy.isBoss ? phase.ring : 8;
+      const twist = (enemy.patternIndex + enemy.phase) * 0.35;
+      for (let i = 0; i < count; i++)
+        shoot(arena, enemy, twist + (i / count) * Math.PI * 2, phase.speed * 0.85, def.damage);
+      break;
+    }
+    case 'blink': {
+      const a = arena.rng.range(0, Math.PI * 2);
+      const tx = p.x + Math.cos(a) * 58;
+      const ty = p.y + Math.sin(a) * 58;
+      const oldX = enemy.x;
+      const oldY = enemy.y;
+      if (!arena.grid.isSolidAtPixel(tx, ty)) {
+        enemy.x = tx;
+        enemy.y = ty;
+        arena.emit({ type: 'blink', x: oldX, y: oldY, toX: tx, toY: ty });
+      }
+      if (Math.hypot(p.x - enemy.x, p.y - enemy.y) <= 86)
+        arena.damagePlayer(def.damage, enemy.x, enemy.y, 320);
+      break;
+    }
+    case 'bomb':
+      arena.spawnBomb(
+        enemy.x + Math.cos(angle) * 18,
+        enemy.y + Math.sin(angle) * 18,
+        Math.cos(angle) * 260,
+        Math.sin(angle) * 260,
+        'enemy',
+        Math.round(def.damage * 0.9),
+        1.55
+      );
+      break;
+    case 'swarm': {
+      const roster = arena.roster.length > 0 ? arena.roster : ['scavenger'];
+      for (let i = 0; i < 3; i++) {
+        const a = (i / 3) * Math.PI * 2 + arena.rng.range(0, 1);
+        const x = enemy.x + Math.cos(a) * 56;
+        const y = enemy.y + Math.sin(a) * 56;
+        if (arena.grid.isSolidAtPixel(x, y)) continue;
+        const e = arena.spawnEnemy(arena.rng.pick(roster), x, y, enemy.roomId);
+        e.state = 'chase';
+      }
+      break;
+    }
+    case 'hook':
+      if (Math.hypot(enemy.x - p.x, enemy.y - p.y) <= 330) {
+        arena.damagePlayer(Math.round(def.damage * 0.6), enemy.x, enemy.y, 40);
+        p.knockX += (enemy.x - p.x) * 3.4;
+        p.knockY += (enemy.y - p.y) * 3.4;
+        arena.emit({ type: 'hook', x: enemy.x, y: enemy.y, toX: p.x, toY: p.y });
+      }
+      break;
+    case 'quake':
+      for (let i = 1; i <= 4; i++)
+        arena.spawnBlast(
+          enemy.x + Math.cos(angle) * 62 * i,
+          enemy.y + Math.sin(angle) * 62 * i,
+          40,
+          0.42 + i * 0.09,
+          Math.round(def.damage * 0.8)
+        );
+      break;
     case 'lunge':
     case 'charge':
     case 'volley':
       // Continuous attacks resolve over the attack phase.
       break;
   }
+}
+
+/** Shortest distance from a point to a line segment. */
+function segmentDistance(
+  px: number,
+  py: number,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number
+): number {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const length = dx * dx + dy * dy;
+  const t = length === 0 ? 0 : Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / length));
+  return Math.hypot(px - (ax + dx * t), py - (ay + dy * t));
 }
 
 export function slamRadius(enemy: Enemy): number {
@@ -346,7 +509,8 @@ function shoot(arena: Arena, enemy: Enemy, angle: number, speed: number, damage:
 }
 
 function summon(arena: Arena, boss: Enemy): void {
-  const roster = ['memory_echo', 'scavenger'];
+  // Summons come from the floor's own roster, so late bosses call late enemies.
+  const roster = arena.roster.length > 0 ? arena.roster : ['memory_echo', 'scavenger'];
   for (let i = 0; i < 2; i++) {
     const angle = arena.rng.range(0, Math.PI * 2);
     const x = boss.x + Math.cos(angle) * 70;

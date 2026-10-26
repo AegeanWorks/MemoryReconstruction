@@ -167,6 +167,46 @@
         "text": "The cycle completes. The cycle begins.",
         "location": "sanctuary",
         "value": 100
+      },
+      "fragment_071": {
+        "text": "The foreman's last order: keep the line moving.",
+        "location": "foundry",
+        "value": 6
+      },
+      "fragment_072": {
+        "text": "A brass heart with a human name stamped inside.",
+        "location": "foundry",
+        "value": 9
+      },
+      "fragment_073": {
+        "text": "The swamp repeats every name it swallows.",
+        "location": "mire",
+        "value": 7
+      },
+      "fragment_074": {
+        "text": "A crown of reeds, still warm from a head that drowned.",
+        "location": "mire",
+        "value": 11
+      },
+      "fragment_081": {
+        "text": "The comb hums in shifts. Nobody told it the shift ended.",
+        "location": "hive",
+        "value": 8
+      },
+      "fragment_082": {
+        "text": "A worker's name, written in wax and rewritten every morning.",
+        "location": "hive",
+        "value": 12
+      },
+      "fragment_083": {
+        "text": "The catacombs keep rank. The first keeper still expects a report.",
+        "location": "catacomb",
+        "value": 9
+      },
+      "fragment_084": {
+        "text": "A bone tag: WALKER, FIRST OF THE SANCTUARY. The rest is worn away.",
+        "location": "catacomb",
+        "value": 13
       }
     },
     "coreMemories": {
@@ -205,6 +245,18 @@
         "fragments": ["fragment_150", "fragment_200"],
         "reward": "unlock_ultimate",
         "text": "The Void is not the enemy. The Void is the womb. Every forgotten thing gestates there. The Forgotten are not monsters. They are the next world waiting to be born."
+      },
+      "core_memory_007": {
+        "title": "The Work That Continued",
+        "fragments": ["fragment_071", "fragment_072", "fragment_073"],
+        "reward": "unlock_forge",
+        "text": "The foundry never learned the world had ended. It kept making parts for a city no one would assemble. The swamp kept repeating the names of the workers. Between the two, a kind of memory survived: not a person, not a place, only the habit of continuing."
+      },
+      "core_memory_008": {
+        "title": "The First Walker",
+        "fragments": ["fragment_081", "fragment_082", "fragment_083", "fragment_084"],
+        "reward": "unlock_warden",
+        "text": "Before the Sanctuary had walls, it had a rota. Before it had a rota, it had one walker who went out every morning and came back with a name. The hive inherited the shift. The catacombs inherited the rank. The Sanctuary inherited the habit of going out again."
       }
     },
     "primordialMemories": {

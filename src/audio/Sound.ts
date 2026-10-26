@@ -14,7 +14,15 @@ const BIOME_ROOTS: Record<BiomeId, number> = {
   forest: 123.47,
   caves: 98,
   crystal: 130.81,
+  ash: 92.5,
+  foundry: 103.83,
+  abyss: 82.41,
   void: 87.31,
+  frost: 155.56,
+  mire: 73.42,
+  bloom: 138.59,
+  hive: 110,
+  catacomb: 87.31,
   sanctuary: 146.83,
 };
 const SCALE = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3, 2];
@@ -133,6 +141,45 @@ export class Sound {
           this.arpeggio(
             e.kind === 'jackpot' ? [659, 880, 1109, 1319, 1760] : [659, 880, 1109],
             0.07,
+            0.12
+          );
+          break;
+        case 'equipment':
+          this.arpeggio(
+            e.rarity === 'epic' ? [659, 880, 1319, 1760] : [587, 784, 1047],
+            0.06,
+            0.12
+          );
+          break;
+        case 'hazardBurst':
+          this.tone(e.kind === 'poison' ? 220 : 140, 70, 0.18, 'square', 0.08);
+          break;
+        case 'blast':
+          this.tone(120, 50, 0.3, 'sawtooth', 0.14);
+          break;
+        case 'beam':
+          this.tone(1200, 300, 0.28, 'sawtooth', 0.1);
+          break;
+        case 'blink':
+          this.tone(300, 900, 0.12, 'sine', 0.06);
+          break;
+        case 'weaponSwitch':
+          this.tone(520, 720, 0.08, 'triangle', 0.05);
+          break;
+        case 'bombThrown':
+          this.tone(220, 140, 0.16, 'sine', 0.06);
+          break;
+        case 'bombExploded':
+          this.tone(160, 40, 0.4, 'sawtooth', 0.16);
+          break;
+        case 'weaponArt':
+          this.chord(
+            e.weapon === 'greatsword'
+              ? [196, 294, 392]
+              : e.weapon === 'spear'
+                ? [440, 660, 880]
+                : [330, 494, 660],
+            0.35,
             0.12
           );
           break;

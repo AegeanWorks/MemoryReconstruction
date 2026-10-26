@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { roomCentrePx } from '../../src/sim/dungeon';
+import { FINAL_DEPTH, FLOOR_PLANS } from '../../src/sim/content';
 import { NO_INPUT, type InputFrame } from '../../src/sim/entities';
 import type { SimEvent } from '../../src/sim/events';
 import { createRun, restoreRun, xpForLevel } from '../../src/sim/run';
@@ -170,8 +171,26 @@ describe('World', () => {
     expect(world.exited).toBe(true);
   });
 
+  it('builds every section with its planned biome, boss and rooms', () => {
+    for (let depth = 0; depth < FLOOR_PLANS.length; depth++) {
+      const run = createRun(400 + depth, []);
+      run.depth = depth;
+      const world = new World(run);
+      expect(world.plan.biome).toBe(FLOOR_PLANS[depth].biome);
+      expect(world.plan.boss).toBe(FLOOR_PLANS[depth].boss);
+      if (FLOOR_PLANS[depth].bossOnly) {
+        expect(world.floor.rooms).toHaveLength(1);
+        expect(world.floor.bossRoom).toBe(0);
+      } else {
+        expect(world.floor.rooms.length).toBeGreaterThanOrEqual(5);
+      }
+      expect(world.floor.rooms[world.floor.bossRoom].kind).toBe('boss');
+      expect(world.roster).toEqual(FLOOR_PLANS[depth].roster);
+    }
+  });
+
   it('declares victory after the final boss', () => {
-    const world = newWorld(55, 5);
+    const world = newWorld(55, FINAL_DEPTH);
     teleportToRoom(world, 'boss');
     stepFor(world, 1.5);
     const boss = world.activeBoss()!;
@@ -396,6 +415,21 @@ describe('World', () => {
     clearChoices(world);
     expect(world.floorObjectives().claimed).toBe(true);
     expect(events.some((e) => e.type === 'objectiveComplete')).toBe(true);
+  });
+
+  it('converts a full-health heart into shards instead of leaving it stuck', () => {
+    const w = newWorld();
+    const p = w.player;
+    p.health = p.stats.maxHealth;
+    const before = p.shards;
+    (
+      w as unknown as {
+        dropPickup: (kind: string, x: number, y: number, amount: number) => void;
+      }
+    ).dropPickup('health', p.x, p.y, 20);
+    for (let i = 0; i < 90; i++) w.step(NO_INPUT, DT);
+    expect(p.shards).toBeGreaterThan(before);
+    expect(w.pickups.filter((pickup) => pickup.kind === 'health')).toHaveLength(0);
   });
 
   it('round-trips a run through JSON', () => {

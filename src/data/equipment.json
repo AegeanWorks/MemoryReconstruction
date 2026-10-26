@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "rusted_edge",
+      "name": "Rusted Edge",
+      "slot": "weapon",
+      "rarity": "common",
+      "description": "+4 melee damage, +2% critical chance",
+      "mods": { "meleeDamage": 4, "critChance": 0.02 }
+    },
+    {
+      "id": "echo_dagger",
+      "name": "Echo Dagger",
+      "slot": "weapon",
+      "rarity": "rare",
+      "description": "+7 melee damage, +8% critical chance, +10% attack speed",
+      "mods": { "meleeDamage": 7, "critChance": 0.08, "attackSpeed": 0.1 }
+    },
+    {
+      "id": "choir_staff",
+      "name": "Choir Staff",
+      "slot": "weapon",
+      "rarity": "rare",
+      "description": "+9 bolt damage, +12 max mana",
+      "mods": { "boltDamage": 9, "maxMana": 12 }
+    },
+    {
+      "id": "void_cleaver",
+      "name": "Void Cleaver",
+      "slot": "weapon",
+      "rarity": "epic",
+      "description": "+12 melee damage, +30% critical damage, +3% lifesteal, -8% attack speed",
+      "mods": {
+        "meleeDamage": 12,
+        "critMultiplier": 0.3,
+        "lifesteal": 0.03,
+        "attackSpeed": -0.08
+      }
+    },
+    {
+      "id": "scavenger_vest",
+      "name": "Scavenger's Vest",
+      "slot": "armor",
+      "rarity": "common",
+      "description": "+15 max health, +3% damage reduction",
+      "mods": { "maxHealth": 15, "damageReduction": 0.03 }
+    },
+    {
+      "id": "crystal_mail",
+      "name": "Crystal Mail",
+      "slot": "armor",
+      "rarity": "rare",
+      "description": "+30 max health, +8% damage reduction, -5% move speed",
+      "mods": { "maxHealth": 30, "damageReduction": 0.08, "moveSpeed": -0.05 }
+    },
+    {
+      "id": "void_shroud",
+      "name": "Void Shroud",
+      "slot": "armor",
+      "rarity": "epic",
+      "description": "+12% damage reduction, dashes recharge 20% faster",
+      "mods": { "damageReduction": 0.12, "dashRecharge": -0.22 }
+    },
+    {
+      "id": "mire_talisman",
+      "name": "Mire Talisman",
+      "slot": "armor",
+      "rarity": "rare",
+      "description": "+8 max health, +6% damage reduction, +1 potion capacity",
+      "mods": { "maxHealth": 8, "damageReduction": 0.06, "maxPotions": 1 }
+    },
+    {
+      "id": "ember_charm",
+      "name": "Ember Charm",
+      "slot": "trinket",
+      "rarity": "common",
+      "description": "+4% critical chance, +3 melee damage",
+      "mods": { "critChance": 0.04, "meleeDamage": 3 }
+    },
+    {
+      "id": "tide_lens",
+      "name": "Tide Lens",
+      "slot": "trinket",
+      "rarity": "rare",
+      "description": "+14 max mana, +1 mana per second",
+      "mods": { "maxMana": 14, "manaRegen": 1 }
+    },
+    {
+      "id": "thorn_ring",
+      "name": "Thorn Ring",
+      "slot": "trinket",
+      "rarity": "rare",
+      "description": "+4% lifesteal, +4% critical chance",
+      "mods": { "lifesteal": 0.04, "critChance": 0.04 }
+    },
+    {
+      "id": "clockwork_gear",
+      "name": "Clockwork Gear",
+      "slot": "trinket",
+      "rarity": "epic",
+      "description": "Dashes recharge 25% faster, +6% move speed, +20 pickup radius",
+      "mods": { "dashRecharge": -0.27, "moveSpeed": 0.06, "pickupRadius": 20 }
+    },
+    {
+      "id": "sun_core",
+      "name": "Sun Core",
+      "slot": "trinket",
+      "rarity": "epic",
+      "description": "+20 max health, +10 max mana, +5% critical chance",
+      "mods": { "maxHealth": 20, "maxMana": 10, "critChance": 0.05 }
+    },
+    {
+      "id": "bog_crown",
+      "name": "Bog Crown",
+      "slot": "trinket",
+      "rarity": "rare",
+      "description": "+8 melee damage, +2 mana per kill",
+      "mods": { "meleeDamage": 8, "manaOnKill": 2 }
+    }
+  ]
+}

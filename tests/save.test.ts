@@ -71,6 +71,9 @@ describe('SaveStore', () => {
     delete player.resonance;
     delete player.resonanceTime;
     delete player.dashGrazes;
+    delete player.weapon;
+    delete player.bombs;
+    delete player.traps;
     delete stats.grazes;
     delete stats.bestResonance;
     delete stats.surges;
@@ -80,6 +83,49 @@ describe('SaveStore', () => {
     expect(restored?.player.dashGrazes).toEqual([]);
     expect(restored?.stats.bestResonance).toBe(0);
     expect(restored?.stats.floorsRestored).toBe(0);
+    expect(restored?.player.weapon).toBe('sword');
+    expect(restored?.player.bombs).toBe(0);
+    expect(restored?.player.traps).toBe(0);
+  });
+
+  it('defaults sanctuary fields on meta saved before the hub existed', () => {
+    const storage = memoryStorage();
+    const store = new SaveStore(storage);
+    storage.data.set(
+      'memory-reconstruction.meta.v1',
+      JSON.stringify({
+        version: 1,
+        fragments: ['fragment_001'],
+        runs: 3,
+        victories: 1,
+        bestDepth: 2,
+        settings: { masterVolume: 0.8, musicVolume: 0.5, sfxVolume: 0.8, screenShake: true },
+      })
+    );
+    const meta = store.loadMeta();
+    expect(meta.fragments).toEqual(['fragment_001']);
+    expect(meta.runs).toBe(3);
+    expect(meta.echoes).toBe(0);
+    expect(meta.restorations).toEqual({});
+    expect(meta.checkpoint).toBe(0);
+    expect(meta.kills).toBe(0);
+    expect(meta.bossKills).toBe(0);
+    expect(meta.startingWeapon).toBe('sword');
+    expect(meta.boon).toBeNull();
+    expect(meta.vault).toEqual([]);
+    expect(meta.quests).toEqual({ accepted: [], claimed: [] });
+  });
+
+  it('banks echoes and unlocks a checkpoint when a run ends', () => {
+    const run = createRun(1, []);
+    run.depth = 4;
+    run.player.shards = 100;
+    run.stats.floorsRestored = 1;
+    const meta = recordRun(defaultMeta(), run, false);
+    expect(meta.echoes).toBe(55);
+    expect(meta.checkpoint).toBe(3);
+    const won = recordRun(defaultMeta(), run, true);
+    expect(won.echoes).toBe(115);
   });
 
   it('merges a run into meta progress', () => {

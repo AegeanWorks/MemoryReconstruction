@@ -4,14 +4,45 @@
  * the renderer, so tests and bots can drive a World headlessly.
  */
 import { circlesTouch, type Arena, type DamageSource } from './combat';
-import { enemyDef, fragmentsForFloor, floorPlan, FINAL_DEPTH, type FloorPlan } from './content';
+import {
+  arenaBossFor,
+  enemyDef,
+  fragmentsForFloor,
+  floorPlan,
+  FINAL_DEPTH,
+  type FloorPlan,
+} from './content';
 import { generateFloor, roomAt, roomCentrePx, type FloorMap, type Room } from './dungeon';
+import {
+  buildSanctuaryFloor,
+  SANCTUARY_DECOR,
+  SANCTUARY_GATE,
+  SANCTUARY_LABELS,
+  SANCTUARY_NPCS,
+  SANCTUARY_SPAWN,
+  SANCTUARY_STRUCTURES,
+  spotToPixels,
+} from './sanctuary';
 import { createEnemy, killEnemy, staggerEnemy, updateBossPhase, updateEnemy } from './enemies';
-import type { Enemy, InputFrame, Interactable, Pickup, Projectile } from './entities';
+import { equipmentDef, rollEquipment, type EquipmentItem } from './equipment';
+import { RESTORATIONS } from './hub';
+import { NPCS } from './quests';
+import type {
+  Blast,
+  Bomb,
+  Enemy,
+  Hazard,
+  HazardKind,
+  InputFrame,
+  Interactable,
+  Mine,
+  Pickup,
+  Projectile,
+} from './entities';
 import type { SimEvent } from './events';
 import { FlowField } from './pathing';
 import { moveAndCollide, separate } from './physics';
-import { updatePlayer } from './player';
+import { refreshStats, updatePlayer } from './player';
 import { Rng, floorSeed } from './rng';
 import {
   applyChoice,
@@ -31,6 +62,8 @@ export interface RoomState {
   wavesLeft: number;
   /** Seconds until the next wave (or the boss) appears while active. */
   spawnDelay: number;
+  /** A room that has already sprung its surprise ambush. */
+  ambushed?: boolean;
 }
 
 const INTERACT_RADIUS = 44;
@@ -63,11 +96,31 @@ export interface FloorObjectives {
 export class World implements Arena {
   readonly floor: FloorMap;
   readonly plan: FloorPlan;
+  /** 'sanctuary' worlds are a quiet home base with no combat. */
+  readonly mode: 'dungeon' | 'sanctuary';
+  get roster(): readonly string[] {
+    return this.plan.roster;
+  }
+  get depth(): number {
+    return this.run.depth;
+  }
   readonly rng: Rng;
   readonly enemies: Enemy[] = [];
   readonly projectiles: Projectile[] = [];
   readonly pickups: Pickup[] = [];
   readonly interactables: Interactable[] = [];
+  readonly hazards: Hazard[] = [];
+  /** Non-interactive furniture in the Sanctuary. */
+  readonly decor: Array<{
+    x: number;
+    y: number;
+    prop: string;
+    size: number;
+    layer?: 'ground';
+  }> = [];
+  readonly blasts: Blast[] = [];
+  readonly mines: Mine[] = [];
+  readonly bombs: Bomb[] = [];
   readonly rooms: RoomState[];
   readonly visited: boolean[];
   /** Seconds of play on this floor. */
@@ -85,31 +138,64 @@ export class World implements Arena {
   /** Damage taken since the active room was locked, for the flawless bonus. */
   private roomDamage = 0;
 
-  constructor(readonly run: RunState) {
+  constructor(
+    readonly run: RunState,
+    options: { sanctuary?: boolean } = {}
+  ) {
+    if (options.sanctuary) {
+      this.mode = 'sanctuary';
+      this.plan = {
+        depth: 0,
+        biome: 'sanctuary',
+        roster: [],
+        boss: 'keeper',
+        roomCount: 1,
+        finale: false,
+        layout: 'branch',
+      };
+      this.floor = buildSanctuaryFloor();
+      this.rng = new Rng(0x5a17c0de);
+      this.rooms = [{ phase: 'cleared', wavesLeft: 0, spawnDelay: 0 }];
+      this.visited = [true];
+      this.flow = new FlowField(this.floor.grid);
+      this.fragmentQueue = [];
+      const spawn = spotToPixels(SANCTUARY_SPAWN);
+      run.player.x = spawn.x;
+      run.player.y = spawn.y;
+      run.player.action = 'idle';
+      run.player.knockX = 0;
+      run.player.knockY = 0;
+      this.placeSanctuary();
+      return;
+    }
+    this.mode = 'dungeon';
     this.plan = floorPlan(run.depth);
     const seed = floorSeed(run.seed, run.depth);
     this.floor = generateFloor(seed, run.depth, {
       roomCount: this.plan.roomCount,
       finale: this.plan.finale,
+      layout: this.plan.layout,
+      bossOnly: this.plan.bossOnly,
     });
     this.rng = new Rng(seed ^ 0x5bd1e995);
     this.rooms = this.floor.rooms.map((r) => ({
-      phase: r.kind === 'combat' || r.kind === 'boss' ? 'dormant' : 'cleared',
+      phase: r.kind === 'combat' || r.kind === 'boss' || r.kind === 'arena' ? 'dormant' : 'cleared',
       wavesLeft: 0,
       spawnDelay: 0,
     }));
-    this.visited = this.floor.rooms.map(() => false);
+    this.visited = this.floor.rooms.map((_, i) => i === this.floor.startRoom);
     this.flow = new FlowField(this.floor.grid);
     const owned = new Set([...run.knownFragments, ...run.fragmentsFound]);
     this.fragmentQueue = fragmentsForFloor(this.plan.biome, owned);
 
     const start = roomCentrePx(this.floor.rooms[this.floor.startRoom]);
     run.player.x = start.x;
-    run.player.y = start.y + TILE_SIZE * 2;
+    run.player.y = start.y + TILE_SIZE * (this.plan.bossOnly ? 3.5 : 2);
     run.player.action = 'idle';
     run.player.knockX = 0;
     run.player.knockY = 0;
     this.placeInteractables();
+    this.placeHazards();
   }
 
   get grid(): FloorMap['grid'] {
@@ -169,6 +255,11 @@ export class World implements Arena {
       return;
     }
     this.time += dt;
+    if (this.mode === 'sanctuary') {
+      updatePlayer(this, { ...input, bolt: false, bomb: false, trap: false, potion: false }, dt);
+      if (input.interact) this.interact();
+      return;
+    }
     this.run.stats.elapsed += dt;
 
     updatePlayer(this, input, dt);
@@ -181,6 +272,10 @@ export class World implements Arena {
     }
     this.updateEnemies(dt);
     this.updateProjectiles(dt);
+    this.updateHazards(dt);
+    this.updateBlasts(dt);
+    this.updateMines(dt);
+    this.updateBombs(dt);
     this.separateBodies();
     this.updatePickups(dt);
     if (this.victoryDelay > 0) {
@@ -219,7 +314,9 @@ export class World implements Arena {
 
   /** Optional full-clear objective, surfaced by the HUD and the map. */
   floorObjectives(): FloorObjectives {
-    const rooms = this.floor.rooms.filter((r) => r.kind === 'combat' || r.kind === 'boss');
+    const rooms = this.floor.rooms.filter(
+      (r) => r.kind === 'combat' || r.kind === 'boss' || r.kind === 'arena'
+    );
     const cleared = rooms.filter((r) => this.rooms[r.id].phase === 'cleared').length;
     const chest = this.interactables.filter((i) => i.kind === 'chest');
     const well = this.interactables.filter((i) => i.kind === 'shrine');
@@ -349,14 +446,118 @@ export class World implements Arena {
   private placeInteractables(): void {
     for (const room of this.floor.rooms) {
       const c = roomCentrePx(room);
-      if (room.kind === 'treasure') this.addInteractable('chest', c.x, c.y, 0);
+      if (room.kind === 'treasure') {
+        const chest = this.addInteractable('chest', c.x, c.y, 0);
+        // A mimic is a chest that fights back; the chance is visible as a risk.
+        if (this.rng.chance(0.12)) chest.mimic = true;
+        if (this.rng.chance(0.35))
+          this.addInteractable('merchant', c.x - 72, c.y + 24, 35 + 8 * this.run.depth);
+      }
       if (room.kind === 'shrine')
         this.addInteractable('shrine', c.x, c.y, 25 + 15 * this.run.depth);
+      if (room.kind === 'start' && this.rng.chance(0.7))
+        this.addInteractable('fountain', c.x + 72, c.y + 24, 0);
+      if (room.kind === 'library') {
+        this.addInteractable('archive', c.x, c.y, 0);
+        this.decor.push(
+          { x: c.x - 64, y: c.y - 52, prop: 'furn_shelf', size: 56 },
+          { x: c.x + 64, y: c.y - 52, prop: 'furn_shelf', size: 56 },
+          { x: c.x, y: c.y + 64, prop: 'furn_table', size: 54 }
+        );
+      }
     }
   }
 
-  private addInteractable(kind: Interactable['kind'], x: number, y: number, cost: number): void {
-    this.interactables.push({ id: this.nextId++, kind, x, y, used: false, cost });
+  private addInteractable(
+    kind: Interactable['kind'],
+    x: number,
+    y: number,
+    cost: number,
+    extra: Partial<Interactable> = {}
+  ): Interactable {
+    const item: Interactable = {
+      id: this.nextId++,
+      kind,
+      x,
+      y,
+      used: false,
+      cost,
+      ...extra,
+    };
+    this.interactables.push(item);
+    return item;
+  }
+
+  /** Places the rebuildable structures, NPCs and the expedition gate. */
+  private placeSanctuary(): void {
+    for (const spot of SANCTUARY_STRUCTURES) {
+      const p = spotToPixels(spot);
+      const label = RESTORATIONS.find((r) => r.id === spot.id)?.name ?? SANCTUARY_LABELS[spot.id];
+      this.addInteractable('structure', p.x, p.y, 0, { structureId: spot.id, label });
+    }
+    for (const spot of SANCTUARY_NPCS) {
+      const p = spotToPixels(spot);
+      this.addInteractable('npc', p.x, p.y, 0, {
+        npcId: spot.id,
+        label: NPCS[spot.id]?.name.replace(/^The /, ''),
+      });
+    }
+    for (const item of SANCTUARY_DECOR) {
+      const p = spotToPixels(item);
+      this.decor.push({
+        x: p.x,
+        y: p.y,
+        prop: item.prop,
+        size: item.size,
+        layer: item.layer,
+      });
+    }
+    const gate = spotToPixels(SANCTUARY_GATE);
+    this.addInteractable('gate', gate.x, gate.y, 0, { label: 'The Gate' });
+  }
+
+  /** Scatters traps and barrels through combat rooms, plus levers to disarm them. */
+  private placeHazards(): void {
+    if (this.plan.bossOnly) return;
+    for (const room of this.floor.rooms) {
+      if (room.kind !== 'combat' && room.kind !== 'boss') continue;
+      const count = 1 + (this.run.depth >= 4 ? 1 : 0) + this.rng.int(0, 1);
+      const kinds: HazardKind[] = ['spike', 'flame', 'poison', 'rockfall', 'barrel'];
+      for (let i = 0; i < count; i++) this.spawnHazard(room, this.rng.pick(kinds));
+      if (this.rng.chance(0.45)) {
+        const c = roomCentrePx(room);
+        this.addInteractable('lever', c.x - 52, c.y + 44, 0, { roomId: room.id });
+      }
+    }
+  }
+
+  private spawnHazard(room: Room, kind: HazardKind): void {
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const tx = this.rng.int(room.x + 1, room.x + room.w - 2);
+      const ty = this.rng.int(room.y + 1, room.y + room.h - 2);
+      if (this.grid.isSolid(tx, ty)) continue;
+      const x = (tx + 0.5) * TILE_SIZE;
+      const y = (ty + 0.5) * TILE_SIZE;
+      if (this.hazards.some((h) => Math.hypot(h.x - x, h.y - y) < 46)) continue;
+      if (Math.hypot(x - this.player.x, y - this.player.y) < 60) continue;
+      const barrel = kind === 'barrel';
+      this.hazards.push({
+        id: this.nextId++,
+        kind,
+        x,
+        y,
+        radius: barrel ? 16 : kind === 'poison' ? 38 : 44,
+        roomId: room.id,
+        phase: 'idle',
+        timer: this.rng.range(0.4, 2.4),
+        period: kind === 'spike' ? 2.6 : kind === 'flame' ? 3.4 : 0.8,
+        damage: Math.round(8 + this.run.depth * 1.4),
+        hp: barrel ? 14 : 0,
+        maxHp: barrel ? 14 : 0,
+        disabled: false,
+      });
+      return;
+    }
   }
 
   private interact(): void {
@@ -369,15 +570,65 @@ export class World implements Arena {
       this.emit({ type: 'floorExit' });
     } else if (target.kind === 'chest') {
       target.used = true;
+      if (target.mimic) {
+        // Surprise: the chest was a mimic. It wakes as an elite of this section.
+        const enemy = this.spawnEnemy(this.rng.pick(this.plan.roster), target.x, target.y, -1);
+        enemy.state = 'chase';
+        enemy.elite = true;
+        this.emit({ type: 'notice', text: 'The chest was a mimic!' });
+        this.emit({ type: 'shake', strength: 8 });
+        return;
+      }
       this.run.pendingChoices.push({
         source: 'chest',
         options: rollChoices(this.rng, p.upgrades, 3, 'generous'),
       });
       this.dropFragment(target.x + 40, target.y);
       this.dropShards(target.x, target.y, 8 + 4 * this.run.depth);
+      this.dropPickup('bomb', target.x - 38, target.y + 10, 1);
+      if (this.rng.chance(0.5)) this.dropPickup('trap', target.x - 46, target.y - 8, 1);
+      if (this.rng.chance(0.6)) this.dropEquipment(target.x - 30, target.y);
       this.emit({ type: 'interact', kind: 'chest', x: target.x, y: target.y });
       // The guardian may already be down: the last chest still closes the goal.
       if (this.floorObjectives().complete) this.claimFloorBonus({ x: target.x, y: target.y + 24 });
+    } else if (target.kind === 'lever') {
+      target.used = true;
+      this.disableHazards(target.roomId);
+      this.emit({ type: 'notice', text: 'The old lever answers. The room falls quiet.' });
+      this.emit({ type: 'interact', kind: 'lever', x: target.x, y: target.y });
+    } else if (target.kind === 'fountain') {
+      target.used = true;
+      p.health = Math.min(p.stats.maxHealth, p.health + p.stats.maxHealth * 0.35);
+      this.emit({ type: 'notice', text: 'The fountain still remembers clean water.' });
+      this.emit({ type: 'interact', kind: 'fountain', x: target.x, y: target.y });
+    } else if (target.kind === 'merchant') {
+      if (p.shards < target.cost) {
+        this.emit({ type: 'notice', text: `The merchant wants ${target.cost} shards` });
+        return;
+      }
+      p.shards -= target.cost;
+      target.used = true;
+      this.dropEquipment(target.x, target.y + 16);
+      this.emit({ type: 'notice', text: 'The merchant trades a relic for your shards.' });
+      this.emit({ type: 'interact', kind: 'merchant', x: target.x, y: target.y });
+    } else if (target.kind === 'archive') {
+      target.used = true;
+      const fragment = this.fragmentQueue.shift();
+      if (fragment) {
+        this.run.fragmentsFound.push(fragment);
+        this.emit({ type: 'fragmentFound', fragmentId: fragment });
+      } else {
+        this.dropShards(target.x, target.y, 20 + this.run.depth * 5);
+      }
+      this.emit({ type: 'notice', text: 'You read a page that was not meant to survive.' });
+      this.emit({ type: 'interact', kind: 'archive', x: target.x, y: target.y });
+    } else if (target.kind === 'structure' || target.kind === 'npc' || target.kind === 'gate') {
+      this.emit({
+        type: 'sanctuary',
+        kind: target.kind,
+        id: target.structureId ?? target.npcId ?? '',
+      });
+      this.emit({ type: 'interact', kind: target.kind, x: target.x, y: target.y });
     } else if (target.kind === 'shrine') {
       if (p.shards < target.cost) {
         this.emit({ type: 'notice', text: `The well asks for ${target.cost} shards` });
@@ -434,14 +685,21 @@ export class World implements Arena {
     this.roomDamage = 0;
     this.setRoomLocked(room, true);
     this.emit({ type: 'roomLocked', roomId: room.id });
-    if (room.kind === 'boss') {
+    if (room.kind === 'boss' || room.kind === 'arena') {
       state.wavesLeft = 1;
       state.spawnDelay = 1.0;
-      this.emit({ type: 'bossIntro', name: enemyDef(this.plan.boss).name });
+      const boss = room.kind === 'boss' ? this.plan.boss : arenaBossFor(this.run.depth);
+      this.emit({ type: 'bossIntro', name: enemyDef(boss).name });
+      if (room.kind === 'arena')
+        this.emit({ type: 'notice', text: 'An echo guardian holds the arena alone.' });
     } else {
       const area = room.w * room.h;
-      state.wavesLeft = this.run.depth >= 1 && area >= 150 ? 2 : 1;
-      if (this.run.depth >= 3 && area >= 220) state.wavesLeft = 3;
+      const depth = this.run.depth;
+      state.wavesLeft = depth >= 1 && area >= 150 ? 2 : 1;
+      if (depth >= 3 && area >= 220) state.wavesLeft = 3;
+      // Later sections keep the pressure up with an extra wave in big rooms.
+      if (depth >= 6 && area >= 200) state.wavesLeft = 3;
+      if (depth >= 7 && area >= 260) state.wavesLeft = 4;
       state.spawnDelay = 0.35;
     }
   }
@@ -449,12 +707,28 @@ export class World implements Arena {
   private spawnWave(room: Room): void {
     const state = this.rooms[room.id];
     state.wavesLeft--;
-    if (room.kind === 'boss') {
+    if (room.kind === 'boss' || room.kind === 'arena') {
       const c = roomCentrePx(room);
-      this.spawnEnemy(this.plan.boss, c.x, c.y - TILE_SIZE * 2, room.id, true);
+      const boss = room.kind === 'boss' ? this.plan.boss : arenaBossFor(this.run.depth);
+      const enemy = this.spawnEnemy(
+        boss,
+        c.x,
+        c.y - TILE_SIZE * (this.plan.bossOnly ? 2.5 : 2),
+        room.id,
+        true
+      );
+      if (room.kind === 'arena' || this.plan.bossOnly) {
+        // Solo bosses are considerably tougher; they deal damage through their
+        // own patterns, not through a stat multiplier on every hit.
+        enemy.maxHealth = Math.round(enemy.maxHealth * 1.5);
+        enemy.health = enemy.maxHealth;
+        if (room.kind === 'arena') enemy.elite = true;
+      }
       return;
     }
-    const count = 3 + Math.floor(this.run.depth * 0.7) + this.rng.int(0, 2);
+    // Wave size grows with the section, so late rooms are crowded rather than
+    // just longer.
+    const count = 3 + Math.floor(this.run.depth * 0.85) + this.rng.int(0, 2);
     for (let i = 0; i < count; i++) {
       const spot = this.spawnPoint(room);
       if (spot) this.spawnEnemy(this.rng.pick(this.plan.roster), spot.x, spot.y, room.id);
@@ -476,7 +750,23 @@ export class World implements Arena {
   }
 
   private clearRoom(room: Room): void {
-    this.rooms[room.id].phase = 'cleared';
+    const state = this.rooms[room.id];
+    // Surprise: a cleared room occasionally reveals a second, elite wave.
+    if (!state.ambushed && room.kind === 'combat' && this.run.depth >= 1 && this.rng.chance(0.12)) {
+      state.ambushed = true;
+      state.wavesLeft = 1;
+      state.spawnDelay = 0.6;
+      for (let i = 0; i < 3; i++) {
+        const spot = this.spawnPoint(room);
+        if (!spot) continue;
+        const enemy = this.spawnEnemy(this.rng.pick(this.plan.roster), spot.x, spot.y, room.id);
+        enemy.elite = true;
+      }
+      this.emit({ type: 'notice', text: 'The memory is not finished with you.' });
+      this.emit({ type: 'shake', strength: 6 });
+      return;
+    }
+    state.phase = 'cleared';
     this.setRoomLocked(room, false);
     this.run.stats.roomsCleared++;
     this.emit({ type: 'roomCleared', roomId: room.id });
@@ -488,10 +778,20 @@ export class World implements Arena {
       this.emit({ type: 'flawlessRoom', roomId: room.id, shards });
     }
     if (room.kind === 'boss') {
+      if (this.plan.bossOnly) this.dropEquipment(c.x - 28, c.y);
       this.dropFragment(c.x + 40, c.y);
       this.claimFloorBonus(c);
       if (this.run.depth >= FINAL_DEPTH) this.victoryDelay = 2.5;
       else this.addInteractable('portal', c.x, c.y, 0);
+      return;
+    }
+    if (room.kind === 'arena') {
+      // Solo boss, rich payoff: two relics and a shard cache.
+      this.dropEquipment(c.x - 28, c.y);
+      this.dropEquipment(c.x + 28, c.y);
+      this.dropShards(c.x, c.y, 40 + this.run.depth * 6);
+      this.dropPickup('potion', c.x, c.y - 24, 1);
+      this.emit({ type: 'notice', text: 'The echo guardian falls. The arena yields.' });
       return;
     }
     if (this.rng.chance(0.35)) this.dropPickup('health', c.x, c.y, 15);
@@ -548,6 +848,13 @@ export class World implements Arena {
     p.resonance = p.resonanceTime > 0 ? Math.min(RESONANCE_MAX, p.resonance + 1) : 1;
     p.resonanceTime = RESONANCE_WINDOW;
     run.stats.bestResonance = Math.max(run.stats.bestResonance, p.resonance);
+    if (enemy.isBoss) run.stats.bossKills++;
+    // Surprise: some memories destabilise when broken and leave a short-fused
+    // blast behind. The delay gives the player a chance to step out.
+    if (!enemy.isBoss && this.rng.chance(0.07)) {
+      this.spawnBlast(enemy.x, enemy.y, 72, 0.42, 18 + this.run.depth * 2);
+      this.emit({ type: 'notice', text: 'The memory destabilises!' });
+    }
     const flow = resonanceMultiplier(p.resonance);
     this.emit({ type: 'resonance', count: p.resonance, multiplier: flow });
 
@@ -573,6 +880,58 @@ export class World implements Arena {
     }
     if (!enemy.isBoss && this.rng.chance(0.07)) this.dropPickup('health', enemy.x, enemy.y, 12);
     if (!enemy.isBoss && this.rng.chance(0.025)) this.dropPickup('potion', enemy.x, enemy.y, 1);
+    // Bosses always leave a relic; elites sometimes do.
+    if (enemy.isBoss || (enemy.elite && this.rng.chance(0.4))) this.dropEquipment(enemy.x, enemy.y);
+  }
+
+  /** Equips a carried relic, swapping out whatever was in its slot. */
+  equipItem(uid: number): boolean {
+    const p = this.player;
+    const index = p.inventory.findIndex((item) => item.uid === uid);
+    if (index < 0) return false;
+    const item = p.inventory[index];
+    const def = equipmentDef(item.defId);
+    const previous = p.equipment[def.slot];
+    p.inventory.splice(index, 1);
+    p.equipment[def.slot] = item;
+    if (previous) p.inventory.push(previous);
+    refreshStats(p);
+    return true;
+  }
+
+  unequip(slot: 'weapon' | 'armor' | 'trinket'): boolean {
+    const p = this.player;
+    const item = p.equipment[slot];
+    if (!item) return false;
+    p.equipment[slot] = null;
+    p.inventory.push(item);
+    refreshStats(p);
+    return true;
+  }
+
+  discardItem(uid: number): boolean {
+    const p = this.player;
+    const index = p.inventory.findIndex((item) => item.uid === uid);
+    if (index < 0) return false;
+    p.inventory.splice(index, 1);
+    return true;
+  }
+
+  private dropEquipment(x: number, y: number): void {
+    const p = this.player;
+    const def = rollEquipment(this.rng, this.run.depth);
+    const item: EquipmentItem = { uid: p.nextEquipmentId++, defId: def.id };
+    this.pickups.push({
+      id: this.nextId++,
+      kind: 'equipment',
+      x,
+      y,
+      amount: 1,
+      equipment: item,
+      age: 0,
+      vx: this.rng.range(-40, 40),
+      vy: this.rng.range(-40, 40),
+    });
   }
 
   /** One variable-ratio roll: mostly normal, sometimes rich, rarely a jackpot. */
@@ -654,6 +1013,18 @@ export class World implements Arena {
           this.graze(b.x, b.y);
         }
       } else if (!dead) {
+        // Player shots can detonate a bomb early — including your own.
+        for (const bomb of this.bombs) {
+          if (circlesTouch(b.x, b.y, b.radius, bomb.x, bomb.y, 14)) {
+            bomb.fuse = Math.min(bomb.fuse, 0.03);
+            dead = true;
+            break;
+          }
+        }
+        if (dead) {
+          this.projectiles.splice(i, 1);
+          continue;
+        }
         for (const e of this.enemies) {
           if (e.state === 'spawning' || e.state === 'dying' || b.hitIds.includes(e.id)) continue;
           if (!circlesTouch(b.x, b.y, b.radius, e.x, e.y, e.radius)) continue;
@@ -680,6 +1051,225 @@ export class World implements Arena {
       if (p.dashTime <= 0 && p.action !== 'dead')
         separate(this.grid, p, living[i], living[i].isBoss ? 0.9 : 0.35);
     }
+  }
+
+  /** Passive dangers: periodic traps, proximity rockfall and poison pools. */
+  private updateHazards(dt: number): void {
+    const p = this.player;
+    for (const h of [...this.hazards]) {
+      if (h.disabled || h.kind === 'barrel') continue;
+      if (h.kind === 'trap') {
+        h.timer -= dt;
+        if (h.timer > 0) continue;
+        const armed = this.enemies.some(
+          (e) => e.state !== 'dying' && Math.hypot(e.x - h.x, e.y - h.y) <= h.radius + e.radius
+        );
+        const playerInside = Math.hypot(p.x - h.x, p.y - h.y) <= h.radius + p.radius;
+        if (!playerInside) h.safePlayer = false;
+        if (!armed && !(playerInside && !h.safePlayer)) continue;
+        this.hazardBurst(h, true);
+        const index = this.hazards.indexOf(h);
+        if (index >= 0) this.hazards.splice(index, 1);
+        continue;
+      }
+      h.timer -= dt;
+      if (h.timer > 0) continue;
+      if (h.kind === 'poison') {
+        h.timer = h.period;
+        this.hazardBurst(h, true);
+        continue;
+      }
+      if (h.kind === 'rockfall' && h.phase === 'idle') {
+        if (Math.hypot(p.x - h.x, p.y - h.y) > 150) {
+          h.timer = 0.5;
+          continue;
+        }
+      }
+      if (h.phase === 'idle') {
+        h.phase = 'warning';
+        h.timer = h.kind === 'rockfall' ? 0.7 : 0.55;
+      } else if (h.phase === 'warning') {
+        h.phase = 'active';
+        h.timer = 0.4;
+        this.hazardBurst(h, true);
+      } else {
+        h.phase = 'idle';
+        h.timer = h.period;
+      }
+    }
+  }
+
+  /** Applies a hazard's damage (optionally) and emits its burst for the view. */
+  private hazardBurst(h: Hazard, damage: boolean): void {
+    this.emit({ type: 'hazardBurst', kind: h.kind, x: h.x, y: h.y, radius: h.radius });
+    if (!damage) return;
+    const p = this.player;
+    if (Math.hypot(p.x - h.x, p.y - h.y) <= h.radius + p.radius)
+      this.damagePlayer(h.damage, h.x, h.y, 140);
+    for (const e of this.enemies)
+      if (e.state !== 'dying' && Math.hypot(e.x - h.x, e.y - h.y) <= h.radius + e.radius)
+        this.damageEnemy(e, h.damage, 'hazard', false, 60);
+  }
+
+  spawnBlast(x: number, y: number, radius: number, delay: number, damage: number): void {
+    this.blasts.push({ id: this.nextId++, x, y, radius, delay, damage });
+  }
+
+  spawnMine(x: number, y: number, damage: number): void {
+    this.mines.push({ id: this.nextId++, x, y, damage, arm: 0.8, life: 8 });
+  }
+
+  spawnBomb(
+    x: number,
+    y: number,
+    vx: number,
+    vy: number,
+    owner: 'player' | 'enemy',
+    damage: number,
+    fuse: number
+  ): void {
+    this.bombs.push({
+      id: this.nextId++,
+      x,
+      y,
+      vx,
+      vy,
+      fuse,
+      radius: owner === 'player' ? 74 : 62,
+      damage,
+      owner,
+    });
+    this.emit({ type: 'bombThrown', x, y, owner });
+  }
+
+  placePlayerTrap(x: number, y: number): void {
+    const room = this.currentRoom();
+    this.hazards.push({
+      id: this.nextId++,
+      kind: 'trap',
+      x,
+      y,
+      radius: 44,
+      roomId: room?.id ?? -1,
+      phase: 'idle',
+      timer: 0.65,
+      period: 0,
+      damage: 48,
+      hp: 0,
+      maxHp: 0,
+      disabled: false,
+      safePlayer: true,
+    });
+  }
+
+  /** Bombs bounce off walls, chain with each other, and hurt both sides. */
+  private updateBombs(dt: number): void {
+    for (let i = this.bombs.length - 1; i >= 0; i--) {
+      const b = this.bombs[i];
+      b.fuse -= dt;
+      const nx = b.x + b.vx * dt;
+      const ny = b.y + b.vy * dt;
+      if (this.grid.isSolidAtPixel(nx, b.y)) b.vx *= -0.55;
+      else b.x = nx;
+      if (this.grid.isSolidAtPixel(b.x, ny)) b.vy *= -0.55;
+      else b.y = ny;
+      const drag = Math.exp(-1.9 * dt);
+      b.vx *= drag;
+      b.vy *= drag;
+      if (b.fuse > 0) continue;
+      this.bombs.splice(i, 1);
+      this.explodeBomb(b);
+    }
+  }
+
+  private explodeBomb(b: Bomb): void {
+    const p = this.player;
+    this.emit({ type: 'bombExploded', x: b.x, y: b.y, radius: b.radius });
+    this.emit({ type: 'shake', strength: 8 });
+    if (Math.hypot(p.x - b.x, p.y - b.y) <= b.radius + p.radius)
+      this.damagePlayer(Math.round(b.damage * (b.owner === 'player' ? 0.65 : 1)), b.x, b.y, 260);
+    for (const e of this.enemies)
+      if (e.state !== 'dying' && Math.hypot(e.x - b.x, e.y - b.y) <= b.radius + e.radius)
+        this.damageEnemy(
+          e,
+          Math.round(b.damage * (b.owner === 'player' ? 1 : 0.7)),
+          'hazard',
+          false,
+          240
+        );
+    // Chain reaction: nearby bombs light off almost immediately.
+    for (const other of this.bombs)
+      if (Math.hypot(other.x - b.x, other.y - b.y) <= b.radius * 1.2)
+        other.fuse = Math.min(other.fuse, 0.06);
+  }
+
+  /** Player attacks break barrels; traps are not destructible. */
+  hitHazards(x: number, y: number, radius: number, damage: number): number {
+    let hits = 0;
+    for (const h of [...this.hazards]) {
+      if (h.kind !== 'barrel' || h.disabled) continue;
+      if (Math.hypot(h.x - x, h.y - y) > radius + h.radius) continue;
+      this.damageHazard(h, damage);
+      hits++;
+    }
+    return hits;
+  }
+
+  private damageHazard(h: Hazard, amount: number): void {
+    if (h.kind !== 'barrel' || h.disabled) return;
+    h.hp -= amount;
+    if (h.hp > 0) return;
+    const index = this.hazards.indexOf(h);
+    if (index >= 0) this.hazards.splice(index, 1);
+    this.emit({ type: 'hazardBurst', kind: 'barrel', x: h.x, y: h.y, radius: 96 });
+    this.emit({ type: 'shake', strength: 7 });
+    for (const e of this.enemies)
+      if (e.state !== 'dying' && Math.hypot(e.x - h.x, e.y - h.y) <= 96 + e.radius)
+        this.damageEnemy(e, 50, 'hazard', false, 220);
+    const p = this.player;
+    if (Math.hypot(p.x - h.x, p.y - h.y) <= 96 + p.radius) this.damagePlayer(20, h.x, h.y, 260);
+    this.dropShards(h.x, h.y, 4 + this.run.depth);
+    if (this.rng.chance(0.4)) this.dropPickup('bomb', h.x + 18, h.y, 1);
+    if (this.rng.chance(0.35)) this.dropPickup('trap', h.x - 18, h.y, 1);
+  }
+  private updateBlasts(dt: number): void {
+    const p = this.player;
+    for (let i = this.blasts.length - 1; i >= 0; i--) {
+      const b = this.blasts[i];
+      b.delay -= dt;
+      if (b.delay > 0) continue;
+      this.blasts.splice(i, 1);
+      this.emit({ type: 'blast', x: b.x, y: b.y, radius: b.radius });
+      if (Math.hypot(p.x - b.x, p.y - b.y) <= b.radius + p.radius)
+        this.damagePlayer(b.damage, b.x, b.y, 200);
+      for (const e of this.enemies)
+        if (e.state !== 'dying' && Math.hypot(e.x - b.x, e.y - b.y) <= b.radius + e.radius)
+          this.damageEnemy(e, Math.round(b.damage * 0.6), 'hazard', false, 80);
+    }
+  }
+
+  private updateMines(dt: number): void {
+    const p = this.player;
+    for (let i = this.mines.length - 1; i >= 0; i--) {
+      const m = this.mines[i];
+      m.arm -= dt;
+      m.life -= dt;
+      const close = m.arm <= 0 && Math.hypot(p.x - m.x, p.y - m.y) < 58;
+      if (!close && m.life > 0) continue;
+      this.mines.splice(i, 1);
+      this.emit({ type: 'blast', x: m.x, y: m.y, radius: 62 });
+      if (Math.hypot(p.x - m.x, p.y - m.y) <= 62 + p.radius)
+        this.damagePlayer(m.damage, m.x, m.y, 180);
+      for (const e of this.enemies)
+        if (e.state !== 'dying' && Math.hypot(e.x - m.x, e.y - m.y) <= 62 + e.radius)
+          this.damageEnemy(e, Math.round(m.damage * 0.5), 'hazard', false, 60);
+    }
+  }
+
+  /** A lever disables every trap in its room. */
+  disableHazards(roomId?: number): void {
+    for (const h of this.hazards)
+      if (roomId === undefined || h.roomId === roomId) h.disabled = true;
   }
 
   private updatePickups(dt: number): void {
@@ -718,12 +1308,26 @@ export class World implements Arena {
         p.shards += item.amount;
         break;
       case 'health':
-        if (p.health >= p.stats.maxHealth) return false;
+        if (p.health >= p.stats.maxHealth) {
+          // Never leave a full-health heart orbiting the player: convert it
+          // into a few shards instead.
+          p.shards += Math.max(1, Math.round(item.amount));
+          break;
+        }
         p.health = Math.min(p.stats.maxHealth, p.health + item.amount);
         break;
       case 'potion':
-        if (p.potions >= p.stats.maxPotions) return false;
+        if (p.potions >= p.stats.maxPotions) {
+          p.shards += 2;
+          break;
+        }
         p.potions++;
+        break;
+      case 'bomb':
+        p.bombs += item.amount;
+        break;
+      case 'trap':
+        p.traps += item.amount;
         break;
       case 'fragment':
         if (item.fragmentId) {
@@ -731,6 +1335,28 @@ export class World implements Arena {
           this.emit({ type: 'fragmentFound', fragmentId: item.fragmentId });
         }
         break;
+      case 'equipment': {
+        const relic = item.equipment;
+        if (!relic) return false;
+        const def = equipmentDef(relic.defId);
+        const slot = def.slot;
+        p.inventory.push(relic);
+        let auto = false;
+        if (!p.equipment[slot]) {
+          p.equipment[slot] = relic;
+          p.inventory.splice(p.inventory.indexOf(relic), 1);
+          refreshStats(p);
+          auto = true;
+        }
+        this.emit({
+          type: 'equipment',
+          name: def.name,
+          rarity: def.rarity,
+          slot,
+          auto,
+        });
+        break;
+      }
     }
     this.emit({ type: 'pickup', kind: item.kind, x: item.x, y: item.y, amount: item.amount });
     return true;

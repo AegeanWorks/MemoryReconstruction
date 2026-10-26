@@ -88,6 +88,11 @@ export class Renderer {
     this.scene = undefined;
   }
 
+  /** Hides world-space station labels while a DOM menu covers the screen. */
+  setLabelsVisible(visible: boolean): void {
+    this.scene?.actors.setLabelsVisible(visible);
+  }
+
   /** Call before each sim step so motion can be interpolated. */
   beforeStep(): void {
     this.scene?.actors.capture();

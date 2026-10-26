@@ -550,6 +550,546 @@
           "dialogue": "Then create anew."
         }
       ]
+    },
+    {
+      "id": "cinder_wisp",
+      "name": "Cinder Wisp",
+      "description": "A drifting ember of a burnt memory. It lobs cinders from a safe distance.",
+      "type": "wisp",
+      "biome": "ash",
+      "stats": {
+        "health": 80,
+        "maxHealth": 80,
+        "damage": 18,
+        "speed": 85,
+        "armor": 0,
+        "resistance": 10,
+        "knockbackResistance": 5,
+        "xpValue": 65,
+        "memoryValue": 8
+      },
+      "ai": {
+        "behavior": "ranged_support",
+        "aggroRange": 260,
+        "attackRange": 240,
+        "attackCooldown": 2.0,
+        "patrolRadius": 120
+      },
+      "hitbox": { "width": 26, "height": 32, "offsetX": 0, "offsetY": -8 },
+      "sprite": { "texture": "enemy_spirit", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.7, "min": 2, "max": 4 }]
+    },
+    {
+      "id": "magma_hound",
+      "name": "Magma Hound",
+      "description": "A slag-born hunter that circles, then lunges through the ash.",
+      "type": "hound",
+      "biome": "ash",
+      "stats": {
+        "health": 120,
+        "maxHealth": 120,
+        "damage": 24,
+        "speed": 130,
+        "armor": 8,
+        "resistance": 15,
+        "knockbackResistance": 20,
+        "xpValue": 80,
+        "memoryValue": 10
+      },
+      "ai": {
+        "behavior": "hit_and_run",
+        "aggroRange": 280,
+        "attackRange": 60,
+        "attackCooldown": 1.4,
+        "patrolRadius": 160
+      },
+      "hitbox": { "width": 32, "height": 36, "offsetX": 0, "offsetY": -8 },
+      "sprite": { "texture": "enemy_wildling", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.7, "min": 2, "max": 4 }]
+    },
+    {
+      "id": "drowned",
+      "name": "Drowned Rememberer",
+      "description": "Someone who kept walking into the water to find a memory. Slow, cold, relentless.",
+      "type": "drowned",
+      "biome": "abyss",
+      "stats": {
+        "health": 160,
+        "maxHealth": 160,
+        "damage": 28,
+        "speed": 92,
+        "armor": 14,
+        "resistance": 20,
+        "knockbackResistance": 35,
+        "xpValue": 95,
+        "memoryValue": 12
+      },
+      "ai": {
+        "behavior": "chase",
+        "aggroRange": 300,
+        "attackRange": 48,
+        "attackCooldown": 1.6,
+        "patrolRadius": 160
+      },
+      "hitbox": { "width": 32, "height": 44, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_cave_dweller", "width": 40, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.8, "min": 2, "max": 5 }]
+    },
+    {
+      "id": "tide_caller",
+      "name": "Tide Caller",
+      "description": "It sings drowned memories into the air and lets them fall on you as needles.",
+      "type": "caller",
+      "biome": "abyss",
+      "stats": {
+        "health": 130,
+        "maxHealth": 130,
+        "damage": 24,
+        "speed": 78,
+        "armor": 6,
+        "resistance": 25,
+        "knockbackResistance": 10,
+        "xpValue": 100,
+        "memoryValue": 14
+      },
+      "ai": {
+        "behavior": "ranged_support",
+        "aggroRange": 300,
+        "attackRange": 260,
+        "attackCooldown": 1.9,
+        "patrolRadius": 140
+      },
+      "hitbox": { "width": 28, "height": 40, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_prism_entity", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.8, "min": 2, "max": 5 }]
+    },
+    {
+      "id": "frost_stalker",
+      "name": "Frost Stalker",
+      "description": "A silhouette preserved in ice, waiting for a warm memory to ambush.",
+      "type": "stalker",
+      "biome": "frost",
+      "stats": {
+        "health": 180,
+        "maxHealth": 180,
+        "damage": 30,
+        "speed": 125,
+        "armor": 16,
+        "resistance": 20,
+        "knockbackResistance": 20,
+        "xpValue": 115,
+        "memoryValue": 16
+      },
+      "ai": {
+        "behavior": "ambush",
+        "aggroRange": 320,
+        "attackRange": 70,
+        "attackCooldown": 1.3,
+        "patrolRadius": 180
+      },
+      "hitbox": { "width": 32, "height": 44, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_shadow", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.8, "min": 2, "max": 6 }]
+    },
+    {
+      "id": "glass_sentinel",
+      "name": "Glass Sentinel",
+      "description": "A frozen archive keeper. Its shell rings like a bell before it slams.",
+      "type": "sentinel",
+      "biome": "frost",
+      "stats": {
+        "health": 360,
+        "maxHealth": 360,
+        "damage": 34,
+        "speed": 45,
+        "armor": 40,
+        "resistance": 30,
+        "knockbackResistance": 70,
+        "xpValue": 145,
+        "memoryValue": 20
+      },
+      "ai": {
+        "behavior": "tank",
+        "aggroRange": 280,
+        "attackRange": 64,
+        "attackCooldown": 2.3,
+        "patrolRadius": 120
+      },
+      "hitbox": { "width": 40, "height": 52, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_crystal_golem", "width": 80, "height": 80 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.9, "min": 3, "max": 7 }]
+    },
+    {
+      "id": "bloom_crawler",
+      "name": "Bloom Crawler",
+      "description": "Roots that learned to walk. It defends a garden that no longer exists.",
+      "type": "crawler",
+      "biome": "bloom",
+      "stats": {
+        "health": 200,
+        "maxHealth": 200,
+        "damage": 32,
+        "speed": 105,
+        "armor": 18,
+        "resistance": 18,
+        "knockbackResistance": 30,
+        "xpValue": 125,
+        "memoryValue": 18
+      },
+      "ai": {
+        "behavior": "territorial",
+        "aggroRange": 300,
+        "attackRange": 52,
+        "attackCooldown": 1.5,
+        "patrolRadius": 200
+      },
+      "hitbox": { "width": 34, "height": 44, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_cave_dweller", "width": 40, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 6 }]
+    },
+    {
+      "id": "petal_witch",
+      "name": "Petal Witch",
+      "description": "She scatters blossoms that split into sharper blossoms. Do not breathe them in.",
+      "type": "witch",
+      "biome": "bloom",
+      "stats": {
+        "health": 170,
+        "maxHealth": 170,
+        "damage": 28,
+        "speed": 85,
+        "armor": 10,
+        "resistance": 30,
+        "knockbackResistance": 10,
+        "xpValue": 135,
+        "memoryValue": 20
+      },
+      "ai": {
+        "behavior": "splitter",
+        "aggroRange": 320,
+        "attackRange": 230,
+        "attackCooldown": 1.8,
+        "patrolRadius": 150
+      },
+      "hitbox": { "width": 30, "height": 44, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_spirit", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 6 }]
+    },
+    {
+      "id": "cinder_warden",
+      "name": "Cinder Warden",
+      "description": "The keeper of a furnace that once forged memories. It still swings for them.",
+      "type": "warden",
+      "biome": "ash",
+      "stats": {
+        "health": 180,
+        "maxHealth": 180,
+        "damage": 34,
+        "speed": 70,
+        "armor": 30,
+        "resistance": 30,
+        "knockbackResistance": 60,
+        "xpValue": 380,
+        "memoryValue": 50
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 400,
+        "attackRange": 70,
+        "attackCooldown": 1.8,
+        "patrolRadius": 240
+      },
+      "hitbox": { "width": 56, "height": 64, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_crystal_guardian", "width": 48, "height": 64 },
+      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+    },
+    {
+      "id": "leviathan",
+      "name": "Drowned Leviathan",
+      "description": "A whale of accumulated grief. It remembers every hand that let go.",
+      "type": "leviathan",
+      "biome": "abyss",
+      "stats": {
+        "health": 210,
+        "maxHealth": 210,
+        "damage": 38,
+        "speed": 58,
+        "armor": 36,
+        "resistance": 40,
+        "knockbackResistance": 80,
+        "xpValue": 440,
+        "memoryValue": 60
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 420,
+        "attackRange": 80,
+        "attackCooldown": 2.0,
+        "patrolRadius": 240
+      },
+      "hitbox": { "width": 64, "height": 72, "offsetX": 0, "offsetY": -12 },
+      "sprite": { "texture": "enemy_void_walker", "width": 64, "height": 80 },
+      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+    },
+    {
+      "id": "frost_warden",
+      "name": "Frost Warden",
+      "description": "It kept the archive cold so the memories would not rot. Now it keeps you still.",
+      "type": "warden",
+      "biome": "frost",
+      "stats": {
+        "health": 230,
+        "maxHealth": 230,
+        "damage": 40,
+        "speed": 75,
+        "armor": 42,
+        "resistance": 42,
+        "knockbackResistance": 80,
+        "xpValue": 500,
+        "memoryValue": 70
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 420,
+        "attackRange": 72,
+        "attackCooldown": 1.9,
+        "patrolRadius": 240
+      },
+      "hitbox": { "width": 60, "height": 68, "offsetX": 0, "offsetY": -12 },
+      "sprite": { "texture": "enemy_crystal_golem", "width": 80, "height": 80 },
+      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+    },
+    {
+      "id": "thorn_matriarch",
+      "name": "Thorn Matriarch",
+      "description": "The garden's last mother. She grows soldiers from everything you buried.",
+      "type": "matriarch",
+      "biome": "bloom",
+      "stats": {
+        "health": 250,
+        "maxHealth": 250,
+        "damage": 42,
+        "speed": 62,
+        "armor": 38,
+        "resistance": 45,
+        "knockbackResistance": 90,
+        "xpValue": 560,
+        "memoryValue": 80
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 440,
+        "attackRange": 76,
+        "attackCooldown": 1.8,
+        "patrolRadius": 240
+      },
+      "hitbox": { "width": 64, "height": 72, "offsetX": 0, "offsetY": -12 },
+      "sprite": { "texture": "enemy_forgotten", "width": 96, "height": 96 },
+      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+    },
+    {
+      "id": "cog_hound",
+      "name": "Cog Hound",
+      "description": "A brass quadruped that runs on a stolen memory. Its teeth are still turning.",
+      "type": "cog_hound",
+      "biome": "foundry",
+      "stats": { "health": 210, "maxHealth": 210, "damage": 34, "speed": 135, "armor": 24, "resistance": 20, "knockbackResistance": 35, "xpValue": 130, "memoryValue": 16 },
+      "ai": { "behavior": "hit_and_run", "aggroRange": 300, "attackRange": 62, "attackCooldown": 1.2, "patrolRadius": 170 },
+      "hitbox": { "width": 34, "height": 40, "offsetX": 0, "offsetY": -8 },
+      "sprite": { "texture": "enemy_cog_hound", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 6 }]
+    },
+    {
+      "id": "solder_wisp",
+      "name": "Solder Wisp",
+      "description": "A floating bead of molten metal. It spits hot seams across the floor.",
+      "type": "solder_wisp",
+      "biome": "foundry",
+      "stats": { "health": 150, "maxHealth": 150, "damage": 30, "speed": 80, "armor": 8, "resistance": 30, "knockbackResistance": 10, "xpValue": 140, "memoryValue": 18 },
+      "ai": { "behavior": "ranged_support", "aggroRange": 320, "attackRange": 250, "attackCooldown": 1.8, "patrolRadius": 140 },
+      "hitbox": { "width": 28, "height": 40, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_solder_wisp", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 6 }]
+    },
+    {
+      "id": "clockwork_regent",
+      "name": "Clockwork Regent",
+      "description": "The foundry's foreman, still keeping a schedule for workers who no longer exist.",
+      "type": "clockwork_regent",
+      "biome": "foundry",
+      "stats": { "health": 270, "maxHealth": 270, "damage": 44, "speed": 68, "armor": 44, "resistance": 42, "knockbackResistance": 85, "xpValue": 620, "memoryValue": 90 },
+      "ai": { "behavior": "boss", "aggroRange": 440, "attackRange": 78, "attackCooldown": 1.7, "patrolRadius": 240 },
+      "hitbox": { "width": 64, "height": 72, "offsetX": 0, "offsetY": -12 },
+      "sprite": { "texture": "enemy_clockwork_regent", "width": 96, "height": 96 },
+      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+    },
+    {
+      "id": "bog_leech",
+      "name": "Bog Leech",
+      "description": "A swollen thing that drinks memory through the mud. It drags itself toward anything warm.",
+      "type": "bog_leech",
+      "biome": "mire",
+      "stats": { "health": 230, "maxHealth": 230, "damage": 34, "speed": 95, "armor": 20, "resistance": 22, "knockbackResistance": 45, "xpValue": 145, "memoryValue": 18 },
+      "ai": { "behavior": "territorial", "aggroRange": 300, "attackRange": 54, "attackCooldown": 1.5, "patrolRadius": 190 },
+      "hitbox": { "width": 38, "height": 42, "offsetX": 0, "offsetY": -8 },
+      "sprite": { "texture": "enemy_bog_leech", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 7 }]
+    },
+    {
+      "id": "plague_caster",
+      "name": "Plague Chanter",
+      "description": "It sings the names of the drowned and the names come back as clouds.",
+      "type": "plague_caster",
+      "biome": "mire",
+      "stats": { "health": 170, "maxHealth": 170, "damage": 31, "speed": 82, "armor": 10, "resistance": 35, "knockbackResistance": 15, "xpValue": 155, "memoryValue": 20 },
+      "ai": { "behavior": "ranged_support", "aggroRange": 330, "attackRange": 240, "attackCooldown": 2.0, "patrolRadius": 150 },
+      "hitbox": { "width": 30, "height": 44, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_plague_caster", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 7 }]
+    },
+    {
+      "id": "mire_sovereign",
+      "name": "Mire Sovereign",
+      "description": "A crown of reeds and bone. Everything the swamp swallowed answers to it.",
+      "type": "mire_sovereign",
+      "biome": "mire",
+      "stats": { "health": 290, "maxHealth": 290, "damage": 46, "speed": 60, "armor": 40, "resistance": 50, "knockbackResistance": 90, "xpValue": 680, "memoryValue": 100 },
+      "ai": { "behavior": "boss", "aggroRange": 450, "attackRange": 80, "attackCooldown": 1.8, "patrolRadius": 240 },
+      "hitbox": { "width": 68, "height": 76, "offsetX": 0, "offsetY": -14 },
+      "sprite": { "texture": "enemy_mire_sovereign", "width": 96, "height": 96 },
+      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+    },
+    {
+      "id": "bombardier",
+      "name": "Ash Bombardier",
+      "description": "It carries a satchel of unstable memories and throws them with both arms.",
+      "type": "bombardier",
+      "biome": "ash",
+      "stats": { "health": 170, "maxHealth": 170, "damage": 30, "speed": 95, "armor": 12, "resistance": 18, "knockbackResistance": 20, "xpValue": 135, "memoryValue": 16 },
+      "ai": { "behavior": "ranged_support", "aggroRange": 330, "attackRange": 270, "attackCooldown": 2.4, "patrolRadius": 160 },
+      "hitbox": { "width": 32, "height": 44, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_bombardier", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 6 }]
+    },
+    {
+      "id": "hive_drone",
+      "name": "Hive Drone",
+      "description": "A wax-winged worker carrying a sac of combustible pollen.",
+      "type": "hive_drone",
+      "biome": "hive",
+      "stats": { "health": 190, "maxHealth": 190, "damage": 32, "speed": 110, "armor": 14, "resistance": 22, "knockbackResistance": 20, "xpValue": 145, "memoryValue": 18 },
+      "ai": { "behavior": "ranged_support", "aggroRange": 340, "attackRange": 270, "attackCooldown": 2.2, "patrolRadius": 180 },
+      "hitbox": { "width": 30, "height": 40, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_hive_drone", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 7 }]
+    },
+    {
+      "id": "hive_guard",
+      "name": "Hive Guard",
+      "description": "A slab of wax and chitin that stands where the queen points.",
+      "type": "hive_guard",
+      "biome": "hive",
+      "stats": { "health": 330, "maxHealth": 330, "damage": 36, "speed": 72, "armor": 36, "resistance": 30, "knockbackResistance": 65, "xpValue": 160, "memoryValue": 20 },
+      "ai": { "behavior": "tank", "aggroRange": 300, "attackRange": 66, "attackCooldown": 2.1, "patrolRadius": 140 },
+      "hitbox": { "width": 40, "height": 52, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_hive_guard", "width": 80, "height": 80 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.9, "min": 3, "max": 7 }]
+    },
+    {
+      "id": "hive_queen",
+      "name": "Hive Queen",
+      "description": "The comb's mother. She does not chase; she fills the room with her children.",
+      "type": "hive_queen",
+      "biome": "hive",
+      "stats": { "health": 280, "maxHealth": 280, "damage": 46, "speed": 62, "armor": 44, "resistance": 46, "knockbackResistance": 90, "xpValue": 700, "memoryValue": 100 },
+      "ai": { "behavior": "boss", "aggroRange": 460, "attackRange": 82, "attackCooldown": 1.8, "patrolRadius": 240 },
+      "hitbox": { "width": 70, "height": 78, "offsetX": 0, "offsetY": -14 },
+      "sprite": { "texture": "enemy_hive_queen", "width": 96, "height": 96 },
+      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+    },
+    {
+      "id": "catacomb_archer",
+      "name": "Catacomb Archer",
+      "description": "It has been aiming at the door for a very long time.",
+      "type": "catacomb_archer",
+      "biome": "catacomb",
+      "stats": { "health": 185, "maxHealth": 185, "damage": 33, "speed": 92, "armor": 16, "resistance": 28, "knockbackResistance": 18, "xpValue": 150, "memoryValue": 20 },
+      "ai": { "behavior": "ranged_support", "aggroRange": 360, "attackRange": 280, "attackCooldown": 1.9, "patrolRadius": 160 },
+      "hitbox": { "width": 30, "height": 44, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_catacomb_archer", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 4, "max": 8 }]
+    },
+    {
+      "id": "bone_knight",
+      "name": "Bone Knight",
+      "description": "Rank still matters here. It closes and salutes before it swings.",
+      "type": "bone_knight",
+      "biome": "catacomb",
+      "stats": { "health": 270, "maxHealth": 270, "damage": 38, "speed": 120, "armor": 30, "resistance": 25, "knockbackResistance": 45, "xpValue": 165, "memoryValue": 22 },
+      "ai": { "behavior": "ambush", "aggroRange": 320, "attackRange": 68, "attackCooldown": 1.5, "patrolRadius": 190 },
+      "hitbox": { "width": 34, "height": 48, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_bone_knight", "width": 48, "height": 48 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.9, "min": 4, "max": 8 }]
+    },
+    {
+      "id": "bone_tyrant",
+      "name": "Bone Tyrant",
+      "description": "The first keeper of the catacombs, still enforcing an order no one remembers.",
+      "type": "bone_tyrant",
+      "biome": "catacomb",
+      "stats": { "health": 310, "maxHealth": 310, "damage": 50, "speed": 66, "armor": 48, "resistance": 50, "knockbackResistance": 95, "xpValue": 760, "memoryValue": 110 },
+      "ai": { "behavior": "boss", "aggroRange": 470, "attackRange": 84, "attackCooldown": 1.7, "patrolRadius": 240 },
+      "hitbox": { "width": 72, "height": 82, "offsetX": 0, "offsetY": -14 },
+      "sprite": { "texture": "enemy_bone_tyrant", "width": 96, "height": 96 },
+      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+    },
+    {
+      "id": "grave_hound",
+      "name": "Grave Hound",
+      "description": "It remembers the hand that buried it and has been looking for the rest ever since.",
+      "type": "grave_hound",
+      "biome": "catacomb",
+      "stats": { "health": 300, "maxHealth": 300, "damage": 38, "speed": 140, "armor": 24, "resistance": 26, "knockbackResistance": 35, "xpValue": 165, "memoryValue": 22 },
+      "ai": { "behavior": "ambush", "aggroRange": 340, "attackRange": 66, "attackCooldown": 1.3, "patrolRadius": 210 },
+      "hitbox": { "width": 34, "height": 44, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_grave_hound", "width": 64, "height": 64 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.9, "min": 4, "max": 8 }]
+    },
+    {
+      "id": "void_cantor",
+      "name": "Void Cantor",
+      "description": "It sings the geometry of the gap between memories, and the gap answers with light.",
+      "type": "void_cantor",
+      "biome": "void",
+      "stats": { "health": 210, "maxHealth": 210, "damage": 35, "speed": 82, "armor": 12, "resistance": 38, "knockbackResistance": 12, "xpValue": 160, "memoryValue": 24 },
+      "ai": { "behavior": "ranged_support", "aggroRange": 380, "attackRange": 300, "attackCooldown": 2.2, "patrolRadius": 160 },
+      "hitbox": { "width": 30, "height": 44, "offsetX": 0, "offsetY": -10 },
+      "sprite": { "texture": "enemy_void_cantor", "width": 64, "height": 64 },
+      "lootTable": [{ "item": "fragment_shard", "chance": 0.9, "min": 4, "max": 8 }]
+    },
+    {
+      "id": "choir_hierophant",
+      "name": "The Frozen Choir",
+      "description": "A single figure conducting a choir of statues. The statues are all that is left of the singers.",
+      "type": "hierophant",
+      "biome": "frost",
+      "stats": { "health": 260, "maxHealth": 260, "damage": 42, "speed": 64, "armor": 40, "resistance": 45, "knockbackResistance": 90, "xpValue": 720, "memoryValue": 110 },
+      "ai": { "behavior": "boss", "aggroRange": 480, "attackRange": 90, "attackCooldown": 1.8, "patrolRadius": 240 },
+      "hitbox": { "width": 68, "height": 80, "offsetX": 0, "offsetY": -14 },
+      "sprite": { "texture": "enemy_choir_hierophant", "width": 96, "height": 96 },
+      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+    },
+    {
+      "id": "hollow_behemoth",
+      "name": "The Nameless Behemoth",
+      "description": "It has no name left to announce, so it announces itself with the floor.",
+      "type": "behemoth",
+      "biome": "void",
+      "stats": { "health": 320, "maxHealth": 320, "damage": 48, "speed": 55, "armor": 50, "resistance": 45, "knockbackResistance": 100, "xpValue": 780, "memoryValue": 120 },
+      "ai": { "behavior": "boss", "aggroRange": 480, "attackRange": 96, "attackCooldown": 1.9, "patrolRadius": 240 },
+      "hitbox": { "width": 76, "height": 84, "offsetX": 0, "offsetY": -14 },
+      "sprite": { "texture": "enemy_hollow_behemoth", "width": 96, "height": 96 },
+      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
     }
   ],
   "eliteModifiers": [

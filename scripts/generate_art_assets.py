@@ -27,7 +27,8 @@ SPRITES = ASSETS / "sprites"
 
 SS = 4
 PLAYER_CELL = 64
-ENEMY_CELL = 64
+ENEMY_CELL = 96
+BOSS_CELL = 192
 TILE = 32
 TILE_COLUMNS = 4
 TILE_ROWS = ["empty", "floor", "wall", "platform", "hazard", "water", "ladder", "door", "secret"]
@@ -177,6 +178,207 @@ ENEMY_STYLES = {
         "eye": (255, 255, 240, 255),
         "scale": 1.18,
     },
+    "cogHound": {
+        "kind": "beast",
+        "body": (124, 98, 62, 255),
+        "light": (196, 158, 96, 255),
+        "cloth": (74, 58, 38, 255),
+        "accent": (255, 179, 71, 255),
+        "eye": (255, 214, 128, 255),
+        "scale": 0.98,
+    },
+    "solderWisp": {
+        "kind": "wisp",
+        "body": (186, 128, 58, 255),
+        "light": (255, 206, 128, 255),
+        "cloth": (110, 72, 34, 255),
+        "accent": (255, 196, 96, 255),
+        "eye": (255, 250, 220, 255),
+        "scale": 0.94,
+    },
+    "bogLeech": {
+        "kind": "beast",
+        "body": (62, 88, 58, 255),
+        "light": (124, 158, 92, 255),
+        "cloth": (40, 58, 40, 255),
+        "accent": (184, 224, 106, 255),
+        "eye": (240, 255, 180, 255),
+        "scale": 1.02,
+    },
+    "plagueCaster": {
+        "kind": "hunched",
+        "body": (84, 106, 72, 255),
+        "light": (150, 176, 118, 255),
+        "cloth": (52, 68, 48, 255),
+        "accent": (212, 240, 128, 255),
+        "eye": (240, 255, 200, 255),
+        "scale": 1.0,
+        "ears": True,
+    },
+    "cinderWarden": {
+        "kind": "warden",
+        "body": (78, 54, 46, 255),
+        "light": (196, 118, 68, 255),
+        "cloth": (52, 36, 32, 255),
+        "accent": (255, 138, 76, 255),
+        "eye": (255, 240, 190, 255),
+        "scale": 1.25,
+    },
+    "frostWarden": {
+        "kind": "warden",
+        "body": (70, 100, 124, 255),
+        "light": (176, 220, 244, 255),
+        "cloth": (44, 66, 86, 255),
+        "accent": (159, 212, 255, 255),
+        "eye": (240, 252, 255, 255),
+        "scale": 1.25,
+    },
+    "leviathan": {
+        "kind": "serpent",
+        "body": (42, 78, 96, 255),
+        "light": (108, 176, 196, 255),
+        "cloth": (26, 50, 64, 255),
+        "accent": (92, 232, 255, 255),
+        "eye": (200, 255, 255, 255),
+        "scale": 1.3,
+    },
+    "thornMatriarch": {
+        "kind": "matriarch",
+        "body": (92, 62, 84, 255),
+        "light": (196, 132, 176, 255),
+        "cloth": (58, 40, 60, 255),
+        "accent": (255, 154, 216, 255),
+        "eye": (255, 240, 255, 255),
+        "scale": 1.28,
+    },
+    "forgottenGiant": {
+        "kind": "giant",
+        "body": (62, 58, 74, 255),
+        "light": (124, 116, 144, 255),
+        "cloth": (44, 40, 56, 255),
+        "accent": (170, 150, 210, 255),
+        "eye": (230, 220, 255, 255),
+        "scale": 1.35,
+    },
+    "clockworkRegent": {
+        "kind": "regent",
+        "body": (116, 92, 58, 255),
+        "light": (224, 185, 106, 255),
+        "cloth": (70, 54, 34, 255),
+        "accent": (255, 196, 96, 255),
+        "eye": (255, 246, 200, 255),
+        "scale": 1.3,
+    },
+    "mireSovereign": {
+        "kind": "sovereign",
+        "body": (56, 82, 60, 255),
+        "light": (132, 170, 104, 255),
+        "cloth": (36, 54, 42, 255),
+        "accent": (200, 232, 120, 255),
+        "eye": (255, 250, 190, 255),
+        "scale": 1.32,
+    },
+    "bombardier": {
+        "kind": "hunched",
+        "body": (96, 62, 40, 255),
+        "light": (186, 132, 82, 255),
+        "cloth": (58, 38, 26, 255),
+        "accent": (255, 170, 80, 255),
+        "eye": (255, 240, 190, 255),
+        "scale": 1.0,
+    },
+    "hiveDrone": {
+        "kind": "wisp",
+        "body": (176, 128, 40, 255),
+        "light": (245, 196, 96, 255),
+        "cloth": (104, 72, 22, 255),
+        "accent": (255, 220, 120, 255),
+        "eye": (255, 255, 220, 255),
+        "scale": 0.96,
+    },
+    "hiveGuard": {
+        "kind": "hunched",
+        "body": (96, 70, 36, 255),
+        "light": (190, 150, 76, 255),
+        "cloth": (56, 40, 20, 255),
+        "accent": (255, 196, 96, 255),
+        "eye": (255, 240, 200, 255),
+        "scale": 1.16,
+        "ears": True,
+    },
+    "catacombArcher": {
+        "kind": "hunched",
+        "body": (78, 82, 78, 255),
+        "light": (164, 160, 140, 255),
+        "cloth": (44, 50, 50, 255),
+        "accent": (143, 216, 200, 255),
+        "eye": (220, 255, 245, 255),
+        "scale": 1.0,
+    },
+    "boneKnight": {
+        "kind": "duelist",
+        "body": (96, 94, 82, 255),
+        "light": (206, 198, 170, 255),
+        "cloth": (48, 54, 52, 255),
+        "accent": (143, 216, 200, 255),
+        "eye": (220, 255, 245, 255),
+        "scale": 1.08,
+    },
+    "hiveQueen": {
+        "kind": "queen",
+        "body": (92, 62, 24, 255),
+        "light": (214, 164, 84, 255),
+        "cloth": (52, 34, 12, 255),
+        "accent": (255, 208, 110, 255),
+        "eye": (255, 250, 220, 255),
+        "scale": 1.34,
+    },
+    "boneTyrant": {
+        "kind": "tyrant",
+        "body": (84, 82, 72, 255),
+        "light": (206, 198, 168, 255),
+        "cloth": (38, 44, 43, 255),
+        "accent": (143, 216, 200, 255),
+        "eye": (220, 255, 245, 255),
+        "scale": 1.36,
+    },
+    "graveHound": {
+        "kind": "hound",
+        "body": (104, 100, 88, 255),
+        "light": (206, 198, 170, 255),
+        "cloth": (54, 56, 52, 255),
+        "accent": (143, 216, 200, 255),
+        "eye": (220, 255, 245, 255),
+        "scale": 1.08,
+    },
+    "voidCantor": {
+        "kind": "hunched",
+        "body": (58, 50, 84, 255),
+        "light": (142, 126, 194, 255),
+        "cloth": (34, 28, 52, 255),
+        "accent": (170, 150, 255, 255),
+        "eye": (220, 230, 255, 255),
+        "scale": 1.0,
+        "ears": True,
+    },
+    "choirHierophant": {
+        "kind": "hierophant",
+        "body": (78, 104, 128, 255),
+        "light": (196, 230, 248, 255),
+        "cloth": (42, 60, 80, 255),
+        "accent": (150, 230, 255, 255),
+        "eye": (255, 255, 250, 255),
+        "scale": 1.34,
+    },
+    "hollowBehemoth": {
+        "kind": "behemoth",
+        "body": (54, 48, 70, 255),
+        "light": (140, 126, 172, 255),
+        "cloth": (30, 26, 42, 255),
+        "accent": (190, 160, 255, 255),
+        "eye": (230, 220, 255, 255),
+        "scale": 1.38,
+    },
 }
 
 BIOME_ART = {
@@ -234,6 +436,42 @@ BIOME_ART = {
         "water": (178, 214, 230, 255),
         "foliage": (224, 214, 144, 255),
     },
+    "foundry": {
+        "dark": (36, 28, 22, 255),
+        "base": (92, 76, 58, 255),
+        "light": (196, 150, 88, 255),
+        "accent": (255, 179, 71, 255),
+        "hazard": (255, 120, 60, 255),
+        "water": (110, 90, 70, 255),
+        "foliage": (140, 120, 80, 255),
+    },
+    "mire": {
+        "dark": (18, 28, 22, 255),
+        "base": (54, 78, 58, 255),
+        "light": (122, 154, 96, 255),
+        "accent": (184, 224, 106, 255),
+        "hazard": (140, 210, 110, 255),
+        "water": (44, 88, 74, 255),
+        "foliage": (86, 128, 74, 255),
+    },
+    "hive": {
+        "dark": (30, 20, 10, 255),
+        "base": (88, 62, 32, 255),
+        "light": (200, 150, 76, 255),
+        "accent": (255, 196, 96, 255),
+        "hazard": (255, 140, 60, 255),
+        "water": (120, 90, 40, 255),
+        "foliage": (180, 130, 60, 255),
+    },
+    "catacomb": {
+        "dark": (16, 22, 22, 255),
+        "base": (64, 72, 72, 255),
+        "light": (176, 172, 148, 255),
+        "accent": (143, 216, 200, 255),
+        "hazard": (120, 200, 180, 255),
+        "water": (60, 84, 82, 255),
+        "foliage": (140, 136, 116, 255),
+    },
 }
 
 BACKGROUND_ART = {
@@ -243,6 +481,14 @@ BACKGROUND_ART = {
     "crystal": dict(top=(22, 12, 42), bottom=(104, 56, 152), silhouette=(48, 28, 76), accent=(255, 148, 232)),
     "void": dict(top=(3, 3, 9), bottom=(24, 22, 40), silhouette=(8, 8, 16), accent=(92, 232, 255)),
     "sanctuary": dict(top=(32, 28, 48), bottom=(180, 144, 84), silhouette=(104, 82, 42), accent=(255, 236, 166)),
+    "ash": dict(top=(14, 6, 4), bottom=(96, 48, 26), silhouette=(40, 22, 14), accent=(255, 138, 76)),
+    "abyss": dict(top=(3, 10, 14), bottom=(24, 62, 78), silhouette=(10, 28, 36), accent=(111, 231, 255)),
+    "frost": dict(top=(18, 26, 34), bottom=(150, 186, 206), silhouette=(70, 92, 108), accent=(191, 233, 255)),
+    "bloom": dict(top=(18, 8, 22), bottom=(92, 56, 92), silhouette=(40, 24, 44), accent=(255, 154, 216)),
+    "foundry": dict(top=(10, 8, 6), bottom=(92, 66, 36), silhouette=(38, 28, 18), accent=(255, 190, 90)),
+    "mire": dict(top=(6, 12, 10), bottom=(42, 68, 48), silhouette=(18, 32, 24), accent=(180, 230, 110)),
+    "hive": dict(top=(10, 6, 3), bottom=(92, 64, 28), silhouette=(40, 26, 10), accent=(255, 196, 96)),
+    "catacomb": dict(top=(4, 6, 6), bottom=(54, 62, 62), silhouette=(20, 26, 26), accent=(143, 216, 200)),
 }
 
 
@@ -262,11 +508,12 @@ def blank(cell: int) -> Image.Image:
 def ellipse(draw: ImageDraw.ImageDraw, cell: int, x0: float, y0: float, x1: float, y1: float,
             fill=None, outline=None, width: int = 2) -> None:
     size = cell * SS
+    scale = max(1.0, cell / 64)
     draw.ellipse(
         [int(x0 * size), int(y0 * size), int(x1 * size), int(y1 * size)],
         fill=fill,
         outline=outline,
-        width=max(1, width * SS),
+        width=max(1, int(width * SS * scale)),
     )
 
 
@@ -280,24 +527,29 @@ def rect(draw: ImageDraw.ImageDraw, cell: int, x0: float, y0: float, x1: float, 
             radius=int(radius * size),
             fill=fill,
             outline=outline,
-            width=max(1, width * SS),
+            width=max(1, int(width * SS * max(1.0, cell / 64))),
         )
     else:
-        draw.rectangle(coords, fill=fill, outline=outline, width=max(1, width * SS))
+        draw.rectangle(
+            coords,
+            fill=fill,
+            outline=outline,
+            width=max(1, int(width * SS * max(1.0, cell / 64))),
+        )
 
 
 def poly(draw: ImageDraw.ImageDraw, cell: int, points: list[tuple[float, float]],
          fill=None, outline=None, width: int = 2) -> None:
     size = cell * SS
     coords = [(int(x * size), int(y * size)) for x, y in points]
-    draw.polygon(coords, fill=fill, outline=outline, width=max(1, width * SS))
+    draw.polygon(coords, fill=fill, outline=outline, width=max(1, int(width * SS * max(1.0, cell / 64))))
 
 
 def line(draw: ImageDraw.ImageDraw, cell: int, points: list[tuple[float, float]],
          fill, width: int = 2) -> None:
     size = cell * SS
     coords = [(int(x * size), int(y * size)) for x, y in points]
-    draw.line(coords, fill=fill, width=max(1, width * SS), joint="curve")
+    draw.line(coords, fill=fill, width=max(1, int(width * SS * max(1.0, cell / 64))), joint="curve")
 
 
 def glow(img: Image.Image, paint, blur: float = 3.0) -> None:
@@ -308,7 +560,8 @@ def glow(img: Image.Image, paint, blur: float = 3.0) -> None:
 
 
 def downsample(img: Image.Image, cell: int) -> Image.Image:
-    return img.resize((cell, cell), Image.LANCZOS)
+    # Area-average keeps pixel art crisp; LANCZOS softened every edge.
+    return img.resize((cell, cell), Image.BOX)
 
 
 def save_cell(img: Image.Image, cell: int, path: Path) -> None:
@@ -335,7 +588,7 @@ def player_scarf(state: str, t: float, bob: float) -> list[tuple[float, float]]:
     return [(0.43, 0.41 + bob), (0.31, 0.47 + sway), (0.21, 0.53 - sway), (0.13, 0.49)]
 
 
-def player_frame(state: str, frame: int, frames: int) -> Image.Image:
+def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> Image.Image:
     cell = PLAYER_CELL
     img = blank(cell)
     draw = ImageDraw.Draw(img)
@@ -402,24 +655,68 @@ def player_frame(state: str, frame: int, frames: int) -> Image.Image:
     ellipse(draw, cell, 0.455, 0.30 + bob, 0.515, 0.365 + bob, fill=pal["skin"])
     ellipse(draw, cell, 0.515, 0.305 + bob, 0.548, 0.34 + bob, fill=pal["eye"])
 
-    # Blade and slash arc.
+    # Blade and slash arc. Each stance has a distinct held silhouette so the
+    # weapon reads in idle, walk and attack, not only in the hit effect.
     if state in ("idle", "walk", "attack"):
-        angle = -1.18 + (2.3 * t if state == "attack" else -0.18)
-        hand = (0.64, 0.53)
-        length = 0.30 if state == "attack" else 0.25
-        tip = (hand[0] + math.cos(angle) * length, hand[1] + math.sin(angle) * length)
-        dx, dy = tip[0] - hand[0], tip[1] - hand[1]
-        px, py = -dy * 0.018, dx * 0.018
-        poly(draw, cell, [(hand[0] + px, hand[1] + py), (tip[0] + px, tip[1] + py),
-                          (tip[0] - px, tip[1] - py), (hand[0] - px, hand[1] - py)],
-             fill=pal["blade"], outline=pal["outline"], width=1)
-        line(draw, cell, [hand, tip], pal["blade_core"], 1)
-        rect(draw, cell, hand[0] - 0.035, hand[1] - 0.018, hand[0] + 0.035, hand[1] + 0.018,
-             fill=pal["gold"], outline=pal["outline"], width=1, radius=0.01)
-        if state == "attack" and t > 0.2:
-            size = cell * SS
-            box = [int(0.34 * size), int(0.16 * size), int(0.98 * size), int(0.84 * size)]
-            draw.arc(box, start=-104 + t * 80, end=8 + t * 60, fill=pal["scarf"], width=max(1, 2 * SS))
+        attacking = state == "attack"
+        resting = {"sword": -0.85, "spear": -1.05, "greatsword": -0.78}[weapon]
+        angle = (-1.3 + 2.3 * t) if attacking else resting
+        hand = (0.65, 0.54)
+        dx, dy = math.cos(angle), math.sin(angle)
+        if weapon == "spear":
+            length = 0.52 if attacking else 0.48
+            butt = (hand[0] - dx * 0.16, hand[1] - dy * 0.16)
+            base = (hand[0] + dx * (length - 0.10), hand[1] + dy * (length - 0.10))
+            tip = (hand[0] + dx * length, hand[1] + dy * length)
+            line(draw, cell, [butt, base], pal["outline"], 4)
+            line(draw, cell, [butt, base], pal["gold"], 2)
+            nx, ny = -dy * 0.045, dx * 0.045
+            poly(draw, cell, [(base[0] + nx, base[1] + ny), tip, (base[0] - nx, base[1] - ny)],
+                 fill=pal["blade"], outline=pal["outline"], width=2)
+            line(draw, cell, [base, tip], pal["blade_core"], 1)
+            line(draw, cell, [(hand[0] - dy * 0.055, hand[1] + dx * 0.055),
+                              (hand[0] + dy * 0.055, hand[1] - dx * 0.055)], pal["gold"], 2)
+            if attacking and t > 0.1:
+                alpha = int(230 * max(0.0, 1.0 - abs(t - 0.42) * 1.5))
+                streak = (tip[0] + dx * 0.14, tip[1] + dy * 0.14)
+                line(draw, cell, [hand, streak], rgba(pal["scarf"][:3], max(40, alpha)), 3)
+        else:
+            heavy = weapon == "greatsword"
+            length = (0.46 if heavy else 0.34) if attacking else (0.40 if heavy else 0.32)
+            half_width = 0.16 if heavy else 0.085
+            tip = (hand[0] + dx * length, hand[1] + dy * length)
+            px, py = -dy * length * half_width, dx * length * half_width
+            # Tapered blade: broad at the guard, pointed at the tip.
+            poly(draw, cell, [
+                (hand[0] + px, hand[1] + py),
+                (tip[0] + px * 0.45, tip[1] + py * 0.45),
+                tip,
+                (tip[0] - px * 0.45, tip[1] - py * 0.45),
+                (hand[0] - px, hand[1] - py),
+            ], fill=pal["blade"], outline=pal["outline"], width=2)
+            line(draw, cell, [hand, tip], pal["blade_core"], 2)
+            if heavy:
+                line(draw, cell, [(hand[0] + px * 0.35, hand[1] + py * 0.35),
+                                  (tip[0] + px * 0.15, tip[1] + py * 0.15)], pal["outline"], 1)
+            guard = 0.15 if heavy else 0.10
+            line(draw, cell, [(hand[0] - dy * guard, hand[1] + dx * guard),
+                              (hand[0] + dy * guard, hand[1] - dx * guard)],
+                 pal["gold"], 3 if heavy else 2)
+            ellipse(draw, cell, hand[0] - dx * 0.035 - 0.022, hand[1] - dy * 0.035 - 0.022,
+                    hand[0] - dx * 0.035 + 0.022, hand[1] - dy * 0.035 + 0.022,
+                    fill=pal["gold"], outline=pal["outline"], width=1)
+            if attacking and t > 0.18:
+                size = cell * SS
+                if heavy:
+                    box = [int(0.24 * size), int(0.08 * size), int(1.02 * size), int(0.90 * size)]
+                    draw.arc(box, start=-122 + t * 86, end=22 + t * 60, fill=pal["gold"],
+                             width=max(2, 4 * SS))
+                    draw.arc(box, start=-118 + t * 86, end=18 + t * 60, fill=pal["blade_core"],
+                             width=max(1, 2 * SS))
+                else:
+                    box = [int(0.34 * size), int(0.16 * size), int(0.98 * size), int(0.84 * size)]
+                    draw.arc(box, start=-104 + t * 80, end=8 + t * 60, fill=pal["scarf"],
+                             width=max(1, 2 * SS))
 
     # Dash afterimages.
     if state == "dash":
@@ -618,6 +915,275 @@ def _keeper(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: 
     line(draw, cell, [(cx + 0.20, 0.52), (cx + 0.31, 0.48)], accent, 2)
 
 
+def _warden(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    # Colossal furnace torso with shoulder plates.
+    rect(draw, cell, cx - 0.30, 0.34 + bob, cx + 0.30, 0.78, fill=body, outline=Outline, width=3, radius=0.06)
+    poly(draw, cell, [(cx - 0.38, 0.42 + bob), (cx - 0.24, 0.30 + bob), (cx - 0.14, 0.44 + bob)], fill=cloth, outline=Outline, width=2)
+    poly(draw, cell, [(cx + 0.38, 0.42 + bob), (cx + 0.24, 0.30 + bob), (cx + 0.14, 0.44 + bob)], fill=cloth, outline=Outline, width=2)
+    # Furnace grate and molten heart.
+    rect(draw, cell, cx - 0.16, 0.48 + bob, cx + 0.16, 0.66 + bob, fill=cloth, outline=Outline, width=2)
+    for i in range(3):
+        rect(draw, cell, cx - 0.12 + i * 0.09, 0.50 + bob, cx - 0.07 + i * 0.09, 0.64 + bob, fill=accent)
+    ellipse(draw, cell, cx - 0.05, 0.71 + bob, cx + 0.05, 0.81 + bob, fill=accent)
+    # Horned helm.
+    ellipse(draw, cell, cx - 0.14, 0.18 + bob, cx + 0.14, 0.38 + bob, fill=light, outline=Outline, width=3)
+    rect(draw, cell, cx - 0.10, 0.25 + bob, cx + 0.10, 0.30 + bob, fill=cloth)
+    ellipse(draw, cell, cx - 0.05, 0.27 + bob, cx + 0.05, 0.32 + bob, fill=style["eye"])
+    for sign in (-1, 1):
+        poly(draw, cell, [(cx + sign * 0.12, 0.21 + bob), (cx + sign * 0.28, 0.10 + bob), (cx + sign * 0.16, 0.30 + bob)], fill=cloth, outline=Outline, width=2)
+    # Heavy arms.
+    line(draw, cell, [(cx - 0.28, 0.48), (cx - 0.36, 0.66), (cx - 0.30, 0.84)], body, 6)
+    line(draw, cell, [(cx + 0.28, 0.48), (cx + 0.36, 0.66), (cx + 0.30, 0.84)], body, 6)
+    rect(draw, cell, cx - 0.20, 0.78, cx - 0.06, 0.94, fill=cloth, outline=Outline, width=2)
+    rect(draw, cell, cx + 0.06, 0.78, cx + 0.20, 0.94, fill=cloth, outline=Outline, width=2)
+
+
+def _serpent(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.04
+    # Coiled body.
+    for i, (x, y, w, h) in enumerate(((0.50, 0.80, 0.42, 0.14), (0.46, 0.72, 0.34, 0.12), (0.54, 0.64, 0.26, 0.10))):
+        ellipse(draw, cell, cx + x - 0.5 - w / 2, y - h / 2 + bob, cx + x - 0.5 + w / 2, y + h / 2 + bob, fill=body if i % 2 else light, outline=Outline, width=2)
+    # Neck and head.
+    line(draw, cell, [(cx, 0.64 + bob), (cx - 0.10 + sway, 0.46 + bob), (cx - 0.02, 0.30 + bob)], light, 8)
+    ellipse(draw, cell, cx - 0.13, 0.20 + bob, cx + 0.10, 0.36 + bob, fill=body, outline=Outline, width=3)
+    ellipse(draw, cell, cx - 0.06, 0.24 + bob, cx + 0.01, 0.30 + bob, fill=style["eye"])
+    # Fins and crest.
+    poly(draw, cell, [(cx - 0.13, 0.27 + bob), (cx - 0.28, 0.20 + bob), (cx - 0.14, 0.34 + bob)], fill=accent, outline=Outline, width=1)
+    poly(draw, cell, [(cx + 0.02, 0.18 + bob), (cx + 0.10, 0.08 + bob), (cx + 0.13, 0.22 + bob)], fill=accent, outline=Outline, width=1)
+    for i in range(4):
+        x = cx - 0.20 + i * 0.13
+        poly(draw, cell, [(x, 0.46 + bob), (x + 0.04, 0.36 + bob), (x + 0.08, 0.46 + bob)], fill=accent)
+
+
+def _matriarch(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.03
+    # Trunk and roots.
+    poly(draw, cell, [(cx - 0.10, 0.30 + bob), (cx + 0.10, 0.30 + bob), (cx + 0.18, 0.92), (cx - 0.18, 0.92)], fill=cloth, outline=Outline, width=3)
+    for sign in (-1, 1):
+        line(draw, cell, [(cx, 0.86), (cx + sign * 0.22, 0.94), (cx + sign * 0.30, 0.90)], cloth, 5)
+    # Crown of petals.
+    for i in range(7):
+        a = math.pi + i * math.pi / 6
+        x = cx + math.cos(a) * 0.26
+        y = 0.22 + bob + math.sin(a) * 0.12
+        ellipse(draw, cell, x - 0.06, y - 0.05, x + 0.06, y + 0.05, fill=accent if i % 2 else light, outline=Outline, width=1)
+    ellipse(draw, cell, cx - 0.10, 0.24 + bob, cx + 0.10, 0.40 + bob, fill=light, outline=Outline, width=2)
+    ellipse(draw, cell, cx - 0.03, 0.29 + bob, cx + 0.03, 0.35 + bob, fill=style["eye"])
+    # Thorn arms.
+    for sign in (-1, 1):
+        line(draw, cell, [(cx + sign * 0.12, 0.46), (cx + sign * 0.30, 0.44 + sway), (cx + sign * 0.38, 0.60)], body, 4)
+        for k in range(3):
+            x = cx + sign * (0.20 + k * 0.06)
+            poly(draw, cell, [(x, 0.47), (x + sign * 0.04, 0.40), (x + sign * 0.02, 0.50)], fill=accent)
+
+
+def _regent(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    # Gear halo.
+    for i in range(10):
+        a = i * math.tau / 10 + t * math.tau
+        x = cx + math.cos(a) * 0.30
+        y = 0.28 + bob + math.sin(a) * 0.30
+        rect(draw, cell, x - 0.025, y - 0.025, x + 0.025, y + 0.025, fill=accent)
+    ellipse(draw, cell, cx - 0.24, 0.04 + bob, cx + 0.24, 0.52 + bob, outline=accent, width=2)
+    # Robed clockwork torso.
+    poly(draw, cell, [(cx - 0.14, 0.30 + bob), (cx + 0.14, 0.30 + bob), (cx + 0.24, 0.90), (cx - 0.24, 0.90)], fill=cloth, outline=Outline, width=3)
+    rect(draw, cell, cx - 0.10, 0.42 + bob, cx + 0.10, 0.64 + bob, fill=body, outline=Outline, width=2)
+    ellipse(draw, cell, cx - 0.05, 0.48 + bob, cx + 0.05, 0.58 + bob, fill=accent)
+    line(draw, cell, [(cx, 0.53 + bob), (cx + 0.03, 0.48 + bob)], cloth, 1)
+    # Head with crown.
+    ellipse(draw, cell, cx - 0.09, 0.18 + bob, cx + 0.09, 0.34 + bob, fill=light, outline=Outline, width=2)
+    ellipse(draw, cell, cx - 0.03, 0.24 + bob, cx + 0.03, 0.29 + bob, fill=style["eye"])
+    poly(draw, cell, [(cx - 0.12, 0.17 + bob), (cx - 0.15, 0.06 + bob), (cx - 0.05, 0.13 + bob), (cx, 0.03 + bob), (cx + 0.05, 0.13 + bob), (cx + 0.15, 0.06 + bob), (cx + 0.12, 0.17 + bob)], fill=accent, outline=Outline, width=1)
+    # Pendulum arms.
+    line(draw, cell, [(cx - 0.14, 0.44), (cx - 0.28, 0.62), (cx - 0.26, 0.82)], body, 4)
+    line(draw, cell, [(cx + 0.14, 0.44), (cx + 0.28, 0.62), (cx + 0.26, 0.82)], body, 4)
+
+
+def _sovereign(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    # Wide swamp body.
+    ellipse(draw, cell, cx - 0.34, 0.40 + bob, cx + 0.34, 0.88 + bob, fill=body, outline=Outline, width=3)
+    ellipse(draw, cell, cx - 0.24, 0.46 + bob, cx + 0.20, 0.76 + bob, fill=light)
+    # Crown of reeds.
+    for i in range(7):
+        x = cx - 0.18 + i * 0.06
+        h = 0.10 + (i % 3) * 0.03
+        line(draw, cell, [(x, 0.34 + bob), (x + (i - 3) * 0.01, 0.34 - h + bob)], accent, 2)
+    # Eyes.
+    for x in (-0.14, 0.0, 0.14):
+        ellipse(draw, cell, cx + x - 0.035, 0.48 + bob, cx + x + 0.035, 0.54 + bob, fill=style["eye"])
+    # Tendrils.
+    for sign in (-1, 1):
+        line(draw, cell, [(cx + sign * 0.26, 0.68), (cx + sign * 0.42, 0.80), (cx + sign * 0.36, 0.94)], cloth, 4)
+    for i in range(3):
+        ellipse(draw, cell, cx - 0.10 + i * 0.10, 0.86 + bob, cx - 0.06 + i * 0.10, 0.90 + bob, fill=accent)
+
+
+def _giant(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.02
+    # Massive hunched body.
+    poly(draw, cell, [(cx - 0.30, 0.40 + bob), (cx - 0.18, 0.24 + bob), (cx + 0.18, 0.24 + bob), (cx + 0.30, 0.40 + bob), (cx + 0.24, 0.82), (cx + 0.08, 0.90), (cx - 0.08, 0.90), (cx - 0.24, 0.82)], fill=body, outline=Outline, width=3)
+    ellipse(draw, cell, cx - 0.16, 0.34 + bob, cx + 0.16, 0.62 + bob, fill=cloth)
+    # Small head.
+    ellipse(draw, cell, cx - 0.09, 0.16 + bob, cx + 0.09, 0.30 + bob, fill=light, outline=Outline, width=2)
+    ellipse(draw, cell, cx - 0.02, 0.21 + bob, cx + 0.04, 0.26 + bob, fill=style["eye"])
+    # Long arms.
+    line(draw, cell, [(cx - 0.26, 0.38), (cx - 0.42, 0.62 + sway), (cx - 0.34, 0.90)], body, 7)
+    line(draw, cell, [(cx + 0.26, 0.38), (cx + 0.42, 0.62 - sway), (cx + 0.34, 0.90)], body, 7)
+    # Broken chains.
+    for i in range(3):
+        ellipse(draw, cell, cx - 0.20 + i * 0.10, 0.68, cx - 0.17 + i * 0.10, 0.71, outline=accent, width=1)
+
+
+def _queen(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    # Wings behind the body.
+    for sign in (-1, 1):
+        poly(draw, cell, [(cx, 0.38 + bob), (cx + sign * 0.42, 0.18 + bob), (cx + sign * 0.30, 0.52 + bob)], fill=(*accent[:3], 110), outline=Outline, width=1)
+    # Abdomen and thorax.
+    ellipse(draw, cell, cx - 0.26, 0.58 + bob, cx + 0.26, 0.92 + bob, fill=body, outline=Outline, width=3)
+    for i in range(3):
+        ellipse(draw, cell, cx - 0.18 + i * 0.02, 0.66 + i * 0.08 + bob, cx + 0.18 - i * 0.02, 0.72 + i * 0.08 + bob, fill=cloth)
+    ellipse(draw, cell, cx - 0.15, 0.36 + bob, cx + 0.15, 0.62 + bob, fill=light, outline=Outline, width=3)
+    # Head, eyes and crown of antennae.
+    ellipse(draw, cell, cx - 0.10, 0.20 + bob, cx + 0.10, 0.39 + bob, fill=light, outline=Outline, width=2)
+    for x in (-0.05, 0.05):
+        ellipse(draw, cell, cx + x - 0.025, 0.27 + bob, cx + x + 0.025, 0.31 + bob, fill=style["eye"])
+    for i in range(-2, 3):
+        line(draw, cell, [(cx + i * 0.045, 0.19 + bob), (cx + i * 0.07, 0.08 + bob)], accent, 2)
+    # Legs and stinger.
+    for sign in (-1, 1):
+        for i in range(3):
+            line(draw, cell, [(cx + sign * 0.18, 0.60 + i * 0.08), (cx + sign * 0.36, 0.70 + i * 0.08), (cx + sign * 0.30, 0.84 + i * 0.04)], body, 3)
+    poly(draw, cell, [(cx, 0.92 + bob), (cx - 0.05, 0.82 + bob), (cx + 0.05, 0.82 + bob)], fill=accent, outline=Outline, width=1)
+
+
+def _tyrant(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.02
+    # Cape and armoured frame.
+    poly(draw, cell, [(cx - 0.30, 0.34 + bob), (cx + 0.30, 0.34 + bob), (cx + 0.42, 0.94), (cx - 0.42, 0.94)], fill=cloth, outline=Outline, width=3)
+    rect(draw, cell, cx - 0.20, 0.36 + bob, cx + 0.20, 0.70 + bob, fill=body, outline=Outline, width=3, radius=0.04)
+    # Ribcage.
+    for i in range(4):
+        line(draw, cell, [(cx - 0.16, 0.42 + i * 0.07 + bob), (cx + 0.16, 0.42 + i * 0.07 + bob)], light, 2)
+    # Skull and crown.
+    ellipse(draw, cell, cx - 0.12, 0.16 + bob, cx + 0.12, 0.34 + bob, fill=light, outline=Outline, width=2)
+    for x in (-0.05, 0.05):
+        ellipse(draw, cell, cx + x - 0.03, 0.22 + bob, cx + x + 0.03, 0.27 + bob, fill=style["eye"])
+    for i in range(-2, 3):
+        poly(draw, cell, [(cx + i * 0.05, 0.16 + bob), (cx + i * 0.03, 0.04 + bob), (cx + (i + 1) * 0.04, 0.12 + bob)], fill=accent, outline=Outline, width=1)
+    # Great blade.
+    poly(draw, cell, [(cx + 0.22, 0.46 + bob), (cx + 0.50, 0.22 + sway), (cx + 0.40, 0.60 + bob), (cx + 0.28, 0.62 + bob)], fill=light, outline=Outline, width=2)
+    line(draw, cell, [(cx + 0.24, 0.58 + bob), (cx + 0.34, 0.72 + bob)], cloth, 5)
+
+
+def _hound(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.46 + lunge
+    # Ribbed torso and four legs.
+    ellipse(draw, cell, cx - 0.26, 0.46 + bob, cx + 0.18, 0.68 + bob, fill=body, outline=Outline, width=3)
+    for i in range(3):
+        line(draw, cell, [(cx - 0.20 + i * 0.10, 0.48 + bob), (cx - 0.18 + i * 0.10, 0.64 + bob)], light, 2)
+    for x in (cx - 0.20, cx - 0.08, cx + 0.04, cx + 0.14):
+        line(draw, cell, [(x, 0.64 + bob), (x, 0.92)], body, 3)
+    # Skull head with a long snout and a hanging jaw.
+    ellipse(draw, cell, cx + 0.10, 0.36 + bob, cx + 0.34, 0.58 + bob, fill=light, outline=Outline, width=2)
+    poly(draw, cell, [(cx + 0.30, 0.44 + bob), (cx + 0.46, 0.48 + bob), (cx + 0.30, 0.54 + bob)], fill=light, outline=Outline, width=1)
+    ellipse(draw, cell, cx + 0.18, 0.43 + bob, cx + 0.24, 0.49 + bob, fill=accent)
+    line(draw, cell, [(cx + 0.30, 0.55 + bob), (cx + 0.42, 0.57 + bob)], cloth, 2)
+    # Ears, tail and a broken collar.
+    poly(draw, cell, [(cx + 0.14, 0.37 + bob), (cx + 0.12, 0.26 + bob), (cx + 0.22, 0.35 + bob)], fill=cloth, outline=Outline, width=1)
+    line(draw, cell, [(cx - 0.25, 0.52 + bob), (cx - 0.42, 0.36)], body, 3)
+    ellipse(draw, cell, cx - 0.03, 0.50 + bob, cx + 0.09, 0.60 + bob, outline=accent, width=1)
+
+
+def _hierophant(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.03
+    # Long drowned robe and inner mantle.
+    poly(draw, cell, [(cx - 0.22, 0.42 + bob), (cx + 0.22, 0.42 + bob),
+                      (cx + 0.36, 0.94), (cx + 0.18, 0.88), (cx, 0.96),
+                      (cx - 0.18, 0.88), (cx - 0.36, 0.94)],
+         fill=cloth, outline=Outline, width=3)
+    poly(draw, cell, [(cx - 0.14, 0.44 + bob), (cx + 0.14, 0.44 + bob),
+                      (cx + 0.20, 0.88), (cx - 0.20, 0.88)],
+         fill=body)
+    for i in range(3):
+        line(draw, cell, [(cx - 0.16 + i * 0.16, 0.46 + bob), (cx - 0.22 + i * 0.16, 0.90)], light, 2)
+    poly(draw, cell, [(cx, 0.48 + bob), (cx + 0.07, 0.58 + bob), (cx, 0.68 + bob), (cx - 0.07, 0.58 + bob)],
+         fill=accent, outline=Outline, width=2)
+    # Mask and halo of eyes.
+    ellipse(draw, cell, cx - 0.13, 0.22 + bob, cx + 0.13, 0.42 + bob, fill=light, outline=Outline, width=3)
+    for x in (-0.06, 0.06):
+        ellipse(draw, cell, cx + x - 0.03, 0.29 + bob, cx + x + 0.03, 0.35 + bob, fill=style["eye"])
+        ellipse(draw, cell, cx + x - 0.012, 0.315 + bob, cx + x + 0.012, 0.34 + bob, fill=Outline)
+    ellipse(draw, cell, cx - 0.28, 0.02 + bob, cx + 0.28, 0.22 + bob, outline=accent, width=3)
+    for i in range(5):
+        a = math.pi + i * math.pi / 4
+        x = cx + math.cos(a) * 0.26
+        y = 0.12 + bob + math.sin(a) * 0.09
+        ellipse(draw, cell, x - 0.028, y - 0.028, x + 0.028, y + 0.028, fill=accent, outline=Outline, width=1)
+    # Four conducting arms.
+    for sign in (-1, 1):
+        for i, y in enumerate((0.48, 0.62)):
+            line(draw, cell, [(cx + sign * 0.16, y + bob), (cx + sign * (0.38 + i * 0.04), y - 0.04 + sway)], light, 3)
+            line(draw, cell, [(cx + sign * (0.30 + i * 0.03), y + 0.05), (cx + sign * (0.42 + i * 0.04), y + 0.12)], accent, 2)
+
+
+def _behemoth(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.46 + lunge
+    sway = math.sin(t * math.tau) * 0.02
+    # Tail with glowing tip.
+    line(draw, cell, [(cx - 0.30, 0.52 + bob), (cx - 0.42, 0.38 + sway)], light, 4)
+    ellipse(draw, cell, cx - 0.45, 0.34 + sway, cx - 0.39, 0.41 + sway, fill=accent, outline=Outline, width=1)
+    # Huge low body and four armored legs.
+    for x in (cx - 0.24, cx - 0.10, cx + 0.04, cx + 0.18):
+        rect(draw, cell, x - 0.04, 0.64 + bob, x + 0.04, 0.93, fill=body, outline=Outline, width=2, radius=0.01)
+    ellipse(draw, cell, cx - 0.32, 0.40 + bob, cx + 0.24, 0.72 + bob, fill=body, outline=Outline, width=3)
+    for i in range(3):
+        line(draw, cell, [(cx - 0.22 + i * 0.12, 0.46 + bob), (cx - 0.18 + i * 0.12, 0.66 + bob)], light, 3)
+    ellipse(draw, cell, cx - 0.08, 0.50 + bob, cx + 0.04, 0.62 + bob, fill=accent, outline=Outline, width=2)
+    # Horned skull.
+    ellipse(draw, cell, cx + 0.14, 0.32 + bob, cx + 0.40, 0.56 + bob, fill=light, outline=Outline, width=3)
+    for x in (cx + 0.20, cx + 0.32):
+        ellipse(draw, cell, x - 0.035, 0.40 + bob, x + 0.035, 0.46 + bob, fill=style["eye"])
+    for sign, base in ((-1, cx + 0.20), (1, cx + 0.35)):
+        poly(draw, cell, [(base, 0.34 + bob), (base + sign * 0.10, 0.16 + bob), (base + sign * 0.05, 0.36 + bob)],
+             fill=accent, outline=Outline, width=2)
+    poly(draw, cell, [(cx + 0.34, 0.52 + bob), (cx + 0.46, 0.56 + bob), (cx + 0.32, 0.58 + bob)], fill=light, outline=Outline, width=1)
+    # Spiked ridge.
+    for i in range(5):
+        x = cx - 0.26 + i * 0.11
+        poly(draw, cell, [(x, 0.42 + bob), (x + 0.04, 0.26 + bob), (x + 0.09, 0.42 + bob)], fill=accent, outline=Outline, width=2)
+
+
 ENEMY_DRAW = {
     "construct": _construct,
     "hunched": _hunched,
@@ -625,11 +1191,21 @@ ENEMY_DRAW = {
     "beast": _beast,
     "duelist": _duelist,
     "keeper": _keeper,
+    "warden": _warden,
+    "serpent": _serpent,
+    "matriarch": _matriarch,
+    "regent": _regent,
+    "sovereign": _sovereign,
+    "giant": _giant,
+    "queen": _queen,
+    "tyrant": _tyrant,
+    "hound": _hound,
+    "hierophant": _hierophant,
+    "behemoth": _behemoth,
 }
 
 
-def enemy_frame(kind: str, row: int, frame: int, frames: int) -> Image.Image:
-    cell = ENEMY_CELL
+def enemy_frame(kind: str, row: int, frame: int, frames: int, cell: int = ENEMY_CELL) -> Image.Image:
     img = blank(cell)
     draw = ImageDraw.Draw(img)
     style = ENEMY_STYLES[kind]
@@ -814,7 +1390,7 @@ def background_image(biome: str) -> Image.Image:
 
 
 def prop_image(kind: str) -> Image.Image:
-    cell = 96
+    cell = 192 if kind in ("furn_dais", "furn_rug") else 96
     img = blank(cell)
     draw = ImageDraw.Draw(img)
     palette = {
@@ -826,6 +1402,39 @@ def prop_image(kind: str) -> Image.Image:
         "sanctuary_altar": ((126, 100, 52), (232, 204, 138), (255, 244, 196)),
         "void_rift": ((16, 16, 28), (64, 56, 92), (92, 232, 255)),
         "memory_chest": ((80, 60, 44), (146, 112, 70), (255, 217, 138)),
+        "barrel": ((78, 52, 32), (150, 102, 56), (255, 170, 80)),
+        "lever": ((64, 58, 74), (140, 134, 160), (255, 225, 140)),
+        "npc_archivist": ((50, 58, 100), (128, 146, 214), (150, 220, 255)),
+        "npc_smith": ((86, 46, 34), (196, 110, 70), (255, 180, 90)),
+        "npc_gardener": ((38, 70, 44), (110, 160, 96), (190, 255, 150)),
+        "bone_pile": ((46, 44, 38), (168, 162, 140), (143, 216, 200)),
+        "hive_comb": ((62, 42, 16), (168, 120, 48), (255, 196, 96)),
+        "station_hearth": ((54, 36, 28), (146, 104, 72), (255, 170, 80)),
+        "station_armory": ((52, 46, 40), (150, 138, 118), (220, 196, 140)),
+        "station_infirmary": ((42, 54, 52), (168, 190, 176), (150, 240, 210)),
+        "station_wellspring": ((40, 52, 58), (120, 168, 184), (111, 231, 255)),
+        "station_watchtower": ((58, 48, 34), (176, 150, 104), (255, 224, 140)),
+        "station_bulwark": ((48, 48, 56), (140, 144, 168), (200, 214, 255)),
+        "station_vault": ((56, 42, 24), (156, 118, 56), (255, 208, 110)),
+        "station_training": ((60, 44, 28), (170, 128, 76), (255, 196, 120)),
+        "station_meditation": ((46, 48, 56), (150, 156, 170), (150, 240, 255)),
+        "station_notice": ((54, 40, 26), (160, 122, 72), (240, 224, 176)),
+        "furn_table": ((52, 40, 28), (148, 114, 74), (255, 214, 140)),
+        "furn_chair": ((48, 38, 28), (128, 98, 66), (220, 180, 120)),
+        "furn_shelf": ((45, 36, 26), (124, 92, 58), (230, 200, 150)),
+        "furn_crate": ((55, 44, 30), (140, 110, 72), (210, 180, 120)),
+        "furn_planter": ((38, 52, 38), (104, 146, 90), (180, 240, 160)),
+        "furn_lantern": ((50, 48, 54), (150, 146, 160), (255, 224, 150)),
+        "furn_rug": ((44, 40, 48), (106, 92, 118), (206, 168, 108)),
+        "furn_banner": ((34, 58, 66), (86, 142, 154), (255, 214, 140)),
+        "furn_bench": ((54, 40, 26), (140, 104, 66), (220, 180, 120)),
+        "furn_dais": ((46, 42, 34), (134, 116, 88), (226, 196, 132)),
+        "furn_column": ((50, 46, 40), (142, 132, 112), (224, 196, 140)),
+        "cog_pillar": ((52, 44, 32), (154, 128, 82), (255, 190, 96)),
+        "ice_spire": ((44, 62, 78), (160, 206, 230), (220, 248, 255)),
+        "coral": ((30, 62, 58), (108, 170, 156), (120, 240, 220)),
+        "npc_warden": ((44, 50, 66), (124, 140, 176), (150, 210, 255)),
+        "npc_lamplighter": ((48, 42, 32), (150, 122, 76), (255, 216, 130)),
     }[kind]
     dark, light, accent = palette
     ellipse(draw, cell, 0.18, 0.82, 0.82, 0.94, fill=Shadow)
@@ -871,6 +1480,254 @@ def prop_image(kind: str) -> Image.Image:
         rect(draw, cell, 0.20, 0.38, 0.80, 0.56, fill=light, outline=Outline, width=3, radius=0.10)
         rect(draw, cell, 0.46, 0.48, 0.54, 0.62, fill=accent, outline=Outline, width=1)
         rect(draw, cell, 0.20, 0.57, 0.80, 0.61, fill=accent)
+    elif kind == "barrel":
+        ellipse(draw, cell, 0.24, 0.30, 0.76, 0.92, fill=dark, outline=Outline, width=3)
+        for y in (0.42, 0.62, 0.82):
+            rect(draw, cell, 0.22, y, 0.78, y + 0.05, fill=light, outline=Outline, width=1)
+        rect(draw, cell, 0.40, 0.36, 0.60, 0.44, fill=accent, outline=Outline, width=1)
+    elif kind == "lever":
+        rect(draw, cell, 0.28, 0.66, 0.72, 0.92, fill=dark, outline=Outline, width=3, radius=0.04)
+        rect(draw, cell, 0.44, 0.28, 0.56, 0.70, fill=light, outline=Outline, width=2)
+        ellipse(draw, cell, 0.36, 0.18, 0.64, 0.34, fill=accent, outline=Outline, width=2)
+    elif kind == "bone_pile":
+        # A readable pile at 60px: three long femurs, a skull and two ribs.
+        for i, (x, y, w) in enumerate(
+            ((0.16, 0.74, 0.26), (0.30, 0.80, 0.30), (0.56, 0.76, 0.28))
+        ):
+            ellipse(draw, cell, x, y, x + w, y + 0.09, fill=light, outline=Outline, width=1)
+            ellipse(draw, cell, x + 0.05, y + 0.02, x + 0.10, y + 0.07, fill=accent)
+        ellipse(draw, cell, 0.34, 0.40, 0.62, 0.66, fill=light, outline=Outline, width=2)
+        rect(draw, cell, 0.39, 0.60, 0.57, 0.66, fill=light, outline=Outline, width=1)
+        for x in (0.43, 0.51):
+            ellipse(draw, cell, x, 0.47, x + 0.055, 0.53, fill=dark)
+        ellipse(draw, cell, 0.45, 0.55, 0.47, 0.57, fill=dark)
+        line(draw, cell, [(0.18, 0.66), (0.70, 0.70)], dark, 1)
+    elif kind == "hive_comb":
+        # Honey cells with thin rims, bright enough to read against dark wax.
+        for row in range(3):
+            for col in range(2):
+                cx = 0.34 + col * 0.30
+                cy = 0.32 + row * 0.21
+                ellipse(draw, cell, cx - 0.13, cy - 0.10, cx + 0.13, cy + 0.10, fill=light, outline=Outline, width=2)
+                ellipse(draw, cell, cx - 0.07, cy - 0.05, cx + 0.07, cy + 0.05, fill=(255, 216, 120))
+        ellipse(draw, cell, 0.43, 0.41, 0.57, 0.55, fill=accent, outline=Outline, width=1)
+    elif kind == "cog_pillar":
+        rect(draw, cell, 0.38, 0.42, 0.62, 0.94, fill=dark, outline=Outline, width=3)
+        for cy, r in ((0.30, 0.18), (0.55, 0.22), (0.78, 0.16)):
+            ellipse(draw, cell, 0.50 - r, cy - r, 0.50 + r, cy + r, fill=light, outline=Outline, width=2)
+            ellipse(draw, cell, 0.50 - r * 0.35, cy - r * 0.35, 0.50 + r * 0.35, cy + r * 0.35, fill=dark)
+            for i in range(8):
+                a = i * math.tau / 8
+                x = 0.50 + math.cos(a) * r
+                y = cy + math.sin(a) * r
+                rect(draw, cell, x - 0.018, y - 0.018, x + 0.018, y + 0.018, fill=accent)
+    elif kind == "ice_spire":
+        poly(draw, cell, [(0.50, 0.10), (0.66, 0.62), (0.58, 0.92), (0.42, 0.92), (0.34, 0.62)],
+             fill=light, outline=Outline, width=2)
+        poly(draw, cell, [(0.50, 0.18), (0.56, 0.60), (0.50, 0.82), (0.44, 0.60)], fill=accent)
+        for x in (0.32, 0.68):
+            poly(draw, cell, [(x, 0.52), (x + (0.08 if x < 0.5 else -0.08), 0.66), (x, 0.92)], fill=dark, outline=Outline, width=1)
+    elif kind == "coral":
+        line(draw, cell, [(0.50, 0.96), (0.50, 0.44)], dark, 6)
+        for a, l in ((-0.9, 0.26), (-0.4, 0.34), (0.2, 0.30), (0.7, 0.24)):
+            x = 0.50 + math.cos(a - math.pi / 2) * l
+            y = 0.56 + math.sin(a - math.pi / 2) * l
+            line(draw, cell, [(0.50, 0.58), (x, y)], light, 4)
+            ellipse(draw, cell, x - 0.04, y - 0.04, x + 0.04, y + 0.04, fill=accent)
+        ellipse(draw, cell, 0.30, 0.84, 0.70, 0.98, fill=dark, outline=Outline, width=2)
+    elif kind == "furn_table":
+        rect(draw, cell, 0.14, 0.44, 0.86, 0.56, fill=light, outline=Outline, width=2, radius=0.03)
+        for x in (0.22, 0.78):
+            line(draw, cell, [(x, 0.56), (x, 0.94)], dark, 4)
+        rect(draw, cell, 0.22, 0.34, 0.44, 0.42, fill=accent, outline=Outline, width=1)
+        rect(draw, cell, 0.56, 0.36, 0.74, 0.42, fill=(240, 232, 204), outline=Outline, width=1)
+        line(draw, cell, [(0.63, 0.30), (0.63, 0.36)], accent, 2)
+    elif kind == "furn_chair":
+        rect(draw, cell, 0.32, 0.24, 0.68, 0.48, fill=dark, outline=Outline, width=2, radius=0.03)
+        rect(draw, cell, 0.28, 0.46, 0.72, 0.58, fill=light, outline=Outline, width=2, radius=0.03)
+        for x in (0.32, 0.68):
+            line(draw, cell, [(x, 0.58), (x, 0.92)], dark, 3)
+    elif kind == "furn_shelf":
+        rect(draw, cell, 0.18, 0.16, 0.82, 0.94, fill=dark, outline=Outline, width=3, radius=0.02)
+        for y in (0.34, 0.54, 0.74):
+            rect(draw, cell, 0.20, y, 0.80, y + 0.04, fill=light)
+        for i, x in enumerate((0.24, 0.36, 0.52, 0.66)):
+            rect(draw, cell, x, 0.22, x + 0.08, 0.34, fill=accent if i % 2 else (210, 190, 160), outline=Outline, width=1)
+            rect(draw, cell, x, 0.42, x + 0.07, 0.54, fill=(190, 220, 180) if i % 2 else accent, outline=Outline, width=1)
+        rect(draw, cell, 0.28, 0.62, 0.54, 0.74, fill=(230, 220, 190), outline=Outline, width=1)
+    elif kind == "furn_crate":
+        rect(draw, cell, 0.20, 0.34, 0.80, 0.92, fill=light, outline=Outline, width=3, radius=0.02)
+        line(draw, cell, [(0.20, 0.34), (0.80, 0.92)], dark, 2)
+        line(draw, cell, [(0.80, 0.34), (0.20, 0.92)], dark, 2)
+        rect(draw, cell, 0.20, 0.58, 0.80, 0.63, fill=accent)
+    elif kind == "furn_planter":
+        poly(draw, cell, [(0.28, 0.58), (0.72, 0.58), (0.64, 0.94), (0.36, 0.94)], fill=dark, outline=Outline, width=2)
+        for sign, x in ((-1, 0.34), (1, 0.66), (-1, 0.44), (1, 0.56)):
+            line(draw, cell, [(0.50, 0.58), (x, 0.30 + abs(x - 0.5) * 0.4)], light, 3)
+            ellipse(draw, cell, x - 0.07, 0.24 + abs(x - 0.5) * 0.3, x + 0.07, 0.38 + abs(x - 0.5) * 0.3, fill=accent, outline=Outline, width=1)
+    elif kind == "furn_dais":
+        ellipse(draw, cell, 0.02, 0.06, 0.98, 0.94, fill=dark, outline=Outline, width=2)
+        ellipse(draw, cell, 0.07, 0.11, 0.93, 0.89, fill=light, outline=Outline, width=1)
+        ellipse(draw, cell, 0.14, 0.18, 0.86, 0.82, fill=dark, outline=accent, width=2)
+        ellipse(draw, cell, 0.20, 0.24, 0.80, 0.76, outline=light, width=1)
+        for i in range(8):
+            a = i * math.tau / 8
+            x = 0.50 + math.cos(a) * 0.40
+            y = 0.50 + math.sin(a) * 0.40
+            rect(draw, cell, x - 0.012, y - 0.012, x + 0.012, y + 0.012, fill=accent)
+    elif kind == "furn_column":
+        rect(draw, cell, 0.26, 0.88, 0.74, 0.96, fill=light, outline=Outline, width=2)
+        rect(draw, cell, 0.32, 0.82, 0.68, 0.90, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.36, 0.16, 0.64, 0.84, fill=light, outline=Outline, width=2)
+        for x in (0.42, 0.50, 0.58):
+            line(draw, cell, [(x, 0.20), (x, 0.80)], dark, 1)
+        rect(draw, cell, 0.28, 0.10, 0.72, 0.18, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.30, 0.18, 0.70, 0.21, fill=accent)
+        rect(draw, cell, 0.34, 0.44, 0.66, 0.48, fill=accent)
+    elif kind == "furn_rug":
+        # A round woven carpet with fringe, not a framed square picture.
+        ellipse(draw, cell, 0.04, 0.08, 0.96, 0.92, fill=dark, outline=Outline, width=1)
+        ellipse(draw, cell, 0.10, 0.15, 0.90, 0.85, outline=accent, width=2)
+        ellipse(draw, cell, 0.16, 0.21, 0.84, 0.79, outline=light, width=1)
+        for i in range(8):
+            a = i * math.tau / 8
+            x0 = 0.50 + math.cos(a) * 0.13
+            y0 = 0.50 + math.sin(a) * 0.13
+            x1 = 0.50 + math.cos(a) * 0.25
+            y1 = 0.50 + math.sin(a) * 0.25
+            poly(draw, cell, [(x0, y0), (x1, y1), (0.50 + math.cos(a + 0.5) * 0.14, 0.50 + math.sin(a + 0.5) * 0.14)], fill=accent)
+        ellipse(draw, cell, 0.42, 0.42, 0.58, 0.58, fill=accent, outline=Outline, width=1)
+        for i in range(16):
+            a = i * math.tau / 16
+            x = 0.50 + math.cos(a) * 0.45
+            y = 0.50 + math.sin(a) * 0.45
+            line(draw, cell, [(x, y), (0.50 + math.cos(a) * 0.50, 0.50 + math.sin(a) * 0.50)], light, 1)
+    elif kind == "furn_banner":
+        # Standing banner: pole, crossbar and hanging cloth.
+        rect(draw, cell, 0.46, 0.14, 0.54, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.36, 0.90, 0.64, 0.96, fill=dark, outline=Outline, width=2)
+        line(draw, cell, [(0.24, 0.16), (0.76, 0.16)], accent, 3)
+        poly(draw, cell, [(0.26, 0.18), (0.74, 0.18), (0.72, 0.74), (0.50, 0.86), (0.28, 0.74)],
+             fill=light, outline=Outline, width=2)
+        poly(draw, cell, [(0.34, 0.25), (0.66, 0.25), (0.64, 0.68), (0.50, 0.78), (0.36, 0.68)],
+             outline=accent, width=1)
+        ellipse(draw, cell, 0.43, 0.38, 0.57, 0.52, fill=dark, outline=accent, width=2)
+        line(draw, cell, [(0.30, 0.18), (0.32, 0.28)], accent, 2)
+        line(draw, cell, [(0.70, 0.18), (0.68, 0.28)], accent, 2)
+    elif kind == "furn_bench":
+        rect(draw, cell, 0.10, 0.44, 0.90, 0.56, fill=light, outline=Outline, width=3, radius=0.03)
+        for x in (0.18, 0.38, 0.62, 0.82):
+            line(draw, cell, [(x, 0.56), (x, 0.94)], dark, 3)
+        rect(draw, cell, 0.12, 0.30, 0.88, 0.38, fill=dark, outline=Outline, width=2)
+        for x in (0.22, 0.50, 0.78):
+            rect(draw, cell, x - 0.03, 0.32, x + 0.03, 0.36, fill=accent)
+    elif kind == "furn_lantern":
+        line(draw, cell, [(0.50, 0.94), (0.50, 0.42)], dark, 4)
+        poly(draw, cell, [(0.34, 0.42), (0.66, 0.42), (0.60, 0.16), (0.40, 0.16)], fill=accent, outline=Outline, width=2)
+        rect(draw, cell, 0.42, 0.22, 0.58, 0.38, fill=(255, 244, 200))
+        ellipse(draw, cell, 0.30, 0.08, 0.70, 0.48, fill=(255, 220, 140, 60))
+        rect(draw, cell, 0.34, 0.92, 0.66, 0.98, fill=dark)
+    elif kind == "station_hearth":
+        ellipse(draw, cell, 0.18, 0.62, 0.82, 0.96, fill=dark, outline=Outline, width=3)
+        ellipse(draw, cell, 0.24, 0.56, 0.76, 0.76, fill=light, outline=Outline, width=2)
+        ellipse(draw, cell, 0.34, 0.60, 0.66, 0.74, fill=accent)
+        for x, h in ((0.40, 0.20), (0.50, 0.28), (0.60, 0.18)):
+            poly(draw, cell, [(x - 0.045, 0.60), (x, 0.60 - h), (x + 0.045, 0.60)], fill=accent, outline=Outline, width=1)
+        rect(draw, cell, 0.16, 0.90, 0.84, 0.96, fill=light)
+    elif kind == "station_armory":
+        # Thin posts, a bright shield and three visible weapons; at 60px the old
+        # version collapsed into two black slabs.
+        rect(draw, cell, 0.18, 0.34, 0.25, 0.94, fill=light, outline=Outline, width=2)
+        rect(draw, cell, 0.75, 0.34, 0.82, 0.94, fill=light, outline=Outline, width=2)
+        rect(draw, cell, 0.18, 0.34, 0.82, 0.41, fill=accent, outline=Outline, width=1)
+        for x in (0.36, 0.50, 0.64):
+            line(draw, cell, [(x, 0.22), (x, 0.86)], light, 3)
+            poly(draw, cell, [(x - 0.035, 0.24), (x, 0.14), (x + 0.035, 0.24)], fill=accent, outline=Outline, width=1)
+            line(draw, cell, [(x - 0.05, 0.46), (x + 0.05, 0.46)], accent, 2)
+        ellipse(draw, cell, 0.32, 0.56, 0.68, 0.80, fill=light, outline=accent, width=3)
+        line(draw, cell, [(0.50, 0.58), (0.50, 0.78)], accent, 2)
+        line(draw, cell, [(0.40, 0.66), (0.60, 0.66)], accent, 2)
+    elif kind == "station_infirmary":
+        rect(draw, cell, 0.16, 0.48, 0.84, 0.86, fill=dark, outline=Outline, width=3, radius=0.04)
+        rect(draw, cell, 0.22, 0.40, 0.48, 0.54, fill=light, outline=Outline, width=2, radius=0.03)
+        rect(draw, cell, 0.52, 0.56, 0.78, 0.82, fill=light)
+        line(draw, cell, [(0.65, 0.60), (0.65, 0.78)], accent, 2)
+        line(draw, cell, [(0.58, 0.69), (0.72, 0.69)], accent, 2)
+        for x in (0.22, 0.78):
+            line(draw, cell, [(x, 0.86), (x, 0.96)], dark, 3)
+    elif kind == "station_wellspring":
+        ellipse(draw, cell, 0.16, 0.60, 0.84, 0.96, fill=dark, outline=Outline, width=3)
+        ellipse(draw, cell, 0.24, 0.58, 0.76, 0.78, fill=accent)
+        ellipse(draw, cell, 0.30, 0.60, 0.70, 0.72, fill=light)
+        for x in (0.22, 0.78):
+            line(draw, cell, [(x, 0.62), (x, 0.20)], light, 3)
+        line(draw, cell, [(0.20, 0.20), (0.80, 0.20)], light, 4)
+        line(draw, cell, [(0.50, 0.20), (0.50, 0.44)], accent, 2)
+    elif kind == "station_watchtower":
+        poly(draw, cell, [(0.34, 0.96), (0.42, 0.30), (0.58, 0.30), (0.66, 0.96)], fill=dark, outline=Outline, width=3)
+        for y in (0.48, 0.64, 0.80):
+            rect(draw, cell, 0.42, y, 0.58, y + 0.05, light)
+        ellipse(draw, cell, 0.38, 0.12, 0.62, 0.32, fill=light, outline=Outline, width=2)
+        ellipse(draw, cell, 0.45, 0.17, 0.55, 0.27, fill=accent)
+        poly(draw, cell, [(0.30, 0.12), (0.50, 0.02), (0.70, 0.12)], fill=light, outline=Outline, width=1)
+    elif kind == "station_bulwark":
+        rect(draw, cell, 0.10, 0.44, 0.90, 0.92, fill=dark, outline=Outline, width=3, radius=0.04)
+        for y in (0.56, 0.72):
+            rect(draw, cell, 0.10, y, 0.90, y + 0.04, light)
+        poly(draw, cell, [(0.50, 0.28), (0.74, 0.40), (0.66, 0.70), (0.50, 0.82), (0.34, 0.70), (0.26, 0.40)], fill=light, outline=Outline, width=2)
+        line(draw, cell, [(0.50, 0.38), (0.50, 0.72)], accent, 3)
+        line(draw, cell, [(0.38, 0.50), (0.62, 0.50)], accent, 3)
+    elif kind == "station_vault":
+        rect(draw, cell, 0.14, 0.46, 0.86, 0.94, fill=dark, outline=Outline, width=3, radius=0.04)
+        rect(draw, cell, 0.14, 0.30, 0.86, 0.54, fill=light, outline=Outline, width=3, radius=0.08)
+        for x in (0.26, 0.74):
+            rect(draw, cell, x - 0.03, 0.32, x + 0.03, 0.92, fill=accent)
+        rect(draw, cell, 0.46, 0.56, 0.54, 0.66, fill=accent, outline=Outline, width=1)
+        ellipse(draw, cell, 0.47, 0.58, 0.53, 0.64, fill=dark)
+    elif kind == "station_training":
+        rect(draw, cell, 0.46, 0.34, 0.54, 0.94, fill=dark, outline=Outline, width=2)
+        line(draw, cell, [(0.22, 0.48), (0.78, 0.48)], light, 4)
+        line(draw, cell, [(0.22, 0.48), (0.18, 0.62)], light, 3)
+        line(draw, cell, [(0.78, 0.48), (0.82, 0.62)], light, 3)
+        ellipse(draw, cell, 0.38, 0.18, 0.62, 0.38, fill=light, outline=Outline, width=2)
+        ellipse(draw, cell, 0.44, 0.24, 0.56, 0.34, fill=accent)
+        for y in (0.52, 0.66):
+            line(draw, cell, [(0.36, y), (0.64, y)], accent, 2)
+    elif kind == "station_meditation":
+        ellipse(draw, cell, 0.18, 0.62, 0.82, 0.90, fill=dark, outline=Outline, width=3)
+        ellipse(draw, cell, 0.26, 0.58, 0.74, 0.74, fill=light, outline=Outline, width=2)
+        poly(draw, cell, [(0.50, 0.32), (0.62, 0.46), (0.50, 0.60), (0.38, 0.46)], fill=accent, outline=Outline, width=2)
+        for x in (0.20, 0.80):
+            rect(draw, cell, x - 0.025, 0.30, x + 0.025, 0.64, fill=light)
+    elif kind == "station_notice":
+        for x in (0.24, 0.76):
+            rect(draw, cell, x - 0.03, 0.30, x + 0.03, 0.94, fill=dark)
+        rect(draw, cell, 0.10, 0.22, 0.90, 0.68, fill=light, outline=Outline, width=3, radius=0.03)
+        rect(draw, cell, 0.18, 0.30, 0.42, 0.44, fill=(240, 232, 200), outline=Outline, width=1)
+        rect(draw, cell, 0.48, 0.28, 0.62, 0.42, fill=(235, 226, 190), outline=Outline, width=1)
+        rect(draw, cell, 0.66, 0.34, 0.82, 0.48, fill=(245, 236, 205), outline=Outline, width=1)
+        rect(draw, cell, 0.18, 0.50, 0.58, 0.62, fill=(238, 230, 198), outline=Outline, width=1)
+        for x, y in ((0.30, 0.38), (0.55, 0.36), (0.74, 0.42)):
+            ellipse(draw, cell, x - 0.015, y - 0.015, x + 0.015, y + 0.015, fill=accent)
+    elif kind.startswith("npc_"):
+        # Robed figure with a lantern; colour differs per NPC.
+        line(draw, cell, [(0.50, 0.24), (0.50, 0.42)], accent, 2)
+        ellipse(draw, cell, 0.42, 0.16, 0.58, 0.32, fill=light, outline=Outline, width=2)
+        poly(draw, cell, [(0.36, 0.34), (0.64, 0.34), (0.74, 0.92), (0.26, 0.92)], fill=dark, outline=Outline, width=3)
+        poly(draw, cell, [(0.42, 0.38), (0.58, 0.38), (0.62, 0.84), (0.38, 0.84)], fill=light)
+        ellipse(draw, cell, 0.63, 0.44, 0.75, 0.56, fill=accent, outline=Outline, width=1)
+        if kind == "npc_warden":
+            # Crested helm and a gate spear.
+            poly(draw, cell, [(0.44, 0.16), (0.50, 0.04), (0.56, 0.16)], fill=accent, outline=Outline, width=1)
+            line(draw, cell, [(0.30, 0.30), (0.30, 0.96)], light, 3)
+            poly(draw, cell, [(0.27, 0.26), (0.30, 0.16), (0.33, 0.26)], fill=accent, outline=Outline, width=1)
+            ellipse(draw, cell, 0.38, 0.56, 0.62, 0.74, fill=dark, outline=accent, width=2)
+        elif kind == "npc_lamplighter":
+            # A brighter lantern that actually reads as a light source.
+            ellipse(draw, cell, 0.58, 0.38, 0.82, 0.62, fill=(255, 228, 160, 90))
+            ellipse(draw, cell, 0.63, 0.44, 0.77, 0.58, fill=accent, outline=Outline, width=2)
+            line(draw, cell, [(0.70, 0.42), (0.70, 0.30)], light, 2)
+            ellipse(draw, cell, 0.65, 0.26, 0.75, 0.36, fill=light)
     return img
 
 
@@ -987,11 +1844,27 @@ def build() -> None:
         "origin": {"x": 0.5, "y": 0.88},
         "animations": {},
     }
-    player_anims = {"idle": (4, 6, True), "walk": (6, 10, True), "attack": (5, 13, False), "dash": (4, 14, False)}
-    for state, (frames, fps, loop) in player_anims.items():
+    # Every stance carries its own held weapon in idle, walk and attack, so the
+    # silhouette changes when the player switches, not only the hit effect.
+    player_anims = [
+        ("idle", "idle", "sword", 4, 6, True),
+        ("walk", "walk", "sword", 6, 10, True),
+        ("dash", "dash", "sword", 4, 14, False),
+        ("idle_spear", "idle", "spear", 4, 6, True),
+        ("idle_greatsword", "idle", "greatsword", 4, 6, True),
+        ("walk_spear", "walk", "spear", 6, 10, True),
+        ("walk_greatsword", "walk", "greatsword", 6, 10, True),
+        ("attack", "attack", "sword", 5, 13, False),
+        ("attack_spear", "attack", "spear", 4, 18, False),
+        ("attack_greatsword", "attack", "greatsword", 6, 9, False),
+    ]
+    for state, render_state, weapon, frames, fps, loop in player_anims:
         sheet = Image.new("RGBA", (PLAYER_CELL * frames, PLAYER_CELL), (0, 0, 0, 0))
         for frame in range(frames):
-            sheet.alpha_composite(downsample(player_frame(state, frame, frames), PLAYER_CELL), (frame * PLAYER_CELL, 0))
+            sheet.alpha_composite(
+                downsample(player_frame(render_state, frame, frames, weapon), PLAYER_CELL),
+                (frame * PLAYER_CELL, 0),
+            )
         path = SPRITES / "player" / f"{state}.png"
         path.parent.mkdir(parents=True, exist_ok=True)
         sheet.save(path)
@@ -1003,21 +1876,30 @@ def build() -> None:
         }
         print(f"player/{state}.png ({frames} frames)")
 
-    # Enemy sheets: 4 columns x 4 rows (idle, walk, attack, death).
+    # Enemy sheets: 4 columns x 4 rows (idle, walk, attack, death). Bosses are
+    # authored at 192px so they stay sharp at their large display size; mobs use
+    # 96px. The runtime renders with nearest filtering.
+    boss_styles = {
+        "guardian", "spirit", "crystalGolem", "crystalGuardian", "cinderWarden",
+        "clockworkRegent", "leviathan", "forgottenGiant", "frostWarden",
+        "mireSovereign", "thornMatriarch", "hiveQueen", "boneTyrant", "keeper",
+        "choirHierophant", "hollowBehemoth",
+    }
     enemy_meta = {}
     for kind in ENEMY_STYLES:
-        sheet = Image.new("RGBA", (ENEMY_CELL * 4, ENEMY_CELL * 4), (0, 0, 0, 0))
+        cell = BOSS_CELL if kind in boss_styles else ENEMY_CELL
+        sheet = Image.new("RGBA", (cell * 4, cell * 4), (0, 0, 0, 0))
         for row in range(4):
             for frame in range(4):
-                cell_img = downsample(enemy_frame(kind, row, frame, 4), ENEMY_CELL)
-                sheet.alpha_composite(cell_img, (frame * ENEMY_CELL, row * ENEMY_CELL))
+                cell_img = downsample(enemy_frame(kind, row, frame, 4, cell), cell)
+                sheet.alpha_composite(cell_img, (frame * cell, row * cell))
         path = SPRITES / "enemies" / f"{kind}.png"
         path.parent.mkdir(parents=True, exist_ok=True)
         sheet.save(path)
         enemy_meta[kind] = {
             "texture": f"sprites/enemies/{kind}.png",
-            "frameWidth": ENEMY_CELL,
-            "frameHeight": ENEMY_CELL,
+            "frameWidth": cell,
+            "frameHeight": cell,
             "columns": 4,
             "rows": 4,
             "origin": {"x": 0.5, "y": 0.90},
@@ -1060,11 +1942,22 @@ def build() -> None:
         print(f"backgrounds/{biome}.png")
 
     # Props.
-    props = ["memory_fountain", "statue", "crystal_cluster", "ancient_tree", "ruins_door", "sanctuary_altar", "void_rift", "memory_chest"]
+    props = [
+        "memory_fountain", "statue", "crystal_cluster", "ancient_tree", "ruins_door",
+        "sanctuary_altar", "void_rift", "memory_chest", "barrel", "lever",
+        "npc_archivist", "npc_smith", "npc_gardener", "bone_pile", "hive_comb",
+        "station_hearth", "station_armory", "station_infirmary", "station_wellspring",
+        "station_watchtower", "station_bulwark", "station_vault", "station_training",
+        "station_meditation", "station_notice", "npc_warden", "npc_lamplighter",
+        "cog_pillar", "ice_spire", "coral",
+        "furn_table", "furn_chair", "furn_shelf", "furn_crate", "furn_planter", "furn_lantern",
+        "furn_rug", "furn_banner", "furn_bench", "furn_dais", "furn_column",
+    ]
     prop_meta = {}
     for prop in props:
         path = SPRITES / "props" / f"{prop}.png"
-        save_cell(prop_image(prop), 96, path)
+        prop_size = 192 if prop in ("furn_dais", "furn_rug") else 96
+        save_cell(prop_image(prop), prop_size, path)
         prop_meta[prop] = f"sprites/props/{prop}.png"
         print(f"props/{prop}.png")
 
@@ -1112,7 +2005,10 @@ def build() -> None:
     }
     atlas_path = ASSETS / "data" / "sprite_atlas.json"
     atlas_path.parent.mkdir(parents=True, exist_ok=True)
-    atlas_path.write_text(json.dumps(atlas, indent=2) + "\n", encoding="utf-8")
+    atlas_text = json.dumps(atlas, indent=2) + "\n"
+    atlas_path.write_text(atlas_text, encoding="utf-8")
+    # The game imports the atlas from src/data; keep the two copies in step.
+    (SRC_DATA / "sprite_atlas.json").write_text(atlas_text, encoding="utf-8")
 
     graphics_assets = {
         "version": "2.0.0",

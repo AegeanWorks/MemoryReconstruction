@@ -4,14 +4,10 @@
 import { angleBetween, inArc, rollDamage, type Arena } from './combat';
 import type { InputFrame, Player } from './entities';
 import { moveAndCollide } from './physics';
+import { applyEquipment, emptyEquipment, type EquipmentSlots } from './equipment';
 import { computeStats } from './upgrades';
+import { WEAPONS, weaponDef } from './weapons';
 
-/** Per combo step: damage multiplier, reach, half-arc (radians), knockback, base duration. */
-const COMBO = [
-  { damage: 1, reach: 54, halfArc: 1.0, knockback: 150, duration: 0.3 },
-  { damage: 1.15, reach: 56, halfArc: 1.0, knockback: 170, duration: 0.3 },
-  { damage: 1.8, reach: 64, halfArc: 1.45, knockback: 340, duration: 0.4 },
-] as const;
 /** Fraction of a swing at which its hit lands. */
 const SWING_ACTIVE_AT = 0.38;
 const COMBO_GRACE = 0.4;
@@ -38,6 +34,13 @@ export function createPlayer(x: number, y: number): Player {
     mana: stats.maxMana,
     stats,
     upgrades: {},
+    weapon: 'sword',
+    bombs: 2,
+    traps: 1,
+    artCooldown: 0,
+    equipment: emptyEquipment(),
+    inventory: [],
+    nextEquipmentId: 1,
     level: 1,
     xp: 0,
     shards: 0,
@@ -64,9 +67,9 @@ export function createPlayer(x: number, y: number): Player {
 }
 
 /** Recomputes stats after an upgrade, keeping health and mana as the same absolute values plus any gain. */
-export function refreshStats(player: Player): void {
+export function refreshStats(player: Player, equipped?: EquipmentSlots): void {
   const before = player.stats;
-  const after = computeStats(player.upgrades);
+  const after = applyEquipment(computeStats(player.upgrades), equipped ?? player.equipment);
   player.health = Math.min(
     after.maxHealth,
     player.health + Math.max(0, after.maxHealth - before.maxHealth)
@@ -87,6 +90,7 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
   p.invulnerable = Math.max(0, p.invulnerable - dt);
   p.hurtFlash = Math.max(0, p.hurtFlash - dt);
   p.boltCooldown = Math.max(0, p.boltCooldown - dt);
+  p.artCooldown = Math.max(0, p.artCooldown - dt);
   p.comboWindow = Math.max(0, p.comboWindow - dt);
   p.resonanceTime = Math.max(0, p.resonanceTime - dt);
   if (p.resonanceTime === 0) p.resonance = 0;
@@ -103,6 +107,10 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
     moveY /= len;
   }
 
+  if (input.weapon >= 0 && input.weapon < WEAPONS.length) switchWeapon(arena, input.weapon);
+  if (input.bomb) throwBomb(arena);
+  if (input.trap) placeTrap(arena);
+  if (input.art) useWeaponArt(arena);
   if (input.potion) drinkPotion(arena);
   if (input.dash && p.dashCharges >= 1 && p.dashTime <= 0)
     startDash(arena, len > 1e-6 ? moveX : Math.cos(p.aim), len > 1e-6 ? moveY : Math.sin(p.aim));
@@ -116,7 +124,7 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
   if (input.attack && p.swingTime < 0) startSwing(arena);
   if (p.swingTime >= 0) updateSwing(arena, dt);
 
-  const speed = s.moveSpeed * (p.swingTime >= 0 ? 0.4 : 1);
+  const speed = s.moveSpeed * (p.swingTime >= 0 ? weaponDef(p.weapon).moveFactor : 1);
   moveAndCollide(arena.grid, p, (moveX * speed + p.knockX) * dt, (moveY * speed + p.knockY) * dt);
   const decay = Math.exp(-12 * dt);
   p.knockX *= decay;
@@ -158,6 +166,7 @@ function updateDash(arena: Arena, dt: number): void {
   p.dashTime -= dt;
   p.action = 'dash';
   moveAndCollide(arena.grid, p, p.dashDirX * DASH_SPEED * dt, p.dashDirY * DASH_SPEED * dt);
+  arena.hitHazards(p.x, p.y, p.radius + 10, p.stats.meleeDamage * 0.35);
   for (const enemy of arena.enemies) {
     if (enemy.state === 'spawning' || enemy.state === 'dying') continue;
     const dist = Math.hypot(enemy.x - p.x, enemy.y - p.y);
@@ -204,16 +213,139 @@ function fireBolt(arena: Arena): void {
   arena.emit({ type: 'bolt', x: p.x, y: p.y, angle: p.aim });
 }
 
+/** Switches stance; a switch cancels the current swing but keeps the flow meter. */
+function switchWeapon(arena: Arena, index: number): void {
+  const p = arena.player;
+  const next = WEAPONS[index].id;
+  if (next === p.weapon) return;
+  p.weapon = next;
+  p.swingTime = -1;
+  p.combo = 0;
+  p.comboWindow = 0;
+  arena.emit({ type: 'weaponSwitch', weapon: next });
+}
+
+/** Player-thrown bomb: arcs toward the aim, fuses, hurts both sides. */
+function throwBomb(arena: Arena): void {
+  const p = arena.player;
+  if (p.bombs <= 0) return;
+  p.bombs--;
+  const speed = 400;
+  arena.spawnBomb(
+    p.x + Math.cos(p.aim) * 16,
+    p.y + Math.sin(p.aim) * 16,
+    Math.cos(p.aim) * speed,
+    Math.sin(p.aim) * speed,
+    'player',
+    62,
+    1.25
+  );
+}
+
+/** Drops a trap just ahead of the player. It arms quickly and ignores sides. */
+function placeTrap(arena: Arena): void {
+  const p = arena.player;
+  if (p.traps <= 0) return;
+  p.traps--;
+  arena.placePlayerTrap(p.x + Math.cos(p.aim) * 22, p.y + Math.sin(p.aim) * 22);
+  arena.emit({ type: 'notice', text: 'Trap armed' });
+}
+
+/** Stance art on a cooldown: sword nova, spear pierce, greatsword quake. */
+const ART_COOLDOWN = 7;
+
+function useWeaponArt(arena: Arena): void {
+  const p = arena.player;
+  if (p.artCooldown > 0 || p.action === 'dead') return;
+  const weapon = weaponDef(p.weapon);
+  p.artCooldown = ART_COOLDOWN;
+  p.swingTime = -1;
+  p.combo = 0;
+  p.comboWindow = 0;
+
+  if (weapon.id === 'spear') {
+    const dx = Math.cos(p.aim);
+    const dy = Math.sin(p.aim);
+    const ox = p.x;
+    const oy = p.y;
+    const ex = ox + dx * 150;
+    const ey = oy + dy * 150;
+    for (const enemy of arena.enemies) {
+      if (enemy.state === 'dying') continue;
+      if (segmentDistance(enemy.x, enemy.y, ox, oy, ex, ey) > enemy.radius + 26) continue;
+      const hit = rollDamage(
+        arena.rng,
+        p.stats.meleeDamage * 1.85,
+        p.stats.critChance,
+        p.stats.critMultiplier
+      );
+      arena.damageEnemy(enemy, hit.amount, 'melee', hit.crit, 300);
+    }
+    arena.hitHazards((ox + ex) / 2, (oy + ey) / 2, 62, p.stats.meleeDamage * 1.5);
+    moveAndCollide(arena.grid, p, dx * 150, dy * 150);
+    arena.emit({
+      type: 'weaponArt',
+      weapon: 'spear',
+      x: ox,
+      y: oy,
+      radius: 34,
+      angle: p.aim,
+      length: 150,
+    });
+  } else {
+    const heavy = weapon.id === 'greatsword';
+    const radius = heavy ? 165 : 120;
+    const power = heavy ? 1.75 : 1.35;
+    for (const enemy of arena.enemies) {
+      if (enemy.state === 'dying') continue;
+      if (Math.hypot(enemy.x - p.x, enemy.y - p.y) > radius + enemy.radius) continue;
+      const hit = rollDamage(
+        arena.rng,
+        p.stats.meleeDamage * power,
+        p.stats.critChance,
+        p.stats.critMultiplier
+      );
+      arena.damageEnemy(enemy, hit.amount, 'melee', hit.crit, heavy ? 620 : 420);
+    }
+    arena.hitHazards(p.x, p.y, radius, p.stats.meleeDamage * power);
+    arena.emit({
+      type: 'weaponArt',
+      weapon: weapon.id,
+      x: p.x,
+      y: p.y,
+      radius,
+    });
+  }
+  arena.emit({ type: 'shake', strength: weapon.id === 'greatsword' ? 9 : 5 });
+  arena.emit({ type: 'notice', text: `${weapon.name} art` });
+}
+
+function segmentDistance(
+  px: number,
+  py: number,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number
+): number {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const length = dx * dx + dy * dy;
+  const t = length === 0 ? 0 : Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / length));
+  return Math.hypot(px - (ax + dx * t), py - (ay + dy * t));
+}
+
 function startSwing(arena: Arena): void {
   const p = arena.player;
-  p.combo = p.comboWindow > 0 ? (p.combo + 1) % COMBO.length : 0;
-  p.swingDuration = COMBO[p.combo].duration / p.stats.attackSpeed;
+  const weapon = weaponDef(p.weapon);
+  p.combo = p.comboWindow > 0 ? (p.combo + 1) % weapon.steps.length : 0;
+  p.swingDuration = weapon.steps[p.combo].duration / p.stats.attackSpeed;
   p.swingTime = 0;
   p.swingHitDone = false;
   // A small forward step makes each swing feel committed.
   p.knockX += Math.cos(p.aim) * 110;
   p.knockY += Math.sin(p.aim) * 110;
-  arena.emit({ type: 'swing', x: p.x, y: p.y, angle: p.aim, combo: p.combo });
+  arena.emit({ type: 'swing', x: p.x, y: p.y, angle: p.aim, combo: p.combo, weapon: p.weapon });
 }
 
 function updateSwing(arena: Arena, dt: number): void {
@@ -225,28 +357,34 @@ function updateSwing(arena: Arena, dt: number): void {
   }
   if (p.swingTime >= p.swingDuration) {
     p.swingTime = -1;
-    p.comboWindow = p.combo === COMBO.length - 1 ? 0 : COMBO_GRACE;
+    p.comboWindow = p.combo === weaponDef(p.weapon).steps.length - 1 ? 0 : COMBO_GRACE;
   }
 }
 
 function resolveSwing(arena: Arena): void {
   const p = arena.player;
-  const step = COMBO[p.combo];
+  const weapon = weaponDef(p.weapon);
+  const step = weapon.steps[p.combo];
   let landed = 0;
   for (const enemy of arena.enemies) {
     if (enemy.state === 'spawning' || enemy.state === 'dying') continue;
     if (!inArc(p.x, p.y, p.aim, step.reach, step.halfArc, enemy.x, enemy.y, enemy.radius)) continue;
+    const dist = Math.hypot(enemy.x - p.x, enemy.y - p.y);
+    // The spear rewards spacing: its tip bites harder than its haft.
+    const reachBonus = weapon.id === 'spear' && dist > step.reach * 0.6 ? 1.2 : 1;
     const hit = rollDamage(
       arena.rng,
-      p.stats.meleeDamage * step.damage,
+      p.stats.meleeDamage * step.damage * reachBonus,
       p.stats.critChance,
       p.stats.critMultiplier
     );
     arena.damageEnemy(enemy, hit.amount, 'melee', hit.crit, step.knockback);
     landed++;
   }
-  const finisher = p.combo === COMBO.length - 1;
-  if (finisher && p.stats.shockwave) {
+  // Swings also break destructible barrels in front of the player.
+  arena.hitHazards(p.x, p.y, step.reach, p.stats.meleeDamage * step.damage);
+  const finisher = p.combo === weapon.steps.length - 1;
+  if (finisher && (p.stats.shockwave || weapon.finisherShockwave)) {
     const cx = p.x + Math.cos(p.aim) * 30;
     const cy = p.y + Math.sin(p.aim) * 30;
     arena.emit({ type: 'shockwave', x: cx, y: cy, radius: SHOCKWAVE_RADIUS });

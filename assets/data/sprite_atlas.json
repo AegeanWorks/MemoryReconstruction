@@ -35,16 +35,52 @@
         "fps": 10,
         "loop": true
       },
+      "dash": {
+        "texture": "sprites/player/dash.png",
+        "frames": 4,
+        "fps": 14,
+        "loop": false
+      },
+      "idle_spear": {
+        "texture": "sprites/player/idle_spear.png",
+        "frames": 4,
+        "fps": 6,
+        "loop": true
+      },
+      "idle_greatsword": {
+        "texture": "sprites/player/idle_greatsword.png",
+        "frames": 4,
+        "fps": 6,
+        "loop": true
+      },
+      "walk_spear": {
+        "texture": "sprites/player/walk_spear.png",
+        "frames": 6,
+        "fps": 10,
+        "loop": true
+      },
+      "walk_greatsword": {
+        "texture": "sprites/player/walk_greatsword.png",
+        "frames": 6,
+        "fps": 10,
+        "loop": true
+      },
       "attack": {
         "texture": "sprites/player/attack.png",
         "frames": 5,
         "fps": 13,
         "loop": false
       },
-      "dash": {
-        "texture": "sprites/player/dash.png",
+      "attack_spear": {
+        "texture": "sprites/player/attack_spear.png",
         "frames": 4,
-        "fps": 14,
+        "fps": 18,
+        "loop": false
+      },
+      "attack_greatsword": {
+        "texture": "sprites/player/attack_greatsword.png",
+        "frames": 6,
+        "fps": 9,
         "loop": false
       }
     }
@@ -52,8 +88,8 @@
   "enemies": {
     "scavenger": {
       "texture": "sprites/enemies/scavenger.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 96,
+      "frameHeight": 96,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -89,8 +125,8 @@
     },
     "guardian": {
       "texture": "sprites/enemies/guardian.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 192,
+      "frameHeight": 192,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -126,8 +162,8 @@
     },
     "echo": {
       "texture": "sprites/enemies/echo.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 96,
+      "frameHeight": 96,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -163,8 +199,8 @@
     },
     "wildling": {
       "texture": "sprites/enemies/wildling.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 96,
+      "frameHeight": 96,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -200,8 +236,8 @@
     },
     "spirit": {
       "texture": "sprites/enemies/spirit.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 192,
+      "frameHeight": 192,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -237,8 +273,8 @@
     },
     "caveDweller": {
       "texture": "sprites/enemies/caveDweller.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 96,
+      "frameHeight": 96,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -274,8 +310,8 @@
     },
     "crystalGolem": {
       "texture": "sprites/enemies/crystalGolem.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 192,
+      "frameHeight": 192,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -311,8 +347,8 @@
     },
     "shadow": {
       "texture": "sprites/enemies/shadow.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 96,
+      "frameHeight": 96,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -348,8 +384,8 @@
     },
     "crystalGuardian": {
       "texture": "sprites/enemies/crystalGuardian.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 192,
+      "frameHeight": 192,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -385,8 +421,8 @@
     },
     "prismEntity": {
       "texture": "sprites/enemies/prismEntity.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 96,
+      "frameHeight": 96,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -422,8 +458,8 @@
     },
     "voidWalker": {
       "texture": "sprites/enemies/voidWalker.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 96,
+      "frameHeight": 96,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -459,8 +495,8 @@
     },
     "forgotten": {
       "texture": "sprites/enemies/forgotten.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 96,
+      "frameHeight": 96,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -496,8 +532,822 @@
     },
     "keeper": {
       "texture": "sprites/enemies/keeper.png",
-      "frameWidth": 64,
-      "frameHeight": 64,
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "cogHound": {
+      "texture": "sprites/enemies/cogHound.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "solderWisp": {
+      "texture": "sprites/enemies/solderWisp.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "bogLeech": {
+      "texture": "sprites/enemies/bogLeech.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "plagueCaster": {
+      "texture": "sprites/enemies/plagueCaster.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "cinderWarden": {
+      "texture": "sprites/enemies/cinderWarden.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "frostWarden": {
+      "texture": "sprites/enemies/frostWarden.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "leviathan": {
+      "texture": "sprites/enemies/leviathan.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "thornMatriarch": {
+      "texture": "sprites/enemies/thornMatriarch.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "forgottenGiant": {
+      "texture": "sprites/enemies/forgottenGiant.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "clockworkRegent": {
+      "texture": "sprites/enemies/clockworkRegent.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "mireSovereign": {
+      "texture": "sprites/enemies/mireSovereign.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "bombardier": {
+      "texture": "sprites/enemies/bombardier.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "hiveDrone": {
+      "texture": "sprites/enemies/hiveDrone.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "hiveGuard": {
+      "texture": "sprites/enemies/hiveGuard.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "catacombArcher": {
+      "texture": "sprites/enemies/catacombArcher.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "boneKnight": {
+      "texture": "sprites/enemies/boneKnight.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "hiveQueen": {
+      "texture": "sprites/enemies/hiveQueen.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "boneTyrant": {
+      "texture": "sprites/enemies/boneTyrant.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "graveHound": {
+      "texture": "sprites/enemies/graveHound.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "voidCantor": {
+      "texture": "sprites/enemies/voidCantor.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "choirHierophant": {
+      "texture": "sprites/enemies/choirHierophant.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "hollowBehemoth": {
+      "texture": "sprites/enemies/hollowBehemoth.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
       "columns": 4,
       "rows": 4,
       "origin": {
@@ -634,6 +1484,74 @@
         "door": 7,
         "secret": 8
       }
+    },
+    "foundry": {
+      "texture": "sprites/tilesets/foundry.png",
+      "tileSize": 32,
+      "columns": 4,
+      "rows": 9,
+      "rowMap": {
+        "empty": 0,
+        "floor": 1,
+        "wall": 2,
+        "platform": 3,
+        "hazard": 4,
+        "water": 5,
+        "ladder": 6,
+        "door": 7,
+        "secret": 8
+      }
+    },
+    "mire": {
+      "texture": "sprites/tilesets/mire.png",
+      "tileSize": 32,
+      "columns": 4,
+      "rows": 9,
+      "rowMap": {
+        "empty": 0,
+        "floor": 1,
+        "wall": 2,
+        "platform": 3,
+        "hazard": 4,
+        "water": 5,
+        "ladder": 6,
+        "door": 7,
+        "secret": 8
+      }
+    },
+    "hive": {
+      "texture": "sprites/tilesets/hive.png",
+      "tileSize": 32,
+      "columns": 4,
+      "rows": 9,
+      "rowMap": {
+        "empty": 0,
+        "floor": 1,
+        "wall": 2,
+        "platform": 3,
+        "hazard": 4,
+        "water": 5,
+        "ladder": 6,
+        "door": 7,
+        "secret": 8
+      }
+    },
+    "catacomb": {
+      "texture": "sprites/tilesets/catacomb.png",
+      "tileSize": 32,
+      "columns": 4,
+      "rows": 9,
+      "rowMap": {
+        "empty": 0,
+        "floor": 1,
+        "wall": 2,
+        "platform": 3,
+        "hazard": 4,
+        "water": 5,
+        "ladder": 6,
+        "door": 7,
+        "secret": 8
+      }
     }
   },
   "backgrounds": {
@@ -642,7 +1560,15 @@
     "caves": "sprites/backgrounds/caves.png",
     "crystal": "sprites/backgrounds/crystal.png",
     "void": "sprites/backgrounds/void.png",
-    "sanctuary": "sprites/backgrounds/sanctuary.png"
+    "sanctuary": "sprites/backgrounds/sanctuary.png",
+    "ash": "sprites/backgrounds/ash.png",
+    "abyss": "sprites/backgrounds/abyss.png",
+    "frost": "sprites/backgrounds/frost.png",
+    "bloom": "sprites/backgrounds/bloom.png",
+    "foundry": "sprites/backgrounds/foundry.png",
+    "mire": "sprites/backgrounds/mire.png",
+    "hive": "sprites/backgrounds/hive.png",
+    "catacomb": "sprites/backgrounds/catacomb.png"
   },
   "props": {
     "memory_fountain": "sprites/props/memory_fountain.png",
@@ -652,7 +1578,40 @@
     "ruins_door": "sprites/props/ruins_door.png",
     "sanctuary_altar": "sprites/props/sanctuary_altar.png",
     "void_rift": "sprites/props/void_rift.png",
-    "memory_chest": "sprites/props/memory_chest.png"
+    "memory_chest": "sprites/props/memory_chest.png",
+    "barrel": "sprites/props/barrel.png",
+    "lever": "sprites/props/lever.png",
+    "npc_archivist": "sprites/props/npc_archivist.png",
+    "npc_smith": "sprites/props/npc_smith.png",
+    "npc_gardener": "sprites/props/npc_gardener.png",
+    "bone_pile": "sprites/props/bone_pile.png",
+    "hive_comb": "sprites/props/hive_comb.png",
+    "station_hearth": "sprites/props/station_hearth.png",
+    "station_armory": "sprites/props/station_armory.png",
+    "station_infirmary": "sprites/props/station_infirmary.png",
+    "station_wellspring": "sprites/props/station_wellspring.png",
+    "station_watchtower": "sprites/props/station_watchtower.png",
+    "station_bulwark": "sprites/props/station_bulwark.png",
+    "station_vault": "sprites/props/station_vault.png",
+    "station_training": "sprites/props/station_training.png",
+    "station_meditation": "sprites/props/station_meditation.png",
+    "station_notice": "sprites/props/station_notice.png",
+    "npc_warden": "sprites/props/npc_warden.png",
+    "npc_lamplighter": "sprites/props/npc_lamplighter.png",
+    "cog_pillar": "sprites/props/cog_pillar.png",
+    "ice_spire": "sprites/props/ice_spire.png",
+    "coral": "sprites/props/coral.png",
+    "furn_table": "sprites/props/furn_table.png",
+    "furn_chair": "sprites/props/furn_chair.png",
+    "furn_shelf": "sprites/props/furn_shelf.png",
+    "furn_crate": "sprites/props/furn_crate.png",
+    "furn_planter": "sprites/props/furn_planter.png",
+    "furn_lantern": "sprites/props/furn_lantern.png",
+    "furn_rug": "sprites/props/furn_rug.png",
+    "furn_banner": "sprites/props/furn_banner.png",
+    "furn_bench": "sprites/props/furn_bench.png",
+    "furn_dais": "sprites/props/furn_dais.png",
+    "furn_column": "sprites/props/furn_column.png"
   },
   "ui": {
     "health": "sprites/ui/health.png",

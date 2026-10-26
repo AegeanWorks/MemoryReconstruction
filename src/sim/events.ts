@@ -5,7 +5,25 @@
 import type { AttackKind, InteractableKind, PickupKind } from './entities';
 
 export type SimEvent =
-  | { type: 'swing'; x: number; y: number; angle: number; combo: number }
+  | {
+      type: 'swing';
+      x: number;
+      y: number;
+      angle: number;
+      combo: number;
+      weapon: 'sword' | 'spear' | 'greatsword';
+    }
+  | { type: 'weaponSwitch'; weapon: 'sword' | 'spear' | 'greatsword' }
+  | { type: 'bombThrown'; x: number; y: number; owner: 'player' | 'enemy' }
+  | {
+      type: 'weaponArt';
+      weapon: 'sword' | 'spear' | 'greatsword';
+      x: number;
+      y: number;
+      radius: number;
+      angle?: number;
+      length?: number;
+    }
   | { type: 'dash'; x: number; y: number }
   | { type: 'bolt'; x: number; y: number; angle: number }
   | { type: 'hit'; x: number; y: number; amount: number; crit: boolean; target: 'enemy' | 'player' }
@@ -25,6 +43,26 @@ export type SimEvent =
   | { type: 'lootSurge'; x: number; y: number; kind: 'rich' | 'jackpot'; amount: number }
   | { type: 'objectiveComplete'; shards: number }
   | { type: 'flawlessRoom'; roomId: number; shards: number }
+  | {
+      type: 'equipment';
+      name: string;
+      rarity: 'common' | 'rare' | 'epic';
+      slot: 'weapon' | 'armor' | 'trinket';
+      auto: boolean;
+    }
+  | {
+      type: 'hazardBurst';
+      kind: 'spike' | 'flame' | 'poison' | 'rockfall' | 'barrel' | 'trap';
+      x: number;
+      y: number;
+      radius: number;
+    }
+  | { type: 'sanctuary'; kind: 'structure' | 'npc' | 'gate'; id: string }
+  | { type: 'blast'; x: number; y: number; radius: number }
+  | { type: 'bombExploded'; x: number; y: number; radius: number }
+  | { type: 'beam'; x: number; y: number; angle: number; length: number; width: number }
+  | { type: 'blink'; x: number; y: number; toX: number; toY: number }
+  | { type: 'hook'; x: number; y: number; toX: number; toY: number }
   | { type: 'roomLocked'; roomId: number }
   | { type: 'roomCleared'; roomId: number }
   | { type: 'bossIntro'; name: string }

@@ -17,7 +17,15 @@ const OBSTACLE_PROPS: Record<BiomeId, string> = {
   forest: 'ancient_tree',
   caves: 'crystal_cluster',
   crystal: 'crystal_cluster',
+  ash: 'station_hearth',
+  foundry: 'cog_pillar',
+  abyss: 'coral',
   void: 'statue',
+  frost: 'ice_spire',
+  mire: 'ancient_tree',
+  bloom: 'ancient_tree',
+  hive: 'hive_comb',
+  catacomb: 'bone_pile',
   sanctuary: 'sanctuary_altar',
 };
 const T = TILE_SIZE;

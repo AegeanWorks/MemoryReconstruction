@@ -9,7 +9,7 @@ import type { SimEvent } from './events';
 import type { Rng } from './rng';
 import type { TileGrid } from './tiles';
 
-export type DamageSource = 'melee' | 'bolt' | 'dash' | 'shockwave';
+export type DamageSource = 'melee' | 'bolt' | 'dash' | 'shockwave' | 'hazard';
 
 export interface Arena {
   readonly grid: TileGrid;
@@ -36,6 +36,28 @@ export interface Arena {
   hitstop(seconds: number): void;
   /** Rewards a near miss with mana, dash charge and a refreshed flow window. */
   graze(x: number, y: number): void;
+  /** Damages destructible barrels in a radius; returns how many broke. */
+  hitHazards(x: number, y: number, radius: number, damage: number): number;
+  /** Queues a delayed ground explosion. */
+  spawnBlast(x: number, y: number, radius: number, delay: number, damage: number): void;
+  /** Drops an armed proximity mine. */
+  spawnMine(x: number, y: number, damage: number): void;
+  /** Throws a bomb in a direction; it bounces off walls and fuses out. */
+  spawnBomb(
+    x: number,
+    y: number,
+    vx: number,
+    vy: number,
+    owner: 'player' | 'enemy',
+    damage: number,
+    fuse: number
+  ): void;
+  /** Places a player trap that arms after a moment and hurts both sides. */
+  placePlayerTrap(x: number, y: number): void;
+  /** Current section depth, so late enemies can pick late attacks. */
+  readonly depth: number;
+  /** This floor's enemy roster, so summons scale with the section. */
+  readonly roster: readonly string[];
 }
 
 export function angleBetween(x0: number, y0: number, x1: number, y1: number): number {

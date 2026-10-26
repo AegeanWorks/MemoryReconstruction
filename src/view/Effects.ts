@@ -22,6 +22,7 @@ interface Slash {
   y: number;
   angle: number;
   combo: number;
+  weapon: 'sword' | 'spear' | 'greatsword';
   age: number;
 }
 
@@ -68,7 +69,14 @@ export class Effects {
     for (const e of events) {
       switch (e.type) {
         case 'swing':
-          this.slashes.push({ x: e.x, y: e.y, angle: e.angle, combo: e.combo, age: 0 });
+          this.slashes.push({
+            x: e.x,
+            y: e.y,
+            angle: e.angle,
+            combo: e.combo,
+            weapon: e.weapon,
+            age: 0,
+          });
           break;
         case 'dash':
           this.burst(e.x, e.y, 0x6fe7ff, 10, 60, 0.35, 5);
@@ -169,6 +177,97 @@ export class Effects {
         case 'objectiveComplete':
           this.ring(playerX, playerY, 200, 0xffd98a, 0.8);
           this.number(playerX, playerY - 46, `FLOOR RESTORED +${e.shards}`, 0xffd98a, 18);
+          break;
+        case 'equipment':
+          this.ring(playerX, playerY, 90, 0xffd98a, 0.5);
+          this.number(
+            playerX,
+            playerY - 40,
+            `${e.rarity.toUpperCase()} ${e.slot}`,
+            0xffd98a,
+            e.rarity === 'epic' ? 18 : 14
+          );
+          break;
+        case 'hazardBurst': {
+          const color =
+            e.kind === 'poison'
+              ? 0x9ef06a
+              : e.kind === 'barrel'
+                ? 0xffa040
+                : e.kind === 'spike'
+                  ? 0xe0e0ff
+                  : 0xff8a5a;
+          this.ring(e.x, e.y, e.radius, color, 0.35);
+          this.burst(e.x, e.y, color, e.kind === 'poison' ? 6 : 14, 140, 0.35, 4);
+          if (e.kind === 'barrel') this.number(e.x, e.y - 18, 'BOOM', color, 18);
+          break;
+        }
+        case 'blast':
+          this.ring(e.x, e.y, e.radius, 0xffa060, 0.4);
+          this.burst(e.x, e.y, 0xffb070, 12, 160, 0.32, 4);
+          break;
+        case 'bombExploded':
+          this.ring(e.x, e.y, e.radius, 0xffb060, 0.55);
+          this.ring(e.x, e.y, e.radius * 0.6, 0xfff0c0, 0.35);
+          this.burst(e.x, e.y, 0xffa040, 24, 220, 0.45, 5);
+          this.number(e.x, e.y - 26, 'BOOM', 0xffd98a, 18);
+          break;
+        case 'bombThrown':
+          this.burst(e.x, e.y, e.owner === 'player' ? 0x9df3ff : 0xff8a6a, 4, 50, 0.2, 3);
+          break;
+        case 'weaponArt': {
+          const color =
+            e.weapon === 'greatsword' ? 0xffd98a : e.weapon === 'spear' ? 0x9df3ff : 0xd8f6ff;
+          if (e.weapon === 'spear' && e.angle !== undefined) {
+            const length = e.length ?? 150;
+            const ex = e.x + Math.cos(e.angle) * length;
+            const ey = e.y + Math.sin(e.angle) * length;
+            this.ring(ex, ey, 34, color, 0.45);
+          }
+          // The art uses the stance's own slash shape plus an impact ring.
+          this.slashes.push({
+            x: e.x,
+            y: e.y,
+            angle: e.angle ?? 0,
+            combo: e.weapon === 'greatsword' ? 1 : 2,
+            weapon: e.weapon,
+            age: 0,
+          });
+          this.ring(e.x, e.y, e.radius, color, 0.6);
+          this.ring(e.x, e.y, e.radius * 0.72, 0xffffff, 0.4);
+          this.ring(e.x, e.y, e.radius * 0.42, color, 0.5);
+          for (let i = 0; i < 10; i++) {
+            const a = (i / 10) * Math.PI * 2;
+            this.burst(
+              e.x + Math.cos(a) * e.radius * 0.35,
+              e.y + Math.sin(a) * e.radius * 0.35,
+              color,
+              3,
+              160,
+              0.35,
+              4
+            );
+          }
+          this.burst(e.x, e.y, color, 26, 260, 0.55, 6);
+          break;
+        }
+        case 'beam':
+          this.ring(e.x, e.y, 26, 0xffd0d0, 0.25);
+          this.ring(
+            e.x + Math.cos(e.angle) * e.length * 0.5,
+            e.y + Math.sin(e.angle) * e.length * 0.5,
+            40,
+            0xff6a6a,
+            0.3
+          );
+          break;
+        case 'blink':
+          this.ring(e.x, e.y, 50, 0xbfa0ff, 0.4);
+          this.ring(e.toX, e.toY, 50, 0xbfa0ff, 0.4);
+          break;
+        case 'hook':
+          this.ring(e.toX, e.toY, 46, 0x9df3ff, 0.35);
+          this.burst(e.toX, e.toY, 0x9df3ff, 8, 90, 0.3, 3);
           break;
         case 'interact':
           this.burst(e.x, e.y, 0xffd98a, 24, 120, 0.8, 5);
@@ -329,21 +428,38 @@ export class Effects {
         continue;
       }
       const t = s.age / SLASH_LIFE;
-      const finisher = s.combo === 2;
-      const reach = finisher ? 68 : 58;
-      const half = finisher ? 1.45 : 1.0;
-      // The crescent sweeps across the arc; alternate swing direction per combo step.
-      const dir = s.combo === 1 ? -1 : 1;
-      const sweep = -half + 2 * half * Math.min(1, t * 1.8);
-      const from = s.angle - half * dir;
-      const to = s.angle + sweep * dir;
       const alpha = 1 - t;
+      // Spear: a fast forward thrust line. Greatsword: a wider, heavier arc.
+      if (s.weapon === 'spear') {
+        const tip = 30 + 78 * Math.min(1, t * 2.6);
+        const ex = s.x + Math.cos(s.angle) * tip;
+        const ey = s.y + Math.sin(s.angle) * tip;
+        g.moveTo(s.x + Math.cos(s.angle) * 10, s.y + Math.sin(s.angle) * 10)
+          .lineTo(ex, ey)
+          .stroke({ width: 6 * alpha + 1, color: 0xd8f6ff, alpha });
+        g.circle(ex, ey, 5 + 4 * alpha).fill({ color: 0xffffff, alpha: alpha * 0.8 });
+        g.moveTo(ex - Math.cos(s.angle + 1.4) * 12, ey - Math.sin(s.angle + 1.4) * 12)
+          .lineTo(ex, ey)
+          .lineTo(ex - Math.cos(s.angle - 1.4) * 12, ey - Math.sin(s.angle - 1.4) * 12)
+          .stroke({ width: 2, color: 0x9df3ff, alpha: alpha * 0.7 });
+        continue;
+      }
+      const finisher = s.combo === (s.weapon === 'greatsword' ? 1 : 2);
+      const reach = s.weapon === 'greatsword' ? (finisher ? 82 : 70) : finisher ? 68 : 58;
+      const half = s.weapon === 'greatsword' ? (finisher ? 1.75 : 1.4) : finisher ? 1.45 : 1.0;
+      // Keep the crescent centred on the aim and expand it outward. The old
+      // sweep started behind the player, so the arc read as a tail rather than
+      // a strike toward the target.
+      const spread = Math.min(1, t * 2.6);
+      const from = s.angle - half * spread;
+      const to = s.angle + half * spread;
       const steps = 10;
       const outer: number[] = [];
       const inner: number[] = [];
       for (let k = 0; k <= steps; k++) {
         const a = from + ((to - from) * k) / steps;
-        const thickness = 6 + 14 * Math.sin((k / steps) * Math.PI);
+        const thickBase = s.weapon === 'greatsword' ? 16 : 6;
+        const thickness = thickBase + 14 * Math.sin((k / steps) * Math.PI);
         outer.push(s.x + Math.cos(a) * reach, s.y + Math.sin(a) * reach);
         inner.push(
           s.x + Math.cos(a) * (reach - thickness),
@@ -352,7 +468,8 @@ export class Effects {
       }
       const points = [...outer];
       for (let k = inner.length - 2; k >= 0; k -= 2) points.push(inner[k], inner[k + 1]);
-      g.poly(points).fill({ color: finisher ? 0xfff3c4 : 0xc8f7ff, alpha: 0.85 * alpha });
+      const color = s.weapon === 'greatsword' ? 0xffe9a8 : finisher ? 0xfff3c4 : 0xc8f7ff;
+      g.poly(points).fill({ color, alpha: 0.85 * alpha });
       g.poly(outer, false).stroke({ width: 2, color: 0xffffff, alpha });
     }
   }

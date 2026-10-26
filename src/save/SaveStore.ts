@@ -11,6 +11,7 @@
  * the game keeps working without persistence.
  */
 import { z } from 'zod';
+import { checkpointForDepth, echoesEarned } from '../sim/hub';
 import { restoreRun, type RunState } from '../sim/run';
 
 const META_KEY = 'memory-reconstruction.meta.v1'; // aikit:allow-secret
@@ -29,6 +30,23 @@ const MetaSchema = z.object({
   runs: z.number().int().min(0),
   victories: z.number().int().min(0),
   bestDepth: z.number().int().min(0),
+  // Added with the Sanctuary hub; defaults keep pre-hub saves loading.
+  echoes: z.number().int().min(0).default(0),
+  restorations: z.record(z.string(), z.number().int().min(0)).default({}),
+  checkpoint: z.number().int().min(0).default(0),
+  /** Lifetime kills, used by NPC quests. */
+  kills: z.number().int().min(0).default(0),
+  bossKills: z.number().int().min(0).default(0),
+  startingWeapon: z.enum(['sword', 'spear', 'greatsword']).default('sword'),
+  boon: z.enum(['vitality', 'edge', 'flow']).nullable().default(null),
+  /** Permanent starting relics earned from quests (equipment def ids). */
+  vault: z.array(z.string()).default([]),
+  quests: z
+    .object({
+      accepted: z.array(z.string()).default([]),
+      claimed: z.array(z.string()).default([]),
+    })
+    .default({ accepted: [], claimed: [] }),
   settings: SettingsSchema,
 });
 
@@ -42,6 +60,15 @@ export function defaultMeta(): Meta {
     runs: 0,
     victories: 0,
     bestDepth: 0,
+    echoes: 0,
+    restorations: {},
+    checkpoint: 0,
+    kills: 0,
+    bossKills: 0,
+    startingWeapon: 'sword',
+    boon: null,
+    vault: [],
+    quests: { accepted: [], claimed: [] },
     settings: { masterVolume: 0.8, musicVolume: 0.5, sfxVolume: 0.8, screenShake: true },
   };
 }
@@ -112,7 +139,11 @@ export class SaveStore {
   }
 }
 
-/** Adds a run's fragments and records into the meta progress (pure). */
+/**
+ * Adds a run's fragments, echoes and checkpoint into the meta progress (pure).
+ * Half of the shards still in hand become echoes, so spending at a well is a
+ * real trade against what the Sanctuary keeps.
+ */
 export function recordRun(meta: Meta, run: RunState, won: boolean): Meta {
   const fragments = Array.from(new Set([...meta.fragments, ...run.fragmentsFound]));
   return {
@@ -121,5 +152,9 @@ export function recordRun(meta: Meta, run: RunState, won: boolean): Meta {
     runs: meta.runs + 1,
     victories: meta.victories + (won ? 1 : 0),
     bestDepth: Math.max(meta.bestDepth, run.depth + 1),
+    echoes: meta.echoes + echoesEarned(run, won),
+    checkpoint: Math.max(meta.checkpoint, checkpointForDepth(run.depth)),
+    kills: meta.kills + run.stats.kills,
+    bossKills: meta.bossKills + run.stats.bossKills,
   };
 }
