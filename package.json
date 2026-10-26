@@ -1,8 +1,8 @@
 {
   "name": "memory-reconstruction",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Memory Reconstruction - a top-down action roguelike",
-  "license": "AGPL-3.0-only",
+  "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "scripts": {
     "dev": "vite",

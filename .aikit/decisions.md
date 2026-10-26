@@ -241,3 +241,8 @@ or the architecture; see the header above for where each entry goes. -->
   3. **UI, HUD & State-Machine Hygiene**: `.hud.hidden, .hud.hidden.dim` enforces `opacity: 0; pointer-events: none`, `.hint.hidden` adds `display: none`, `endRun()` removes `.banner` nodes and `#ui:has(.screen) .banner` hides banners behind modals, `Hud` shows `.boss-bar` immediately without a duplicate `bossIntro` toast, `World` marks `startRoom` visited in its constructor and blocks combat consumables (`bolt`/`bomb`/`trap`/`potion`) inside the peaceful Sanctuary hall, `App` wires `I` (`inventory`) in both `playing` and `sanctuary` states (using `createExpedition` so vault relics and starting stance appear in the Sanctuary) and preserves `paused` vs `hub` state when opening the Quest Log from the pause menu, `inventoryScreen` arranges supplies in a 3-column `.supplies-grid`, `questLogScreen` uses `' lit'`, and Sanctuary sub-screens share `.screen.hub` contrast and aligned card buttons.
 - **Consequences**: All 31 Playwright screenshots verify clean rendering across every game surface; 121 unit tests and all 7/7 AIKit gates pass.
 
+## Licensing migration (2026-10-26)
+
+- New versions use the Aegean Game License 1.1 (AGL-1.1).
+- Rights holder: AegeanWorks; commercial use under ACL-1.0.
+- Counsel review of the 1.1 texts remains pending.

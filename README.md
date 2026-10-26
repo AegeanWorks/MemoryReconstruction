@@ -40,6 +40,9 @@ MemoryReconstruction/
 ├── eslint.config.js
 ├── index.html
 ├── LICENSE
+├── LICENSES/                 <- REUSE license texts
+├── REUSE.toml                <- Machine-readable SPDX metadata
+├── ASSETS.md                 <- Asset/data manifest: what the license covers
 ├── package-lock.json
 ├── package.json
 ├── scripts/
@@ -179,11 +182,11 @@ python scripts/generate_art_assets.py
 
 `.github/workflows/ci.yml` runs install, lint, typecheck, tests and the build on every push and pull request.
 
-## License
-
-AGPLv3 - see [LICENSE](LICENSE).
-
 ## Credits
 
 - **Roguelike design**: inspired by Hades, Enter the Gungeon, The Binding of Isaac and Dead Cells
 - **Art style**: inspired by Hyper Light Drifter
+
+## 📜 License
+
+Free for personal play under the Aegean Game License 1.1 (AGL-1.1); see [LICENSE](LICENSE). It is DRM-free: Licensor ships no DRM and a distributor may not add it. Streaming, modding and free mods are allowed. Commercial use, paid mods and AI training need the Aegean Commercial License 1.0 (ACL-1.0); see [COMMERCIAL.md](COMMERCIAL.md).
