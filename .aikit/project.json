@@ -14,6 +14,7 @@
   "ui_source": "detected",
   "topics": [
     "aikit",
+    "aikit-integrated",
     "source-available",
     "aegean-game-license",
     "drm-free",
@@ -31,8 +32,7 @@
     "browser-game",
     "cognitive-science",
     "javascript",
-    "user-interface",
-    "web-app"
+    "user-interface"
   ],
   "topics_source": "ai:kilo:2026-10-27",
   "topics_reviewed_at": "2026-10-28",
