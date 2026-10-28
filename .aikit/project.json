@@ -14,6 +14,10 @@
   "ui_source": "detected",
   "topics": [
     "aikit",
+    "source-available",
+    "aegean-game-license",
+    "drm-free",
+    "commercial-license",
     "action-game",
     "game-development",
     "indie-game",
@@ -22,17 +26,13 @@
     "roguelike",
     "typescript",
     "action-roguelike",
-    "drm-free",
     "game",
-    "source-available",
     "aegeanworks",
     "browser-game",
     "cognitive-science",
     "javascript",
-    "software",
     "user-interface",
-    "web-app",
-    "web-game"
+    "web-app"
   ],
   "topics_source": "ai:kilo:2026-10-27",
   "topics_reviewed_at": "2026-10-28",
@@ -48,5 +48,11 @@
   ],
   "topics_choice_round3": [
     "memory"
+  ],
+  "license_topics": [
+    "source-available",
+    "aegean-game-license",
+    "drm-free",
+    "commercial-license"
   ]
 }
