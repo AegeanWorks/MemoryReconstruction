@@ -1,15 +1,14 @@
 # Memory Reconstruction
 
 <!-- aegean:media:start -->
-<p align="center"><img src="assets/logo.jpg" alt="MemoryReconstruction logo" width="96" height="96"></p>
 <p align="center"><img src="assets/social-preview.png" alt="MemoryReconstruction social preview" width="100%"></p>
+*Brand assets are generated and may not fully represent the project scope.*
 <!-- aegean:media:end -->
 
 [![AIKit Integrated](https://img.shields.io/badge/AIKit-integrated-6f42c1)](https://github.com/AegeanWorks/AIKit)
 
 **A top-down action roguelike about rebuilding a shattered world from lost memories.**
 
-![Game Banner](assets/banner.png)
 
 ## ⚡ 30-Second Cold-Start Quick Reference
 
