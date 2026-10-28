@@ -17,35 +17,35 @@
       "path": "assets/logo.png",
       "status": "approved",
       "commit": "",
-      "generated_at": "2026-10-28T11:42:23",
+      "generated_at": "2026-10-28T13:53:32",
       "review": {
         "status": "approved",
-        "reviewer": "subagent:vision-review",
+        "reviewer": "subagent:brand-review",
         "method": "vision",
-        "notes": "Monogram MR matches project; legible, unclipped, no overlaps/watermark, premium.",
-        "score": 90,
-        "reviewed_at": "2026-10-28T11:49:28"
+        "notes": "Monogram MR badge; eyebrow GAME; title Memory Reconstruction wraps cleanly to two lines (Memory / Reconstruction). Bright flashback glow fits memory-themed roguelike. Wrap and hierarchy good, no clipping.",
+        "score": 86,
+        "reviewed_at": "2026-10-28T14:00:00"
       }
     },
     "social_preview": {
       "path": "assets/social-preview.png",
       "status": "approved",
       "commit": "",
-      "generated_at": "2026-10-28T11:42:23",
+      "generated_at": "2026-10-28T13:53:32",
       "review": {
         "status": "approved",
-        "reviewer": "subagent:vision-review",
+        "reviewer": "subagent:brand-review",
         "method": "vision",
-        "notes": "Strong hierarchy; legible, unclipped; premium social card, no watermark.",
-        "score": 89,
-        "reviewed_at": "2026-10-28T11:49:28"
+        "notes": "Web card; two-line title 'Memory Reconstruction' and tagline 'A browser roguelike about rebuilding a fractured memory.', chips action game/game development/indie game, URL github.com/AegeanWorks/MemoryReconstruction legible.",
+        "score": 88,
+        "reviewed_at": "2026-10-28T14:00:00"
       }
     },
     "artwork": {
       "path": "assets/artwork.jpg",
       "status": "pending_review",
       "commit": "",
-      "generated_at": "2026-10-28T11:42:23",
+      "generated_at": "2026-10-28T13:42:45",
       "review": null
     }
   },
