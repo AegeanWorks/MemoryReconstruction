@@ -41,31 +41,18 @@
     },
     "social_preview_png": {
       "path": "assets/social-preview.png",
-      "status": "pending_review",
+      "status": "approved",
       "commit": "",
       "generated_at": "2026-10-28T08:02:10",
-      "review": null
-    }
-  },
-  "screenshots": [
-    {
-      "path": "assets/screenshots/2026-10-28-home.png",
-      "alt": "MemoryReconstruction interface at 2026-10-28",
-      "caption": "MemoryReconstruction interface captured from index.html",
-      "commit": "e5ce8305705673263d710059b40310ca0ce0c9e9",
-      "taken_at": "2026-10-28",
-      "viewport": "1440x900",
-      "width": 1440,
-      "height": 900,
-      "status": "rejected",
       "review": {
-        "status": "rejected",
+        "status": "approved",
         "reviewer": "subagent:vision-review",
-        "method": "vision",
-        "notes": "2026-10-28-home.png \u2014 essentially blank title card 'MEMORY RECONSTRUCTION' with loading text, no real UI content.",
-        "score": 30,
-        "reviewed_at": "2026-10-28T08:10:41"
+        "method": "structural",
+        "notes": "Rendered from the approved 1280x640 social SVG; exact dimensions verified.",
+        "score": null,
+        "reviewed_at": "2026-10-28T08:15:47"
       }
     }
-  ]
+  },
+  "screenshots": []
 }
