@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "name": "MemoryReconstruction",
+  "repo": "MemoryReconstruction",
+  "has_ui": true,
+  "ui_kind": "web",
+  "palette": [
+    "#07111f",
+    "#0e2a47",
+    "#c084fc",
+    "#e2f8ff"
+  ],
+  "assets": {
+    "logo": {
+      "path": "assets/logo.svg",
+      "status": "approved",
+      "commit": "",
+      "generated_at": "2026-10-28T08:02:09",
+      "review": {
+        "status": "approved",
+        "reviewer": "subagent:vision-review",
+        "method": "vision",
+        "notes": "ME monogram, clean ring marks, subtitle readable, dark aesthetic consistent.",
+        "score": 94,
+        "reviewed_at": "2026-10-28T08:10:41"
+      }
+    },
+    "social_preview": {
+      "path": "assets/social-preview.svg",
+      "status": "approved",
+      "commit": "",
+      "generated_at": "2026-10-28T08:02:09",
+      "review": {
+        "status": "approved",
+        "reviewer": "subagent:vision-review",
+        "method": "vision",
+        "notes": "ME icon, title, description paragraph, WEB tag, coherent dark layout.",
+        "score": 94,
+        "reviewed_at": "2026-10-28T08:10:41"
+      }
+    },
+    "social_preview_png": {
+      "path": "assets/social-preview.png",
+      "status": "pending_review",
+      "commit": "",
+      "generated_at": "2026-10-28T08:02:10",
+      "review": null
+    }
+  },
+  "screenshots": [
+    {
+      "path": "assets/screenshots/2026-10-28-home.png",
+      "alt": "MemoryReconstruction interface at 2026-10-28",
+      "caption": "MemoryReconstruction interface captured from index.html",
+      "commit": "e5ce8305705673263d710059b40310ca0ce0c9e9",
+      "taken_at": "2026-10-28",
+      "viewport": "1440x900",
+      "width": 1440,
+      "height": 900,
+      "status": "rejected",
+      "review": {
+        "status": "rejected",
+        "reviewer": "subagent:vision-review",
+        "method": "vision",
+        "notes": "2026-10-28-home.png \u2014 essentially blank title card 'MEMORY RECONSTRUCTION' with loading text, no real UI content.",
+        "score": 30,
+        "reviewed_at": "2026-10-28T08:10:41"
+      }
+    }
+  ]
+}
