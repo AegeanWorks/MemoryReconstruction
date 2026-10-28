@@ -15,10 +15,17 @@
   "assets": {
     "logo": {
       "path": "assets/logo.jpg",
-      "status": "pending_review",
+      "status": "approved",
       "commit": "",
       "generated_at": "2026-10-28T15:53:47",
-      "review": null
+      "review": {
+        "status": "approved",
+        "reviewer": "subagent:vision-review",
+        "method": "vision",
+        "notes": "Memory Reconstruction GAME",
+        "score": 94,
+        "reviewed_at": "2026-10-28T17:52:09"
+      }
     },
     "social_preview": {
       "path": "assets/social-preview.png",
@@ -31,7 +38,7 @@
         "method": "vision",
         "notes": "MEMORY RECONSTRUCTION\nGAME",
         "score": 94,
-        "reviewed_at": "2026-10-28T17:30:34"
+        "reviewed_at": "2026-10-28T17:52:09"
       }
     }
   },
