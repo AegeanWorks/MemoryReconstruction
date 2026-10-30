@@ -1,38 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-polish-v1",
+    "task_id": "art-props-v2",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793381672.356086,
+    "updated_at": 1793382702.078373,
     "owner": "kilo:main",
     "started_by": "kilo:main",
     "continuations": [],
-    "completed_at": 1793381672.8859231
+    "completed_at": 1793382702.6883252
   },
   "checkpoints": [
-    {
-      "task_id": "sanctuary-polish",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'sanctuary-polish' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793306347.9876862,
-      "timestamp_str": "2026-10-29 23:39:07",
-      "agent": "kilo:sanctuary-polish"
-    },
-    {
-      "task_id": "sanctuary-polish-2",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[4/4] Delivered: eighth and final Sanctuary place The Reforge (3 ranks, 30/60/100 echoes, +12% per rank on relic mods, carried by EquipmentItem.rank), hub capped at exactly 8 places in a balanced 4x2 grid, per-room floor grammar (archive ring, forge cracks, garden moss, barracks drill lines, lamp pools), three new props (desk, cauldron, lamp strings), and a U+FFFD encoding regression test after a corrupted middle dot in the Reforge button. Verified by DOM/world measurement: 8 stations aligned in 4 rows, footer within 720, no card overflow, no prop outside its room or on the door lane; 147 tests and 7/7 gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793316073.4436874,
-      "timestamp_str": "2026-10-30 02:21:13",
-      "agent": "kilo:sanctuary-polish"
-    },
     {
       "task_id": "sanctuary-polish-2",
       "phase": "completed",
@@ -252,6 +231,27 @@
       "status": "completed",
       "timestamp": 1793381672.8859246,
       "timestamp_str": "2026-10-30 20:34:32",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-props-v2",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Redrew the six remaining biome obstacle props as readable silhouettes: the abyss coral as a branching fan with polyp tips, the foundry cog pillar as a riveted column under a toothed gear, the frost ice spire as a shard cluster on a frozen shelf, the hive as hexagonal wax cells with drips, the catacomb bone pile as crossed femurs and a skull with sockets, and the sanctuary altar as a tiered stone slab with a floating memory core. Verified in situ across all thirteen biomes with zero console errors; sprite previews reviewed at 1.7x; 8/8 gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793382702.078373,
+      "timestamp_str": "2026-10-30 20:51:42",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-props-v2",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-props-v2' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793382702.6883273,
+      "timestamp_str": "2026-10-30 20:51:42",
       "agent": "kilo:main"
     }
   ]

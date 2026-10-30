@@ -1601,10 +1601,24 @@ def prop_image(kind: str) -> Image.Image:
         ellipse(draw, cell, 0.44, 0.42, 0.56, 0.54, fill=accent, outline=Outline, width=1)
         line(draw, cell, [(0.50, 0.46), (0.50, 0.56)], dark, 1)
     elif kind == "sanctuary_altar":
-        rect(draw, cell, 0.18, 0.68, 0.82, 0.92, fill=light, outline=Outline, width=2, radius=0.05)
-        rect(draw, cell, 0.28, 0.52, 0.72, 0.72, fill=dark, outline=Outline, width=2)
-        ellipse(draw, cell, 0.38, 0.18, 0.62, 0.42, fill=accent, outline=Outline, width=2)
-        line(draw, cell, [(0.50, 0.02), (0.50, 0.16)], accent, 2)
+        # A tiered stone altar holding a floating gold memory core.
+        stone = mix(light, dark, 0.35)
+        rect(draw, cell, 0.16, 0.80, 0.84, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.22, 0.70, 0.78, 0.82, fill=stone, outline=Outline, width=2)
+        rect(draw, cell, 0.28, 0.52, 0.72, 0.72, fill=light, outline=Outline, width=3)
+        rect(draw, cell, 0.28, 0.52, 0.72, 0.56, fill=mix(light, (255, 255, 255), 0.45))
+        # Carved rune band on the altar face.
+        for i in range(3):
+            rect(draw, cell, 0.36 + i * 0.11, 0.60, 0.42 + i * 0.11, 0.66, fill=dark)
+        # Candles at the corners.
+        for x in (0.24, 0.70):
+            rect(draw, cell, x, 0.46, x + 0.06, 0.52, fill=(236, 226, 200), outline=Outline, width=1)
+            ellipse(draw, cell, x + 0.01, 0.41, x + 0.05, 0.46, fill=(255, 214, 130))
+        # Memory core, floating over the slab with a shaft of light.
+        ellipse(draw, cell, 0.40, 0.16, 0.60, 0.36, fill=(255, 234, 160, 55))
+        ellipse(draw, cell, 0.43, 0.19, 0.57, 0.33, fill=accent, outline=Outline, width=2)
+        ellipse(draw, cell, 0.465, 0.225, 0.505, 0.265, fill=(255, 255, 255))
+        poly(draw, cell, [(0.44, 0.34), (0.56, 0.34), (0.62, 0.52), (0.38, 0.52)], fill=(255, 234, 160, 26))
     elif kind == "void_rift":
         poly(draw, cell, [(0.46, 0.10), (0.64, 0.35), (0.56, 0.55), (0.70, 0.84), (0.50, 0.70), (0.40, 0.92), (0.32, 0.60), (0.38, 0.34)],
              fill=dark, outline=accent, width=2)
@@ -1624,51 +1638,105 @@ def prop_image(kind: str) -> Image.Image:
         rect(draw, cell, 0.44, 0.28, 0.56, 0.70, fill=light, outline=Outline, width=2)
         ellipse(draw, cell, 0.36, 0.18, 0.64, 0.34, fill=accent, outline=Outline, width=2)
     elif kind == "bone_pile":
-        # A readable pile at 60px: three long femurs, a skull and two ribs.
-        for i, (x, y, w) in enumerate(
-            ((0.16, 0.74, 0.26), (0.30, 0.80, 0.30), (0.56, 0.76, 0.28))
-        ):
-            ellipse(draw, cell, x, y, x + w, y + 0.09, fill=light, outline=Outline, width=1)
-            ellipse(draw, cell, x + 0.05, y + 0.02, x + 0.10, y + 0.07, fill=accent)
-        ellipse(draw, cell, 0.34, 0.40, 0.62, 0.66, fill=light, outline=Outline, width=2)
-        rect(draw, cell, 0.39, 0.60, 0.57, 0.66, fill=light, outline=Outline, width=1)
-        for x in (0.43, 0.51):
-            ellipse(draw, cell, x, 0.47, x + 0.055, 0.53, fill=dark)
-        ellipse(draw, cell, 0.45, 0.55, 0.47, 0.57, fill=dark)
-        line(draw, cell, [(0.18, 0.66), (0.70, 0.70)], dark, 1)
+        # A readable pile at 60 px: crossed femurs behind a skull with sockets,
+        # a jaw, and two rib arcs curving out of the heap.
+        rect(draw, cell, 0.14, 0.86, 0.86, 0.94, fill=(0, 0, 0, 70))
+        # Crossed femurs behind the skull.
+        line(draw, cell, [(0.20, 0.88), (0.78, 0.62)], light, 6)
+        line(draw, cell, [(0.22, 0.64), (0.80, 0.88)], light, 6)
+        for x, y in ((0.19, 0.87), (0.76, 0.61), (0.21, 0.63), (0.79, 0.87)):
+            ellipse(draw, cell, x - 0.035, y - 0.035, x + 0.035, y + 0.035, fill=light, outline=Outline, width=1)
+        # Rib arcs.
+        for i, (x0, y0, x1) in enumerate(((0.30, 0.70, 0.56), (0.34, 0.78, 0.62))):
+            line(draw, cell, [(x0, y0), (0.46, y0 - 0.05 - i * 0.02), (x1, y0 + 0.01)], light, 3)
+        # Skull: cranium, brow, sockets, nose and teeth.
+        ellipse(draw, cell, 0.32, 0.26, 0.68, 0.62, fill=light, outline=Outline, width=3)
+        poly(draw, cell, [(0.35, 0.50), (0.65, 0.50), (0.60, 0.66), (0.40, 0.66)], fill=light, outline=Outline, width=2)
+        ellipse(draw, cell, 0.375, 0.375, 0.465, 0.475, fill=dark)
+        ellipse(draw, cell, 0.535, 0.375, 0.625, 0.475, fill=dark)
+        poly(draw, cell, [(0.48, 0.47), (0.52, 0.47), (0.50, 0.53)], fill=dark)
+        for i in range(4):
+            rect(draw, cell, 0.425 + i * 0.04, 0.575, 0.45 + i * 0.04, 0.645, fill=dark)
+        line(draw, cell, [(0.36, 0.33), (0.44, 0.30)], mix(light, (255, 255, 255), 0.4), 2)
     elif kind == "hive_comb":
-        # Honey cells with thin rims, bright enough to read against dark wax.
-        for row in range(3):
-            for col in range(2):
-                cx = 0.34 + col * 0.30
-                cy = 0.32 + row * 0.21
-                ellipse(draw, cell, cx - 0.13, cy - 0.10, cx + 0.13, cy + 0.10, fill=light, outline=Outline, width=2)
-                ellipse(draw, cell, cx - 0.07, cy - 0.05, cx + 0.07, cy + 0.05, fill=(255, 216, 120))
-        ellipse(draw, cell, 0.43, 0.41, 0.57, 0.55, fill=accent, outline=Outline, width=1)
+        # A honeycomb cluster: hexagonal wax cells, one burst cell glowing, and
+        # drips running off the bottom edge.
+        def hexagon(cx: float, cy: float, r: float) -> list[tuple[float, float]]:
+            return [
+                (cx + math.cos(math.pi / 3 * i - math.pi / 6) * r,
+                 cy + math.sin(math.pi / 3 * i - math.pi / 6) * r)
+                for i in range(6)
+            ]
+
+        wax = mix(dark, light, 0.45)
+        poly(draw, cell, hexagon(0.33, 0.30, 0.15), fill=wax, outline=Outline, width=2)
+        poly(draw, cell, hexagon(0.33, 0.30, 0.09), fill=mix(light, accent, 0.35))
+        poly(draw, cell, hexagon(0.67, 0.30, 0.15), fill=wax, outline=Outline, width=2)
+        poly(draw, cell, hexagon(0.67, 0.30, 0.09), fill=mix(light, accent, 0.35))
+        poly(draw, cell, hexagon(0.50, 0.56, 0.15), fill=wax, outline=Outline, width=2)
+        poly(draw, cell, hexagon(0.50, 0.56, 0.10), fill=(255, 220, 130))
+        poly(draw, cell, hexagon(0.50, 0.56, 0.045), fill=(255, 255, 210))
+        poly(draw, cell, hexagon(0.28, 0.76, 0.13), fill=wax, outline=Outline, width=2)
+        poly(draw, cell, hexagon(0.72, 0.76, 0.13), fill=wax, outline=Outline, width=2)
+        # Honey drips.
+        line(draw, cell, [(0.42, 0.70), (0.42, 0.86)], mix(accent, (255, 255, 255), 0.3), 3)
+        ellipse(draw, cell, 0.40, 0.85, 0.44, 0.90, fill=mix(accent, (255, 255, 255), 0.3))
+        line(draw, cell, [(0.60, 0.68), (0.60, 0.80)], mix(accent, (255, 255, 255), 0.3), 3)
+        ellipse(draw, cell, 0.58, 0.79, 0.62, 0.84, fill=mix(accent, (255, 255, 255), 0.3))
     elif kind == "cog_pillar":
-        rect(draw, cell, 0.38, 0.42, 0.62, 0.94, fill=dark, outline=Outline, width=3)
-        for cy, r in ((0.30, 0.18), (0.55, 0.22), (0.78, 0.16)):
-            ellipse(draw, cell, 0.50 - r, cy - r, 0.50 + r, cy + r, fill=light, outline=Outline, width=2)
-            ellipse(draw, cell, 0.50 - r * 0.35, cy - r * 0.35, 0.50 + r * 0.35, cy + r * 0.35, fill=dark)
-            for i in range(8):
-                a = i * math.tau / 8
-                x = 0.50 + math.cos(a) * r
-                y = cy + math.sin(a) * r
-                rect(draw, cell, x - 0.018, y - 0.018, x + 0.018, y + 0.018, fill=accent)
+        # A riveted foundry column crowned by a turning gear, with pipe elbows.
+        steel = mix(light, dark, 0.25)
+        rect(draw, cell, 0.22, 0.86, 0.78, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.33, 0.40, 0.67, 0.88, fill=steel, outline=Outline, width=3)
+        for y in (0.50, 0.62, 0.74, 0.84):
+            rect(draw, cell, 0.33, y, 0.67, y + 0.035, fill=dark, outline=Outline, width=1)
+        for x, y in ((0.37, 0.46), (0.63, 0.46), (0.37, 0.80), (0.63, 0.80)):
+            ellipse(draw, cell, x - 0.022, y - 0.022, x + 0.022, y + 0.022, fill=light)
+        # Crown gear: rim, teeth and hub.
+        rim = 0.21
+        for i in range(10):
+            a = i * math.tau / 10
+            tx, ty = 0.50 + math.cos(a) * rim, 0.26 + math.sin(a) * rim
+            poly(draw, cell, [(tx - 0.045, ty - 0.045), (tx + 0.045, ty - 0.045), (tx + 0.045, ty + 0.045), (tx - 0.045, ty + 0.045)],
+                 fill=steel, outline=Outline, width=1)
+        ellipse(draw, cell, 0.50 - rim, 0.26 - rim, 0.50 + rim, 0.26 + rim, fill=steel, outline=Outline, width=2)
+        ellipse(draw, cell, 0.50 - rim * 0.55, 0.26 - rim * 0.55, 0.50 + rim * 0.55, 0.26 + rim * 0.55, fill=dark, outline=Outline, width=1)
+        ellipse(draw, cell, 0.46, 0.22, 0.54, 0.30, fill=accent, outline=Outline, width=1)
+        # Steam pipe along the side.
+        line(draw, cell, [(0.71, 0.60), (0.80, 0.60), (0.80, 0.44)], mix(light, dark, 0.5), 4)
     elif kind == "ice_spire":
-        poly(draw, cell, [(0.50, 0.10), (0.66, 0.62), (0.58, 0.92), (0.42, 0.92), (0.34, 0.62)],
-             fill=light, outline=Outline, width=2)
-        poly(draw, cell, [(0.50, 0.18), (0.56, 0.60), (0.50, 0.82), (0.44, 0.60)], fill=accent)
-        for x in (0.32, 0.68):
-            poly(draw, cell, [(x, 0.52), (x + (0.08 if x < 0.5 else -0.08), 0.66), (x, 0.92)], fill=dark, outline=Outline, width=1)
+        # A cluster of faceted shards rising from a frozen shelf.
+        shelf = mix(dark, light, 0.4)
+        shards = ((0.50, 0.10, 0.15, 0.82), (0.28, 0.40, 0.11, 0.84), (0.72, 0.36, 0.10, 0.84), (0.60, 0.52, 0.08, 0.86))
+        for cx, top, half, base in shards:
+            poly(draw, cell, [(cx, top), (cx + half, top + (base - top) * 0.62), (cx + half * 0.55, base), (cx - half * 0.55, base), (cx - half, top + (base - top) * 0.62)],
+                 fill=light, outline=Outline, width=2)
+            poly(draw, cell, [(cx, top + 0.02), (cx + half * 0.42, base - 0.05), (cx, base - 0.03), (cx - half * 0.42, base - 0.05)],
+                 fill=mix(light, accent, 0.45))
+        poly(draw, cell, [(0.50, 0.16), (0.555, 0.46), (0.50, 0.74), (0.445, 0.46)], fill=accent)
+        ellipse(draw, cell, 0.44, 0.34, 0.56, 0.50, fill=(210, 245, 255, 80))
+        # Frozen shelf in front, so the shards are planted rather than floating.
+        poly(draw, cell, [(0.10, 0.82), (0.90, 0.82), (0.80, 0.94), (0.20, 0.94)], fill=shelf, outline=Outline, width=2)
+        poly(draw, cell, [(0.16, 0.845), (0.84, 0.845), (0.78, 0.905), (0.22, 0.905)], fill=mix(shelf, (230, 250, 255), 0.22))
+        for x in (0.26, 0.50, 0.74):
+            ellipse(draw, cell, x - 0.03, 0.905, x + 0.03, 0.935, fill=(232, 250, 255, 210))
     elif kind == "coral":
-        line(draw, cell, [(0.50, 0.96), (0.50, 0.44)], dark, 6)
-        for a, l in ((-0.9, 0.26), (-0.4, 0.34), (0.2, 0.30), (0.7, 0.24)):
-            x = 0.50 + math.cos(a - math.pi / 2) * l
-            y = 0.56 + math.sin(a - math.pi / 2) * l
-            line(draw, cell, [(0.50, 0.58), (x, y)], light, 4)
-            ellipse(draw, cell, x - 0.04, y - 0.04, x + 0.04, y + 0.04, fill=accent)
-        ellipse(draw, cell, 0.30, 0.84, 0.70, 0.98, fill=dark, outline=Outline, width=2)
+        # Branching abyss coral: a thick trunk, two fans and polyp tips.
+        rock = mix(dark, light, 0.15)
+        ellipse(draw, cell, 0.18, 0.86, 0.82, 0.98, fill=rock, outline=Outline, width=2)
+        line(draw, cell, [(0.50, 0.94), (0.48, 0.62), (0.44, 0.40)], dark, 9)
+        line(draw, cell, [(0.48, 0.66), (0.30, 0.50), (0.24, 0.30)], dark, 6)
+        line(draw, cell, [(0.49, 0.60), (0.70, 0.48), (0.78, 0.28)], dark, 6)
+        line(draw, cell, [(0.44, 0.44), (0.36, 0.22)], dark, 4)
+        line(draw, cell, [(0.50, 0.94), (0.48, 0.62), (0.44, 0.40)], light, 5)
+        line(draw, cell, [(0.48, 0.66), (0.30, 0.50), (0.24, 0.30)], light, 3)
+        line(draw, cell, [(0.49, 0.60), (0.70, 0.48), (0.78, 0.28)], light, 3)
+        line(draw, cell, [(0.44, 0.44), (0.36, 0.22)], light, 2)
+        for x, y in ((0.24, 0.28), (0.78, 0.26), (0.36, 0.20), (0.44, 0.38)):
+            ellipse(draw, cell, x - 0.035, y - 0.035, x + 0.035, y + 0.035, fill=accent, outline=Outline, width=1)
+        # Fan ribs between the branches.
+        for i in range(3):
+            line(draw, cell, [(0.50, 0.58), (0.62 + i * 0.03, 0.40 - i * 0.06)], mix(light, accent, 0.4), 2)
     elif kind == "furn_table":
         rect(draw, cell, 0.14, 0.44, 0.86, 0.56, fill=light, outline=Outline, width=2, radius=0.03)
         for x in (0.22, 0.78):
