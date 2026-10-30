@@ -66,6 +66,7 @@ function play(actor: ActorSprite, anim: Animation): void {
 function interactableLook(it: Interactable): { prop: string; size: number; glow: number } {
   if (it.kind === 'chest') return { prop: 'memory_chest', size: 64, glow: 0xffd98a };
   if (it.kind === 'lever') return { prop: 'lever', size: 48, glow: 0x9fd8ff };
+  if (it.kind === 'shrine') return { prop: 'shrine', size: 76, glow: 0xffd98a };
   if (it.kind === 'archive') return { prop: 'furn_shelf', size: 70, glow: 0xb8a4ff };
   if (it.kind === 'merchant') return { prop: 'npc_smith', size: 58, glow: 0xffb060 };
   if (it.kind === 'gate') return { prop: 'ruins_door', size: 168, glow: 0xffd98a };

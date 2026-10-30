@@ -1544,6 +1544,7 @@ def prop_image(kind: str) -> Image.Image:
     draw = ImageDraw.Draw(img)
     palette = {
         "memory_fountain": ((92, 88, 112), (166, 160, 188), (111, 231, 255)),
+        "shrine": ((74, 66, 58), (176, 158, 128), (255, 214, 130)),
         "statue": ((104, 92, 78), (178, 158, 128), (255, 217, 138)),
         "crystal_cluster": ((78, 52, 128), (196, 144, 255), (116, 244, 255)),
         "ancient_tree": ((52, 74, 48), (112, 152, 86), (198, 255, 156)),
@@ -1763,10 +1764,44 @@ def prop_image(kind: str) -> Image.Image:
         for y in (0.42, 0.62, 0.82):
             rect(draw, cell, 0.22, y, 0.78, y + 0.05, fill=light, outline=Outline, width=1)
         rect(draw, cell, 0.40, 0.36, 0.60, 0.44, fill=accent, outline=Outline, width=1)
+    elif kind == "shrine":
+        # A small wayside shrine: stepped base, gabled stone hood and a memory
+        # flame burning in the alcove, so shrines never read as fountains.
+        stone = mix(light, dark, 0.30)
+        rect(draw, cell, 0.20, 0.84, 0.80, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.26, 0.78, 0.74, 0.86, fill=stone, outline=Outline, width=2)
+        # Pillars and the dark alcove between them.
+        rect(draw, cell, 0.30, 0.44, 0.40, 0.80, fill=light, outline=Outline, width=2)
+        rect(draw, cell, 0.60, 0.44, 0.70, 0.80, fill=light, outline=Outline, width=2)
+        rect(draw, cell, 0.40, 0.44, 0.60, 0.80, fill=(20, 18, 26), outline=Outline, width=2)
+        line(draw, cell, [(0.33, 0.46), (0.33, 0.79)], mix(light, (255, 255, 255), 0.28), 1)
+        line(draw, cell, [(0.63, 0.46), (0.63, 0.79)], mix(light, (255, 255, 255), 0.28), 1)
+        # Gabled hood with a carved keystone.
+        poly(draw, cell, [(0.18, 0.46), (0.50, 0.16), (0.82, 0.46)], fill=stone, outline=Outline, width=3)
+        poly(draw, cell, [(0.26, 0.44), (0.50, 0.21), (0.74, 0.44)], fill=mix(stone, light, 0.35))
+        rect(draw, cell, 0.455, 0.28, 0.545, 0.35, fill=dark, outline=Outline, width=1)
+        # Memory flame in the alcove, with its halo.
+        ellipse(draw, cell, 0.42, 0.50, 0.58, 0.74, fill=(255, 214, 130, 60))
+        poly(draw, cell, [(0.50, 0.50), (0.565, 0.60), (0.545, 0.72), (0.50, 0.78), (0.455, 0.72), (0.435, 0.60)],
+             fill=accent, outline=Outline, width=1)
+        poly(draw, cell, [(0.50, 0.55), (0.535, 0.63), (0.52, 0.72), (0.50, 0.75), (0.48, 0.72), (0.465, 0.63)],
+             fill=(255, 250, 220))
+        # Offerings stacked at the foot.
+        ellipse(draw, cell, 0.30, 0.86, 0.38, 0.92, fill=accent)
+        ellipse(draw, cell, 0.62, 0.86, 0.70, 0.92, fill=accent)
     elif kind == "lever":
-        rect(draw, cell, 0.28, 0.66, 0.72, 0.92, fill=dark, outline=Outline, width=3, radius=0.04)
-        rect(draw, cell, 0.44, 0.28, 0.56, 0.70, fill=light, outline=Outline, width=2)
-        ellipse(draw, cell, 0.36, 0.18, 0.64, 0.34, fill=accent, outline=Outline, width=2)
+        # A floor lever: iron base plate, pivot housing and a brass handle.
+        rect(draw, cell, 0.24, 0.74, 0.76, 0.94, fill=dark, outline=Outline, width=3, radius=0.04)
+        rect(draw, cell, 0.30, 0.78, 0.70, 0.82, fill=light, outline=Outline, width=1)
+        for x in (0.30, 0.70):
+            ellipse(draw, cell, x - 0.022, 0.88, x + 0.022, 0.924, fill=light)
+        ellipse(draw, cell, 0.40, 0.62, 0.60, 0.80, fill=mix(light, dark, 0.35), outline=Outline, width=2)
+        # Handle canted to the right, read as "ready".
+        line(draw, cell, [(0.50, 0.70), (0.64, 0.40)], Outline, 8)
+        line(draw, cell, [(0.50, 0.70), (0.64, 0.40)], light, 4)
+        ellipse(draw, cell, 0.60, 0.30, 0.72, 0.42, fill=accent, outline=Outline, width=2)
+        ellipse(draw, cell, 0.635, 0.335, 0.665, 0.365, fill=(255, 252, 226))
+        ellipse(draw, cell, 0.44, 0.66, 0.56, 0.78, fill=mix(light, (255, 255, 255), 0.2), outline=Outline, width=1)
     elif kind == "bone_pile":
         # A readable pile at 60 px: crossed femurs behind a skull with sockets,
         # a jaw, and two rib arcs curving out of the heap.
@@ -2424,7 +2459,7 @@ def build() -> None:
     # Props.
     props = [
         "memory_fountain", "statue", "crystal_cluster", "ancient_tree", "ruins_door",
-        "sanctuary_altar", "void_rift", "memory_chest", "barrel", "lever",
+        "sanctuary_altar", "void_rift", "memory_chest", "barrel", "lever", "shrine",
         "npc_archivist", "npc_smith", "npc_gardener", "bone_pile", "hive_comb",
         "station_hearth", "station_armory", "station_infirmary", "station_wellspring",
         "station_watchtower", "station_bulwark", "station_vault", "station_training",

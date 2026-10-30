@@ -1,38 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-hero-v1",
+    "task_id": "art-interact-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793384395.3432014,
+    "updated_at": 1793385149.648693,
     "owner": "kilo:main",
     "started_by": "kilo:main",
     "continuations": [],
-    "completed_at": 1793384395.8116727
+    "completed_at": 1793385150.2454753
   },
   "checkpoints": [
-    {
-      "task_id": "rest-and-mechanics",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[2/2] Done: Rest heals and resumes the saved run from hub, ledger and Set Out screen; hub shows 'Rest' with no price when no run exists; restCost(depth) extracted and unit-tested; mechanics contract added (src/sim, src/data, npm run test:mechanics) with mechanics_required true. Verified in Playwright: rest spends 16 echoes and resumes at 120 HP, label is plain 'Rest' without a save. 151 tests, 118 mechanics tests, 8/8 gates. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793358629.3343532,
-      "timestamp_str": "2026-10-30 14:10:29",
-      "agent": "kilo:rest-mechanics"
-    },
-    {
-      "task_id": "rest-and-mechanics",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'rest-and-mechanics' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793358630.4484303,
-      "timestamp_str": "2026-10-30 14:10:30",
-      "agent": "kilo:rest-mechanics"
-    },
     {
       "task_id": "room-overlay-fix",
       "phase": "phase 2",
@@ -246,6 +225,27 @@
       "status": "completed",
       "timestamp": 1793384395.8116746,
       "timestamp_str": "2026-10-30 21:19:55",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-interact-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Fixed a real art defect: the shrine interactable had no sprite and fell through to the fountain mapping, so every shrine rendered as a second memory fountain. Added a dedicated shrine sprite (stepped base, pillars, gabled hood, memory flame, offerings) and a proper floor lever (base plate, pivot housing, brass handle), wired shrine into interactableLook. Verified in-game in the void section with zero console errors; 151 tests and 8/8 gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793385149.648693,
+      "timestamp_str": "2026-10-30 21:32:29",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-interact-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-interact-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793385150.245478,
+      "timestamp_str": "2026-10-30 21:32:30",
       "agent": "kilo:main"
     }
   ]
