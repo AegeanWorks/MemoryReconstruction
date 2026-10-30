@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `4`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `51`
+- **Total Top-Level Functions**: `52`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `3090`
+- **Total Source Lines**: `3184`
 
 ---
 
@@ -19,7 +19,7 @@
 ### [`scripts/generate_art_assets.py`](scripts/generate_art_assets.py)
 > *Generate the Memory Reconstruction art set.*
 
-**Size**: `2676` lines (`142456` bytes)
+**Size**: `2770` lines (`148482` bytes)
 
 **Functions:**
 - `def rgba(color, alpha)`
@@ -49,6 +49,7 @@
 - `def _sovereign(draw, cell, style, row, frame, t)`
 - `def _giant(draw, cell, style, row, frame, t)`
 - `def _queen(draw, cell, style, row, frame, t)`
+- `def _cantor(draw, cell, style, row, frame, t)` - *The Void Cantor: a floating chorister whose lower body dissolves.*
 - `def _tyrant(draw, cell, style, row, frame, t)`
 - `def _hound(draw, cell, style, row, frame, t)`
 - `def _hierophant(draw, cell, style, row, frame, t)`

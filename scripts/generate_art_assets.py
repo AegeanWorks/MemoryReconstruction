@@ -366,14 +366,13 @@ ENEMY_STYLES = {
         "eyes": "glare",
     },
     "voidCantor": {
-        "kind": "hunched",
+        "kind": "cantor",
         "body": (58, 50, 84, 255),
         "light": (142, 126, 194, 255),
         "cloth": (34, 28, 52, 255),
         "accent": (170, 150, 255, 255),
         "eye": (220, 230, 255, 255),
-        "scale": 1.0,
-        "ears": True,
+        "scale": 1.30,
         "eyes": "many",
     },
     "choirHierophant": {
@@ -1166,26 +1165,120 @@ def _queen(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: i
     poly(draw, cell, [(cx, 0.92 + bob), (cx - 0.05, 0.82 + bob), (cx + 0.05, 0.82 + bob)], fill=accent, outline=Outline, width=1)
 
 
+def _cantor(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    """The Void Cantor: a floating chorister whose lower body dissolves.
+
+    It used the small-enemy `hunched` body at 1.0 scale, which read as a scaled
+    up scavenger rather than a boss, so it gets its own silhouette: a tattered
+    choral robe that frays into ribbons, a broad hood, three eyes and two
+    spindly conducting arms raised over a severed hymn.
+    """
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.018
+    sink = 0.012 + 0.006 * math.sin(t * math.tau)  # it hovers, never touches down
+    # Ribbon tatters trailing below the robe.
+    for i in range(7):
+        x0 = cx - 0.24 + i * 0.08
+        depth = 0.20 + (i % 3) * 0.05
+        poly(draw, cell, [(x0 - 0.035, 0.68 + sink), (x0 + 0.035, 0.68 + sink),
+                          (x0 + 0.02 + sway, 0.68 + depth + sink), (x0 - 0.01 + sway, 0.68 + depth * 0.8 + sink)],
+             fill=cloth, outline=Outline, width=1)
+    # Choral robe: wide mantle tapering to a ragged waist.
+    poly(draw, cell, [(cx - 0.30, 0.42 + bob), (cx - 0.16, 0.24 + bob), (cx + 0.16, 0.24 + bob),
+                      (cx + 0.30, 0.42 + bob), (cx + 0.24, 0.70 + sink), (cx - 0.24, 0.70 + sink)],
+         fill=cloth, outline=Outline, width=3)
+    poly(draw, cell, [(cx - 0.10, 0.44 + bob), (cx + 0.10, 0.44 + bob), (cx + 0.13, 0.68 + sink), (cx - 0.13, 0.68 + sink)],
+         fill=body)
+    # Choir stalls stitched down the front.
+    for i in range(3):
+        y = 0.50 + i * 0.06 + bob
+        line(draw, cell, [(cx - 0.08, y), (cx + 0.08, y)], accent, 2)
+        ellipse(draw, cell, cx - 0.012, y - 0.012, cx + 0.012, y + 0.012, fill=light)
+    # Shoulder cowl with hanging stole ends.
+    poly(draw, cell, [(cx - 0.26, 0.38 + bob), (cx - 0.10, 0.28 + bob), (cx + 0.10, 0.28 + bob), (cx + 0.26, 0.38 + bob),
+                      (cx + 0.18, 0.47 + bob), (cx - 0.18, 0.47 + bob)],
+         fill=mix(cloth, light, 0.28), outline=Outline, width=2)
+    for sign in (-1, 1):
+        poly(draw, cell, [(cx + sign * 0.19, 0.45 + bob), (cx + sign * 0.25, 0.45 + bob),
+                          (cx + sign * 0.28 + sway, 0.66 + bob), (cx + sign * 0.21 + sway, 0.66 + bob)],
+             fill=accent, outline=Outline, width=1)
+    # Deep hood, three-eyes and a shadowed mouth open in song.
+    ellipse(draw, cell, cx - 0.14, 0.10 + bob, cx + 0.14, 0.34 + bob, fill=cloth, outline=Outline, width=3)
+    ellipse(draw, cell, cx - 0.105, 0.145 + bob, cx + 0.105, 0.30 + bob, fill=(12, 11, 20))
+    _enemy_eyes(draw, cell, cx, 0.205 + bob, dict(style, eyes='many'), spread=0.058, r=0.021)
+    ellipse(draw, cell, cx - 0.022, 0.252 + bob, cx + 0.022, 0.286 + bob, fill=accent)
+    # Conducting arms with long bony fingers.
+    for sign in (-1, 1):
+        line(draw, cell, [(cx + sign * 0.19, 0.44 + bob), (cx + sign * 0.31, 0.35 + bob), (cx + sign * 0.34, 0.23 + bob)],
+             body, 5)
+        for f in range(3):
+            fx = cx + sign * (0.32 + f * 0.018)
+            line(draw, cell, [(cx + sign * 0.34, 0.23 + bob), (fx, 0.10 + bob - f * 0.012)], light, 2)
+    # Hymn glyphs orbiting the hood.
+    for i in range(4):
+        a = t * math.tau + i * math.pi / 2
+        gx = cx + math.cos(a) * 0.30
+        gy = 0.20 + bob + math.sin(a) * 0.055
+        poly(draw, cell, [(gx, gy - 0.022), (gx + 0.016, gy), (gx, gy + 0.022), (gx - 0.016, gy)],
+             fill=accent, outline=Outline, width=1)
+
+
 def _tyrant(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
     bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
     body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
     cx = 0.50 + lunge
     sway = math.sin(t * math.tau) * 0.02
-    # Cape and armoured frame.
-    poly(draw, cell, [(cx - 0.30, 0.34 + bob), (cx + 0.30, 0.34 + bob), (cx + 0.42, 0.94), (cx - 0.42, 0.94)], fill=cloth, outline=Outline, width=3)
-    rect(draw, cell, cx - 0.20, 0.36 + bob, cx + 0.20, 0.70 + bob, fill=body, outline=Outline, width=3, radius=0.04)
-    # Ribcage.
+    bone = mix(light, (232, 226, 208), 0.45)
+    dark_bone = mix(bone, Outline, 0.34)
+    # Tattered emperor cloak behind everything, with a ragged hem.
+    poly(draw, cell, [(cx - 0.29, 0.30 + bob), (cx + 0.29, 0.30 + bob), (cx + 0.44, 0.90),
+                      (cx + 0.30, 0.82), (cx + 0.20, 0.92), (cx + 0.06, 0.84), (cx - 0.06, 0.93),
+                      (cx - 0.20, 0.83), (cx - 0.32, 0.91), (cx - 0.44, 0.90)],
+         fill=cloth, outline=Outline, width=3)
+    # Pauldrons: layered bone plates with spikes.
+    for sign in (-1, 1):
+        poly(draw, cell, [(cx + sign * 0.13, 0.32 + bob), (cx + sign * 0.34, 0.26 + bob),
+                          (cx + sign * 0.40, 0.42 + bob), (cx + sign * 0.17, 0.46 + bob)],
+             fill=bone, outline=Outline, width=3)
+        poly(draw, cell, [(cx + sign * 0.20, 0.30 + bob), (cx + sign * 0.35, 0.24 + bob),
+                          (cx + sign * 0.26, 0.34 + bob)], fill=dark_bone)
+        for i in range(2):
+            sp = cx + sign * (0.28 + i * 0.06)
+            line(draw, cell, [(sp, 0.30 + bob - i * 0.02), (sp + sign * 0.05, 0.16 + bob - i * 0.05)],
+                 accent, 3)
+    # Breastplate over a visible ribcage.
+    rect(draw, cell, cx - 0.19, 0.34 + bob, cx + 0.19, 0.72 + bob, fill=body, outline=Outline, width=3, radius=0.04)
     for i in range(4):
-        line(draw, cell, [(cx - 0.16, 0.42 + i * 0.07 + bob), (cx + 0.16, 0.42 + i * 0.07 + bob)], light, 2)
-    # Skull and crown.
-    ellipse(draw, cell, cx - 0.12, 0.16 + bob, cx + 0.12, 0.34 + bob, fill=light, outline=Outline, width=2)
-    for x in (-0.05, 0.05):
-        ellipse(draw, cell, cx + x - 0.03, 0.22 + bob, cx + x + 0.03, 0.27 + bob, fill=style["eye"])
+        y = 0.42 + i * 0.065 + bob
+        line(draw, cell, [(cx - 0.15, y), (cx + 0.15, y)], dark_bone, 3)
+        line(draw, cell, [(cx - 0.15, y - 1.2 / cell), (cx + 0.15, y - 1.2 / cell)], bone, 1)
+    rect(draw, cell, cx - 0.03, 0.36 + bob, cx + 0.03, 0.72 + bob, fill=dark_bone, outline=Outline, width=1)
+    # Sternum jewel.
+    poly(draw, cell, [(cx, 0.60 + bob), (cx + 0.045, 0.655 + bob), (cx, 0.71 + bob), (cx - 0.045, 0.655 + bob)],
+         fill=accent, outline=Outline, width=1)
+    # Skull with a heavy jaw, sockets and a ribbed crown.
+    ellipse(draw, cell, cx - 0.125, 0.13 + bob, cx + 0.125, 0.31 + bob, fill=bone, outline=Outline, width=3)
+    poly(draw, cell, [(cx - 0.09, 0.24 + bob), (cx + 0.09, 0.24 + bob), (cx + 0.07, 0.335 + bob), (cx - 0.07, 0.335 + bob)],
+         fill=bone, outline=Outline, width=2)
+    for i in range(4):
+        rect(draw, cell, cx - 0.065 + i * 0.037, 0.285 + bob, cx - 0.05 + i * 0.037, 0.325 + bob, fill=dark_bone)
+    _enemy_eyes(draw, cell, cx, 0.205 + bob, dict(style, eyes='hollow'), spread=0.052, r=0.030)
+    ellipse(draw, cell, cx - 0.018, 0.245 + bob, cx + 0.018, 0.27 + bob, fill=dark_bone)
+    # Crown of five tall bone spikes with a gem at the centre.
     for i in range(-2, 3):
-        poly(draw, cell, [(cx + i * 0.05, 0.16 + bob), (cx + i * 0.03, 0.04 + bob), (cx + (i + 1) * 0.04, 0.12 + bob)], fill=accent, outline=Outline, width=1)
-    # Great blade.
-    poly(draw, cell, [(cx + 0.22, 0.46 + bob), (cx + 0.50, 0.22 + sway), (cx + 0.40, 0.60 + bob), (cx + 0.28, 0.62 + bob)], fill=light, outline=Outline, width=2)
-    line(draw, cell, [(cx + 0.24, 0.58 + bob), (cx + 0.34, 0.72 + bob)], cloth, 5)
+        h = 0.10 if i == 0 else 0.075 - abs(i) * 0.012
+        poly(draw, cell, [(cx + i * 0.052 - 0.022, 0.145 + bob), (cx + i * 0.052 + 0.022, 0.145 + bob),
+                          (cx + i * 0.058, 0.145 + bob - h)], fill=bone, outline=Outline, width=1)
+    poly(draw, cell, [(cx, 0.105 + bob), (cx + 0.022, 0.145 + bob), (cx, 0.185 + bob), (cx - 0.022, 0.145 + bob)],
+         fill=accent, outline=Outline, width=1)
+    # Great cleaver held low, blade catching the light.
+    poly(draw, cell, [(cx + 0.24, 0.48 + bob), (cx + 0.44, 0.22 + sway), (cx + 0.40, 0.60 + bob), (cx + 0.27, 0.64 + bob)],
+         fill=mix(light, (236, 240, 248), 0.35), outline=Outline, width=3)
+    line(draw, cell, [(cx + 0.28, 0.55 + bob), (cx + 0.40, 0.35 + sway)], mix(light, (255, 255, 255), 0.6), 2)
+    line(draw, cell, [(cx + 0.24, 0.57 + bob), (cx + 0.30, 0.72 + bob)], cloth, 6)
+    rect(draw, cell, cx + 0.215, 0.505 + bob, cx + 0.275, 0.535 + bob, fill=accent, outline=Outline, width=1)
 
 
 def _hound(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
@@ -1290,6 +1383,7 @@ ENEMY_DRAW = {
     "tyrant": _tyrant,
     "hound": _hound,
     "hierophant": _hierophant,
+    "cantor": _cantor,
     "behemoth": _behemoth,
 }
 
