@@ -1,44 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-backdrops-v1",
+    "task_id": "art-hero-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793383611.9551513,
+    "updated_at": 1793384395.3432014,
     "owner": "kilo:main",
     "started_by": "kilo:main",
     "continuations": [],
-    "completed_at": 1793383612.641689
+    "completed_at": 1793384395.8116727
   },
   "checkpoints": [
-    {
-      "task_id": "runtime-audit",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'runtime-audit' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793348012.5952058,
-      "timestamp_str": "2026-10-30 11:13:32",
-      "agent": "kilo:runtime-audit"
-    },
-    {
-      "task_id": "rest-and-mechanics",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan: make Rest resume the healed expedition instead of opening Set Out, show an honest rest price, extract restCost(depth), and declare a headless mechanics contract so AIKit can test the simulation without a browser",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793358601.3497827,
-      "timestamp_str": "2026-10-30 14:10:01",
-      "agent": "kilo:rest-mechanics",
-      "impact_assessment": {
-        "why": "paying for Rest then being pushed into a fresh-run screen discarded the healed run, and the game had no headless mechanics gate",
-        "benefits": "rest does what its price promises, one price rule with a test, and a mechanics gate on every check",
-        "risks": "contract: App rest call sites, hub exports, project.json/package.json scripts; dependency: none; concurrency: single-threaded; state: no save schema change",
-        "mitigation": "return the healed run from restSavedRun and start it at every call site, unit-test restCost, run the full and mechanics suites"
-      }
-    },
     {
       "task_id": "rest-and-mechanics",
       "phase": "phase 5",
@@ -252,6 +225,27 @@
       "status": "completed",
       "timestamp": 1793383612.6416922,
       "timestamp_str": "2026-10-30 21:06:52",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-hero-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Reworked the Memory Walker's head: a deep shadowed face cavity under the hood with two glowing eyes and a hint of jaw, plus a cloak rim highlight on the leading hood edge. The blank tan oval read as a featureless blob at gameplay scale. Verified across idle, attack and greatsword frames at 3x and in a fresh ruins run with zero console errors; typecheck and 151 tests pass; 8/8 gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793384395.3432014,
+      "timestamp_str": "2026-10-30 21:19:55",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-hero-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-hero-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793384395.8116746,
+      "timestamp_str": "2026-10-30 21:19:55",
       "agent": "kilo:main"
     }
   ]

@@ -647,13 +647,20 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
         line(draw, cell, [(0.40, 0.43), (0.34, 0.56), (0.36 + step * 0.01, 0.66)], pal["cloak_dark"], 5)
         line(draw, cell, [(0.61, 0.43), (0.68, 0.55), (0.66 - step * 0.01, 0.65)], pal["cloak_dark"], 5)
 
-    # Hood and face.
+    # Hood and face. The face sits deep in shade with only the eyes catching
+    # light, so the walker reads at gameplay size instead of as a blank oval.
     ellipse(draw, cell, 0.38, 0.20 + bob, 0.62, 0.45 + bob, fill=pal["cloak_dark"], outline=pal["outline"], width=3)
     poly(draw, cell, [(0.39, 0.29 + bob), (0.36, 0.18 + bob), (0.50, 0.13 + bob), (0.64, 0.20 + bob), (0.61, 0.30 + bob)],
          fill=pal["cloak"], outline=pal["outline"], width=2)
-    ellipse(draw, cell, 0.43, 0.27 + bob, 0.58, 0.40 + bob, fill=pal["skin_shadow"])
-    ellipse(draw, cell, 0.455, 0.30 + bob, 0.515, 0.365 + bob, fill=pal["skin"])
-    ellipse(draw, cell, 0.515, 0.305 + bob, 0.548, 0.34 + bob, fill=pal["eye"])
+    # Hood rim catches the light along its leading edge.
+    line(draw, cell, [(0.37, 0.19 + bob), (0.50, 0.135 + bob), (0.63, 0.20 + bob)], pal["cloak_light"], 1)
+    # Face cavity in shadow.
+    ellipse(draw, cell, 0.435, 0.255 + bob, 0.585, 0.405 + bob, fill=(16, 15, 26))
+    ell = pal["eye"]
+    rect(draw, cell, 0.478, 0.305 + bob, 0.505, 0.335 + bob, fill=ell, radius=0.008)
+    rect(draw, cell, 0.515, 0.305 + bob, 0.542, 0.335 + bob, fill=ell, radius=0.008)
+    # Jaw and mouth-shadow keep a hint of a face under the hood.
+    ellipse(draw, cell, 0.472, 0.352 + bob, 0.548, 0.398 + bob, fill=pal["skin_shadow"])
 
     # Blade and slash arc. Each stance has a distinct held silhouette so the
     # weapon reads in idle, walk and attack, not only in the hit effect.
