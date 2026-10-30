@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `4`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `52`
+- **Total Top-Level Functions**: `55`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `3184`
+- **Total Source Lines**: `3359`
 
 ---
 
@@ -19,7 +19,7 @@
 ### [`scripts/generate_art_assets.py`](scripts/generate_art_assets.py)
 > *Generate the Memory Reconstruction art set.*
 
-**Size**: `2770` lines (`148482` bytes)
+**Size**: `2945` lines (`158029` bytes)
 
 **Functions:**
 - `def rgba(color, alpha)`
@@ -50,6 +50,9 @@
 - `def _giant(draw, cell, style, row, frame, t)`
 - `def _queen(draw, cell, style, row, frame, t)`
 - `def _cantor(draw, cell, style, row, frame, t)` - *The Void Cantor: a floating chorister whose lower body dissolves.*
+- `def _oracle(draw, cell, style, row, frame, t)` - *A hovering seer: no feet, wide sleeves, a scrying orb held at the chest.*
+- `def _herald(draw, cell, style, row, frame, t)` - *A tall banner-bearing wraith; the banner streams behind the shoulder.*
+- `def _witch(draw, cell, style, row, frame, t)` - *A petal witch: wide hat, blooming gown, staff crowned with a blossom.*
 - `def _tyrant(draw, cell, style, row, frame, t)`
 - `def _hound(draw, cell, style, row, frame, t)`
 - `def _hierophant(draw, cell, style, row, frame, t)`

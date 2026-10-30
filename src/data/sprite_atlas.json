@@ -1380,6 +1380,228 @@
           "loop": false
         }
       }
+    },
+    "magmaHound": {
+      "texture": "sprites/enemies/magmaHound.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "cinderHound": {
+      "texture": "sprites/enemies/cinderHound.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "tideCaller": {
+      "texture": "sprites/enemies/tideCaller.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "frostOracle": {
+      "texture": "sprites/enemies/frostOracle.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "ashHerald": {
+      "texture": "sprites/enemies/ashHerald.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "petalWitch": {
+      "texture": "sprites/enemies/petalWitch.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
     }
   },
   "tilesets": {

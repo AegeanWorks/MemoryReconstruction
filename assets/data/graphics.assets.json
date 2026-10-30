@@ -50,7 +50,13 @@
       "graveHound": "sprites/enemies/graveHound.png",
       "voidCantor": "sprites/enemies/voidCantor.png",
       "choirHierophant": "sprites/enemies/choirHierophant.png",
-      "hollowBehemoth": "sprites/enemies/hollowBehemoth.png"
+      "hollowBehemoth": "sprites/enemies/hollowBehemoth.png",
+      "magmaHound": "sprites/enemies/magmaHound.png",
+      "cinderHound": "sprites/enemies/cinderHound.png",
+      "tideCaller": "sprites/enemies/tideCaller.png",
+      "frostOracle": "sprites/enemies/frostOracle.png",
+      "ashHerald": "sprites/enemies/ashHerald.png",
+      "petalWitch": "sprites/enemies/petalWitch.png"
     },
     "tilesets": {
       "ruins": "sprites/tilesets/ruins.png",

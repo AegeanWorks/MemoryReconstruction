@@ -127,15 +127,15 @@ const SPRITE_KEYS: Record<string, string> = {
   void_walker: 'voidWalker',
   // Later sections reuse existing art until dedicated sheets exist.
   cinder_wisp: 'spirit',
-  magma_hound: 'wildling',
+  magma_hound: 'magmaHound',
   drowned: 'caveDweller',
-  tide_caller: 'prismEntity',
+  tide_caller: 'tideCaller',
   // The shadow sheet is near-black, so a tint cannot lift it; late mobs borrow
   // mid-tone sheets and take their colour from tint. Bosses have own sheets.
   frost_stalker: 'crystalGuardian',
   glass_sentinel: 'guardian',
   bloom_crawler: 'caveDweller',
-  petal_witch: 'spirit',
+  petal_witch: 'petalWitch',
   cog_hound: 'cogHound',
   solder_wisp: 'solderWisp',
   bog_leech: 'bogLeech',
@@ -158,9 +158,9 @@ const SPRITE_KEYS: Record<string, string> = {
   forgotten: 'forgottenGiant',
   clockwork_regent: 'clockworkRegent',
   mire_sovereign: 'mireSovereign',
-  ash_herald: 'spirit',
-  cinder_hound: 'wildling',
-  frost_oracle: 'prismEntity',
+  ash_herald: 'ashHerald',
+  cinder_hound: 'cinderHound',
+  frost_oracle: 'frostOracle',
   rime_duelist: 'crystalGuardian',
   bloom_sentinel: 'guardian',
   petal_stalker: 'caveDweller',
@@ -176,17 +176,14 @@ const SPRITE_KEYS: Record<string, string> = {
  */
 const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
   Object.entries({
+    // Only enemies that still borrow a shared sheet need a tint; the late mobs
+    // with dedicated sheets (magma_hound, tide_caller, petal_witch, ash_herald,
+    // cinder_hound, frost_oracle) carry their section colour in the art.
     cinder_wisp: 0xffb070,
-    magma_hound: 0xff9060,
     drowned: 0x8fe8dc,
-    tide_caller: 0x9fefff,
     frost_stalker: 0xbfeaff,
     glass_sentinel: 0xaad8ff,
     bloom_crawler: 0xbaffc4,
-    petal_witch: 0xffb0e6,
-    ash_herald: 0xffb070,
-    cinder_hound: 0xff9060,
-    frost_oracle: 0xbfeaff,
     rime_duelist: 0xaad8ff,
     bloom_sentinel: 0xbaffc4,
     petal_stalker: 0xffb0e6,

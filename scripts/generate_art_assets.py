@@ -393,6 +393,63 @@ ENEMY_STYLES = {
         "eye": (230, 220, 255, 255),
         "scale": 1.38,
     },
+    # Late-section enemies that used to borrow older sheets with only a tint.
+    "magmaHound": {
+        "kind": "hound",
+        "body": (62, 28, 20, 255),
+        "light": (154, 82, 52, 255),
+        "cloth": (30, 15, 12, 255),
+        "accent": (255, 142, 62, 255),
+        "eye": (255, 226, 150, 255),
+        "scale": 1.0,
+        "eyes": "glare",
+    },
+    "cinderHound": {
+        "kind": "hound",
+        "body": (52, 34, 28, 255),
+        "light": (132, 98, 74, 255),
+        "cloth": (26, 18, 14, 255),
+        "accent": (255, 170, 92, 255),
+        "eye": (255, 238, 190, 255),
+        "scale": 1.0,
+        "eyes": "glare",
+    },
+    "tideCaller": {
+        "kind": "oracle",
+        "body": (30, 64, 78, 255),
+        "light": (108, 180, 196, 255),
+        "cloth": (17, 37, 46, 255),
+        "accent": (120, 240, 220, 255),
+        "eye": (204, 255, 250, 255),
+        "scale": 1.0,
+    },
+    "frostOracle": {
+        "kind": "oracle",
+        "body": (44, 62, 80, 255),
+        "light": (152, 190, 214, 255),
+        "cloth": (25, 37, 50, 255),
+        "accent": (191, 233, 255, 255),
+        "eye": (240, 252, 255, 255),
+        "scale": 1.0,
+    },
+    "ashHerald": {
+        "kind": "herald",
+        "body": (58, 32, 24, 255),
+        "light": (140, 92, 68, 255),
+        "cloth": (30, 16, 12, 255),
+        "accent": (255, 152, 82, 255),
+        "eye": (255, 240, 196, 255),
+        "scale": 1.05,
+    },
+    "petalWitch": {
+        "kind": "witch",
+        "body": (62, 34, 58, 255),
+        "light": (150, 98, 140, 255),
+        "cloth": (34, 18, 32, 255),
+        "accent": (255, 154, 216, 255),
+        "eye": (255, 228, 246, 255),
+        "scale": 1.0,
+    },
 }
 
 BIOME_ART = {
@@ -1225,6 +1282,121 @@ def _cantor(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: 
              fill=accent, outline=Outline, width=1)
 
 
+def _oracle(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    """A hovering seer: no feet, wide sleeves, a scrying orb held at the chest.
+
+    Late sections previously borrowed the prism entity for their casters, which
+    read as geometric shards rather than a person, so tide callers and frost
+    oracles get a shared oracle body with their own palettes.
+    """
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    drift = math.sin(t * math.tau) * 0.012
+    lift = 0.02 + drift
+    # Draped gown that tapers away instead of standing on legs.
+    poly(draw, cell, [(cx - 0.17, 0.40 + bob), (cx + 0.17, 0.40 + bob), (cx + 0.26, 0.84 + lift),
+                      (cx + 0.05, 0.90 + lift), (cx - 0.02, 0.86 + lift), (cx - 0.10, 0.92 + lift), (cx - 0.26, 0.83 + lift)],
+         fill=cloth, outline=Outline, width=3)
+    poly(draw, cell, [(cx - 0.09, 0.44 + bob), (cx + 0.09, 0.44 + bob), (cx + 0.13, 0.82 + lift), (cx - 0.13, 0.82 + lift)],
+         fill=body)
+    # Sash and hem band.
+    rect(draw, cell, cx - 0.13, 0.56 + bob, cx + 0.13, 0.585 + bob, fill=accent)
+    rect(draw, cell, cx - 0.24, 0.79 + lift, cx + 0.24, 0.815 + lift, fill=mix(cloth, light, 0.35))
+    # Shoulders and wide hanging sleeves.
+    poly(draw, cell, [(cx - 0.18, 0.40 + bob), (cx - 0.09, 0.33 + bob), (cx + 0.09, 0.33 + bob), (cx + 0.18, 0.40 + bob),
+                      (cx + 0.12, 0.47 + bob), (cx - 0.12, 0.47 + bob)],
+         fill=mix(cloth, light, 0.3), outline=Outline, width=2)
+    for sign in (-1, 1):
+        poly(draw, cell, [(cx + sign * 0.14, 0.42 + bob), (cx + sign * 0.27, 0.40 + bob + drift),
+                          (cx + sign * 0.30, 0.62 + bob + drift * 2), (cx + sign * 0.19, 0.60 + bob)],
+             fill=body, outline=Outline, width=2)
+    # Hood, shadowed face, single studying eye.
+    ellipse(draw, cell, cx - 0.10, 0.20 + bob, cx + 0.10, 0.36 + bob, fill=cloth, outline=Outline, width=3)
+    ellipse(draw, cell, cx - 0.072, 0.235 + bob, cx + 0.072, 0.335 + bob, fill=(14, 13, 22))
+    _enemy_eyes(draw, cell, cx, 0.283 + bob, dict(style, eyes='single'), spread=0.0, r=0.021)
+    # Scrying orb between the hands, haloed.
+    ellipse(draw, cell, cx - 0.055, 0.505 + bob, cx + 0.055, 0.615 + bob, fill=(*accent[:3], 60))
+    ellipse(draw, cell, cx - 0.035, 0.525 + bob, cx + 0.035, 0.595 + bob, fill=accent, outline=Outline, width=2)
+    ellipse(draw, cell, cx - 0.014, 0.542 + bob, cx + 0.008, 0.564 + bob, fill=(255, 255, 255))
+    # Rising motes of the tide or the cold.
+    for i in range(3):
+        my = 0.86 - ((t * 0.5 + i * 0.33) % 1) * 0.22
+        ellipse(draw, cell, cx - 0.20 + i * 0.16, my, cx - 0.185 + i * 0.16, my + 0.015, fill=accent)
+
+
+def _herald(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    """A tall banner-bearing wraith; the banner streams behind the shoulder."""
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    wave = math.sin(t * math.tau) * 0.03
+    # Banner on a pole, behind the body.
+    line(draw, cell, [(cx + 0.28, 0.10), (cx + 0.28, 0.92)], mix(cloth, light, 0.4), 4)
+    poly(draw, cell, [(cx + 0.28, 0.14), (cx + 0.02, 0.18 + wave), (cx + 0.04, 0.33 + wave), (cx + 0.28, 0.36)],
+         fill=cloth, outline=Outline, width=2)
+    poly(draw, cell, [(cx + 0.25, 0.185), (cx + 0.07, 0.215 + wave), (cx + 0.08, 0.285 + wave), (cx + 0.25, 0.315)],
+         fill=mix(cloth, accent, 0.35))
+    for i in range(3):
+        line(draw, cell, [(cx + 0.10, 0.225 + wave + i * 0.025), (cx + 0.23, 0.24 + i * 0.025)], accent, 1)
+    # Ragged cloak and shoulders.
+    poly(draw, cell, [(cx - 0.24, 0.90), (cx - 0.17, 0.36 + bob), (cx - 0.06, 0.28 + bob), (cx + 0.06, 0.28 + bob),
+                      (cx + 0.17, 0.36 + bob), (cx + 0.20, 0.90), (cx + 0.08, 0.84), (cx + 0.02, 0.92), (cx - 0.06, 0.85),
+                      (cx - 0.14, 0.91)],
+         fill=cloth, outline=Outline, width=3)
+    rect(draw, cell, cx - 0.09, 0.38 + bob, cx + 0.09, 0.84, fill=body)
+    poly(draw, cell, [(cx - 0.19, 0.38 + bob), (cx - 0.08, 0.31 + bob), (cx + 0.08, 0.31 + bob), (cx + 0.19, 0.38 + bob),
+                      (cx + 0.13, 0.45 + bob), (cx - 0.13, 0.45 + bob)],
+         fill=mix(cloth, light, 0.32), outline=Outline, width=2)
+    # Ember crown over a skull-like face.
+    ellipse(draw, cell, cx - 0.085, 0.19 + bob, cx + 0.085, 0.33 + bob, fill=light, outline=Outline, width=3)
+    _enemy_eyes(draw, cell, cx, 0.245 + bob, dict(style, eyes='glare'), spread=0.036, r=0.019)
+    poly(draw, cell, [(cx - 0.055, 0.29 + bob), (cx + 0.055, 0.29 + bob), (cx + 0.035, 0.325 + bob), (cx - 0.035, 0.325 + bob)],
+         fill=mix(light, Outline, 0.3))
+    for i in range(-2, 3):
+        line(draw, cell, [(cx + i * 0.042, 0.19 + bob), (cx + i * 0.055, 0.10 + bob)], accent, 2)
+    # One arm holding the standard.
+    line(draw, cell, [(cx + 0.13, 0.44 + bob), (cx + 0.24, 0.52 + bob), (cx + 0.28, 0.42 + bob)], body, 4)
+
+
+def _witch(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    """A petal witch: wide hat, blooming gown, staff crowned with a blossom."""
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.014
+    # Gown made of layered petals.
+    poly(draw, cell, [(cx - 0.12, 0.46 + bob), (cx + 0.12, 0.46 + bob), (cx + 0.30, 0.88), (cx - 0.30, 0.88)],
+         fill=cloth, outline=Outline, width=3)
+    for i in range(5):
+        px = cx - 0.24 + i * 0.12
+        ellipse(draw, cell, px - 0.075, 0.72 + bob * 0.5, px + 0.075, 0.90, fill=mix(cloth, accent, 0.30),
+                outline=Outline, width=1)
+    for i in range(3):
+        px = cx - 0.13 + i * 0.13
+        ellipse(draw, cell, px - 0.05, 0.54 + bob, px + 0.05, 0.66 + bob, fill=mix(cloth, accent, 0.5), outline=Outline, width=1)
+    # Shawl and thin arms.
+    poly(draw, cell, [(cx - 0.16, 0.44 + bob), (cx - 0.07, 0.38 + bob), (cx + 0.07, 0.38 + bob), (cx + 0.16, 0.44 + bob),
+                      (cx + 0.10, 0.50 + bob), (cx - 0.10, 0.50 + bob)],
+         fill=body, outline=Outline, width=2)
+    line(draw, cell, [(cx - 0.13, 0.47 + bob), (cx - 0.24, 0.56 + bob), (cx - 0.22, 0.66 + sway)], body, 4)
+    line(draw, cell, [(cx + 0.13, 0.47 + bob), (cx + 0.26, 0.52 + bob), (cx + 0.29, 0.40 + sway)], body, 4)
+    # Head under a wide pointed hat.
+    ellipse(draw, cell, cx - 0.075, 0.26 + bob, cx + 0.075, 0.39 + bob, fill=light, outline=Outline, width=2)
+    _enemy_eyes(draw, cell, cx, 0.315 + bob, dict(style, eyes='pair'), spread=0.032, r=0.017)
+    ellipse(draw, cell, cx - 0.21, 0.235 + bob, cx + 0.21, 0.285 + bob, fill=cloth, outline=Outline, width=3)
+    poly(draw, cell, [(cx - 0.075, 0.26 + bob), (cx - 0.02, 0.20 + bob + sway), (cx + 0.02, 0.12 + bob), (cx + 0.045, 0.20 + bob), (cx + 0.075, 0.26 + bob)],
+         fill=cloth, outline=Outline, width=2)
+    ellipse(draw, cell, cx - 0.03, 0.225 + bob, cx + 0.03, 0.255 + bob, fill=accent)
+    # Staff crowned with a blossom.
+    line(draw, cell, [(cx + 0.29 + sway, 0.16), (cx + 0.27, 0.92)], mix(cloth, light, 0.4), 3)
+    for i in range(5):
+        a = i * math.tau / 5
+        bx, by = cx + 0.29 + math.cos(a) * 0.035, 0.13 + math.sin(a) * 0.035
+        ellipse(draw, cell, bx - 0.028, by - 0.028, bx + 0.028, by + 0.028, fill=accent, outline=Outline, width=1)
+    ellipse(draw, cell, cx + 0.275, 0.115, cx + 0.305, 0.145, fill=(255, 248, 220))
+
+
 def _tyrant(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
     bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
     body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
@@ -1384,6 +1556,9 @@ ENEMY_DRAW = {
     "hound": _hound,
     "hierophant": _hierophant,
     "cantor": _cantor,
+    "oracle": _oracle,
+    "herald": _herald,
+    "witch": _witch,
     "behemoth": _behemoth,
 }
 
