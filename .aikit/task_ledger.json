@@ -3,24 +3,15 @@
   "active_task": {
     "task_id": "art-atmosphere-v1",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1793400182.7097354,
     "owner": "opencode:atmosphere",
     "started_by": "opencode:atmosphere",
-    "continuations": []
+    "continuations": [],
+    "completed_at": 1793400194.8320086
   },
   "checkpoints": [
-    {
-      "task_id": "art-backdrops-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-backdrops-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793383612.6416922,
-      "timestamp_str": "2026-10-30 21:06:52",
-      "agent": "kilo:main"
-    },
     {
       "task_id": "art-hero-v1",
       "phase": "phase 4",
@@ -226,6 +217,16 @@
       "status": "in_progress",
       "timestamp": 1793400182.7097354,
       "timestamp_str": "2026-10-31 01:43:02",
+      "agent": "opencode:atmosphere"
+    },
+    {
+      "task_id": "art-atmosphere-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-atmosphere-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793400194.83201,
+      "timestamp_str": "2026-10-31 01:43:14",
       "agent": "opencode:atmosphere"
     }
   ]
