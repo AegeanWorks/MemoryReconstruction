@@ -1,0 +1,16 @@
+[
+  {
+    "schema": 1,
+    "surface": "app",
+    "baseline_commit": "a9a63e337a972a457b0da6e0df66d4e1f6ae8ea7",
+    "contract_hash": "95160ade0a890d579eb44f504bc03a7e4a2f5a819e32114c9f380064423b4042",
+    "started_at": 1793320668.714501,
+    "finished_at": 1793320681.1702838,
+    "strikes": 0,
+    "reviewer": "kilo",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "30cee896799eddc87c5bd05bb33f03e7a28b91ecc0a2421656f6e75bae88fb11"
+  }
+]
