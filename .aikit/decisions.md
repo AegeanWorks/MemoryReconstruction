@@ -374,3 +374,15 @@ or the architecture; see the header above for where each entry goes. -->
   3. **Obstacle props**: the ruins statue becomes a weathered memorial (stepped plinth, bowed hood, planted sword, moss and cracks) and the forest tree becomes a forked gnarled trunk under a layered canopy.
   4. **Rim light**: `rim_light` derives a top-left edge band from the alpha channel and composites a lightened accent tint, applied to every living enemy frame in `enemy_frame` so actors separate from dark tiles.
 - **Consequences**: every biome now carries atmospheric depth behind the rooms and the recurring room furniture reads as deliberate art. All regeneration stays inside `scripts/generate_art_assets.py` with unchanged atlas keys and cell sizes; typecheck, 151 tests and all eight project gates pass, and a six-biome Playwright sweep renders with no console errors.
+
+### ADR-038: Each biome carries its own ambient particle field
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Every room drew the same forty soft dust motes tinted only by the biome accent. The title backdrop, the Sanctuary and all fourteen dungeon biomes therefore had the same air, which undercut the places that the tiles, props and backdrops work to separate. The generated `sprites/particles/` sheets were also unused by the renderer.
+- **Decision**:
+  1. **Profile table**: `src/view/atmosphere.ts` declares one `AtmosphereProfile` per biome, each mixing one to three layers with their own texture, tint, motion (`rise`, `fall`, `drift`, `wander`), size, speed, sway, spin, opacity and lifetime.
+  2. **Textures**: `fxArt.ts` gains a six-spoke `flake`, a soft `petal`, a blurred `smoke` cloud and a highlighted `bubble`, all white so the profile tint drives their colour.
+  3. **Runtime**: `Effects` takes the biome profile from `Renderer.showFloor`, keeps a fixed recycle pool of 32-48 motes, spawns falling layers above the view and rising layers below it, and fades each mote in and out. The field is presentation only and never touches the simulation.
+  4. **Verification**: `tests/atmosphere.test.ts` checks that every biome has a profile, that every layer uses a known texture, motion and blend mode, and that colours, ranges and counts stay inside the presentation budget. A Playwright sweep of all sixteen sections confirmed the expected mote counts, textures and motions in every biome with zero console errors.
+- **Consequences**: ash and foundry now carry rising embers, frost falls as snow, bloom drops petals with pollen, mire mixes fireflies with spores and leaves, abyss rises in bubbles, and the remaining biomes have quieter dust, drift or grit. The title backdrop and the Sanctuary inherit the same system. The particle field stays under fifty pooled sprites; typecheck, lint, build and 154 tests pass.

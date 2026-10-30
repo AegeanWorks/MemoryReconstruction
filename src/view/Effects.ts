@@ -5,6 +5,7 @@
  */
 import { Container, Graphics, Sprite, Text } from 'pixi.js';
 import type { SimEvent } from '../sim/events';
+import { atmosphereFor, type AtmosphereLayer, type AtmosphereProfile } from './atmosphere';
 import { fxTextures } from './fxArt';
 
 interface Particle {
@@ -40,9 +41,35 @@ interface FloatingText {
   life: number;
 }
 
+/** One of the slow biome motes; separate from short-lived combat sparks. */
+interface AmbientMote {
+  sprite: Sprite;
+  layer: AtmosphereLayer;
+  vx: number;
+  vy: number;
+  age: number;
+  maxLife: number;
+  phase: number;
+  swayRate: number;
+  spin: number;
+  baseAlpha: number;
+}
+
+interface ViewRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 const MAX_PARTICLES = 500;
 const SLASH_LIFE = 0.16;
-const MOTES = 40;
+/** Distance outside the view where a mote is recycled to the far edge. */
+const MOTE_MARGIN = 48;
+
+function between(range: readonly [number, number], t: number): number {
+  return range[0] + (range[1] - range[0]) * t;
+}
 
 export class Effects {
   /** World-space layer above actors. */
@@ -53,16 +80,20 @@ export class Effects {
   private readonly slashes: Slash[] = [];
   private readonly rings: Ring[] = [];
   private readonly texts: FloatingText[] = [];
-  private readonly motes: Particle[] = [];
+  private readonly motes: AmbientMote[] = [];
+  private readonly motePool: AtmosphereLayer[] = [];
   private shake = 0;
   /** 0..1 strength of the red screen flash after taking damage. */
   hurtFlash = 0;
 
   constructor(
     private readonly accent: number,
+    atmosphere: AtmosphereProfile = atmosphereFor('ruins'),
     private readonly random: () => number = Math.random
   ) {
     this.layer.addChild(this.slashGfx);
+    for (const layer of atmosphere.layers)
+      for (let i = 0; i < layer.count; i++) this.motePool.push(layer);
   }
 
   handle(events: readonly SimEvent[], playerX: number, playerY: number): void {
@@ -290,7 +321,7 @@ export class Effects {
     return { x: (this.random() * 2 - 1) * this.shake, y: (this.random() * 2 - 1) * this.shake };
   }
 
-  update(dt: number, view: { x: number; y: number; w: number; h: number }): void {
+  update(dt: number, view: ViewRect): void {
     this.shake *= Math.exp(-14 * dt);
     this.hurtFlash = Math.max(0, this.hurtFlash - dt * 3);
     this.updateParticles(dt);
@@ -507,42 +538,79 @@ export class Effects {
     }
   }
 
-  /** Slow drifting dust around the camera for atmosphere. */
-  private updateMotes(dt: number, view: { x: number; y: number; w: number; h: number }): void {
-    while (this.motes.length < MOTES) {
-      const sprite = new Sprite(fxTextures().spark);
+  /** Drives the biome's slow particle field around the camera. */
+  private updateMotes(dt: number, view: ViewRect): void {
+    while (this.motes.length < this.motePool.length) {
+      const sprite = new Sprite();
       sprite.anchor.set(0.5);
-      sprite.blendMode = 'add';
-      sprite.tint = this.accent;
       this.layer.addChildAt(sprite, 0);
-      const mote: Particle = { sprite, vx: 0, vy: 0, life: 0, maxLife: 1, drag: 0, grow: 0 };
-      this.resetMote(mote, view);
-      mote.life = this.random() * mote.maxLife;
+      const mote: AmbientMote = {
+        sprite,
+        layer: this.motePool[0],
+        vx: 0,
+        vy: 0,
+        age: 0,
+        maxLife: 1,
+        phase: 0,
+        swayRate: 1,
+        spin: 0,
+        baseAlpha: 0,
+      };
+      this.resetMote(mote, view, true);
+      // Start mid-life so the field is already populated on the first frame.
+      mote.age = this.random() * mote.maxLife;
       this.motes.push(mote);
     }
     for (const m of this.motes) {
-      m.life -= dt;
-      const s = m.sprite;
-      s.x += m.vx * dt;
-      s.y += m.vy * dt;
+      m.age += dt;
+      const swayX = Math.cos(m.age * m.swayRate + m.phase) * m.layer.sway;
+      const swayY =
+        m.layer.motion === 'wander'
+          ? Math.sin(m.age * m.swayRate * 0.7 + m.phase) * m.layer.sway * 0.5
+          : 0;
+      m.sprite.x += (m.vx + swayX) * dt;
+      m.sprite.y += (m.vy + swayY) * dt;
+      if (m.spin !== 0) m.sprite.rotation += m.spin * dt;
       const outside =
-        s.x < view.x - 40 ||
-        s.x > view.x + view.w + 40 ||
-        s.y < view.y - 40 ||
-        s.y > view.y + view.h + 40;
-      if (m.life <= 0 || outside) this.resetMote(m, view);
-      const t = m.life / m.maxLife;
-      s.alpha = 0.35 * Math.sin(t * Math.PI);
+        m.sprite.x < view.x - MOTE_MARGIN ||
+        m.sprite.x > view.x + view.w + MOTE_MARGIN ||
+        m.sprite.y < view.y - MOTE_MARGIN ||
+        m.sprite.y > view.y + view.h + MOTE_MARGIN;
+      if (m.age >= m.maxLife || outside) {
+        this.resetMote(m, view, false);
+        continue;
+      }
+      const t = Math.min(1, m.age / m.maxLife);
+      let alpha = m.baseAlpha * Math.sin(Math.PI * t);
+      if (m.layer.pulse) alpha *= 0.55 + 0.45 * Math.sin(m.age * 7 + m.phase);
+      m.sprite.alpha = Math.max(0, alpha);
     }
   }
 
-  private resetMote(m: Particle, view: { x: number; y: number; w: number; h: number }): void {
-    m.sprite.position.set(view.x + this.random() * view.w, view.y + this.random() * view.h);
-    m.vx = (this.random() - 0.5) * 14;
-    m.vy = -6 - this.random() * 12;
-    m.maxLife = 3 + this.random() * 4;
-    m.life = m.maxLife;
-    m.sprite.width = m.sprite.height = 2 + this.random() * 3;
+  private resetMote(mote: AmbientMote, view: ViewRect, initial: boolean): void {
+    const layer = this.motePool[Math.floor(this.random() * this.motePool.length)];
+    const textures = fxTextures();
+    mote.layer = layer;
+    mote.sprite.texture = textures[layer.texture];
+    mote.sprite.blendMode = layer.blend;
+    mote.sprite.tint = layer.colors[Math.floor(this.random() * layer.colors.length)];
+    mote.sprite.width = mote.sprite.height = between(layer.size, this.random());
+    mote.sprite.rotation = this.random() * Math.PI * 2;
+    const x = view.x + this.random() * view.w;
+    let y = view.y + this.random() * view.h;
+    if (!initial && layer.motion === 'fall') y = view.y - MOTE_MARGIN;
+    else if (!initial && layer.motion === 'rise') y = view.y + view.h + MOTE_MARGIN;
+    mote.sprite.position.set(x, y);
+    mote.vx = between(layer.drift, this.random());
+    mote.vy = between(layer.speed, this.random());
+    mote.maxLife = between(layer.life, this.random());
+    mote.age = 0;
+    mote.phase = this.random() * Math.PI * 2;
+    mote.swayRate = between(layer.swayRate, this.random());
+    mote.spin = between(layer.spin, this.random()) * (this.random() < 0.5 ? -1 : 1);
+    mote.baseAlpha = between(layer.alpha, this.random());
+    mote.sprite.alpha = 0;
+    mote.sprite.visible = true;
   }
 
   destroy(): void {

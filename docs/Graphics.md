@@ -77,6 +77,14 @@ The atlas is bundled at build time, while the images are served from the
 - **Backdrop** is a `TilingSprite` of the biome's `backgrounds` texture at 55%
   alpha behind the tile chunks, so the void between rooms carries atmosphere
   instead of reading as flat black. The biome colour stays as the base fill.
+- **Atmosphere** is a per-biome pool of slow motes driven by
+  `src/view/atmosphere.ts`. Each biome mixes up to three layers with their own
+  texture, tint, motion and lifetime: ruins dust and falling grit, forest
+  spores and leaves, cave mineral dust, crystal float, ash embers and soot,
+  foundry embers, haze and ash, abyss bubbles, void drift, frost snow, mire
+  fireflies, spores and leaves, bloom petals and pollen, hive pollen, catacomb
+  dust, and sanctuary gold. The field is presentation only and recycles within
+  the camera view.
 - **Lighting** is a screen-space darkness vignette centred on the player plus
   additive glows on the player, projectiles, pickups, glyphs and the rift.
 - **Layers**, bottom to top: backdrop, tiles, ground (telegraphs, glows,

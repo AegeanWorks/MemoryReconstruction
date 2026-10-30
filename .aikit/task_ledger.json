@@ -2,26 +2,15 @@
   "version": 1,
   "active_task": {
     "task_id": "art-atmosphere-v1",
-    "last_phase": "phase 3",
-    "active_phase": 3,
+    "last_phase": "phase 4",
+    "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1793399577.752583,
+    "updated_at": 1793400182.7097354,
     "owner": "opencode:atmosphere",
     "started_by": "opencode:atmosphere",
     "continuations": []
   },
   "checkpoints": [
-    {
-      "task_id": "art-backdrops-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Gave the eight bare biome backdrops real silhouettes: burnt trunks and a broken arch for ash, sunken arches and kelp for abyss, jagged ridges for frost, blossoms over arches for bloom, chimney stacks and pipe gantries for foundry, leaning swamp trees with hanging moss for mire, stacked hexagonal comb chambers for hive, and receding tomb niches for catacomb. All thirteen biomes verified in situ with zero console errors; 8/8 gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793383611.9551513,
-      "timestamp_str": "2026-10-30 21:06:51",
-      "agent": "kilo:main"
-    },
     {
       "task_id": "art-backdrops-v1",
       "phase": "completed",
@@ -226,6 +215,17 @@
       "status": "in_progress",
       "timestamp": 1793399577.752583,
       "timestamp_str": "2026-10-31 01:32:57",
+      "agent": "opencode:atmosphere"
+    },
+    {
+      "task_id": "art-atmosphere-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Phase 4 green: 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; 16-section Playwright sweep shows 32-48 motes per biome with the expected textures and motions and zero console errors; headless software rendering loses about 1.5 fps with the field on. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793400182.7097354,
+      "timestamp_str": "2026-10-31 01:43:02",
       "agent": "opencode:atmosphere"
     }
   ]

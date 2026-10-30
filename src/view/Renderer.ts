@@ -9,6 +9,7 @@ import { Application, Container, Graphics, Sprite } from 'pixi.js';
 import type { SimEvent } from '../sim/events';
 import type { World } from '../sim/world';
 import { ActorView } from './ActorView';
+import { atmosphereFor } from './atmosphere';
 import { Effects } from './Effects';
 import { fxTextures } from './fxArt';
 import { LevelView } from './LevelView';
@@ -89,7 +90,7 @@ export class Renderer {
       world.mode !== 'sanctuary'
     );
     const actors = new ActorView(this.sprites, world);
-    const effects = new Effects(hex(art.accent));
+    const effects = new Effects(hex(art.accent), atmosphereFor(biome));
     this.camera.addChild(level.root, actors.ground, actors.actors, effects.layer, actors.overlay);
     for (const prop of level.props) actors.actors.addChild(prop);
     this.scene = { world, level, actors, effects };

@@ -157,11 +157,14 @@ elites, chests and the merchant drop them; `World.equipItem` swaps slots and
   barriers and glyph lights.
 - `tileArt.ts` / `palette.ts`: biome tiles painted with Canvas2D at load (no
   tileset images), from per-biome render palettes.
+- `atmosphere.ts`: per-biome ambient particle layers (texture, tint, motion,
+  size, speed, lifetime and count) used by the effects layer.
 - `ActorView.ts`: sprites keyed by entity id; animation, hit flash, wind-up
   telegraphs (including beams, mortars, mines, spirals and blinks), health
   bars, projectiles, pickups, chests, wells, hazard shapes, blast/mine
   telegraphs, Sanctuary stations with floating labels, and the rift.
-- `Effects.ts`: particles, slash arcs, rings, damage numbers, shake, motes.
+- `Effects.ts`: burst particles, slash arcs, rings, damage numbers, shake and
+  the biome atmosphere motes.
 - `sheets.ts`: cuts the sprite sheets described by `sprite_atlas.json`.
 
 ## UI (`src/ui`)
