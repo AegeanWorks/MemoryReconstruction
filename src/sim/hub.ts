@@ -12,7 +12,17 @@ import { equipmentDef } from './equipment';
 import { refreshStats } from './player';
 import { Rng } from './rng';
 import { createRun, type RunState } from './run';
+import { isAspectId, type AspectId } from './aspects';
 import { rollChoices } from './upgrades';
+
+export {
+  ASPECTS,
+  aspectDef,
+  applyAspect,
+  isAspectId,
+  type AspectDef,
+  type AspectId,
+} from './aspects';
 
 /** A structure the player can rebuild; each level grants starting upgrades. */
 export interface RestorationDef {
@@ -102,7 +112,7 @@ export const RESTORATIONS: readonly RestorationDef[] = [
 
 export const TOTAL_RESTORATION_LEVELS = RESTORATIONS.reduce((sum, r) => sum + r.maxLevel, 0);
 
-/** Persisted sanctuary progress; the rest of Meta lives in SaveStore. */
+/** Everything the Sanctuary persists between expeditions. */
 export interface SanctuaryProgress {
   echoes: number;
   restorations: Readonly<Record<string, number>>;
@@ -110,13 +120,111 @@ export interface SanctuaryProgress {
   checkpoint: number;
   /** Permanent starting relics earned from NPC quests. */
   vault?: readonly string[];
+  /** Relic attuned at the Reliquary; equipped first when an expedition starts. */
+  attunedRelic?: string | null;
+  /** Shard offerings banked at the Cairn, consumed by the next expedition. */
+  offerings?: number;
   /** Weapon chosen at the Training Yard. */
   startingWeapon?: 'sword' | 'spear' | 'greatsword';
   /** One-shot meditation boon bought before an expedition. */
   boon?: 'vitality' | 'edge' | 'flow' | null;
+  /** Playstyle aspect chosen at the Shrine. */
+  aspect?: AspectId;
+  /** Permanent reforge ranks per vault relic id, 0..3. */
+  relicRanks?: Readonly<Record<string, number>>;
+}
+
+/** Sets the aspect; unknown ids are refused rather than silently stored. */
+export function chooseAspect(
+  progress: SanctuaryProgress,
+  id: string
+): SanctuaryProgress | undefined {
+  if (!isAspectId(id)) return undefined;
+  return { ...progress, aspect: id };
 }
 
 export const CHECKPOINT_STEP = 3;
+/** Echoes per shard offering at the Cairn. */
+export const CAIRN_COST = 20;
+/** Offerings that can be banked before setting out. */
+export const CAIRN_MAX = 3;
+/** Starting shards each offering grants. */
+export const CAIRN_SHARDS = 45;
+/** Echoes per reforge step, indexed by the relic's current rank. */
+export const REFORGE_COSTS = [30, 60, 100] as const;
+export const REFORGE_RANKS = REFORGE_COSTS.length;
+
+/** Offerings currently banked, clamped to the allowed range. */
+export function cairnOfferings(progress: SanctuaryProgress): number {
+  return Math.max(0, Math.min(CAIRN_MAX, Math.floor(progress.offerings ?? 0)));
+}
+
+/** Echoes to leave the next offering, or undefined when the cairn is full. */
+export function cairnCost(progress: SanctuaryProgress): number | undefined {
+  return cairnOfferings(progress) >= CAIRN_MAX ? undefined : CAIRN_COST;
+}
+
+/** Banks one offering; returns the new progress, or undefined when unaffordable/full. */
+export function purchaseOffering(progress: SanctuaryProgress): SanctuaryProgress | undefined {
+  const cost = cairnCost(progress);
+  if (cost === undefined || progress.echoes < cost) return undefined;
+  return {
+    ...progress,
+    echoes: progress.echoes - cost,
+    offerings: cairnOfferings(progress) + 1,
+  };
+}
+
+/** Consumes every banked offering, as the expedition that took them has begun. */
+export function clearOfferings(progress: SanctuaryProgress): SanctuaryProgress {
+  if (cairnOfferings(progress) === 0) return progress;
+  return { ...progress, offerings: 0 };
+}
+
+/** Reforge rank of a vault relic, clamped to the legal range. */
+export function relicRank(progress: SanctuaryProgress, defId: string): number {
+  const raw = Math.floor(progress.relicRanks?.[defId] ?? 0);
+  return Math.max(0, Math.min(REFORGE_RANKS, raw));
+}
+
+/** Echoes to reinforce one relic, or undefined when maxed or not owned. */
+export function reforgeCost(progress: SanctuaryProgress, defId: string): number | undefined {
+  if (!(progress.vault ?? []).includes(defId)) return undefined;
+  const rank = relicRank(progress, defId);
+  if (rank >= REFORGE_RANKS) return undefined;
+  return REFORGE_COSTS[rank];
+}
+
+/**
+ * Permanently reinforces one vault relic. Ranks multiply its numeric mods, so
+ * the Forge turns a long echo surplus into a stronger starting relic.
+ */
+export function reforgeRelic(
+  progress: SanctuaryProgress,
+  defId: string
+): SanctuaryProgress | undefined {
+  const cost = reforgeCost(progress, defId);
+  if (cost === undefined || progress.echoes < cost) return undefined;
+  const rank = relicRank(progress, defId) + 1;
+  return {
+    ...progress,
+    echoes: progress.echoes - cost,
+    relicRanks: { ...(progress.relicRanks ?? {}), [defId]: rank },
+  };
+}
+
+/**
+ * Attunes one owned relic as the guaranteed first pick. The relic must already
+ * be in the vault, so the Reliquary cannot mint gear.
+ */
+export function attuneRelic(
+  progress: SanctuaryProgress,
+  defId: string | null
+): SanctuaryProgress | undefined {
+  if (defId === null) return { ...progress, attunedRelic: null };
+  if (!(progress.vault ?? []).includes(defId)) return undefined;
+  return { ...progress, attunedRelic: defId };
+}
 
 /** Sections that can be started directly: every third one, plus the last. */
 export function checkpointDepths(): number[] {
@@ -210,11 +318,16 @@ export function createExpedition(
     p.upgrades[id] = (p.upgrades[id] ?? 0) + 1;
   }
 
-  // Quest rewards live in a permanent vault; each expedition starts with them.
-  for (const defId of progress.vault ?? []) {
+  // Quest rewards live in a permanent vault; each expedition starts with them,
+  // with the attuned relic equipped before the rest so its slot is reserved.
+  const vault = progress.vault ?? [];
+  const attuned = progress.attunedRelic;
+  const ordered =
+    attuned && vault.includes(attuned) ? [attuned, ...vault.filter((id) => id !== attuned)] : vault;
+  for (const defId of ordered) {
     try {
       const def = equipmentDef(defId);
-      const item = { uid: p.nextEquipmentId++, defId };
+      const item = { uid: p.nextEquipmentId++, defId, rank: relicRank(progress, defId) };
       if (!p.equipment[def.slot]) p.equipment[def.slot] = item;
       else p.inventory.push(item);
     } catch {
@@ -229,11 +342,13 @@ export function createExpedition(
 
   p.level = 1 + run.depth * 2;
   p.xp = 0;
+  p.aspect = progress.aspect ?? 'none';
   refreshStats(p);
   p.health = p.stats.maxHealth;
   p.mana = p.stats.maxMana;
   p.potions = p.stats.maxPotions;
-  p.shards = 0;
+  // The Cairn's banked offerings are spent shards, not saved echoes.
+  p.shards = cairnOfferings(progress) * CAIRN_SHARDS;
   p.resonance = 0;
   p.resonanceTime = 0;
   run.pendingChoices = [];

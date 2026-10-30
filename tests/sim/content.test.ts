@@ -3,6 +3,7 @@ import {
   CORE_MEMORIES,
   FLOOR_PLANS,
   MEMORY_FRAGMENTS,
+  allEnemyIds,
   biomeInfo,
   enemyDef,
   fragmentsForFloor,
@@ -64,5 +65,37 @@ describe('content', () => {
 
   it('rejects unknown ids with a clear error', () => {
     expect(() => enemyDef('nope')).toThrow(/Unknown enemy id 'nope'/);
+  });
+});
+
+describe('expanded bestiary', () => {
+  const newIds = [
+    'ash_herald',
+    'cinder_hound',
+    'frost_oracle',
+    'rime_duelist',
+    'bloom_sentinel',
+    'petal_stalker',
+    'grave_warden',
+    'void_herald',
+    'hive_slinger',
+    'mire_lurker',
+  ];
+
+  it('adds ten new enemies with non-boss archetypes', () => {
+    expect(allEnemyIds().length).toBeGreaterThanOrEqual(52);
+    for (const id of newIds) {
+      expect(allEnemyIds()).toContain(id);
+      expect(enemyDef(id).archetype).not.toBe('boss');
+    }
+    expect(enemyDef('ash_herald').behavior).toBe('storm_caller');
+    expect(enemyDef('frost_oracle').behavior).toBe('sweeper');
+    expect(enemyDef('void_herald').behavior).toBe('wall_warden');
+    expect(enemyDef('bloom_sentinel').behavior).toBe('pillar_warden');
+  });
+
+  it('places the new enemies in later sections', () => {
+    const rosters = FLOOR_PLANS.flatMap((plan) => plan.roster);
+    for (const id of newIds) expect(rosters).toContain(id);
   });
 });

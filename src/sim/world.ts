@@ -14,18 +14,16 @@ import {
 } from './content';
 import { generateFloor, roomAt, roomCentrePx, type FloorMap, type Room } from './dungeon';
 import {
-  buildSanctuaryFloor,
-  SANCTUARY_DECOR,
-  SANCTUARY_GATE,
-  SANCTUARY_LABELS,
-  SANCTUARY_NPCS,
-  SANCTUARY_SPAWN,
-  SANCTUARY_STRUCTURES,
+  buildingById,
+  buildBuildingFloor,
+  INTERIOR_EXIT,
+  INTERIOR_RESIDENT,
+  INTERIOR_SPAWN,
   spotToPixels,
+  type SanctuaryBuilding,
 } from './sanctuary';
 import { createEnemy, killEnemy, staggerEnemy, updateBossPhase, updateEnemy } from './enemies';
 import { equipmentDef, rollEquipment, type EquipmentItem } from './equipment';
-import { RESTORATIONS } from './hub';
 import { NPCS } from './quests';
 import type {
   Blast,
@@ -118,6 +116,11 @@ export class World implements Arena {
     size: number;
     layer?: 'ground';
   }> = [];
+  /**
+   * The building whose interior this world is, if any. A Sanctuary interior
+   * world is always exactly one room, so this is fixed at construction.
+   */
+  readonly activeBuilding: string | undefined;
   readonly blasts: Blast[] = [];
   readonly mines: Mine[] = [];
   readonly bombs: Bomb[] = [];
@@ -140,35 +143,39 @@ export class World implements Arena {
 
   constructor(
     readonly run: RunState,
-    options: { sanctuary?: boolean } = {}
+    options: { sanctuary?: boolean; building?: string } = {}
   ) {
     if (options.sanctuary) {
+      const building = buildingById(options.building ?? '');
+      if (!building) throw new Error(`Unknown Sanctuary building: ${options.building ?? ''}`);
       this.mode = 'sanctuary';
+      this.activeBuilding = building.id;
       this.plan = {
         depth: 0,
-        biome: 'sanctuary',
+        biome: building.theme,
         roster: [],
         boss: 'keeper',
         roomCount: 1,
         finale: false,
         layout: 'branch',
       };
-      this.floor = buildSanctuaryFloor();
+      this.floor = buildBuildingFloor(building);
       this.rng = new Rng(0x5a17c0de);
       this.rooms = [{ phase: 'cleared', wavesLeft: 0, spawnDelay: 0 }];
       this.visited = [true];
       this.flow = new FlowField(this.floor.grid);
       this.fragmentQueue = [];
-      const spawn = spotToPixels(SANCTUARY_SPAWN);
+      const spawn = spotToPixels(INTERIOR_SPAWN);
       run.player.x = spawn.x;
       run.player.y = spawn.y;
       run.player.action = 'idle';
       run.player.knockX = 0;
       run.player.knockY = 0;
-      this.placeSanctuary();
+      this.placeBuilding(building);
       return;
     }
     this.mode = 'dungeon';
+    this.activeBuilding = undefined;
     this.plan = floorPlan(run.depth);
     const seed = floorSeed(run.seed, run.depth);
     this.floor = generateFloor(seed, run.depth, {
@@ -488,21 +495,9 @@ export class World implements Arena {
     return item;
   }
 
-  /** Places the rebuildable structures, NPCs and the expedition gate. */
-  private placeSanctuary(): void {
-    for (const spot of SANCTUARY_STRUCTURES) {
-      const p = spotToPixels(spot);
-      const label = RESTORATIONS.find((r) => r.id === spot.id)?.name ?? SANCTUARY_LABELS[spot.id];
-      this.addInteractable('structure', p.x, p.y, 0, { structureId: spot.id, label });
-    }
-    for (const spot of SANCTUARY_NPCS) {
-      const p = spotToPixels(spot);
-      this.addInteractable('npc', p.x, p.y, 0, {
-        npcId: spot.id,
-        label: NPCS[spot.id]?.name.replace(/^The /, ''),
-      });
-    }
-    for (const item of SANCTUARY_DECOR) {
+  /** Places the resident and the doorway back to the hub in this one room. */
+  private placeBuilding(building: SanctuaryBuilding): void {
+    for (const item of building.decor) {
       const p = spotToPixels(item);
       this.decor.push({
         x: p.x,
@@ -512,10 +507,17 @@ export class World implements Arena {
         layer: item.layer,
       });
     }
-    const gate = spotToPixels(SANCTUARY_GATE);
-    this.addInteractable('gate', gate.x, gate.y, 0, { label: 'The Gate' });
+    const resident = spotToPixels(INTERIOR_RESIDENT);
+    this.addInteractable('npc', resident.x, resident.y, 0, {
+      npcId: building.id,
+      label: NPCS[building.id]?.name.replace(/^The /, ''),
+    });
+    const exit = spotToPixels(INTERIOR_EXIT);
+    this.addInteractable('door', exit.x, exit.y, 0, {
+      buildingId: building.id,
+      interior: true,
+    });
   }
-
   /** Scatters traps and barrels through combat rooms, plus levers to disarm them. */
   private placeHazards(): void {
     if (this.plan.bossOnly) return;
@@ -629,6 +631,10 @@ export class World implements Arena {
         id: target.structureId ?? target.npcId ?? '',
       });
       this.emit({ type: 'interact', kind: target.kind, x: target.x, y: target.y });
+    } else if (target.kind === 'door' && target.buildingId) {
+      if (!target.interior) return;
+      this.emit({ type: 'buildingExit', id: target.buildingId });
+      this.emit({ type: 'interact', kind: 'door', x: target.x, y: target.y });
     } else if (target.kind === 'shrine') {
       if (p.shards < target.cost) {
         this.emit({ type: 'notice', text: `The well asks for ${target.cost} shards` });

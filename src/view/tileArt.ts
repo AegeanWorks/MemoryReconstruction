@@ -104,8 +104,13 @@ function paintFloor(art: BiomeArt, rng: Rng, variant: number): Texture {
         ctx.fillRect(x, y - 2, 1, 2);
       }
       if (variant === 3) {
-        ctx.fillStyle = shade(art.grout, -0.1);
-        ctx.fillRect(rng.int(4, 20), rng.int(4, 20), 7, 5);
+        // A soft patch of bare earth, never a hard black block.
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = shade(base, -0.12);
+        ctx.beginPath();
+        ctx.ellipse(rng.int(10, 22), rng.int(10, 22), 6, 4, rng.range(0, 3), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
       }
       break;
     }

@@ -38,11 +38,11 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
   if (rooms.length === 0) return;
 
   // Fit the known rooms' bounding box, with padding.
-  const minX = Math.min(...rooms.map((r) => r.x)) - 2;
-  const minY = Math.min(...rooms.map((r) => r.y)) - 2;
-  const maxX = Math.max(...rooms.map((r) => r.x + r.w)) + 2;
-  const maxY = Math.max(...rooms.map((r) => r.y + r.h)) + 2;
-  const scale = Math.min(w / (maxX - minX), h / (maxY - minY), 4);
+  const minX = Math.min(...rooms.map((r) => r.x)) - 1;
+  const minY = Math.min(...rooms.map((r) => r.y)) - 1;
+  const maxX = Math.max(...rooms.map((r) => r.x + r.w)) + 1;
+  const maxY = Math.max(...rooms.map((r) => r.y + r.h)) + 1;
+  const scale = Math.min(w / (maxX - minX), h / (maxY - minY), 24);
   const ox = (w - (maxX - minX) * scale) / 2 - minX * scale;
   const oy = (h - (maxY - minY) * scale) / 2 - minY * scale;
   const rect = (x: number, y: number, rw: number, rh: number): [number, number, number, number] => [

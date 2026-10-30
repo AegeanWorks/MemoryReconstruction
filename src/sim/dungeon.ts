@@ -59,7 +59,8 @@ export interface FloorMap {
 }
 
 /** Structural feel of a floor: branching maze, ring, spine or dense grid. */
-export type MapLayout = 'branch' | 'ring' | 'spine' | 'grid' | 'diamond' | 'cross';
+export type MapLayout =
+  'branch' | 'ring' | 'spine' | 'grid' | 'diamond' | 'cross' | 'clover' | 'terrace';
 
 export interface FloorOptions {
   /** Rooms including start and boss; clamped to what the grid can hold. */
@@ -128,6 +129,8 @@ function layoutCells(rng: Rng, layout: MapLayout, target: number): Cell[] {
   if (layout === 'grid') return gridCells(target);
   if (layout === 'diamond') return diamondCells();
   if (layout === 'cross') return crossCells();
+  if (layout === 'clover') return cloverCells();
+  if (layout === 'terrace') return terraceCells();
   return spineCells(target);
 }
 
@@ -149,6 +152,25 @@ function crossCells(): Cell[] {
   for (let y = 2; y <= 3; y++) for (let x = 1; x <= 4; x++) cells.push({ x, y });
   for (let x = 2; x <= 3; x++)
     for (let y = 1; y <= 4; y++) if (!(y >= 2 && y <= 3)) cells.push({ x, y });
+  return cells;
+}
+
+/** Four lobes around a shared heart: open rooms with short flanking routes. */
+function cloverCells(): Cell[] {
+  const cells: Cell[] = [];
+  for (let y = 1; y <= 3; y++) for (let x = 1; x <= 3; x++) cells.push({ x, y });
+  cells.push({ x: 2, y: 0 }, { x: 2, y: 4 }, { x: 0, y: 2 }, { x: 4, y: 2 });
+  return cells;
+}
+
+/** A back-and-forth terrace: long runs joined at alternating ends. */
+function terraceCells(): Cell[] {
+  const cells: Cell[] = [];
+  for (let x = 1; x <= 5; x++) cells.push({ x, y: 1 });
+  cells.push({ x: 5, y: 2 }, { x: 5, y: 3 });
+  for (let x = 5; x >= 1; x--) cells.push({ x, y: 3 });
+  cells.push({ x: 1, y: 4 });
+  for (let x = 1; x <= 3; x++) cells.push({ x, y: 4 });
   return cells;
 }
 
@@ -560,7 +582,15 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
     carveRect(grid, tx, ty, size, size, Tile.Wall);
   };
 
-  const layout = rng.pick(['pillars', 'scatter', 'open', 'pillars'] as const);
+  const layout = rng.pick([
+    'pillars',
+    'scatter',
+    'open',
+    'pillars',
+    'alcoves',
+    'crossing',
+    'ring',
+  ] as const);
   if (layout === 'pillars') {
     const ox = Math.max(room.x + 2, centre.x - 5);
     const oy = Math.max(room.y + 2, centre.y - 4);
@@ -571,6 +601,26 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
   } else if (layout === 'scatter') {
     for (let i = 0; i < 5; i++) {
       pillar(rng.int(room.x + 2, room.x + room.w - 3), rng.int(room.y + 2, room.y + room.h - 3), 1);
+    }
+  } else if (layout === 'alcoves') {
+    // Two broad shoulders of stone: cover on the flanks, open in the middle.
+    pillar(room.x + 2, centre.y - 4, 2);
+    pillar(room.x + room.w - 4, centre.y + 2, 2);
+  } else if (layout === 'crossing') {
+    // Four single stones on the diagonals around the room's heart.
+    for (const [dx, dy] of [
+      [-3, -2],
+      [3, -2],
+      [-3, 2],
+      [3, 2],
+    ])
+      pillar(centre.x + dx, centre.y + dy, 1);
+  } else if (layout === 'ring') {
+    // A broken ring: four cardinal gaps keep the fight mobile.
+    for (let i = 0; i < 8; i++) {
+      if (i % 2 === 0) continue;
+      const a = (i / 8) * Math.PI * 2;
+      pillar(Math.round(centre.x + Math.cos(a) * 4), Math.round(centre.y + Math.sin(a) * 4), 1);
     }
   }
 }

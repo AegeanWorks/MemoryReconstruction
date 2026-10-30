@@ -1390,7 +1390,7 @@ def background_image(biome: str) -> Image.Image:
 
 
 def prop_image(kind: str) -> Image.Image:
-    cell = 192 if kind in ("furn_dais", "furn_rug") else 96
+    cell = 192 if kind in ("furn_dais", "furn_rug") or kind.startswith("building_") else 96
     img = blank(cell)
     draw = ImageDraw.Draw(img)
     palette = {
@@ -1435,10 +1435,80 @@ def prop_image(kind: str) -> Image.Image:
         "coral": ((30, 62, 58), (108, 170, 156), (120, 240, 220)),
         "npc_warden": ((44, 50, 66), (124, 140, 176), (150, 210, 255)),
         "npc_lamplighter": ((48, 42, 32), (150, 122, 76), (255, 216, 130)),
+        "building_archive": ((38, 40, 62), (128, 126, 158), (168, 170, 255)),
+        "building_forge": ((52, 32, 26), (150, 98, 70), (255, 158, 78)),
+        "building_garden": ((34, 50, 34), (112, 148, 96), (168, 240, 150)),
+        "building_barracks": ((46, 46, 52), (140, 142, 158), (196, 214, 255)),
+        "building_lamphouse": ((50, 40, 26), (162, 128, 78), (255, 214, 130)),
+        "furn_books": ((46, 34, 44), (168, 132, 96), (206, 178, 120)),
+        "furn_candle": ((42, 36, 30), (196, 186, 160), (255, 214, 130)),
+        "furn_anvil": ((40, 40, 46), (108, 112, 126), (255, 150, 70)),
+        "furn_weapon_rack": ((40, 34, 28), (140, 116, 82), (196, 214, 255)),
+        "furn_stool": ((44, 34, 24), (150, 116, 78), (226, 200, 150)),
+        "furn_vines": ((34, 48, 32), (92, 130, 78), (150, 210, 120)),
+        "furn_brazier": ((42, 34, 28), (128, 104, 76), (255, 168, 82)),
+        "furn_herbs": ((38, 42, 30), (126, 132, 88), (196, 226, 150)),
+        "furn_desk": ((44, 34, 26), (150, 116, 78), (240, 226, 190)),
+        "furn_cauldron": ((34, 34, 38), (94, 98, 106), (150, 240, 170)),
+        "furn_strings": ((46, 38, 26), (168, 138, 84), (255, 220, 140)),
+        "cairn_stack": ((40, 38, 36), (118, 116, 112), (255, 196, 110)),
     }[kind]
     dark, light, accent = palette
     ellipse(draw, cell, 0.18, 0.82, 0.82, 0.94, fill=Shadow)
-    if kind == "memory_fountain":
+    if kind.startswith("building_"):
+        # A house facade: pitched roof, plaster wall, lit windows, a plank door
+        # and a hanging sign that carries the resident's colour.
+        roof = mix(dark, (18, 14, 12), 0.35)
+        win = mix(accent, (255, 244, 210), 0.55)
+        # Chimney behind the roofline.
+        rect(draw, cell, 0.70, 0.10, 0.80, 0.30, fill=roof, outline=Outline, width=2)
+        # Wall block.
+        rect(draw, cell, 0.10, 0.40, 0.90, 0.94, fill=light, outline=Outline, width=3, radius=0.02)
+        # Pitched roof.
+        poly(draw, cell, [(0.02, 0.42), (0.50, 0.08), (0.98, 0.42)], fill=roof, outline=Outline, width=3)
+        poly(draw, cell, [(0.10, 0.40), (0.50, 0.14), (0.90, 0.40)], outline=mix(roof, light, 0.5), width=1)
+        rect(draw, cell, 0.04, 0.38, 0.96, 0.44, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.04, 0.42, 0.96, 0.455, fill=accent)
+        # Windows with warm light and cross mullions.
+        for x0 in (0.17, 0.61):
+            rect(draw, cell, x0, 0.51, x0 + 0.22, 0.66, fill=win, outline=Outline, width=2)
+            line(draw, cell, [(x0 + 0.11, 0.51), (x0 + 0.11, 0.66)], dark, 1)
+            line(draw, cell, [(x0, 0.585), (x0 + 0.22, 0.585)], dark, 1)
+        # Door and step.
+        rect(draw, cell, 0.40, 0.60, 0.60, 0.94, fill=dark, outline=Outline, width=3, radius=0.03)
+        rect(draw, cell, 0.44, 0.64, 0.56, 0.94, fill=mix(dark, light, 0.35), outline=Outline, width=1)
+        ellipse(draw, cell, 0.525, 0.76, 0.555, 0.79, fill=accent, outline=Outline, width=1)
+        rect(draw, cell, 0.38, 0.93, 0.62, 0.97, fill=light, outline=Outline, width=1)
+        # Hanging sign above the door.
+        rect(draw, cell, 0.40, 0.465, 0.60, 0.495, fill=accent, outline=Outline, width=1)
+        line(draw, cell, [(0.44, 0.495), (0.44, 0.60)], dark, 1)
+        line(draw, cell, [(0.56, 0.495), (0.56, 0.60)], dark, 1)
+        if kind == "building_archive":
+            for i in range(3):
+                rect(draw, cell, 0.43 + i * 0.05, 0.468, 0.455 + i * 0.05, 0.492, fill=dark)
+        elif kind == "building_forge":
+            poly(draw, cell, [(0.44, 0.49), (0.50, 0.468), (0.56, 0.49), (0.52, 0.492), (0.50, 0.478), (0.48, 0.492)], fill=dark)
+        elif kind == "building_garden":
+            line(draw, cell, [(0.12, 0.44), (0.14, 0.70), (0.10, 0.94)], accent, 2)
+            line(draw, cell, [(0.88, 0.44), (0.86, 0.72), (0.90, 0.94)], accent, 2)
+            ellipse(draw, cell, 0.08, 0.86, 0.22, 0.98, fill=mix(light, accent, 0.4), outline=Outline, width=1)
+            ellipse(draw, cell, 0.78, 0.86, 0.92, 0.98, fill=mix(light, accent, 0.4), outline=Outline, width=1)
+        elif kind == "building_barracks":
+            for x0 in (0.14, 0.76):
+                rect(draw, cell, x0, 0.46, x0 + 0.10, 0.90, fill=accent, outline=Outline, width=1)
+                poly(draw, cell, [(x0, 0.90), (x0 + 0.05, 0.96), (x0 + 0.10, 0.90)], fill=dark)
+        elif kind == "building_lamphouse":
+            rect(draw, cell, 0.50, 0.02, 0.54, 0.12, fill=dark, outline=Outline, width=1)
+            ellipse(draw, cell, 0.44, 0.05, 0.60, 0.14, fill=win, outline=Outline, width=1)
+            for x0 in (0.28, 0.68):
+                rect(draw, cell, x0, 0.54, x0 + 0.04, 0.60, fill=dark, outline=Outline, width=1)
+                ellipse(draw, cell, x0 - 0.02, 0.50, x0 + 0.06, 0.58, fill=win, outline=accent, width=1)
+        glow(
+            img,
+            lambda d: ellipse(d, cell, 0.14, 0.46, 0.86, 0.72, fill=(255, 206, 130, 46)),
+            blur=6.0,
+        )
+    elif kind == "memory_fountain":
         ellipse(draw, cell, 0.16, 0.62, 0.84, 0.86, fill=dark, outline=Outline, width=2)
         ellipse(draw, cell, 0.22, 0.64, 0.78, 0.78, fill=light)
         rect(draw, cell, 0.32, 0.70, 0.68, 0.94, fill=dark, outline=Outline, width=2)
@@ -1627,6 +1697,99 @@ def prop_image(kind: str) -> Image.Image:
         rect(draw, cell, 0.42, 0.22, 0.58, 0.38, fill=(255, 244, 200))
         ellipse(draw, cell, 0.30, 0.08, 0.70, 0.48, fill=(255, 220, 140, 60))
         rect(draw, cell, 0.34, 0.92, 0.66, 0.98, fill=dark)
+    elif kind == "cairn_stack":
+        # Four weathered stones balanced into a cairn, with a lit rune slot.
+        ellipse(draw, cell, 0.12, 0.84, 0.88, 0.98, fill=Shadow)
+        for (x0, y0, x1, y1) in ((0.20, 0.70, 0.80, 0.86), (0.28, 0.56, 0.72, 0.72), (0.36, 0.44, 0.64, 0.58), (0.42, 0.34, 0.58, 0.46)):
+            ellipse(draw, cell, x0, y0, x1, y1, fill=light, outline=Outline, width=2)
+            ellipse(draw, cell, x0 + 0.05, y0 + 0.02, x0 + 0.16, y0 + 0.06, fill=(255, 255, 255, 55))
+        rect(draw, cell, 0.455, 0.50, 0.545, 0.545, fill=accent, outline=Outline, width=1)
+        glow(draw._image, lambda d: ellipse(d, cell, 0.34, 0.30, 0.66, 0.60, fill=(255, 190, 110, 60)), blur=4.0)
+    elif kind == "furn_desk":
+        # A writing desk with an open ledger and a quill.
+        rect(draw, cell, 0.10, 0.46, 0.90, 0.60, fill=light, outline=Outline, width=2, radius=0.02)
+        for x in (0.16, 0.84):
+            rect(draw, cell, x - 0.04, 0.60, x + 0.04, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.26, 0.34, 0.62, 0.48, fill=accent, outline=Outline, width=1)
+        line(draw, cell, [(0.44, 0.34), (0.44, 0.48)], Outline, 1)
+        for i in range(3):
+            line(draw, cell, [(0.28, 0.39 + i * 0.03), (0.42, 0.39 + i * 0.03)], dark, 1)
+        line(draw, cell, [(0.68, 0.36), (0.76, 0.20)], (240, 236, 220), 2)
+        rect(draw, cell, 0.74, 0.30, 0.80, 0.38, fill=dark, outline=Outline, width=1)
+    elif kind == "furn_cauldron":
+        # An iron pot on three legs, with a slow green light inside.
+        ellipse(draw, cell, 0.18, 0.42, 0.82, 0.62, fill=dark, outline=Outline, width=3)
+        poly(draw, cell, [(0.16, 0.50), (0.84, 0.50), (0.74, 0.88), (0.26, 0.88)], fill=light, outline=Outline, width=3)
+        ellipse(draw, cell, 0.22, 0.44, 0.78, 0.58, fill=accent, outline=Outline, width=1)
+        for x in (0.30, 0.50, 0.70):
+            line(draw, cell, [(x, 0.88), (x + 0.02, 0.96)], dark, 3)
+        glow(draw._image, lambda d: ellipse(d, cell, 0.24, 0.34, 0.76, 0.62, fill=(120, 240, 160, 55)), blur=5.0)
+    elif kind == "furn_strings":
+        # A string of small lamps strung along the back wall.
+        line(draw, cell, [(0.02, 0.26), (0.98, 0.34)], dark, 2)
+        for i in range(5):
+            x = 0.10 + i * 0.20
+            y = 0.26 + i * 0.016
+            line(draw, cell, [(x, y), (x, y + 0.10)], dark, 1)
+            ellipse(draw, cell, x - 0.05, y + 0.10, x + 0.05, y + 0.22, fill=accent, outline=Outline, width=1)
+            ellipse(draw, cell, x - 0.12, y + 0.04, x + 0.12, y + 0.28, fill=(255, 220, 140, 40))
+    elif kind == "furn_books":
+        # A leaning stack of tomes with a ribbon marker.
+        for i, (x0, y0, w) in enumerate(((0.24, 0.74, 0.50), (0.28, 0.62, 0.46), (0.22, 0.50, 0.52))):
+            rect(draw, cell, x0, y0, x0 + w, y0 + 0.11, fill=(light if i % 2 else accent), outline=Outline, width=2)
+            rect(draw, cell, x0, y0 + 0.015, x0 + 0.05, y0 + 0.095, fill=dark)
+        line(draw, cell, [(0.62, 0.50), (0.62, 0.38), (0.68, 0.34)], accent, 2)
+        ellipse(draw, cell, 0.18, 0.86, 0.82, 0.96, fill=(0, 0, 0, 70))
+    elif kind == "furn_candle":
+        rect(draw, cell, 0.40, 0.86, 0.60, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.44, 0.48, 0.56, 0.88, fill=light, outline=Outline, width=2)
+        line(draw, cell, [(0.50, 0.48), (0.50, 0.40)], dark, 2)
+        ellipse(draw, cell, 0.44, 0.28, 0.56, 0.42, fill=accent, outline=Outline, width=1)
+        ellipse(draw, cell, 0.33, 0.16, 0.67, 0.50, fill=(255, 220, 140, 55))
+    elif kind == "furn_anvil":
+        rect(draw, cell, 0.30, 0.82, 0.70, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.40, 0.64, 0.60, 0.84, fill=dark, outline=Outline, width=2)
+        poly(draw, cell, [(0.18, 0.52), (0.82, 0.52), (0.72, 0.66), (0.28, 0.66)], fill=light, outline=Outline, width=2)
+        poly(draw, cell, [(0.16, 0.52), (0.10, 0.56), (0.18, 0.60)], fill=light, outline=Outline, width=1)
+        rect(draw, cell, 0.36, 0.46, 0.56, 0.52, fill=accent)
+        for i in range(3):
+            line(draw, cell, [(0.58 + i * 0.06, 0.50), (0.62 + i * 0.06, 0.40)], (255, 190, 120, 120), 2)
+    elif kind == "furn_weapon_rack":
+        rect(draw, cell, 0.20, 0.30, 0.28, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.72, 0.30, 0.80, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.20, 0.42, 0.80, 0.48, fill=light, outline=Outline, width=2)
+        for x in (0.34, 0.50, 0.66):
+            line(draw, cell, [(x, 0.18), (x, 0.86)], light, 3)
+            poly(draw, cell, [(x - 0.03, 0.22), (x, 0.12), (x + 0.03, 0.22)], fill=accent, outline=Outline, width=1)
+            line(draw, cell, [(x - 0.05, 0.40), (x + 0.05, 0.40)], accent, 2)
+    elif kind == "furn_stool":
+        ellipse(draw, cell, 0.28, 0.36, 0.72, 0.58, fill=light, outline=Outline, width=2)
+        ellipse(draw, cell, 0.34, 0.40, 0.66, 0.54, fill=accent, outline=Outline, width=1)
+        for x in (0.36, 0.64):
+            line(draw, cell, [(x, 0.54), (x, 0.88)], dark, 3)
+        line(draw, cell, [(0.36, 0.70), (0.64, 0.70)], dark, 2)
+    elif kind == "furn_vines":
+        for x, drop in ((0.28, 0.86), (0.44, 0.68), (0.60, 0.92), (0.76, 0.74)):
+            line(draw, cell, [(x, 0.10), (x + 0.03, drop)], light, 2)
+            for t in (0.30, 0.48, 0.66):
+                if t > drop:
+                    continue
+                ellipse(draw, cell, x - 0.05, t, x + 0.06, t + 0.07, fill=accent, outline=Outline, width=1)
+    elif kind == "furn_brazier":
+        line(draw, cell, [(0.40, 0.92), (0.46, 0.60)], dark, 4)
+        line(draw, cell, [(0.60, 0.92), (0.54, 0.60)], dark, 4)
+        poly(draw, cell, [(0.24, 0.56), (0.76, 0.56), (0.66, 0.74), (0.34, 0.74)], fill=dark, outline=Outline, width=2)
+        for x, h in ((0.38, 0.26), (0.50, 0.36), (0.62, 0.24)):
+            poly(draw, cell, [(x - 0.05, 0.58), (x, 0.58 - h), (x + 0.05, 0.58)], fill=accent, outline=Outline, width=1)
+        ellipse(draw, cell, 0.22, 0.30, 0.78, 0.72, fill=(255, 170, 90, 45))
+    elif kind == "furn_herbs":
+        line(draw, cell, [(0.16, 0.18), (0.84, 0.18)], dark, 3)
+        for x, drop in ((0.28, 0.70), (0.42, 0.62), (0.56, 0.74), (0.70, 0.64)):
+            line(draw, cell, [(x, 0.18), (x, drop)], light, 2)
+            for t in (0.30, 0.44, 0.58):
+                if t > drop:
+                    continue
+                ellipse(draw, cell, x - 0.045, t, x + 0.045, t + 0.08, fill=accent, outline=Outline, width=1)
     elif kind == "station_hearth":
         ellipse(draw, cell, 0.18, 0.62, 0.82, 0.96, fill=dark, outline=Outline, width=3)
         ellipse(draw, cell, 0.24, 0.56, 0.76, 0.76, fill=light, outline=Outline, width=2)
@@ -1952,11 +2115,16 @@ def build() -> None:
         "cog_pillar", "ice_spire", "coral",
         "furn_table", "furn_chair", "furn_shelf", "furn_crate", "furn_planter", "furn_lantern",
         "furn_rug", "furn_banner", "furn_bench", "furn_dais", "furn_column",
+        "furn_books", "furn_candle", "furn_anvil", "furn_weapon_rack", "furn_stool",
+        "furn_vines", "furn_brazier", "furn_herbs", "cairn_stack",
+        "furn_desk", "furn_cauldron", "furn_strings",
+        "building_archive", "building_forge", "building_garden", "building_barracks",
+        "building_lamphouse",
     ]
     prop_meta = {}
     for prop in props:
         path = SPRITES / "props" / f"{prop}.png"
-        prop_size = 192 if prop in ("furn_dais", "furn_rug") else 96
+        prop_size = 192 if prop in ("furn_dais", "furn_rug") or prop.startswith("building_") else 96
         save_cell(prop_image(prop), prop_size, path)
         prop_meta[prop] = f"sprites/props/{prop}.png"
         print(f"props/{prop}.png")

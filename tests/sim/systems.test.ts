@@ -14,12 +14,6 @@ import { computeStats } from '../../src/sim/upgrades';
 import { Rng } from '../../src/sim/rng';
 import { questProgress, questSnapshot, QUESTS } from '../../src/sim/quests';
 import { restoredLevels } from '../../src/sim/hub';
-import {
-  SANCTUARY_DECOR,
-  SANCTUARY_GATE,
-  SANCTUARY_NPCS,
-  SANCTUARY_STRUCTURES,
-} from '../../src/sim/sanctuary';
 
 const DT = 1 / 60;
 
@@ -166,21 +160,21 @@ describe('hazards and the sanctuary', () => {
     expect(w.pickups.some((p) => p.kind === 'equipment')).toBe(true);
   });
 
-  it('builds a walkable sanctuary with structures, NPCs and a gate', () => {
+  it('builds a resident room with one NPC, one door and furnished floor', () => {
     const run = createRun(1, []);
-    const w = new World(run, { sanctuary: true });
+    const w = new World(run, { sanctuary: true, building: 'archivist' });
     expect(w.mode).toBe('sanctuary');
+    expect(w.activeBuilding).toBe('archivist');
     expect(w.enemies).toHaveLength(0);
     expect(w.hazards).toHaveLength(0);
-    expect(w.interactables.filter((i) => i.kind === 'structure')).toHaveLength(10);
-    expect(w.interactables.filter((i) => i.kind === 'npc')).toHaveLength(5);
-    expect(w.interactables.some((i) => i.kind === 'gate')).toBe(true);
-    expect(w.decor.length).toBeGreaterThan(10);
+    expect(w.interactables.filter((i) => i.kind === 'npc')).toHaveLength(1);
+    expect(w.interactables.filter((i) => i.kind === 'door')).toHaveLength(1);
+    expect(w.decor.length).toBeGreaterThan(5);
   });
 
-  it('emits a sanctuary event when interacting with a structure or NPC', () => {
+  it('emits the resident event when talking inside a room', () => {
     const run = createRun(1, []);
-    const w = new World(run, { sanctuary: true });
+    const w = new World(run, { sanctuary: true, building: 'smith' });
     const npc = w.interactables.find((i) => i.kind === 'npc')!;
     w.player.x = npc.x;
     w.player.y = npc.y;
@@ -273,21 +267,8 @@ describe('map layouts', () => {
     }
   });
 
-  it('keeps all sanctuary structures, NPCs, gate and above-ground decor on distinct tiles and blocks combat consumables', () => {
-    const occupied = new Set<string>();
-    const spots = [
-      ...SANCTUARY_STRUCTURES,
-      ...SANCTUARY_NPCS,
-      SANCTUARY_GATE,
-      ...SANCTUARY_DECOR.filter((d) => d.layer !== 'ground'),
-    ];
-    for (const s of spots) {
-      const key = `${s.tx},${s.ty}`;
-      expect(occupied.has(key)).toBe(false);
-      occupied.add(key);
-    }
-
-    const w = new World(createRun(12, []), { sanctuary: true });
+  it('blocks combat consumables inside a resident room', () => {
+    const w = new World(createRun(12, []), { sanctuary: true, building: 'warden' });
     w.player.health = 20;
     const beforePotions = w.player.potions;
     const beforeBombs = w.player.bombs;
@@ -301,11 +282,13 @@ describe('map layouts', () => {
     expect(w.player.traps).toBe(beforeTraps);
   });
 
-  it('uses all four structural layouts across the sections', () => {
+  it('uses at least eight structural layouts across the sections', () => {
     const layouts = new Set(
       Array.from({ length: 16 }, (_, depth) => world(depth, 5 + depth).plan.layout)
     );
-    expect(layouts).toEqual(new Set(['branch', 'ring', 'spine', 'grid', 'diamond', 'cross']));
+    expect(layouts.size).toBeGreaterThanOrEqual(8);
+    expect(layouts.has('clover')).toBe(true);
+    expect(layouts.has('terrace')).toBe(true);
   });
 });
 
@@ -320,6 +303,27 @@ describe('boss attacks and quests', () => {
     for (let i = 0; i < 120; i++) w.step(NO_INPUT, DT);
     expect(w.activeBoss()?.def.id).toBe('clockwork_regent');
     expect(w.player.health).toBeGreaterThan(0);
+  });
+
+  it('resolves each new attack kind without throwing', () => {
+    const w = world(3, 11);
+    const room = w.floor.rooms.find((r) => r.kind === 'combat') ?? w.floor.rooms[1];
+    w.player.x = (room.x + room.w / 2) * 32;
+    w.player.y = (room.y + room.h / 2) * 32;
+    w.player.stats.maxHealth = 9999;
+    w.player.health = 9999;
+    for (let i = 0; i < 40; i++) w.step(NO_INPUT, DT);
+    const enemy = w.enemies[0];
+    expect(enemy).toBeDefined();
+    for (const kind of ['fan', 'sweep', 'wall', 'pillars'] as const) {
+      enemy.state = 'windup';
+      enemy.stateTime = 0;
+      enemy.attack = kind;
+      w.step(NO_INPUT, DT);
+      for (let i = 0; i < 12; i++) w.step(NO_INPUT, DT);
+    }
+    expect(w.player.health).toBeGreaterThan(0);
+    expect(w.enemies.length).toBeGreaterThan(0);
   });
 
   it('derives quest progress from the save without extra state', () => {

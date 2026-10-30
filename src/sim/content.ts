@@ -72,7 +72,7 @@ export interface FloorPlan {
   roomCount: number;
   finale: boolean;
   /** Cell pattern for this section. */
-  layout: 'branch' | 'ring' | 'spine' | 'grid' | 'diamond' | 'cross';
+  layout: 'branch' | 'ring' | 'spine' | 'grid' | 'diamond' | 'cross' | 'clover' | 'terrace';
   /** A boss-only episode: one arena, no trash. */
   bossOnly?: boolean;
   /** Banner title for an episode instead of the biome name. */
@@ -109,6 +109,11 @@ const ARCHETYPES: Record<string, Archetype> = {
   splitter: 'caster',
   tank: 'brute',
   duelist: 'brute',
+  storm_caller: 'caster',
+  sweeper: 'caster',
+  wall_warden: 'caster',
+  pillar_warden: 'caster',
+  bombardier: 'caster',
   boss: 'boss',
   final_boss: 'boss',
 };
@@ -153,6 +158,16 @@ const SPRITE_KEYS: Record<string, string> = {
   forgotten: 'forgottenGiant',
   clockwork_regent: 'clockworkRegent',
   mire_sovereign: 'mireSovereign',
+  ash_herald: 'spirit',
+  cinder_hound: 'wildling',
+  frost_oracle: 'prismEntity',
+  rime_duelist: 'crystalGuardian',
+  bloom_sentinel: 'guardian',
+  petal_stalker: 'caveDweller',
+  grave_warden: 'boneKnight',
+  void_herald: 'voidCantor',
+  hive_slinger: 'hiveDrone',
+  mire_lurker: 'bogLeech',
 };
 
 /**
@@ -169,6 +184,16 @@ const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
     glass_sentinel: 0xaad8ff,
     bloom_crawler: 0xbaffc4,
     petal_witch: 0xffb0e6,
+    ash_herald: 0xffb070,
+    cinder_hound: 0xff9060,
+    frost_oracle: 0xbfeaff,
+    rime_duelist: 0xaad8ff,
+    bloom_sentinel: 0xbaffc4,
+    petal_stalker: 0xffb0e6,
+    grave_warden: 0xd8d0c0,
+    void_herald: 0xc0b0ff,
+    hive_slinger: 0xffd090,
+    mire_lurker: 0x9fd0a0,
   }).map(([id, color]) => [id, pastel(color)])
 );
 
@@ -216,12 +241,12 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     boss: 'crystal_guardian',
     roomCount: 9,
     finale: false,
-    layout: 'grid',
+    layout: 'clover',
   },
   {
     depth: 4,
     biome: 'ash',
-    roster: ['cinder_wisp', 'magma_hound', 'bombardier'],
+    roster: ['cinder_wisp', 'magma_hound', 'bombardier', 'ash_herald', 'cinder_hound'],
     boss: 'cinder_warden',
     roomCount: 10,
     finale: false,
@@ -259,7 +284,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 8,
     biome: 'void',
-    roster: ['void_walker', 'prism_entity', 'shadow', 'void_cantor'],
+    roster: ['void_walker', 'prism_entity', 'shadow', 'void_cantor', 'void_herald'],
     boss: 'forgotten',
     roomCount: 11,
     finale: false,
@@ -268,11 +293,11 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 9,
     biome: 'frost',
-    roster: ['frost_stalker', 'glass_sentinel', 'drowned'],
+    roster: ['frost_stalker', 'glass_sentinel', 'drowned', 'frost_oracle', 'rime_duelist'],
     boss: 'frost_warden',
     roomCount: 11,
     finale: false,
-    layout: 'grid',
+    layout: 'terrace',
   },
   {
     depth: 10,
@@ -288,7 +313,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 11,
     biome: 'mire',
-    roster: ['bog_leech', 'plague_caster', 'drowned'],
+    roster: ['bog_leech', 'plague_caster', 'drowned', 'mire_lurker'],
     boss: 'mire_sovereign',
     roomCount: 12,
     finale: false,
@@ -297,7 +322,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 12,
     biome: 'bloom',
-    roster: ['bloom_crawler', 'petal_witch', 'frost_stalker'],
+    roster: ['bloom_crawler', 'petal_witch', 'frost_stalker', 'bloom_sentinel', 'petal_stalker'],
     boss: 'thorn_matriarch',
     roomCount: 12,
     finale: false,
@@ -306,7 +331,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 13,
     biome: 'hive',
-    roster: ['hive_drone', 'hive_guard', 'cinder_wisp'],
+    roster: ['hive_drone', 'hive_guard', 'cinder_wisp', 'hive_slinger'],
     boss: 'hive_queen',
     roomCount: 12,
     finale: false,
@@ -315,7 +340,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 14,
     biome: 'catacomb',
-    roster: ['bone_knight', 'catacomb_archer', 'hive_guard', 'grave_hound'],
+    roster: ['bone_knight', 'catacomb_archer', 'hive_guard', 'grave_hound', 'grave_warden'],
     boss: 'bone_tyrant',
     roomCount: 13,
     finale: false,
@@ -324,7 +349,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 15,
     biome: 'sanctuary',
-    roster: ['void_walker', 'memory_echo', 'prism_entity'],
+    roster: ['void_walker', 'memory_echo', 'prism_entity', 'void_herald'],
     boss: 'keeper',
     roomCount: 5,
     finale: true,

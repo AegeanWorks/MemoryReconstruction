@@ -6,21 +6,32 @@ import { CORE_MEMORIES, FLOOR_PLANS, MEMORY_FRAGMENTS, biomeInfo } from '../sim/
 import { EQUIPMENT_SLOTS, equipmentDef } from '../sim/equipment';
 import { NPCS, QUESTS, questProgress, questsForNpc, type QuestSnapshot } from '../sim/quests';
 import {
+  ASPECTS,
+  CAIRN_COST,
+  CAIRN_MAX,
+  CAIRN_SHARDS,
+  REFORGE_RANKS,
   RESTORATIONS,
   TOTAL_RESTORATION_LEVELS,
+  cairnCost,
+  cairnOfferings,
   checkpointDepths,
   nextRestorationCost,
+  reforgeCost,
+  relicRank,
   restorationLevel,
   restoredLevels,
   sectionNumber,
+  type AspectId,
   type SanctuaryProgress,
 } from '../sim/hub';
 import { resonanceMultiplier, type RunState, type UpgradeChoice } from '../sim/run';
+import { SANCTUARY_BUILDINGS, SANCTUARY_STATIONS } from '../sim/sanctuary';
 import { upgradeDef } from '../sim/upgrades';
 import { WEAPONS } from '../sim/weapons';
 import type { World } from '../sim/world';
 import type { Meta, Settings } from '../save/SaveStore';
-import { button, h } from './dom';
+import { assetUrl, button, h } from './dom';
 import { drawMap } from './Minimap';
 
 export class Screens {
@@ -80,13 +91,20 @@ export function titleScreen(opts: {
     h('div', { class: 'subtitle' }, 'Walk the shattered world. Remember it whole.'),
     h(
       'div',
-      { class: 'menu' },
-      button('Enter the Sanctuary', opts.onNew, 'btn primary'),
-      continueBtn,
-      button(`Memories  ${recovered}/${MEMORY_FRAGMENTS.length}`, opts.onMemories),
-      button('Settings', opts.onSettings),
-      button('Controls', opts.onControls)
+      { class: 'title-menu' },
+      h(
+        'div',
+        { class: 'menu' },
+        button('Enter the Sanctuary', opts.onNew, 'btn primary'),
+        continueBtn,
+        button(`Memories  ${recovered}/${MEMORY_FRAGMENTS.length}`, opts.onMemories),
+        button('Settings', opts.onSettings),
+        button('Controls', opts.onControls)
+      )
     ),
+    !opts.canContinue
+      ? h('div', { class: 'meta-line' }, 'No expedition in progress. Enter the Sanctuary to begin.')
+      : null,
     meta.runs > 0
       ? h(
           'div',
@@ -202,6 +220,480 @@ export function hubScreen(opts: {
   );
 }
 
+/** The hub: a clean front door to the residents, stations and the gate. */
+export function sanctuaryScreen(opts: {
+  meta: Meta;
+  canContinue: boolean;
+  saved?: { depth: number; health: number; maxHealth: number };
+  restCost: number;
+  onEnter: (buildingId: string) => void;
+  onRestoration: () => void;
+  onTraining: () => void;
+  onMeditation: () => void;
+  onQuests: () => void;
+  onReliquary: () => void;
+  onCairn: () => void;
+  onAspect: () => void;
+  onReforge: () => void;
+  onExpedition: () => void;
+  onContinue: () => void;
+  onRest: () => void;
+  onMemories: () => void;
+  onSettings: () => void;
+  onControls: () => void;
+  onTitle: () => void;
+}): HTMLElement {
+  const { meta } = opts;
+  const progress = hubProgress(meta);
+  const restored = restoredLevels(progress);
+
+  const cards = SANCTUARY_BUILDINGS.map((building) =>
+    h(
+      'div',
+      { class: 'building-card', 'data-building': building.id },
+      h(
+        'div',
+        { class: 'building-art' },
+        h('img', {
+          src: assetUrl(`sprites/props/${building.facade}.png`),
+          alt: '',
+          loading: 'lazy',
+          draggable: 'false',
+        }),
+        h('img', {
+          class: 'building-badge',
+          src: assetUrl(`sprites/props/${building.cardProp}.png`),
+          alt: '',
+          loading: 'lazy',
+          draggable: 'false',
+        })
+      ),
+      h(
+        'div',
+        { class: 'building-copy' },
+        h('div', { class: 'building-name' }, building.name),
+        h('div', { class: 'building-role' }, building.role),
+        h('div', { class: 'building-blurb' }, building.blurb)
+      ),
+      button('Enter', () => opts.onEnter(building.id), 'btn small primary building-enter')
+    )
+  );
+
+  const stationActions: Record<string, () => void> = {
+    restoration: opts.onRestoration,
+    training: opts.onTraining,
+    meditation: opts.onMeditation,
+    noticeboard: opts.onQuests,
+    reliquary: opts.onReliquary,
+    cairn: opts.onCairn,
+    aspect: opts.onAspect,
+    reforge: opts.onReforge,
+  };
+
+  const stations = SANCTUARY_STATIONS.map((station) => {
+    const el = button(station.name, () => stationActions[station.id]?.(), 'btn station-button');
+    el.dataset.station = station.id;
+    el.append(h('span', { class: 'station-hint' }, station.hint));
+    return el;
+  });
+
+  const continueBtn = button('Continue Expedition', opts.onContinue, 'btn');
+  continueBtn.disabled = !opts.canContinue;
+  const restBtn = button(`Rest · ${opts.restCost} echoes`, opts.onRest, 'btn');
+  restBtn.disabled =
+    !opts.saved ||
+    !opts.canContinue ||
+    opts.meta.echoes < opts.restCost ||
+    opts.saved.health >= opts.saved.maxHealth;
+
+  return h(
+    'div',
+    { class: 'screen sanctuary-hub' },
+    h(
+      'div',
+      { class: 'hub-head' },
+      h('div', { class: 'subtitle' }, 'Between Expeditions'),
+      h('div', { class: 'title small' }, 'The Sanctuary'),
+      h(
+        'div',
+        { class: 'hub-ledger' },
+        h('span', {}, 'Echoes ', h('b', {}, `${meta.echoes}`)),
+        h('span', {}, 'Restored ', h('b', {}, `${restored}/${TOTAL_RESTORATION_LEVELS}`)),
+        h(
+          'span',
+          {},
+          'Memories ',
+          h('b', {}, `${meta.fragments.length}/${MEMORY_FRAGMENTS.length}`)
+        ),
+        h('span', {}, 'Checkpoint ', h('b', {}, `Section ${sectionNumber(meta.checkpoint)}`))
+      ),
+      h(
+        'div',
+        { class: 'rest-progress' },
+        h('div', {
+          class: 'rest-progress-fill',
+          style: `width:${(restored / TOTAL_RESTORATION_LEVELS) * 100}%`,
+        })
+      )
+    ),
+    h('div', { class: 'section-label' }, 'Residents'),
+    h('div', { class: 'building-grid' }, ...cards),
+    h(
+      'div',
+      { class: 'hub-lower' },
+      h(
+        'div',
+        { class: 'hub-places' },
+        h('div', { class: 'section-label' }, 'Places'),
+        h('div', { class: 'station-row' }, ...stations)
+      ),
+      h(
+        'div',
+        { class: 'hub-expedition' },
+        h('div', { class: 'section-label' }, 'Expedition'),
+        h(
+          'div',
+          { class: 'hub-actions' },
+          opts.saved && opts.canContinue
+            ? h(
+                'div',
+                { class: 'hub-saved' },
+                `Expedition waiting · Section ${opts.saved.depth + 1} · ${Math.round(
+                  opts.saved.health
+                )}/${Math.round(opts.saved.maxHealth)} HP`
+              )
+            : h('div', { class: 'hub-saved quiet' }, 'No expedition in progress.'),
+          button('Set Out', opts.onExpedition, 'btn primary'),
+          continueBtn,
+          restBtn
+        )
+      )
+    ),
+    h(
+      'div',
+      { class: 'hub-footer' },
+      button('Memories', opts.onMemories, 'btn small'),
+      button('Settings', opts.onSettings, 'btn small'),
+      button('Controls', opts.onControls, 'btn small'),
+      button('Title Screen', opts.onTitle, 'btn small')
+    )
+  );
+}
+
+/** Choose which vault relic is guaranteed to start every expedition. */
+export function reliquaryScreen(opts: {
+  meta: Meta;
+  onAttune: (defId: string) => void;
+  onBack: () => void;
+}): HTMLElement {
+  const attuned = opts.meta.attunedRelic;
+  const rows = opts.meta.vault
+    .map((defId) => {
+      try {
+        return { defId, def: equipmentDef(defId) };
+      } catch {
+        return null;
+      }
+    })
+    .filter((row): row is { defId: string; def: ReturnType<typeof equipmentDef> } => row !== null)
+    .map(({ defId, def }) => {
+      const isAttuned = attuned === defId;
+      return h(
+        'div',
+        { class: `gear-row ${def.rarity}${isAttuned ? ' attuned' : ' not-attuned'}` },
+        h('span', { class: 'gear-slot' }, def.slot),
+        h(
+          'div',
+          { class: 'gear-copy' },
+          h('div', { class: 'gear-name' }, def.name),
+          h('div', { class: 'gear-desc' }, def.description)
+        ),
+        h(
+          'div',
+          { class: 'gear-actions' },
+          isAttuned
+            ? h('span', { class: 'attuned-chip' }, 'Attuned')
+            : button('Attune', () => opts.onAttune(defId), 'btn small')
+        )
+      );
+    });
+
+  return h(
+    'div',
+    { class: 'screen place-screen' },
+    h('div', { class: 'heading' }, 'The Reliquary'),
+    h(
+      'div',
+      { class: 'subtitle' },
+      'One relic can be attuned to answer your call the moment an expedition begins.'
+    ),
+    h(
+      'div',
+      { class: 'place-body' },
+      h(
+        'div',
+        { class: 'place-art' },
+        h('img', { src: assetUrl('sprites/props/furn_weapon_rack.png'), alt: '' }),
+        h('div', { class: 'place-art-caption' }, 'The attuned relic waits on the shrine.')
+      ),
+      h(
+        'div',
+        { class: 'place-content' },
+        rows.length > 0
+          ? h(
+              'div',
+              { class: 'panel relic-list' },
+              ...rows,
+              h(
+                'div',
+                { class: 'place-note' },
+                attuned
+                  ? 'The attuned relic is equipped first; every other vault relic still travels with you.'
+                  : 'No relic is attuned. The first vault relic is equipped by default.'
+              )
+            )
+          : h(
+              'div',
+              { class: 'panel place-empty' },
+              h('div', { class: 'gear-name' }, 'The shelves are empty.'),
+              h(
+                'div',
+                { class: 'gear-desc' },
+                'Residents reward relics for their tasks. Once one is in the vault it can be attuned here.'
+              )
+            ),
+        h('div', { class: 'menu' }, button('Back', opts.onBack))
+      )
+    )
+  );
+}
+
+/** Bank echoes as starting shards for the next expedition. */
+export function cairnScreen(opts: {
+  meta: Meta;
+  onOffer: () => void;
+  onBack: () => void;
+}): HTMLElement {
+  const banked = cairnOfferings(opts.meta);
+  const cost = cairnCost(opts.meta);
+  const offer =
+    cost === undefined
+      ? h('div', { class: 'cairn-full-chip' }, '3/3 · The cairn is full')
+      : button(`Leave an offering · ${CAIRN_COST} echoes`, opts.onOffer, 'btn primary');
+  if (offer instanceof HTMLButtonElement) offer.disabled = opts.meta.echoes < CAIRN_COST;
+  const pips = Array.from({ length: CAIRN_MAX }, (_, i) =>
+    h('span', { class: `cairn-pip${i < banked ? ' filled' : ''}` })
+  );
+  return h(
+    'div',
+    { class: 'screen place-screen' },
+    h('div', { class: 'heading' }, 'The Cairn'),
+    h(
+      'div',
+      { class: 'subtitle' },
+      'A stack of warm stones. Echoes pressed here come back as shards in your hand.'
+    ),
+    h(
+      'div',
+      { class: 'place-body' },
+      h(
+        'div',
+        { class: 'place-art cairn-art' },
+        h('img', { src: assetUrl('sprites/props/cairn_stack.png'), alt: '' }),
+        h('div', { class: 'place-art-caption' }, 'Offerings rest here until the road calls.')
+      ),
+      h(
+        'div',
+        { class: 'place-content' },
+        h(
+          'div',
+          { class: 'panel place-panel' },
+          h('div', { class: 'cairn-pips' }, ...pips),
+          h(
+            'div',
+            { class: 'cairn-total' },
+            `${banked * CAIRN_SHARDS} starting shards`,
+            h('span', { class: 'cairn-sub' }, ` · ${banked}/${CAIRN_MAX} offerings banked`)
+          ),
+          offer,
+          h(
+            'div',
+            { class: 'place-note' },
+            `Each offering costs ${CAIRN_COST} echoes and carries ${CAIRN_SHARDS} shards into the next expedition only. Offerings are spent when you set out.`
+          )
+        ),
+        h('div', { class: 'menu' }, button('Back', opts.onBack))
+      )
+    )
+  );
+}
+
+/** Choose the long-term element that colours every expedition. */
+export function aspectScreen(opts: {
+  current: string;
+  onChoose: (id: AspectId) => void;
+  onBack: () => void;
+}): HTMLElement {
+  const cards = ASPECTS.map((aspect) => {
+    const selected = opts.current === aspect.id;
+    return h(
+      'div',
+      { class: `aspect-card${selected ? ' selected' : ''}`, 'data-aspect': aspect.id },
+      h('div', { class: `aspect-sigil aspect-${aspect.id}` }),
+      h(
+        'div',
+        { class: 'aspect-copy' },
+        h('div', { class: 'aspect-name' }, aspect.name),
+        h('div', { class: 'aspect-desc' }, aspect.description)
+      ),
+      selected
+        ? h('span', { class: 'attuned-chip' }, 'Active')
+        : button('Choose', () => opts.onChoose(aspect.id), 'btn small')
+    );
+  });
+  return h(
+    'div',
+    { class: 'screen place-screen aspect-screen' },
+    h('div', { class: 'heading' }, 'The Aspect Shrine'),
+    h(
+      'div',
+      { class: 'subtitle' },
+      'Mark the walker with one element. The mark is permanent until changed here.'
+    ),
+    h('div', { class: 'aspect-grid' }, ...cards),
+    h('div', { class: 'menu' }, button('Back', opts.onBack))
+  );
+}
+
+/** Compact, human-readable relic mods, scaled by the Reforge rank. */
+const MOD_LABELS: Record<string, string> = {
+  maxHealth: 'health',
+  maxMana: 'mana',
+  manaRegen: 'mana regen',
+  moveSpeed: 'move speed',
+  meleeDamage: 'melee damage',
+  attackSpeed: 'attack speed',
+  critChance: 'crit chance',
+  critMultiplier: 'crit damage',
+  dashCharges: 'dash charge',
+  dashRecharge: 'dash recharge',
+  boltDamage: 'bolt damage',
+  boltCost: 'bolt cost',
+  boltCount: 'bolt',
+  boltPierce: 'bolt pierce',
+  lifesteal: 'lifesteal',
+  damageReduction: 'damage reduction',
+  pickupRadius: 'pickup radius',
+  maxPotions: 'potion capacity',
+  manaOnKill: 'mana on kill',
+};
+
+const MOD_PERCENT = new Set([
+  'attackSpeed',
+  'critChance',
+  'critMultiplier',
+  'lifesteal',
+  'damageReduction',
+  'moveSpeed',
+  'dashRecharge',
+  'manaRegen',
+]);
+
+function modSummary(mods: Record<string, unknown>, scale = 1): string {
+  const parts: string[] = [];
+  for (const [key, raw] of Object.entries(mods)) {
+    if (typeof raw !== 'number') continue;
+    const label = MOD_LABELS[key];
+    if (!label) continue;
+    const value = raw * scale;
+    const rounded = Math.abs(value) >= 1 ? Math.round(value) : Math.round(value * 10) / 10;
+    const text = MOD_PERCENT.has(key)
+      ? `${value > 0 ? '+' : ''}${Math.round(value * 100)}%`
+      : `${value > 0 ? '+' : ''}${rounded}`;
+    parts.push(`${text} ${label}`);
+  }
+  return parts.join(' · ');
+}
+/** Reinforce vault relics permanently with echoes. */
+export function reforgeScreen(opts: {
+  meta: Meta;
+  onReforge: (defId: string) => void;
+  onBack: () => void;
+}): HTMLElement {
+  const rows = opts.meta.vault
+    .map((defId) => {
+      try {
+        return { defId, def: equipmentDef(defId) };
+      } catch {
+        return null;
+      }
+    })
+    .filter((row): row is { defId: string; def: ReturnType<typeof equipmentDef> } => row !== null)
+    .map(({ defId, def }) => {
+      const rank = relicRank(opts.meta, defId);
+      const cost = reforgeCost(opts.meta, defId);
+      const pips = h(
+        'div',
+        { class: 'reforge-pips' },
+        ...Array.from({ length: REFORGE_RANKS }, (_, i) =>
+          h('span', { class: `reforge-pip${i < rank ? ' filled' : ''}` })
+        )
+      );
+      const action =
+        cost === undefined
+          ? h('span', { class: 'attuned-chip' }, 'Masterwork')
+          : button(`Reforge · ${cost} echoes`, () => opts.onReforge(defId), 'btn small');
+      if (cost !== undefined && opts.meta.echoes < cost)
+        (action as HTMLButtonElement).disabled = true;
+      return h(
+        'div',
+        { class: `gear-row ${def.rarity}${rank > 0 ? ' attuned' : ''}` },
+        h('span', { class: 'gear-slot' }, def.slot),
+        h(
+          'div',
+          { class: 'gear-copy' },
+          h('div', { class: 'gear-name' }, `${def.name}${rank > 0 ? ` +${rank}` : ''}`),
+          h('div', { class: 'gear-desc' }, modSummary(def.mods, 1 + 0.12 * rank)),
+          pips
+        ),
+        h('div', { class: 'gear-actions' }, action)
+      );
+    });
+
+  return h(
+    'div',
+    { class: 'screen place-screen' },
+    h('div', { class: 'heading' }, 'The Reforge'),
+    h(
+      'div',
+      { class: 'subtitle' },
+      'Each rank strengthens every number on a relic. The work is permanent and follows it into every expedition.'
+    ),
+    rows.length > 0
+      ? h(
+          'div',
+          { class: 'panel relic-list' },
+          ...rows,
+          h(
+            'div',
+            { class: 'place-note' },
+            'Ranks add +12% to the relic’s numeric mods, up to three ranks.'
+          )
+        )
+      : h(
+          'div',
+          { class: 'panel place-empty' },
+          h('div', { class: 'gear-name' }, 'Nothing to reforge yet.'),
+          h(
+            'div',
+            { class: 'gear-desc' },
+            'Relics earned from residents wait in the Reliquary. Bring one here to strengthen it.'
+          )
+        ),
+    h('div', { class: 'menu' }, button('Back', opts.onBack))
+  );
+}
+
 /** Pick a checkpoint to start a new expedition from. */
 export function expeditionScreen(opts: {
   meta: Meta;
@@ -214,6 +706,7 @@ export function expeditionScreen(opts: {
 }): HTMLElement {
   const rows = checkpointDepths().map((depth) => {
     const unlocked = depth <= opts.meta.checkpoint;
+    const name = `Section ${depth + 1} \u00b7 ${FLOOR_PLANS[depth].trialName ?? biomeInfo(FLOOR_PLANS[depth].biome).name}`;
     const start = button(
       unlocked ? `Begin at Section ${depth + 1}` : `Reach Section ${depth + 1} to unlock`,
       () => opts.onStart(depth),
@@ -223,19 +716,11 @@ export function expeditionScreen(opts: {
     return h(
       'div',
       { class: `checkpoint${unlocked ? '' : ' locked'}` },
-      h(
-        'div',
-        { class: 'cp-head' },
-        h(
-          'span',
-          { class: 'cp-name' },
-          `Section ${depth + 1} · ${FLOOR_PLANS[depth].trialName ?? biomeInfo(FLOOR_PLANS[depth].biome).name}`
-        ),
-        h('span', { class: 'cp-tag' }, depth === 0 ? 'Beginning' : 'Checkpoint')
-      ),
+      h('div', { class: 'cp-head' }, h('span', { class: 'cp-name', title: name }, name)),
       h(
         'div',
         { class: 'cp-note' },
+        h('span', { class: 'cp-tag' }, depth === 0 ? 'Beginning' : 'Checkpoint'),
         depth === 0
           ? 'Start from the first memory.'
           : `Skip ahead: +${depth * 2} vestige upgrades and level ${1 + depth * 2}.`
@@ -348,7 +833,9 @@ export function dialogueScreen(opts: {
 
 /** Esc menu inside the walkable Sanctuary. */
 export function sanctuaryMenuScreen(opts: {
+  buildingName: string;
   onResume: () => void;
+  onLeave: () => void;
   onSettings: () => void;
   onControls: () => void;
   onTitle: () => void;
@@ -356,12 +843,13 @@ export function sanctuaryMenuScreen(opts: {
   return h(
     'div',
     { class: 'screen' },
-    h('div', { class: 'heading' }, 'The Sanctuary'),
-    h('div', { class: 'subtitle' }, 'A quiet place between expeditions.'),
+    h('div', { class: 'heading' }, opts.buildingName),
+    h('div', { class: 'subtitle' }, 'A quiet room in the Sanctuary.'),
     h(
       'div',
       { class: 'menu' },
-      button('Return', opts.onResume, 'btn primary'),
+      button('Stay', opts.onResume, 'btn primary'),
+      button('Back to the Sanctuary', opts.onLeave),
       button('Settings', opts.onSettings),
       button('Controls', opts.onControls),
       button('Title', opts.onTitle)
@@ -952,7 +1440,11 @@ export function mapScreen(world: World, onClose: () => void): HTMLElement {
     ),
     canvas,
     h('div', { class: 'meta-line' }, objectiveSummary(world)),
-    h('div', { class: 'meta-line' }, 'Gold: treasure  ·  Cyan: memory well  ·  Red: guardian'),
+    h(
+      'div',
+      { class: 'meta-line map-legend' },
+      'White: you  ·  Violet: explored or library  ·  Gold: treasure  ·  Cyan: memory well  ·  Red: guardian  ·  Orange: arena'
+    ),
     h('div', { class: 'menu' }, button('Close', onClose))
   );
 }

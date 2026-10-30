@@ -246,3 +246,79 @@ or the architecture; see the header above for where each entry goes. -->
 - New versions use the Aegean Game License 1.1 (AGL-1.1).
 - Rights holder: AegeanWorks; commercial use under ACL-1.0.
 - Counsel review of the 1.1 texts remains pending.
+
+### ADR-027: Visual QA round three — checkpoint rhythm, balanced card rows and a legible map
+
+- **Date**: 2026-10-29
+- **Status**: Accepted
+- **Context**: A fresh 17-screen browser capture was reviewed by exactly one vision subagent (per the user's instruction). It confirmed the established art direction and found six concrete presentation defects: expedition checkpoint titles wrapped the "Checkpoint" tag onto a second line and the last row clipped; seven restoration cards left an orphaned row; the map graph occupied a small fraction of its modal and the legend did not explain the violet explored rooms, the white player ring, or the orange arena; long Sanctuary/quest card rows were left-aligned; the boss name sat directly on bright halo particles with no HP value; the idle Flow meter read `FLOW —` like a placeholder; and the pause/map overlays let the dimmed HUD remain readable behind the panel. The subagent also reported a zero-stat results panel and an empty late-section room, which were reproduced only by teleporting and instantly ending a synthetic run, not by normal play.
+- **Decision**:
+  1. **Checkpoint rhythm**: checkpoint rows use a compact fixed-height grid; the tag moved from the title line to the note line, so `Section 16 · Sanctuary of Reconstruction` and every other long name stays complete. The list uses a 60vh cap with overflow for very short viewports; at 1280x720 all six rows fit.
+  2. **Balanced card rows**: `.hub-grid` is a centered flex wrap with 222px restoration cards, so the final row of restoration, quest, training and meditation cards is centered instead of left-orphaned. The orphaned `LIGHTS OUT` quest card now sits under the middle of the previous row.
+  3. **Map legibility**: `drawMap` fits the known-room bounding box with one tile of padding and a 24px scale cap instead of 4px, so the early one-room map and later floors fill the canvas. The legend now names the white player ring, violet explored/library rooms, gold treasure, cyan wells, red guardians and orange arenas.
+  4. **HUD hierarchy**: the boss name sits on a dark rounded plate; the boss bar carries a live HP percentage. Idle Flow reads `FLOW · IDLE` at 68% opacity with dim ink instead of a cyan dash. Menu scrims are darker, and `.hud.dim` is fully transparent, so the pause, map, choice and inventory overlays cannot leak the vitals or floor line.
+  5. **Title and layout**: the title menu has a translucent backing panel and a line explaining a disabled Continue when no expedition is saved.
+- **Consequences**: The single vision subagent marked every targeted item FIXED with no new P0/P1 regression; the remaining zero-stat/empty-room notes were identified as synthetic-capture artifacts and left unchanged. 121 tests, lint, typecheck, build and all 7/7 project gates pass.
+
+
+### ADR-028: The Sanctuary hub is a UI screen with real rooms behind it
+
+- **Date**: 2026-10-29
+- **Status**: Accepted
+- **Context**: ADR-027's village square was walkable, but the user judged it unprofessional: a large tiled square with scattered props, station labels floating over house art, a walk-to-door interaction and a spotlight mask were doing the work a clean hub screen should do. The parts worth keeping were the buildings and the experience of stepping into a resident's own interior.
+- **Decision**:
+  1. **Hub as UI**: `sanctuaryScreen` replaces the walkable square. It uses the sanctuary background art under a dark gradient, a centered title and ledger, a five-card Residents row (facade thumbnail, name, role, blurb, `Enter`), a Places grid (Restoration ledger, Training Yard, Meditation Stone, Notice Board), an Expedition panel (Set Out, Continue, Rest) and a footer (Memories, Settings, Controls, Title). Cards and buttons are real DOM controls, so keyboard focus, gamepad-as-keyboard and small-window layout all work.
+  2. **One room per resident**: `World` now requires a building id in sanctuary mode (`new World(run, { sanctuary: true, building })`) and builds exactly one sealed 21x13 room from `buildBuildingFloor`: walls all round, a ward-glyph ring, the resident at the north end, the door at the south, and furniture exclusive to that building (Archive shelves and a reading table, Forge armory and hearth, Garden tree and planters, Barracks bulwark and drill mat, Lamp House lamps and table). Unknown or missing ids throw instead of building an empty world.
+  3. **Flow**: choosing `Enter` builds the room and switches to walkable `sanctuary`; the door emits `buildingExit`, which closes the room and reopens the hub. The in-room pause menu offers Stay / Back to the Sanctuary / Settings / Controls / Title. Saves never hold a room, so loading always starts at the hub.
+  4. **Rendering**: the square's spotlight mask, camera plaza clamp and facade-label logic are deleted; the interior camera frames the room and the darkness vignette stays. The door uses the ruins-door prop with its label above the arch; resident names fade in near the walker.
+  5. **Assets**: five generated 192px facade props (`building_archive/forge/garden/barracks/lamphouse`) are reused as hub card art, so the UI and the world share one art source.
+- **Consequences**: the hub reads as a designed screen, every resident has a distinct interior, and the sim is simpler (one room, no spotlight, no door-toggling state). `tests/sim/sanctuary.test.ts` covers the room contract, flow and tile uniqueness; 131 tests, lint, typecheck and the project gates pass.
+### ADR-029: Two mechanical places and five materially distinct rooms
+
+- **Date**: 2026-10-29
+- **Status**: Accepted
+- **Context**: The hub had four places that were all setup screens, and all five resident rooms shared the sanctuary palette, so only the furniture differed. The user asked for two more places with real mechanics and for each room to have its own proper environment art.
+- **Decision**:
+  1. **The Reliquary** (station `reliquary`): `attuneRelic` records one equipment def id, accepted only if it is already in the meta vault, so the shrine cannot mint gear. `createExpedition` orders the vault so the attuned relic is equipped first and therefore claims its slot; clearing the attunement restores plain vault order. The screen lists the vault with rarity edges, dims non-attuned rows and shows an `Attuned` chip on the pick.
+  2. **The Cairn** (station `cairn`): `purchaseOffering` spends 20 echoes per offering, capped at three (`CAIRN_MAX`), and each carries 45 starting shards (`CAIRN_SHARDS`). `createExpedition` seeds `player.shards` from the banked count; `startExpedition` clears the bank because the run that carries it has begun. A full cairn renders as a `3/3 · The cairn is full` chip rather than a disabled button.
+  3. **Meta safety**: both fields are additive and defaulted in the zod schema (`attunedRelic: null`, `offerings: 0`), so pre-existing saves load unchanged.
+  4. **Per-room art**: every `SanctuaryBuilding` now carries a `theme: BiomeId` and a `cardProp`. `World` builds the room's plan with the theme biome, so the existing tile painter supplies a genuinely different floor/wall material: crystal parquet (Archive), foundry plate (Forge), forest grass (Garden), frost flagstone (Barracks), catacomb stone (Lamp House). Room furniture was extended with eight new generated props (`furn_books`, `furn_candle`, `furn_anvil`, `furn_weapon_rack`, `furn_stool`, `furn_vines`, `furn_brazier`, `furn_herbs`) plus a `cairn_stack` shrine prop used by the Cairn screen.
+  5. **Room hygiene**: floor glyphs are cleared under every placed prop so decals never draw through furniture, the door-to-resident lane stays clear, and a single vision review pass is used to catch clipping and contrast issues.
+  6. **Hub identity**: resident cards show their own themed prop as a badge beside the facade, so the five houses differ by silhouette as well as tint.
+- **Consequences**: the hub now offers two long-term decisions that touch the next run, and the five interiors read as five different places built from one art pipeline. `tests/hub.test.ts` covers attunement ordering and cairn banking/spending; `tests/sim/sanctuary.test.ts` covers the distinct themes; 135 tests and the project gates pass.
+### ADR-030: More layouts, a larger bestiary, four new attack patterns and a permanent aspect
+
+- **Date**: 2026-10-29
+- **Status**: Accepted
+- **Context**: Section geography, enemy behaviour and builds had settled into a known set: six map layouts, three room decorations, seventeen attack kinds and eighteen upgrades. Replays were starting to read the same, and the only permanent build choice was which checkpoints to unlock.
+- **Decision**:
+  1. **Map layouts**: `clover` (four lobes around a shared heart) and `terrace` (switchback runs joined at alternating ends) join the generator, giving eight structural layouts across the sixteen sections. Combat rooms now choose from seven interior patterns: open, pillars, scatter, alcoves, crossing and a broken ring, on top of the existing size fallbacks.
+  2. **Bestiary**: ten new records in `enemies.json` (ash herald, cinder hound, frost oracle, rime duelist, bloom sentinel, petal stalker, grave warden, void herald, hive slinger, mire lurker), each mapped to an existing sheet plus a section tint, and placed in the ash, void, frost, mire, bloom, hive, catacomb and finale rosters. New behaviours (`storm_caller`, `sweeper`, `wall_warden`, `pillar_warden`) are resolved to the caster archetype and to a signature attack, so the data file stays declarative.
+  3. **Attacks**: four new `AttackKind`s. `fan` fires a five-shot cone, `sweep` resolves a rotating beam frame by frame for one clean hit, `wall` launches a curtain of bolts with a fixed two-bolt gap, and `pillars` walks alternating ground eruptions toward the player. Every one has a matching windup telegraph in `ActorView`, including a live arc while a sweep resolves; the wall telegraph and the launched curtain share the same gap.
+  4. **Customization**: six new upgrades (Deep Breath, Frenzy, Deadeye, Aegis, Channel, Siphon) broaden melee, crit, defence and caster builds. The Aspect Shrine adds a permanent meta choice - Unmarked, Ember, Tide or Stone - applied on top of restoration and aspect-adjusted stats before health is filled, so the choice changes every expedition without a new save schema version.
+  5. **UI**: the hub's Places grid gains a seventh station, and an odd last station spans both columns instead of sitting alone; the Aspect Shrine screen shows four sigil cards with the active one marked.
+- **Consequences**: routes, fights and builds vary more without new art dependencies for enemies (tint-reused sheets). Meta additions are defaulted (`aspect: 'none'`), so old saves load unchanged. 142 tests pass, and `tests/sim/content.test.ts`, `tests/sim/upgrades.test.ts` and `tests/hub.test.ts` cover the new data, attacks and aspect math.
+### ADR-031: The Reforge caps the hub at eight places, and interiors gain their own floor grammar
+
+- **Date**: 2026-10-29
+- **Status**: Accepted
+- **Context**: ADR-030 left seven Places, so the hub grid ran an odd row, and there was no permanent sink for late-game echoes once restorations and the Cairn were covered. Interiors used one ward ring and the same pattern in every room, so the five rooms differed by palette and props but shared a floor language.
+- **Decision**:
+  1. **The Reforge** (eighth and final station, `reforge`): `reforgeRelic` spends 30/60/100 echoes to raise one vault relic by a rank, to a maximum of three (`REFORGE_RANKS`). `EquipmentItem.rank` is optional in the run save, so old runs still load; `applyEquipment` multiplies every numeric mod by `1 + 0.12 * rank` before rounding, and `createExpedition` stamps the stored rank onto vault items. The screen shows a three-pip rank meter, the next price and a `Masterwork` terminal state.
+  2. **Eight places exactly**: `SANCTUARY_STATIONS` is capped at eight and a unit test asserts the count and order. With eight stations the two-column grid is four balanced rows; the odd-last-row CSS rule remains for narrower layouts.
+  3. **Room floor grammar**: `interiorDeco` replaces the single ward ring with a per-theme pattern - an Archive ward ring, Forge soot cracks and rubble, Garden moss clumps, Barracks drill lines and crossbar, and Lamp House pools of lamplight. The door lane and resident approach are always cleared, and glyphs under props are cleared after carving.
+  4. **More environment art**: `furn_desk`, `furn_cauldron` and `furn_strings` join the generated prop set and are placed thematically (desks and lamp strings in the Archive and Barracks, a cauldron in the Forge and Garden, lamp strings across the Lamp House).
+  5. **Encoding guard**: a `tests/encoding.test.ts` regression test scans `src`, `tests`, `scripts`, `docs` and `.aikit` for U+FFFD, after a PowerShell-written middle dot produced a replacement glyph in the Reforge button.
+- **Consequences**: the hub is a clean 4x2 grid of eight places, echo surplus has a permanent use, and every interior now has a distinct floor pattern on top of its palette and furniture. 146 tests pass; the hub, Reforge and room geometry were verified by DOM and world measurements (eight stations, four aligned rows, no card overflow, no prop outside its room or on the door lane).
+### ADR-032: Verification pass before delivery - aspect persistence, compact hub and encoding hardening
+
+- **Date**: 2026-10-29
+- **Status**: Accepted
+- **Context**: A pre-push audit of ADR-030/031 found that the Aspect Shrine's modifiers were applied once at expedition creation. `refreshStats` rebuilds stats from upgrades and equipment on every level-up, relic swap and Continue, so the aspect silently vanished after the first of those events.
+- **Decision**:
+  1. **Aspect is part of stat derivation**: `ASPECTS`, `AspectId` and `applyAspect` moved to `sim/aspects.ts` (no hub/player cycle), `Player` carries an optional `aspect`, `refreshStats` applies it after upgrades and equipment, `createExpedition` sets it from meta before the first refresh, and `restoreRun` defaults it to `'none'`. The manual one-time application was removed.
+  2. **Short-window hub**: a `max-height: 700px` block hides blurbs and station hints, shrinks facade art and the ledger, and tightens spacing. At 1024x640 the hub now fits exactly (scrollHeight 640, footer at 630) instead of overflowing by 112px.
+  3. **Reforge legibility**: the screen now shows the effective, rank-scaled mod line (for example `+9 melee damage · +10% crit chance`) with flat values rounded, plus rank pips and the next price.
+  4. **Boss exposure**: `fan` joins the Crystal Guardian's pattern and `sweep` joins the Frost Warden's, so the new attack types appear outside the ten new enemies. Unused boss-pattern entries for non-boss ids were removed.
+  5. **Encoding**: a raw 0xB7 byte from a PowerShell write corrupted the mod separator and previously the Reforge button. `tests/encoding.test.ts` now fails when a source file is not valid UTF-8 (not only when it already contains U+FFFD), and the damaged file was repaired by mapping stray cp1252 bytes back to characters.
+- **Consequences**: aspects survive level-ups, relic swaps and Continue; the hub fits laptop-height windows; the Reforge explains its effect; two bosses showcase the new attacks. 150 tests and all project gates pass.

@@ -9,22 +9,27 @@ import { biomeInfo } from '../sim/content';
 import { NO_INPUT } from '../sim/entities';
 import type { SimEvent } from '../sim/events';
 import {
-  RESTORATIONS,
+  attuneRelic,
   checkpointForDepth,
+  chooseAspect,
+  reforgeRelic,
   createExpedition,
   echoesEarned,
+  purchaseOffering,
   purchaseRestoration,
   sectionNumber,
 } from '../sim/hub';
 import { NPCS, questProgress, questsForNpc, questSnapshot } from '../sim/quests';
 import { createRun, type RunState } from '../sim/run';
-import { SANCTUARY_LABELS } from '../sim/sanctuary';
+import { buildingById } from '../sim/sanctuary';
 import { World } from '../sim/world';
 import { SaveStore, recordRun, type Meta, type Settings } from '../save/SaveStore';
 import { h } from '../ui/dom';
 import { Hud } from '../ui/Hud';
 import {
   Screens,
+  aspectScreen,
+  cairnScreen,
   choiceScreen,
   controlsScreen,
   deathScreen,
@@ -38,8 +43,11 @@ import {
   memoriesScreen,
   pauseScreen,
   questLogScreen,
-  trainingScreen,
+  reforgeScreen,
+  reliquaryScreen,
   sanctuaryMenuScreen,
+  sanctuaryScreen,
+  trainingScreen,
   settingsScreen,
   titleScreen,
   victoryScreen,
@@ -76,10 +84,12 @@ export class App {
   private readonly screens: Screens;
   private readonly fade = h('div', { class: 'fade' });
   private readonly prompt = h('div', { class: 'sanctuary-prompt hidden' });
+  private readonly sanctuaryName = h('div', { class: 'st-title' }, 'The Sanctuary');
+  private sanctuaryNameText = 'The Sanctuary';
   private readonly sanctuaryTitle = h(
     'div',
     { class: 'sanctuary-title hidden' },
-    h('div', { class: 'st-title' }, 'The Sanctuary'),
+    this.sanctuaryName,
     h('div', { class: 'st-sub' }, 'E interact  ·  I relics  ·  Esc menu')
   );
   private accumulator = 0;
@@ -215,13 +225,10 @@ export class App {
           this.endRun(true);
           return;
         case 'sanctuary':
-          if (e.kind === 'structure') {
-            if (e.id === 'training') this.showTraining();
-            else if (e.id === 'meditation') this.showMeditation();
-            else if (e.id === 'noticeboard') this.showQuestLog(() => this.closeHubPanel());
-            else this.openHubPanel();
-          } else if (e.kind === 'npc') this.showNpc(e.id);
-          else this.showExpedition();
+          if (e.kind === 'npc') this.showNpc(e.id);
+          return;
+        case 'buildingExit':
+          this.click(() => this.showHub());
           return;
         default:
           break;
@@ -262,21 +269,76 @@ export class App {
     );
   }
 
-  /** Walks the Sanctuary as a real map: structures, NPCs and the gate. */
+  /** The Sanctuary hub: a UI screen with the residents, places and the gate. */
   private showHub(): void {
-    this.state = 'sanctuary';
+    this.state = 'hub';
     this.screens.close();
     document.querySelectorAll('.banner').forEach((el) => el.remove());
     this.hud.setVisible(false);
     this.input.releaseAll();
     this.deathTimer = -1;
+    this.world = undefined;
+    this.renderer.clearFloor();
+    this.sound.playAmbience('sanctuary');
+    const saved = this.store.loadRun();
+    const restCost = saved ? 10 + saved.depth * 2 : 0;
+    this.screens.show(
+      sanctuaryScreen({
+        meta: this.meta,
+        canContinue: !!saved,
+        saved: saved
+          ? {
+              depth: saved.depth,
+              health: saved.player.health,
+              maxHealth: saved.player.stats.maxHealth,
+            }
+          : undefined,
+        restCost,
+        onEnter: (id) => this.click(() => this.enterBuilding(id)),
+        onRestoration: () => this.click(() => this.openHubPanel()),
+        onTraining: () => this.click(() => this.showTraining()),
+        onMeditation: () => this.click(() => this.showMeditation()),
+        onQuests: () => this.click(() => this.showQuestLog(() => this.showHub())),
+        onReliquary: () => this.click(() => this.showReliquary()),
+        onCairn: () => this.click(() => this.showCairn()),
+        onAspect: () => this.click(() => this.showAspects()),
+        onReforge: () => this.click(() => this.showReforge()),
+        onExpedition: () => this.click(() => this.showExpedition()),
+        onContinue: () =>
+          this.click(() => {
+            const run = this.store.loadRun();
+            if (run) this.startRun(run);
+          }),
+        onRest: () =>
+          this.click(() => {
+            this.restSavedRun(restCost);
+            this.showExpedition();
+          }),
+        onMemories: () =>
+          this.click(() =>
+            this.screens.show(memoriesScreen(this.meta.fragments, () => this.showHub()))
+          ),
+        onSettings: () => this.click(() => this.showSettings(() => this.showHub())),
+        onControls: () => this.click(() => this.screens.show(controlsScreen(() => this.showHub()))),
+        onTitle: () => this.click(() => this.showTitle()),
+      })
+    );
+  }
+
+  /** Steps into a resident's room as a real walkable world. */
+  private enterBuilding(id: string): void {
     const run = createExpedition(
       Math.floor(Math.random() * 2 ** 31),
       this.meta.fragments,
       0,
       this.meta
     );
-    this.world = new World(run, { sanctuary: true });
+    this.screens.close();
+    this.state = 'sanctuary';
+    this.hud.setVisible(false);
+    this.input.releaseAll();
+    this.deathTimer = -1;
+    this.world = new World(run, { sanctuary: true, building: id });
     this.renderer.showFloor(this.world);
     this.sound.playAmbience('sanctuary');
   }
@@ -322,8 +384,7 @@ export class App {
   }
 
   private closeHubPanel(): void {
-    this.screens.close();
-    this.state = 'sanctuary';
+    this.showHub();
   }
 
   private showExpedition(): void {
@@ -464,7 +525,12 @@ export class App {
             this.store.saveMeta(this.meta);
             render();
           },
-          onClose: () => this.click(() => this.closeHubPanel()),
+          onClose: () =>
+            this.click(() => {
+              // Step away back into the room the conversation happened in.
+              if (this.world?.mode === 'sanctuary') this.resumeRoom();
+              else this.closeHubPanel();
+            }),
         })
       );
     };
@@ -477,7 +543,9 @@ export class App {
     const reopen = (): void => this.showSanctuaryMenu();
     this.screens.show(
       sanctuaryMenuScreen({
-        onResume: () => this.click(() => this.closeHubPanel()),
+        buildingName: buildingById(this.world?.activeBuilding ?? '')?.name ?? 'The Sanctuary',
+        onResume: () => this.click(() => this.resumeRoom()),
+        onLeave: () => this.click(() => this.showHub()),
         onSettings: () => this.click(() => this.showSettings(() => reopen())),
         onControls: () => this.click(() => this.screens.show(controlsScreen(() => reopen()))),
         onTitle: () => this.click(() => this.showTitle()),
@@ -501,12 +569,104 @@ export class App {
   private startExpedition(startDepth: number): void {
     const seed = Math.floor(Math.random() * 2 ** 31);
     const run = createExpedition(seed, this.meta.fragments, startDepth, this.meta);
-    // A meditation boon is spent by the expedition that carries it.
-    if (this.meta.boon) {
-      this.meta = { ...this.meta, boon: null };
+    // The meditation boon and the Cairn's offerings are spent by this run.
+    if (this.meta.boon !== null || this.meta.offerings > 0) {
+      this.meta = { ...this.meta, boon: null, offerings: 0 };
       this.store.saveMeta(this.meta);
     }
     this.startRun(run);
+  }
+
+  /** Attune one owned relic to start every expedition. */
+  private showReliquary(): void {
+    this.state = 'hub';
+    this.input.releaseAll();
+    const reopen = (): void => this.showReliquary();
+    this.screens.show(
+      reliquaryScreen({
+        meta: this.meta,
+        onAttune: (defId) => {
+          const next = attuneRelic(this.meta, defId);
+          if (!next) return;
+          this.sound.click();
+          this.meta = { ...this.meta, attunedRelic: next.attunedRelic ?? null };
+          this.store.saveMeta(this.meta);
+          reopen();
+        },
+        onBack: () => this.click(() => this.showHub()),
+      })
+    );
+  }
+
+  /** Choose the long-term aspect applied to every expedition. */
+  private showAspects(): void {
+    this.state = 'hub';
+    this.input.releaseAll();
+    const reopen = (): void => this.showAspects();
+    this.screens.show(
+      aspectScreen({
+        current: this.meta.aspect,
+        onChoose: (id) => {
+          const next = chooseAspect(this.meta, id);
+          if (!next) return;
+          this.sound.click();
+          this.meta = { ...this.meta, aspect: id };
+          this.store.saveMeta(this.meta);
+          reopen();
+        },
+        onBack: () => this.click(() => this.showHub()),
+      })
+    );
+  }
+
+  /** Reinforce one vault relic permanently. */
+  private showReforge(): void {
+    this.state = 'hub';
+    this.input.releaseAll();
+    const reopen = (): void => this.showReforge();
+    this.screens.show(
+      reforgeScreen({
+        meta: this.meta,
+        onReforge: (defId) => {
+          const next = reforgeRelic(this.meta, defId);
+          if (!next) return;
+          this.sound.click();
+          this.meta = {
+            ...this.meta,
+            echoes: next.echoes,
+            relicRanks: next.relicRanks ?? {},
+          };
+          this.store.saveMeta(this.meta);
+          reopen();
+        },
+        onBack: () => this.click(() => this.showHub()),
+      })
+    );
+  }
+
+  /** Bank echoes as starting shards for the next expedition. */
+  private showCairn(): void {
+    this.state = 'hub';
+    this.input.releaseAll();
+    const reopen = (): void => this.showCairn();
+    this.screens.show(
+      cairnScreen({
+        meta: this.meta,
+        onOffer: () => {
+          const next = purchaseOffering(this.meta);
+          if (!next) return;
+          this.sound.click();
+          this.meta = {
+            ...this.meta,
+            echoes: next.echoes,
+            offerings: next.offerings ?? 0,
+          };
+          this.store.saveMeta(this.meta);
+          reopen();
+        },
+        onBack: () => this.click(() => this.showHub()),
+      })
+    );
   }
 
   private buyRestoration(id: string): void {
@@ -521,21 +681,20 @@ export class App {
   /** Prompt for whatever the Walker is standing next to in the Sanctuary. */
   private updatePrompt(): void {
     this.sanctuaryTitle.classList.toggle('hidden', this.state !== 'sanctuary');
+    const inside =
+      this.world?.mode === 'sanctuary' ? buildingById(this.world.activeBuilding ?? '') : undefined;
+    const title = inside?.name ?? 'The Sanctuary';
+    if (title !== this.sanctuaryNameText) {
+      this.sanctuaryNameText = title;
+      this.sanctuaryName.textContent = title;
+    }
     const target = this.state === 'sanctuary' ? this.world?.nearbyInteractable() : undefined;
     let label = '';
     if (target) {
-      if (target.kind === 'structure') {
-        const def = RESTORATIONS.find((r) => r.id === target.structureId);
-        const name =
-          def?.name ??
-          SANCTUARY_LABELS[target.structureId ?? ''] ??
-          target.structureId?.replace(/_/g, ' ') ??
-          'Station';
-        label = `${name}  ·  E`;
-      } else if (target.kind === 'npc') {
+      if (target.kind === 'npc') {
         label = `${NPCS[target.npcId ?? '']?.name ?? 'Resident'}  ·  E`;
-      } else if (target.kind === 'gate') {
-        label = 'The Gate  ·  E';
+      } else if (target.kind === 'door') {
+        label = 'Return to the Sanctuary  ·  E';
       }
     }
     this.prompt.textContent = label;
@@ -711,6 +870,14 @@ export class App {
     this.input.releaseAll();
     this.accumulator = 0;
     this.state = 'playing';
+  }
+
+  /** Closes the in-room menu and hands control back to the room. */
+  private resumeRoom(): void {
+    this.screens.close();
+    this.input.releaseAll();
+    this.accumulator = 0;
+    this.state = this.world?.mode === 'sanctuary' ? 'sanctuary' : 'playing';
   }
 
   private showSettings(onBack: () => void): void {

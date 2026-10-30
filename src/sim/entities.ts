@@ -3,6 +3,7 @@
  * can be inspected or snapshotted without custom code.
  */
 import type { EnemyDef } from './content';
+import type { AspectId } from './aspects';
 import type { EquipmentItem, EquipmentSlots } from './equipment';
 import type { PlayerStats } from './upgrades';
 import type { WeaponId } from './weapons';
@@ -21,6 +22,8 @@ export interface Player {
   stats: PlayerStats;
   /** Upgrade id -> times taken. */
   upgrades: Record<string, number>;
+  /** Permanent aspect mark applied after upgrades and equipment. */
+  aspect?: AspectId;
   /** Current melee stance. */
   weapon: WeaponId;
   /** Throwable bombs carried. */
@@ -90,7 +93,11 @@ export type AttackKind =
   | 'bomb'
   | 'swarm'
   | 'hook'
-  | 'quake';
+  | 'quake'
+  | 'fan'
+  | 'sweep'
+  | 'wall'
+  | 'pillars';
 
 export interface Enemy {
   id: number;
@@ -211,6 +218,7 @@ export type InteractableKind =
   | 'structure'
   | 'npc'
   | 'gate'
+  | 'door'
   | 'archive';
 
 export interface Interactable {
@@ -227,6 +235,10 @@ export interface Interactable {
   structureId?: string;
   /** Sanctuary NPC id. */
   npcId?: string;
+  /** Sanctuary building id a door belongs to. */
+  buildingId?: string;
+  /** True for the doorway that leads back out of a building's interior. */
+  interior?: boolean;
   /** Floating name shown above Sanctuary stations. */
   label?: string;
   /** A chest that turns out to be a mimic. */

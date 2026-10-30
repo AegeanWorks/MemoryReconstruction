@@ -39,8 +39,16 @@ const MetaSchema = z.object({
   bossKills: z.number().int().min(0).default(0),
   startingWeapon: z.enum(['sword', 'spear', 'greatsword']).default('sword'),
   boon: z.enum(['vitality', 'edge', 'flow']).nullable().default(null),
+  /** Playstyle aspect chosen at the Shrine. */
+  aspect: z.enum(['none', 'ember', 'tide', 'stone']).default('none'),
   /** Permanent starting relics earned from quests (equipment def ids). */
   vault: z.array(z.string()).default([]),
+  /** Relic attuned at the Reliquary, equipped first when an expedition starts. */
+  attunedRelic: z.string().nullable().default(null),
+  /** Shard offerings banked at the Cairn, consumed by the next expedition. */
+  offerings: z.number().int().min(0).max(3).default(0),
+  /** Permanent reforge ranks per vault relic id. */
+  relicRanks: z.record(z.string(), z.number().int().min(0).max(3)).default({}),
   quests: z
     .object({
       accepted: z.array(z.string()).default([]),
@@ -67,7 +75,11 @@ export function defaultMeta(): Meta {
     bossKills: 0,
     startingWeapon: 'sword',
     boon: null,
+    aspect: 'none',
     vault: [],
+    attunedRelic: null,
+    offerings: 0,
+    relicRanks: {},
     quests: { accepted: [], claimed: [] },
     settings: { masterVolume: 0.8, musicVolume: 0.5, sfxVolume: 0.8, screenShake: true },
   };

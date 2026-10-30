@@ -58,6 +58,7 @@ export type SimEvent =
       radius: number;
     }
   | { type: 'sanctuary'; kind: 'structure' | 'npc' | 'gate'; id: string }
+  | { type: 'buildingExit'; id: string }
   | { type: 'blast'; x: number; y: number; radius: number }
   | { type: 'bombExploded'; x: number; y: number; radius: number }
   | { type: 'beam'; x: number; y: number; angle: number; length: number; width: number }

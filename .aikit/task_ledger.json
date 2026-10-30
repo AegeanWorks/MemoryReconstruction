@@ -1,155 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "living-sanctuary",
-    "last_phase": "in_progress",
+    "task_id": "sanctuary-polish-2",
+    "last_phase": "phase 5",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793042200.1679802,
-    "owner": "antigravity:cc5b8488",
-    "started_by": "kilo:living",
-    "continuations": [
-      {
-        "agent": "antigravity:cc5b8488",
-        "from": "kilo:living",
-        "at": 1793040483.1125445
-      }
-    ],
-    "completed_at": 1793042268.0566306
+    "updated_at": 1793316073.4436874,
+    "owner": "kilo:sanctuary-polish",
+    "started_by": "kilo:sanctuary-polish",
+    "continuations": [],
+    "completed_at": 1793316083.605289
   },
   "checkpoints": [
-    {
-      "task_id": "addictivity-qol",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[6/6] Verification follow-up: reroll keeps chest/shrine luck and charges nothing when the pool is empty, held R cannot multi-spend, room damage only counts inside a locked room, last chest after the boss still claims the floor bonus, Flow meter no longer shifts the HUD when idle, objective line throttled to 5 Hz; 76 tests green, 7/7 gates, Playwright confirms idle flow, single-charge reroll, post-boss chest claim, pause summary and map. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792963448.4270525,
-      "timestamp_str": "2026-10-26 00:24:08",
-      "agent": "kilo:addictivity"
-    },
-    {
-      "task_id": "addictivity-qol",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'addictivity-qol' completed successfully.",
-      "status": "completed",
-      "timestamp": 1792963460.7028792,
-      "timestamp_str": "2026-10-26 00:24:20",
-      "agent": "kilo:addictivity"
-    },
-    {
-      "task_id": "sanctuary-expeditions",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/5] Plan: expand to 10 sections with 4 new biomes and 12 new enemies; add a Sanctuary hub where expeditions start, echoes bank, and restorations rebuild the place; unlock section checkpoints (sections 1/4/7/10); add two-step upgrade confirmation",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792966164.2260916,
-      "timestamp_str": "2026-10-26 01:09:24",
-      "agent": "kilo:sanctuary",
-      "impact_assessment": {
-        "why": "the game ends after 6 sections, gains are run-only, there is nowhere to rest or spend them, and one click in a level-up can commit the wrong card",
-        "benefits": "more late-game variety, a persistent hub loop tied to the lore of rebuilding the sanctuary, checkpoint-based retries, and misclick-safe upgrade picks",
-        "risks": "contract: Meta schema, AppState, Screens API, content data and enemy rosters; dependency: none; concurrency: single-threaded; state: new meta fields must default for existing saves and run snapshots must stay v1-compatible",
-        "mitigation": "add zod defaults and migration tests, keep hub logic pure and seeded, verify every screen in Playwright, and run the full gate triad"
-      }
-    },
-    {
-      "task_id": "sanctuary-expeditions",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[5/5] Implemented and verified: 10 sections (ash, abyss, frost, bloom added), 12 new enemies with tints and 4 new bosses, larger late waves and section-roster summons; Sanctuary hub with 7 restorations bought with banked echoes, paid Rest for saved expeditions, 4 checkpoints (sections 1/4/7/10) with vestige starts; misclick-safe upgrade confirm (click/1-3 select, confirm/second click/Enter/B), HUD and docs relabelled to sections. 88 tests, 7/7 gates, Playwright at 1280x720 and 1024x640. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792969378.4833508,
-      "timestamp_str": "2026-10-26 02:02:58",
-      "agent": "kilo:sanctuary"
-    },
-    {
-      "task_id": "sanctuary-expeditions",
-      "phase": "superseded",
-      "phase_num": 4,
-      "description": "Superseded by 'living-sanctuary' without --complete or --reset",
-      "status": "superseded",
-      "timestamp": 1792969807.1169465,
-      "timestamp_str": "2026-10-26 02:10:07",
-      "agent": "kilo:living",
-      "continued_from": "kilo:sanctuary"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[6/6] Verification: 104 tests green, lint/typecheck/build and 7/7 project gates; Playwright asserts 12 sections (all biomes/layouts/bosses), sanctuary labels/title, NPC accept+claim, relic equip/swap/discard, barrel+lever, quest reward, boss attack events (mortar/blast/beam/spiral) and zero console errors. Screenshots captured but this model cannot view images. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792993817.667145,
-      "timestamp_str": "2026-10-26 08:50:17",
-      "agent": "kilo:living"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[5/6] Arsenal + content pass: three weapon stances with distinct combos/animations/effects; bombs (bounce, fuse, chain, friendly fire) and placeable traps; 14 sections with hive/catacomb, 14 biomes, 38 mobs incl. bombardiers, 14 bosses incl. Hive Queen/Bone Tyrant with unique art; bomb/swarm/hook/quake attacks; diamond/cross layouts; Training Yard, Meditation Stone, Notice Board, Warden/Lamplighter, 5 quests and quest log; supply inventory; 24 lore fragments/8 cores; HUD weapon+supplies; README/docs/ADR-020. 114 tests, 7/7 gates, Playwright verified stance switching, bomb/trap, bomber, quests, training/meditation, inventory, hive/catacomb bosses, zero console errors. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1792997708.1359503,
-      "timestamp_str": "2026-10-26 09:55:08",
-      "agent": "kilo:living"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[6/6] Visual QA via free vision subagents: confirmed boss/theme fit; fixed stacked banners and duplicate HUD titles, per-stance player attack sheets (sword/spear/greatsword), world-label bleed and clipping, too-transparent hub panels, trap self-trigger; fixed a critical Hive no-boss soft-lock via connected cell linking + guaranteed guardian. 115 tests, 7/7 gates, re-review confirmed FIXED. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793001295.533756,
-      "timestamp_str": "2026-10-26 10:54:55",
-      "agent": "kilo:living"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[6/6] Second visual QA pass via free vision subagents across title/memories/settings/controls/victory/death/HUD/map/pause, 1024x640 HUD, new mobs and all new attack telegraphs. Fixed: pause chip clipping + unknown-upgrade crash fallback, small-screen minimap/boss-bar/hint collisions, key/setting contrast, telegraph truthfulness (warm spiral, player-centered mines, 4-circle quake, boss-to-player hook, tapered beam). Re-review confirmed all FIXED. 115 tests, 7/7 gates. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793002879.1218758,
-      "timestamp_str": "2026-10-26 11:21:19",
-      "agent": "kilo:living"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[6/6] Direct image inspection (main agent vision) of 40+ screens: fixed attack arcs behind the player, replaced ten identical sanctuary plinths with dedicated station/NPC props, compacted the hall, proximity labels (62-200px) stop edge clipping/title collisions, biome-specific start-room props (cog pillar/ice spire/coral/brazier/comb/bone pile), redrew dark bone/comb/armory art, delayed checkpoint toast clear of banners, and fixed Training/Meditation/Notice prompts. 115 tests, 7/7 gates, direct screenshots confirm. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793007173.9767728,
-      "timestamp_str": "2026-10-26 12:32:53",
-      "agent": "kilo:living"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/6] Plan: crisp boss art (192px nearest); per-stance held weapon models; boss-only arena episodes between levels; non-rectangular room shapes; more room types; more mobs/attacks/fight mechanics; surprise events; filled sanctuary with furniture/items",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793008419.3789911,
-      "timestamp_str": "2026-10-26 12:53:39",
-      "agent": "kilo:living",
-      "impact_assessment": {
-        "why": "bosses render blurry, stances share silhouettes, rooms are all rectangles, mobs repeat, and the sanctuary still reads as an empty grid",
-        "benefits": "sharper art, readable weapon identity, pacing spikes with boss episodes, varied room geometry, richer combat and a lived-in hub",
-        "risks": "contract: atlas frame sizes, player animation keys, FloorPlan/room kinds, save schema for episodes/surprises; dependency: none; concurrency: single-threaded; state: new room kinds must not break reachability or objectives",
-        "mitigation": "regenerate assets deterministically, keep boss episodes as standalone floors, stress-test layouts and gates, verify each new screen/image directly"
-      }
-    },
     {
       "task_id": "living-sanctuary",
       "phase": "phase 5",
@@ -237,6 +99,158 @@
       "timestamp": 1793042268.0566318,
       "timestamp_str": "2026-10-26 22:17:48",
       "agent": "antigravity:cc5b8488"
+    },
+    {
+      "task_id": "visual-qa-2026-10-29",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/4] Plan: fix the concrete defects from a 17-screen single-vision-subagent QA pass - clipped/wrapping checkpoint rows, unbalanced hub/quest card grids, undersized map with incomplete legend, title CTA readability, boss-bar readability and idle Flow label; verify with fresh screenshots and gates",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793278709.0267823,
+      "timestamp_str": "2026-10-29 15:58:29",
+      "agent": "kilo:visual-qa",
+      "impact_assessment": {
+        "why": "the last visual pass was three days ago and a fresh review found real layout, readability and map-legibility defects on the shipping screens",
+        "benefits": "clean 1280x720 and 1024x640 surfaces, an informative map, and readable boss/flow HUD without regressing the established style",
+        "risks": "contract: DOM/CSS only plus map canvas drawing and HUD text; dependency: none; concurrency: single-threaded; state: no save or sim schema changes",
+        "mitigation": "limit changes to presentation, keep sim untouched, re-screenshot every affected screen at both sizes, run 121 tests plus all 7 project gates"
+      }
+    },
+    {
+      "task_id": "visual-qa-2026-10-29",
+      "phase": "phase 5",
+      "phase_num": 5,
+      "description": "[4/4] Implemented and verified: checkpoint rows keep full section names (tag moved to note line), balanced centered card rows, map fills the canvas with a complete legend, boss bar has a name plate + HP %, idle Flow reads FLOW \u00b7 IDLE, menu scrims hide the HUD, and the title menu has a backing panel with a disabled-Continue explanation. One vision subagent confirmed all targeted items FIXED with no new P0/P1; 121 tests, lint, typecheck, build and 7/7 gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793281722.4987721,
+      "timestamp_str": "2026-10-29 16:48:42",
+      "agent": "kilo:visual-qa"
+    },
+    {
+      "task_id": "visual-qa-2026-10-29",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'visual-qa-2026-10-29' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793281757.3143096,
+      "timestamp_str": "2026-10-29 16:49:17",
+      "agent": "kilo:visual-qa"
+    },
+    {
+      "task_id": "sanctuary-buildings",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/5] Plan: rebuild the Sanctuary as a village - five NPC buildings with facades and door labels, a dedicated lit interior per building, and a spotlight that blacks out the rest of the sanctuary while inside; wire prompts, fade, tests and docs",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793283909.2832043,
+      "timestamp_str": "2026-10-29 17:25:09",
+      "agent": "kilo:sanctuary-build",
+      "impact_assessment": {
+        "why": "the Sanctuary still reads as one flat hall with five NPCs standing in the open, and the user wants real buildings, separate interiors and door signage",
+        "benefits": "a legible hub with architecture, distinct interiors for every resident, and a clear inside/outside state",
+        "risks": "contract: InteractableKind, Sanctuary layout constants, World sanctuary mode, Renderer focus layer; dependency: none; concurrency: single-threaded; state: no save schema change, but a save inside a building must not strand the player on reload",
+        "mitigation": "keep building state in World only (never persisted), always spawn outside on load, add sim tests for enter/exit and label/prop uniqueness, verify with Playwright screenshots"
+      }
+    },
+    {
+      "task_id": "sanctuary-buildings",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[2/5] Re-scope: replace the walkable village square with a UI Sanctuary hub (building cards with facade art, stations, Set Out), and keep only each resident's interior as a walkable world entered from the hub; exit returns to the hub UI. Removes the square layout, walking-to-door prompts and the spotlight, adds per-building rooms and a sanctuary backdrop.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793291546.5708902,
+      "timestamp_str": "2026-10-29 19:32:26",
+      "agent": "kilo:sanctuary-build",
+      "impact_assessment": {
+        "why": "the user judged the walkable square unprofessional; a UI hub reads cleanly and still keeps the interiors as real playable rooms",
+        "benefits": "a crisp hub screen, each resident in a real room, simpler sim (one room per world), and no camera/spotlight complexity",
+        "risks": "contract: World options and sanctuary exports, sanctuary event flow, hub screen; dependency: none; concurrency: single-threaded; state: hub is never persisted, entering a room always spawns at that room's entrance",
+        "mitigation": "rewrite sanctuary layout and tests together, keep station ids stable for the rebuild ledger, verify hub and all five interiors with Playwright and one vision reviewer"
+      }
+    },
+    {
+      "task_id": "sanctuary-buildings",
+      "phase": "phase 5",
+      "phase_num": 5,
+      "description": "[5/5] Delivered: Sanctuary is now a UI hub (facade cards for all five residents, restoration ledger, Places and Expedition panels, footer), and every resident has a real walkable 21x13 interior with themed furniture, a resident to talk to, and a door back to the hub. Removed the walkable square, spotlight, door toggling and station prompt handling. Verified hub-to-room-to-dialogue-to-room and door-to-hub flows with Playwright; 131 tests and 7/7 project gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793298638.6637855,
+      "timestamp_str": "2026-10-29 21:30:38",
+      "agent": "kilo:sanctuary-build"
+    },
+    {
+      "task_id": "sanctuary-buildings",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'sanctuary-buildings' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793298663.0166235,
+      "timestamp_str": "2026-10-29 21:31:03",
+      "agent": "kilo:sanctuary-build"
+    },
+    {
+      "task_id": "sanctuary-polish",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/4] Plan: add two mechanical Sanctuary places - The Reliquary (attune one owned relic to start every expedition) and The Cairn (spend echoes to bank starting shards) - and give each resident room its own palette, lighting and themed environment props so the five interiors read as five different places",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793299389.3973336,
+      "timestamp_str": "2026-10-29 21:43:09",
+      "agent": "kilo:sanctuary-polish",
+      "impact_assessment": {
+        "why": "the hub currently has four places and the rooms share one sanctuary palette, so they look like the same room with different furniture",
+        "benefits": "two more long-term decisions in the hub and five visually distinct interiors built from one art pipeline",
+        "risks": "contract: SanctuaryStation ids, Meta schema defaults, LevelView/tileTextures optional theme, createExpedition starting shards; dependency: generated props; concurrency: single-threaded; state: new Meta fields need defaults so old saves load",
+        "mitigation": "add every new Meta field with a zod default, keep station ids additive, test attunement/offerings as pure functions, verify each room with Playwright screenshots and one vision reviewer"
+      }
+    },
+    {
+      "task_id": "sanctuary-polish",
+      "phase": "phase 5",
+      "phase_num": 5,
+      "description": "[4/4] Delivered: two mechanical places (Reliquary attunement, Cairn echo offerings) with tests and meta defaults; five interiors now use distinct biome materials plus themed furniture sets and eight new generated props; hub cards carry prop badges; a single vision review drove fixes for label collision, hint contrast, floating/clipping props, glyph bleed and CTA contrast. 135 tests, 7/7 gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793306311.940141,
+      "timestamp_str": "2026-10-29 23:38:31",
+      "agent": "kilo:sanctuary-polish"
+    },
+    {
+      "task_id": "sanctuary-polish",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'sanctuary-polish' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793306347.9876862,
+      "timestamp_str": "2026-10-29 23:39:07",
+      "agent": "kilo:sanctuary-polish"
+    },
+    {
+      "task_id": "sanctuary-polish-2",
+      "phase": "phase 5",
+      "phase_num": 5,
+      "description": "[4/4] Delivered: eighth and final Sanctuary place The Reforge (3 ranks, 30/60/100 echoes, +12% per rank on relic mods, carried by EquipmentItem.rank), hub capped at exactly 8 places in a balanced 4x2 grid, per-room floor grammar (archive ring, forge cracks, garden moss, barracks drill lines, lamp pools), three new props (desk, cauldron, lamp strings), and a U+FFFD encoding regression test after a corrupted middle dot in the Reforge button. Verified by DOM/world measurement: 8 stations aligned in 4 rows, footer within 720, no card overflow, no prop outside its room or on the door lane; 147 tests and 7/7 gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793316073.4436874,
+      "timestamp_str": "2026-10-30 02:21:13",
+      "agent": "kilo:sanctuary-polish"
+    },
+    {
+      "task_id": "sanctuary-polish-2",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'sanctuary-polish-2' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793316083.6052916,
+      "timestamp_str": "2026-10-30 02:21:23",
+      "agent": "kilo:sanctuary-polish"
     }
   ]
 }

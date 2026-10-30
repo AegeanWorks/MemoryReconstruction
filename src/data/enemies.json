@@ -24,17 +24,43 @@
         "attackCooldown": 1.5,
         "patrolRadius": 150
       },
-      "hitbox": { "width": 24, "height": 32, "offsetX": 0, "offsetY": -8 },
+      "hitbox": {
+        "width": 24,
+        "height": 32,
+        "offsetX": 0,
+        "offsetY": -8
+      },
       "sprite": {
         "texture": "enemy_scavenger",
         "width": 32,
         "height": 48,
-        "animations": ["idle", "walk", "attack", "stunned", "death"]
+        "animations": [
+          "idle",
+          "walk",
+          "attack",
+          "stunned",
+          "death"
+        ]
       },
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.3, "min": 1, "max": 2 },
-        { "item": "fragment_shard", "chance": 0.6, "min": 1, "max": 3 },
-        { "item": "memory_elixir", "chance": 0.1, "min": 1, "max": 1 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.3,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item": "fragment_shard",
+          "chance": 0.6,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "item": "memory_elixir",
+          "chance": 0.1,
+          "min": 1,
+          "max": 1
+        }
       ],
       "variants": [
         {
@@ -70,17 +96,43 @@
         "attackCooldown": 2.0,
         "patrolRadius": 200
       },
-      "hitbox": { "width": 40, "height": 48, "offsetX": 0, "offsetY": -8 },
+      "hitbox": {
+        "width": 40,
+        "height": 48,
+        "offsetX": 0,
+        "offsetY": -8
+      },
       "sprite": {
         "texture": "enemy_guardian",
         "width": 64,
         "height": 64,
-        "animations": ["idle", "walk", "attack", "stunned", "death"]
+        "animations": [
+          "idle",
+          "walk",
+          "attack",
+          "stunned",
+          "death"
+        ]
       },
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.5, "min": 2, "max": 4 },
-        { "item": "core_memory", "chance": 0.05, "min": 1, "max": 1 },
-        { "item": "guardian_plate", "chance": 0.1, "min": 1, "max": 1 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.5,
+          "min": 2,
+          "max": 4
+        },
+        {
+          "item": "core_memory",
+          "chance": 0.05,
+          "min": 1,
+          "max": 1
+        },
+        {
+          "item": "guardian_plate",
+          "chance": 0.1,
+          "min": 1,
+          "max": 1
+        }
       ],
       "variants": [
         {
@@ -117,17 +169,40 @@
         "attackCooldown": 1.0,
         "patrolRadius": 300
       },
-      "hitbox": { "width": 20, "height": 30, "offsetX": 0, "offsetY": -8 },
+      "hitbox": {
+        "width": 20,
+        "height": 30,
+        "offsetX": 0,
+        "offsetY": -8
+      },
       "sprite": {
         "texture": "enemy_echo",
         "width": 32,
         "height": 48,
-        "animations": ["idle", "walk", "attack", "phase", "death"]
+        "animations": [
+          "idle",
+          "walk",
+          "attack",
+          "phase",
+          "death"
+        ]
       },
-      "abilities": ["phase_shift"],
+      "abilities": [
+        "phase_shift"
+      ],
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.4, "min": 1, "max": 3 },
-        { "item": "echo_amulet", "chance": 0.02, "min": 1, "max": 1 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.4,
+          "min": 1,
+          "max": 3
+        },
+        {
+          "item": "echo_amulet",
+          "chance": 0.02,
+          "min": 1,
+          "max": 1
+        }
       ]
     },
     {
@@ -154,16 +229,37 @@
         "attackCooldown": 1.8,
         "patrolRadius": 180
       },
-      "hitbox": { "width": 28, "height": 36, "offsetX": 0, "offsetY": -8 },
+      "hitbox": {
+        "width": 28,
+        "height": 36,
+        "offsetX": 0,
+        "offsetY": -8
+      },
       "sprite": {
         "texture": "enemy_wildling",
         "width": 48,
         "height": 48,
-        "animations": ["idle", "walk", "attack", "stunned", "death"]
+        "animations": [
+          "idle",
+          "walk",
+          "attack",
+          "stunned",
+          "death"
+        ]
       },
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.35, "min": 1, "max": 2 },
-        { "item": "fragment_shard", "chance": 0.5, "min": 2, "max": 4 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.35,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item": "fragment_shard",
+          "chance": 0.5,
+          "min": 2,
+          "max": 4
+        }
       ]
     },
     {
@@ -190,18 +286,48 @@
         "attackCooldown": 2.5,
         "patrolRadius": 250
       },
-      "hitbox": { "width": 32, "height": 40, "offsetX": 0, "offsetY": -12 },
+      "hitbox": {
+        "width": 32,
+        "height": 40,
+        "offsetX": 0,
+        "offsetY": -12
+      },
       "sprite": {
         "texture": "enemy_spirit",
         "width": 48,
         "height": 64,
-        "animations": ["idle", "float", "cast", "stunned", "death"]
+        "animations": [
+          "idle",
+          "float",
+          "cast",
+          "stunned",
+          "death"
+        ]
       },
-      "abilities": ["nature_bolt", "healing_bloom", "entangling_roots"],
+      "abilities": [
+        "nature_bolt",
+        "healing_bloom",
+        "entangling_roots"
+      ],
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.6, "min": 3, "max": 5 },
-        { "item": "core_memory", "chance": 0.08, "min": 1, "max": 1 },
-        { "item": "clarity_potion", "chance": 0.2, "min": 1, "max": 2 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.6,
+          "min": 3,
+          "max": 5
+        },
+        {
+          "item": "core_memory",
+          "chance": 0.08,
+          "min": 1,
+          "max": 1
+        },
+        {
+          "item": "clarity_potion",
+          "chance": 0.2,
+          "min": 1,
+          "max": 2
+        }
       ]
     },
     {
@@ -228,17 +354,41 @@
         "attackCooldown": 1.2,
         "patrolRadius": 100
       },
-      "hitbox": { "width": 26, "height": 34, "offsetX": 0, "offsetY": -8 },
+      "hitbox": {
+        "width": 26,
+        "height": 34,
+        "offsetX": 0,
+        "offsetY": -8
+      },
       "sprite": {
         "texture": "enemy_cave_dweller",
         "width": 40,
         "height": 48,
-        "animations": ["idle", "walk", "attack", "listen", "stunned", "death"]
+        "animations": [
+          "idle",
+          "walk",
+          "attack",
+          "listen",
+          "stunned",
+          "death"
+        ]
       },
-      "abilities": ["sonic_screech"],
+      "abilities": [
+        "sonic_screech"
+      ],
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.4, "min": 2, "max": 3 },
-        { "item": "fragment_shard", "chance": 0.7, "min": 2, "max": 5 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.4,
+          "min": 2,
+          "max": 3
+        },
+        {
+          "item": "fragment_shard",
+          "chance": 0.7,
+          "min": 2,
+          "max": 5
+        }
       ]
     },
     {
@@ -265,18 +415,49 @@
         "attackCooldown": 3.0,
         "patrolRadius": 150
       },
-      "hitbox": { "width": 56, "height": 64, "offsetX": 0, "offsetY": -16 },
+      "hitbox": {
+        "width": 56,
+        "height": 64,
+        "offsetX": 0,
+        "offsetY": -16
+      },
       "sprite": {
         "texture": "enemy_crystal_golem",
         "width": 80,
         "height": 80,
-        "animations": ["idle", "walk", "attack", "reflect", "stunned", "death"]
+        "animations": [
+          "idle",
+          "walk",
+          "attack",
+          "reflect",
+          "stunned",
+          "death"
+        ]
       },
-      "abilities": ["crystal_reflect", "prism_beam", "shard_explosion"],
+      "abilities": [
+        "crystal_reflect",
+        "prism_beam",
+        "shard_explosion"
+      ],
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.8, "min": 5, "max": 8 },
-        { "item": "core_memory", "chance": 0.15, "min": 1, "max": 2 },
-        { "item": "crystal_carapace", "chance": 0.1, "min": 1, "max": 1 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.8,
+          "min": 5,
+          "max": 8
+        },
+        {
+          "item": "core_memory",
+          "chance": 0.15,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item": "crystal_carapace",
+          "chance": 0.1,
+          "min": 1,
+          "max": 1
+        }
       ]
     },
     {
@@ -303,17 +484,42 @@
         "attackCooldown": 1.5,
         "patrolRadius": 200
       },
-      "hitbox": { "width": 24, "height": 32, "offsetX": 0, "offsetY": -8 },
+      "hitbox": {
+        "width": 24,
+        "height": 32,
+        "offsetX": 0,
+        "offsetY": -8
+      },
       "sprite": {
         "texture": "enemy_shadow",
         "width": 48,
         "height": 48,
-        "animations": ["idle", "phase", "attack", "stunned", "death"]
+        "animations": [
+          "idle",
+          "phase",
+          "attack",
+          "stunned",
+          "death"
+        ]
       },
-      "abilities": ["shadow_phase", "memory_drain", "darkness_veil"],
+      "abilities": [
+        "shadow_phase",
+        "memory_drain",
+        "darkness_veil"
+      ],
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.5, "min": 3, "max": 5 },
-        { "item": "phase_ring", "chance": 0.03, "min": 1, "max": 1 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.5,
+          "min": 3,
+          "max": 5
+        },
+        {
+          "item": "phase_ring",
+          "chance": 0.03,
+          "min": 1,
+          "max": 1
+        }
       ]
     },
     {
@@ -340,18 +546,49 @@
         "attackCooldown": 1.8,
         "patrolRadius": 200
       },
-      "hitbox": { "width": 30, "height": 44, "offsetX": 0, "offsetY": -10 },
+      "hitbox": {
+        "width": 30,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -10
+      },
       "sprite": {
         "texture": "enemy_crystal_guardian",
         "width": 48,
         "height": 64,
-        "animations": ["idle", "walk", "attack", "parry", "stunned", "death"]
+        "animations": [
+          "idle",
+          "walk",
+          "attack",
+          "parry",
+          "stunned",
+          "death"
+        ]
       },
-      "abilities": ["crystal_parry", "refracting_slash", "light_burst"],
+      "abilities": [
+        "crystal_parry",
+        "refracting_slash",
+        "light_burst"
+      ],
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.7, "min": 4, "max": 6 },
-        { "item": "core_memory", "chance": 0.1, "min": 1, "max": 1 },
-        { "item": "echo_dagger", "chance": 0.05, "min": 1, "max": 1 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.7,
+          "min": 4,
+          "max": 6
+        },
+        {
+          "item": "core_memory",
+          "chance": 0.1,
+          "min": 1,
+          "max": 1
+        },
+        {
+          "item": "echo_dagger",
+          "chance": 0.05,
+          "min": 1,
+          "max": 1
+        }
       ]
     },
     {
@@ -378,17 +615,43 @@
         "attackCooldown": 2.0,
         "patrolRadius": 250
       },
-      "hitbox": { "width": 28, "height": 36, "offsetX": 0, "offsetY": -8 },
+      "hitbox": {
+        "width": 28,
+        "height": 36,
+        "offsetX": 0,
+        "offsetY": -8
+      },
       "sprite": {
         "texture": "enemy_prism_entity",
         "width": 48,
         "height": 48,
-        "animations": ["idle", "float", "attack", "split", "stunned", "death"]
+        "animations": [
+          "idle",
+          "float",
+          "attack",
+          "split",
+          "stunned",
+          "death"
+        ]
       },
-      "abilities": ["prism_split", "rainbow_beam", "blinding_flash"],
+      "abilities": [
+        "prism_split",
+        "rainbow_beam",
+        "blinding_flash"
+      ],
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.6, "min": 3, "max": 5 },
-        { "item": "memory_pendant", "chance": 0.08, "min": 1, "max": 1 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.6,
+          "min": 3,
+          "max": 5
+        },
+        {
+          "item": "memory_pendant",
+          "chance": 0.08,
+          "min": 1,
+          "max": 1
+        }
       ]
     },
     {
@@ -415,19 +678,56 @@
         "attackCooldown": 1.5,
         "patrolRadius": 400
       },
-      "hitbox": { "width": 36, "height": 52, "offsetX": 0, "offsetY": -12 },
+      "hitbox": {
+        "width": 36,
+        "height": 52,
+        "offsetX": 0,
+        "offsetY": -12
+      },
       "sprite": {
         "texture": "enemy_void_walker",
         "width": 64,
         "height": 80,
-        "animations": ["idle", "walk", "attack", "void_step", "stunned", "death"]
+        "animations": [
+          "idle",
+          "walk",
+          "attack",
+          "void_step",
+          "stunned",
+          "death"
+        ]
       },
-      "abilities": ["void_step", "erasure_touch", "memory_void", "reality_tear"],
+      "abilities": [
+        "void_step",
+        "erasure_touch",
+        "memory_void",
+        "reality_tear"
+      ],
       "lootTable": [
-        { "item": "memory_fragment", "chance": 0.9, "min": 8, "max": 12 },
-        { "item": "core_memory", "chance": 0.25, "min": 1, "max": 2 },
-        { "item": "void_cleaver", "chance": 0.05, "min": 1, "max": 1 },
-        { "item": "primordial_memory", "chance": 0.01, "min": 1, "max": 1 }
+        {
+          "item": "memory_fragment",
+          "chance": 0.9,
+          "min": 8,
+          "max": 12
+        },
+        {
+          "item": "core_memory",
+          "chance": 0.25,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item": "void_cleaver",
+          "chance": 0.05,
+          "min": 1,
+          "max": 1
+        },
+        {
+          "item": "primordial_memory",
+          "chance": 0.01,
+          "min": 1,
+          "max": 1
+        }
       ]
     },
     {
@@ -454,12 +754,26 @@
         "attackCooldown": 2.0,
         "patrolRadius": 0
       },
-      "hitbox": { "width": 48, "height": 64, "offsetX": 0, "offsetY": -16 },
+      "hitbox": {
+        "width": 48,
+        "height": 64,
+        "offsetX": 0,
+        "offsetY": -16
+      },
       "sprite": {
         "texture": "enemy_forgotten",
         "width": 96,
         "height": 96,
-        "animations": ["idle", "walk", "attack", "special", "stunned", "death", "phase2", "phase3"]
+        "animations": [
+          "idle",
+          "walk",
+          "attack",
+          "special",
+          "stunned",
+          "death",
+          "phase2",
+          "phase3"
+        ]
       },
       "abilities": [
         "memory_surge",
@@ -469,14 +783,46 @@
         "final_remembrance"
       ],
       "lootTable": [
-        { "item": "memory_fragment", "chance": 1.0, "min": 20, "max": 30 },
-        { "item": "core_memory", "chance": 1.0, "min": 3, "max": 5 },
-        { "item": "primordial_memory", "chance": 0.5, "min": 1, "max": 1 },
-        { "item": "sanctuary_key", "chance": 1.0, "min": 1, "max": 1 }
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 20,
+          "max": 30
+        },
+        {
+          "item": "core_memory",
+          "chance": 1.0,
+          "min": 3,
+          "max": 5
+        },
+        {
+          "item": "primordial_memory",
+          "chance": 0.5,
+          "min": 1,
+          "max": 1
+        },
+        {
+          "item": "sanctuary_key",
+          "chance": 1.0,
+          "min": 1,
+          "max": 1
+        }
       ],
       "phases": [
-        { "healthThreshold": 0.66, "newAbilities": ["forgotten_army"], "speedMult": 1.2 },
-        { "healthThreshold": 0.33, "newAbilities": ["void_domain"], "damageMult": 1.5 }
+        {
+          "healthThreshold": 0.66,
+          "newAbilities": [
+            "forgotten_army"
+          ],
+          "speedMult": 1.2
+        },
+        {
+          "healthThreshold": 0.33,
+          "newAbilities": [
+            "void_domain"
+          ],
+          "damageMult": 1.5
+        }
       ]
     },
     {
@@ -503,7 +849,12 @@
         "attackCooldown": 1.0,
         "patrolRadius": 0
       },
-      "hitbox": { "width": 56, "height": 72, "offsetX": 0, "offsetY": -20 },
+      "hitbox": {
+        "width": 56,
+        "height": 72,
+        "offsetX": 0,
+        "offsetY": -20
+      },
       "sprite": {
         "texture": "enemy_keeper",
         "width": 128,
@@ -529,24 +880,45 @@
         "world_rebirth"
       ],
       "lootTable": [
-        { "item": "memory_fragment", "chance": 1.0, "min": 50, "max": 100 },
-        { "item": "core_memory", "chance": 1.0, "min": 10, "max": 20 },
-        { "item": "primordial_memory", "chance": 1.0, "min": 1, "max": 1 }
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 50,
+          "max": 100
+        },
+        {
+          "item": "core_memory",
+          "chance": 1.0,
+          "min": 10,
+          "max": 20
+        },
+        {
+          "item": "primordial_memory",
+          "chance": 1.0,
+          "min": 1,
+          "max": 1
+        }
       ],
       "phases": [
         {
           "healthThreshold": 0.75,
-          "newAbilities": ["timeline_shift"],
+          "newAbilities": [
+            "timeline_shift"
+          ],
           "dialogue": "You seek what was lost..."
         },
         {
           "healthThreshold": 0.5,
-          "newAbilities": ["reconstruction_beam"],
+          "newAbilities": [
+            "reconstruction_beam"
+          ],
           "dialogue": "Memory is not static..."
         },
         {
           "healthThreshold": 0.25,
-          "newAbilities": ["true_ending"],
+          "newAbilities": [
+            "true_ending"
+          ],
           "dialogue": "Then create anew."
         }
       ]
@@ -575,9 +947,25 @@
         "attackCooldown": 2.0,
         "patrolRadius": 120
       },
-      "hitbox": { "width": 26, "height": 32, "offsetX": 0, "offsetY": -8 },
-      "sprite": { "texture": "enemy_spirit", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.7, "min": 2, "max": 4 }]
+      "hitbox": {
+        "width": 26,
+        "height": 32,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_spirit",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.7,
+          "min": 2,
+          "max": 4
+        }
+      ]
     },
     {
       "id": "magma_hound",
@@ -603,9 +991,25 @@
         "attackCooldown": 1.4,
         "patrolRadius": 160
       },
-      "hitbox": { "width": 32, "height": 36, "offsetX": 0, "offsetY": -8 },
-      "sprite": { "texture": "enemy_wildling", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.7, "min": 2, "max": 4 }]
+      "hitbox": {
+        "width": 32,
+        "height": 36,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_wildling",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.7,
+          "min": 2,
+          "max": 4
+        }
+      ]
     },
     {
       "id": "drowned",
@@ -631,9 +1035,25 @@
         "attackCooldown": 1.6,
         "patrolRadius": 160
       },
-      "hitbox": { "width": 32, "height": 44, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_cave_dweller", "width": 40, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.8, "min": 2, "max": 5 }]
+      "hitbox": {
+        "width": 32,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_cave_dweller",
+        "width": 40,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.8,
+          "min": 2,
+          "max": 5
+        }
+      ]
     },
     {
       "id": "tide_caller",
@@ -659,9 +1079,25 @@
         "attackCooldown": 1.9,
         "patrolRadius": 140
       },
-      "hitbox": { "width": 28, "height": 40, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_prism_entity", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.8, "min": 2, "max": 5 }]
+      "hitbox": {
+        "width": 28,
+        "height": 40,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_prism_entity",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.8,
+          "min": 2,
+          "max": 5
+        }
+      ]
     },
     {
       "id": "frost_stalker",
@@ -687,9 +1123,25 @@
         "attackCooldown": 1.3,
         "patrolRadius": 180
       },
-      "hitbox": { "width": 32, "height": 44, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_shadow", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.8, "min": 2, "max": 6 }]
+      "hitbox": {
+        "width": 32,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_shadow",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.8,
+          "min": 2,
+          "max": 6
+        }
+      ]
     },
     {
       "id": "glass_sentinel",
@@ -715,9 +1167,25 @@
         "attackCooldown": 2.3,
         "patrolRadius": 120
       },
-      "hitbox": { "width": 40, "height": 52, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_crystal_golem", "width": 80, "height": 80 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.9, "min": 3, "max": 7 }]
+      "hitbox": {
+        "width": 40,
+        "height": 52,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_crystal_golem",
+        "width": 80,
+        "height": 80
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.9,
+          "min": 3,
+          "max": 7
+        }
+      ]
     },
     {
       "id": "bloom_crawler",
@@ -743,9 +1211,25 @@
         "attackCooldown": 1.5,
         "patrolRadius": 200
       },
-      "hitbox": { "width": 34, "height": 44, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_cave_dweller", "width": 40, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 6 }]
+      "hitbox": {
+        "width": 34,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_cave_dweller",
+        "width": 40,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 3,
+          "max": 6
+        }
+      ]
     },
     {
       "id": "petal_witch",
@@ -771,9 +1255,25 @@
         "attackCooldown": 1.8,
         "patrolRadius": 150
       },
-      "hitbox": { "width": 30, "height": 44, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_spirit", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 6 }]
+      "hitbox": {
+        "width": 30,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_spirit",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 3,
+          "max": 6
+        }
+      ]
     },
     {
       "id": "cinder_warden",
@@ -799,9 +1299,25 @@
         "attackCooldown": 1.8,
         "patrolRadius": 240
       },
-      "hitbox": { "width": 56, "height": 64, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_crystal_guardian", "width": 48, "height": 64 },
-      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+      "hitbox": {
+        "width": 56,
+        "height": 64,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_crystal_guardian",
+        "width": 48,
+        "height": 64
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 1,
+          "max": 2
+        }
+      ]
     },
     {
       "id": "leviathan",
@@ -827,9 +1343,25 @@
         "attackCooldown": 2.0,
         "patrolRadius": 240
       },
-      "hitbox": { "width": 64, "height": 72, "offsetX": 0, "offsetY": -12 },
-      "sprite": { "texture": "enemy_void_walker", "width": 64, "height": 80 },
-      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+      "hitbox": {
+        "width": 64,
+        "height": 72,
+        "offsetX": 0,
+        "offsetY": -12
+      },
+      "sprite": {
+        "texture": "enemy_void_walker",
+        "width": 64,
+        "height": 80
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 1,
+          "max": 2
+        }
+      ]
     },
     {
       "id": "frost_warden",
@@ -855,9 +1387,25 @@
         "attackCooldown": 1.9,
         "patrolRadius": 240
       },
-      "hitbox": { "width": 60, "height": 68, "offsetX": 0, "offsetY": -12 },
-      "sprite": { "texture": "enemy_crystal_golem", "width": 80, "height": 80 },
-      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+      "hitbox": {
+        "width": 60,
+        "height": 68,
+        "offsetX": 0,
+        "offsetY": -12
+      },
+      "sprite": {
+        "texture": "enemy_crystal_golem",
+        "width": 80,
+        "height": 80
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 1,
+          "max": 2
+        }
+      ]
     },
     {
       "id": "thorn_matriarch",
@@ -883,9 +1431,25 @@
         "attackCooldown": 1.8,
         "patrolRadius": 240
       },
-      "hitbox": { "width": 64, "height": 72, "offsetX": 0, "offsetY": -12 },
-      "sprite": { "texture": "enemy_forgotten", "width": 96, "height": 96 },
-      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+      "hitbox": {
+        "width": 64,
+        "height": 72,
+        "offsetX": 0,
+        "offsetY": -12
+      },
+      "sprite": {
+        "texture": "enemy_forgotten",
+        "width": 96,
+        "height": 96
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 1,
+          "max": 2
+        }
+      ]
     },
     {
       "id": "cog_hound",
@@ -893,11 +1457,43 @@
       "description": "A brass quadruped that runs on a stolen memory. Its teeth are still turning.",
       "type": "cog_hound",
       "biome": "foundry",
-      "stats": { "health": 210, "maxHealth": 210, "damage": 34, "speed": 135, "armor": 24, "resistance": 20, "knockbackResistance": 35, "xpValue": 130, "memoryValue": 16 },
-      "ai": { "behavior": "hit_and_run", "aggroRange": 300, "attackRange": 62, "attackCooldown": 1.2, "patrolRadius": 170 },
-      "hitbox": { "width": 34, "height": 40, "offsetX": 0, "offsetY": -8 },
-      "sprite": { "texture": "enemy_cog_hound", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 6 }]
+      "stats": {
+        "health": 210,
+        "maxHealth": 210,
+        "damage": 34,
+        "speed": 135,
+        "armor": 24,
+        "resistance": 20,
+        "knockbackResistance": 35,
+        "xpValue": 130,
+        "memoryValue": 16
+      },
+      "ai": {
+        "behavior": "hit_and_run",
+        "aggroRange": 300,
+        "attackRange": 62,
+        "attackCooldown": 1.2,
+        "patrolRadius": 170
+      },
+      "hitbox": {
+        "width": 34,
+        "height": 40,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_cog_hound",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 3,
+          "max": 6
+        }
+      ]
     },
     {
       "id": "solder_wisp",
@@ -905,11 +1501,43 @@
       "description": "A floating bead of molten metal. It spits hot seams across the floor.",
       "type": "solder_wisp",
       "biome": "foundry",
-      "stats": { "health": 150, "maxHealth": 150, "damage": 30, "speed": 80, "armor": 8, "resistance": 30, "knockbackResistance": 10, "xpValue": 140, "memoryValue": 18 },
-      "ai": { "behavior": "ranged_support", "aggroRange": 320, "attackRange": 250, "attackCooldown": 1.8, "patrolRadius": 140 },
-      "hitbox": { "width": 28, "height": 40, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_solder_wisp", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 6 }]
+      "stats": {
+        "health": 150,
+        "maxHealth": 150,
+        "damage": 30,
+        "speed": 80,
+        "armor": 8,
+        "resistance": 30,
+        "knockbackResistance": 10,
+        "xpValue": 140,
+        "memoryValue": 18
+      },
+      "ai": {
+        "behavior": "ranged_support",
+        "aggroRange": 320,
+        "attackRange": 250,
+        "attackCooldown": 1.8,
+        "patrolRadius": 140
+      },
+      "hitbox": {
+        "width": 28,
+        "height": 40,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_solder_wisp",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 3,
+          "max": 6
+        }
+      ]
     },
     {
       "id": "clockwork_regent",
@@ -917,11 +1545,43 @@
       "description": "The foundry's foreman, still keeping a schedule for workers who no longer exist.",
       "type": "clockwork_regent",
       "biome": "foundry",
-      "stats": { "health": 270, "maxHealth": 270, "damage": 44, "speed": 68, "armor": 44, "resistance": 42, "knockbackResistance": 85, "xpValue": 620, "memoryValue": 90 },
-      "ai": { "behavior": "boss", "aggroRange": 440, "attackRange": 78, "attackCooldown": 1.7, "patrolRadius": 240 },
-      "hitbox": { "width": 64, "height": 72, "offsetX": 0, "offsetY": -12 },
-      "sprite": { "texture": "enemy_clockwork_regent", "width": 96, "height": 96 },
-      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+      "stats": {
+        "health": 270,
+        "maxHealth": 270,
+        "damage": 44,
+        "speed": 68,
+        "armor": 44,
+        "resistance": 42,
+        "knockbackResistance": 85,
+        "xpValue": 620,
+        "memoryValue": 90
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 440,
+        "attackRange": 78,
+        "attackCooldown": 1.7,
+        "patrolRadius": 240
+      },
+      "hitbox": {
+        "width": 64,
+        "height": 72,
+        "offsetX": 0,
+        "offsetY": -12
+      },
+      "sprite": {
+        "texture": "enemy_clockwork_regent",
+        "width": 96,
+        "height": 96
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 1,
+          "max": 2
+        }
+      ]
     },
     {
       "id": "bog_leech",
@@ -929,11 +1589,43 @@
       "description": "A swollen thing that drinks memory through the mud. It drags itself toward anything warm.",
       "type": "bog_leech",
       "biome": "mire",
-      "stats": { "health": 230, "maxHealth": 230, "damage": 34, "speed": 95, "armor": 20, "resistance": 22, "knockbackResistance": 45, "xpValue": 145, "memoryValue": 18 },
-      "ai": { "behavior": "territorial", "aggroRange": 300, "attackRange": 54, "attackCooldown": 1.5, "patrolRadius": 190 },
-      "hitbox": { "width": 38, "height": 42, "offsetX": 0, "offsetY": -8 },
-      "sprite": { "texture": "enemy_bog_leech", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 7 }]
+      "stats": {
+        "health": 230,
+        "maxHealth": 230,
+        "damage": 34,
+        "speed": 95,
+        "armor": 20,
+        "resistance": 22,
+        "knockbackResistance": 45,
+        "xpValue": 145,
+        "memoryValue": 18
+      },
+      "ai": {
+        "behavior": "territorial",
+        "aggroRange": 300,
+        "attackRange": 54,
+        "attackCooldown": 1.5,
+        "patrolRadius": 190
+      },
+      "hitbox": {
+        "width": 38,
+        "height": 42,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_bog_leech",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 3,
+          "max": 7
+        }
+      ]
     },
     {
       "id": "plague_caster",
@@ -941,11 +1633,43 @@
       "description": "It sings the names of the drowned and the names come back as clouds.",
       "type": "plague_caster",
       "biome": "mire",
-      "stats": { "health": 170, "maxHealth": 170, "damage": 31, "speed": 82, "armor": 10, "resistance": 35, "knockbackResistance": 15, "xpValue": 155, "memoryValue": 20 },
-      "ai": { "behavior": "ranged_support", "aggroRange": 330, "attackRange": 240, "attackCooldown": 2.0, "patrolRadius": 150 },
-      "hitbox": { "width": 30, "height": 44, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_plague_caster", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 7 }]
+      "stats": {
+        "health": 170,
+        "maxHealth": 170,
+        "damage": 31,
+        "speed": 82,
+        "armor": 10,
+        "resistance": 35,
+        "knockbackResistance": 15,
+        "xpValue": 155,
+        "memoryValue": 20
+      },
+      "ai": {
+        "behavior": "ranged_support",
+        "aggroRange": 330,
+        "attackRange": 240,
+        "attackCooldown": 2.0,
+        "patrolRadius": 150
+      },
+      "hitbox": {
+        "width": 30,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_plague_caster",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 3,
+          "max": 7
+        }
+      ]
     },
     {
       "id": "mire_sovereign",
@@ -953,11 +1677,43 @@
       "description": "A crown of reeds and bone. Everything the swamp swallowed answers to it.",
       "type": "mire_sovereign",
       "biome": "mire",
-      "stats": { "health": 290, "maxHealth": 290, "damage": 46, "speed": 60, "armor": 40, "resistance": 50, "knockbackResistance": 90, "xpValue": 680, "memoryValue": 100 },
-      "ai": { "behavior": "boss", "aggroRange": 450, "attackRange": 80, "attackCooldown": 1.8, "patrolRadius": 240 },
-      "hitbox": { "width": 68, "height": 76, "offsetX": 0, "offsetY": -14 },
-      "sprite": { "texture": "enemy_mire_sovereign", "width": 96, "height": 96 },
-      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+      "stats": {
+        "health": 290,
+        "maxHealth": 290,
+        "damage": 46,
+        "speed": 60,
+        "armor": 40,
+        "resistance": 50,
+        "knockbackResistance": 90,
+        "xpValue": 680,
+        "memoryValue": 100
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 450,
+        "attackRange": 80,
+        "attackCooldown": 1.8,
+        "patrolRadius": 240
+      },
+      "hitbox": {
+        "width": 68,
+        "height": 76,
+        "offsetX": 0,
+        "offsetY": -14
+      },
+      "sprite": {
+        "texture": "enemy_mire_sovereign",
+        "width": 96,
+        "height": 96
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 1,
+          "max": 2
+        }
+      ]
     },
     {
       "id": "bombardier",
@@ -965,11 +1721,43 @@
       "description": "It carries a satchel of unstable memories and throws them with both arms.",
       "type": "bombardier",
       "biome": "ash",
-      "stats": { "health": 170, "maxHealth": 170, "damage": 30, "speed": 95, "armor": 12, "resistance": 18, "knockbackResistance": 20, "xpValue": 135, "memoryValue": 16 },
-      "ai": { "behavior": "ranged_support", "aggroRange": 330, "attackRange": 270, "attackCooldown": 2.4, "patrolRadius": 160 },
-      "hitbox": { "width": 32, "height": 44, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_bombardier", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 6 }]
+      "stats": {
+        "health": 170,
+        "maxHealth": 170,
+        "damage": 30,
+        "speed": 95,
+        "armor": 12,
+        "resistance": 18,
+        "knockbackResistance": 20,
+        "xpValue": 135,
+        "memoryValue": 16
+      },
+      "ai": {
+        "behavior": "ranged_support",
+        "aggroRange": 330,
+        "attackRange": 270,
+        "attackCooldown": 2.4,
+        "patrolRadius": 160
+      },
+      "hitbox": {
+        "width": 32,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_bombardier",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 3,
+          "max": 6
+        }
+      ]
     },
     {
       "id": "hive_drone",
@@ -977,11 +1765,43 @@
       "description": "A wax-winged worker carrying a sac of combustible pollen.",
       "type": "hive_drone",
       "biome": "hive",
-      "stats": { "health": 190, "maxHealth": 190, "damage": 32, "speed": 110, "armor": 14, "resistance": 22, "knockbackResistance": 20, "xpValue": 145, "memoryValue": 18 },
-      "ai": { "behavior": "ranged_support", "aggroRange": 340, "attackRange": 270, "attackCooldown": 2.2, "patrolRadius": 180 },
-      "hitbox": { "width": 30, "height": 40, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_hive_drone", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 3, "max": 7 }]
+      "stats": {
+        "health": 190,
+        "maxHealth": 190,
+        "damage": 32,
+        "speed": 110,
+        "armor": 14,
+        "resistance": 22,
+        "knockbackResistance": 20,
+        "xpValue": 145,
+        "memoryValue": 18
+      },
+      "ai": {
+        "behavior": "ranged_support",
+        "aggroRange": 340,
+        "attackRange": 270,
+        "attackCooldown": 2.2,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 30,
+        "height": 40,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_hive_drone",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 3,
+          "max": 7
+        }
+      ]
     },
     {
       "id": "hive_guard",
@@ -989,11 +1809,43 @@
       "description": "A slab of wax and chitin that stands where the queen points.",
       "type": "hive_guard",
       "biome": "hive",
-      "stats": { "health": 330, "maxHealth": 330, "damage": 36, "speed": 72, "armor": 36, "resistance": 30, "knockbackResistance": 65, "xpValue": 160, "memoryValue": 20 },
-      "ai": { "behavior": "tank", "aggroRange": 300, "attackRange": 66, "attackCooldown": 2.1, "patrolRadius": 140 },
-      "hitbox": { "width": 40, "height": 52, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_hive_guard", "width": 80, "height": 80 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.9, "min": 3, "max": 7 }]
+      "stats": {
+        "health": 330,
+        "maxHealth": 330,
+        "damage": 36,
+        "speed": 72,
+        "armor": 36,
+        "resistance": 30,
+        "knockbackResistance": 65,
+        "xpValue": 160,
+        "memoryValue": 20
+      },
+      "ai": {
+        "behavior": "tank",
+        "aggroRange": 300,
+        "attackRange": 66,
+        "attackCooldown": 2.1,
+        "patrolRadius": 140
+      },
+      "hitbox": {
+        "width": 40,
+        "height": 52,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_hive_guard",
+        "width": 80,
+        "height": 80
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.9,
+          "min": 3,
+          "max": 7
+        }
+      ]
     },
     {
       "id": "hive_queen",
@@ -1001,11 +1853,43 @@
       "description": "The comb's mother. She does not chase; she fills the room with her children.",
       "type": "hive_queen",
       "biome": "hive",
-      "stats": { "health": 280, "maxHealth": 280, "damage": 46, "speed": 62, "armor": 44, "resistance": 46, "knockbackResistance": 90, "xpValue": 700, "memoryValue": 100 },
-      "ai": { "behavior": "boss", "aggroRange": 460, "attackRange": 82, "attackCooldown": 1.8, "patrolRadius": 240 },
-      "hitbox": { "width": 70, "height": 78, "offsetX": 0, "offsetY": -14 },
-      "sprite": { "texture": "enemy_hive_queen", "width": 96, "height": 96 },
-      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+      "stats": {
+        "health": 280,
+        "maxHealth": 280,
+        "damage": 46,
+        "speed": 62,
+        "armor": 44,
+        "resistance": 46,
+        "knockbackResistance": 90,
+        "xpValue": 700,
+        "memoryValue": 100
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 460,
+        "attackRange": 82,
+        "attackCooldown": 1.8,
+        "patrolRadius": 240
+      },
+      "hitbox": {
+        "width": 70,
+        "height": 78,
+        "offsetX": 0,
+        "offsetY": -14
+      },
+      "sprite": {
+        "texture": "enemy_hive_queen",
+        "width": 96,
+        "height": 96
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 1,
+          "max": 2
+        }
+      ]
     },
     {
       "id": "catacomb_archer",
@@ -1013,11 +1897,43 @@
       "description": "It has been aiming at the door for a very long time.",
       "type": "catacomb_archer",
       "biome": "catacomb",
-      "stats": { "health": 185, "maxHealth": 185, "damage": 33, "speed": 92, "armor": 16, "resistance": 28, "knockbackResistance": 18, "xpValue": 150, "memoryValue": 20 },
-      "ai": { "behavior": "ranged_support", "aggroRange": 360, "attackRange": 280, "attackCooldown": 1.9, "patrolRadius": 160 },
-      "hitbox": { "width": 30, "height": 44, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_catacomb_archer", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.85, "min": 4, "max": 8 }]
+      "stats": {
+        "health": 185,
+        "maxHealth": 185,
+        "damage": 33,
+        "speed": 92,
+        "armor": 16,
+        "resistance": 28,
+        "knockbackResistance": 18,
+        "xpValue": 150,
+        "memoryValue": 20
+      },
+      "ai": {
+        "behavior": "ranged_support",
+        "aggroRange": 360,
+        "attackRange": 280,
+        "attackCooldown": 1.9,
+        "patrolRadius": 160
+      },
+      "hitbox": {
+        "width": 30,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_catacomb_archer",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 4,
+          "max": 8
+        }
+      ]
     },
     {
       "id": "bone_knight",
@@ -1025,11 +1941,43 @@
       "description": "Rank still matters here. It closes and salutes before it swings.",
       "type": "bone_knight",
       "biome": "catacomb",
-      "stats": { "health": 270, "maxHealth": 270, "damage": 38, "speed": 120, "armor": 30, "resistance": 25, "knockbackResistance": 45, "xpValue": 165, "memoryValue": 22 },
-      "ai": { "behavior": "ambush", "aggroRange": 320, "attackRange": 68, "attackCooldown": 1.5, "patrolRadius": 190 },
-      "hitbox": { "width": 34, "height": 48, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_bone_knight", "width": 48, "height": 48 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.9, "min": 4, "max": 8 }]
+      "stats": {
+        "health": 270,
+        "maxHealth": 270,
+        "damage": 38,
+        "speed": 120,
+        "armor": 30,
+        "resistance": 25,
+        "knockbackResistance": 45,
+        "xpValue": 165,
+        "memoryValue": 22
+      },
+      "ai": {
+        "behavior": "ambush",
+        "aggroRange": 320,
+        "attackRange": 68,
+        "attackCooldown": 1.5,
+        "patrolRadius": 190
+      },
+      "hitbox": {
+        "width": 34,
+        "height": 48,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_bone_knight",
+        "width": 48,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.9,
+          "min": 4,
+          "max": 8
+        }
+      ]
     },
     {
       "id": "bone_tyrant",
@@ -1037,11 +1985,43 @@
       "description": "The first keeper of the catacombs, still enforcing an order no one remembers.",
       "type": "bone_tyrant",
       "biome": "catacomb",
-      "stats": { "health": 310, "maxHealth": 310, "damage": 50, "speed": 66, "armor": 48, "resistance": 50, "knockbackResistance": 95, "xpValue": 760, "memoryValue": 110 },
-      "ai": { "behavior": "boss", "aggroRange": 470, "attackRange": 84, "attackCooldown": 1.7, "patrolRadius": 240 },
-      "hitbox": { "width": 72, "height": 82, "offsetX": 0, "offsetY": -14 },
-      "sprite": { "texture": "enemy_bone_tyrant", "width": 96, "height": 96 },
-      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+      "stats": {
+        "health": 310,
+        "maxHealth": 310,
+        "damage": 50,
+        "speed": 66,
+        "armor": 48,
+        "resistance": 50,
+        "knockbackResistance": 95,
+        "xpValue": 760,
+        "memoryValue": 110
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 470,
+        "attackRange": 84,
+        "attackCooldown": 1.7,
+        "patrolRadius": 240
+      },
+      "hitbox": {
+        "width": 72,
+        "height": 82,
+        "offsetX": 0,
+        "offsetY": -14
+      },
+      "sprite": {
+        "texture": "enemy_bone_tyrant",
+        "width": 96,
+        "height": 96
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 1,
+          "max": 2
+        }
+      ]
     },
     {
       "id": "grave_hound",
@@ -1049,11 +2029,43 @@
       "description": "It remembers the hand that buried it and has been looking for the rest ever since.",
       "type": "grave_hound",
       "biome": "catacomb",
-      "stats": { "health": 300, "maxHealth": 300, "damage": 38, "speed": 140, "armor": 24, "resistance": 26, "knockbackResistance": 35, "xpValue": 165, "memoryValue": 22 },
-      "ai": { "behavior": "ambush", "aggroRange": 340, "attackRange": 66, "attackCooldown": 1.3, "patrolRadius": 210 },
-      "hitbox": { "width": 34, "height": 44, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_grave_hound", "width": 64, "height": 64 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.9, "min": 4, "max": 8 }]
+      "stats": {
+        "health": 300,
+        "maxHealth": 300,
+        "damage": 38,
+        "speed": 140,
+        "armor": 24,
+        "resistance": 26,
+        "knockbackResistance": 35,
+        "xpValue": 165,
+        "memoryValue": 22
+      },
+      "ai": {
+        "behavior": "ambush",
+        "aggroRange": 340,
+        "attackRange": 66,
+        "attackCooldown": 1.3,
+        "patrolRadius": 210
+      },
+      "hitbox": {
+        "width": 34,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_grave_hound",
+        "width": 64,
+        "height": 64
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.9,
+          "min": 4,
+          "max": 8
+        }
+      ]
     },
     {
       "id": "void_cantor",
@@ -1061,11 +2073,43 @@
       "description": "It sings the geometry of the gap between memories, and the gap answers with light.",
       "type": "void_cantor",
       "biome": "void",
-      "stats": { "health": 210, "maxHealth": 210, "damage": 35, "speed": 82, "armor": 12, "resistance": 38, "knockbackResistance": 12, "xpValue": 160, "memoryValue": 24 },
-      "ai": { "behavior": "ranged_support", "aggroRange": 380, "attackRange": 300, "attackCooldown": 2.2, "patrolRadius": 160 },
-      "hitbox": { "width": 30, "height": 44, "offsetX": 0, "offsetY": -10 },
-      "sprite": { "texture": "enemy_void_cantor", "width": 64, "height": 64 },
-      "lootTable": [{ "item": "fragment_shard", "chance": 0.9, "min": 4, "max": 8 }]
+      "stats": {
+        "health": 210,
+        "maxHealth": 210,
+        "damage": 35,
+        "speed": 82,
+        "armor": 12,
+        "resistance": 38,
+        "knockbackResistance": 12,
+        "xpValue": 160,
+        "memoryValue": 24
+      },
+      "ai": {
+        "behavior": "ranged_support",
+        "aggroRange": 380,
+        "attackRange": 300,
+        "attackCooldown": 2.2,
+        "patrolRadius": 160
+      },
+      "hitbox": {
+        "width": 30,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_void_cantor",
+        "width": 64,
+        "height": 64
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.9,
+          "min": 4,
+          "max": 8
+        }
+      ]
     },
     {
       "id": "choir_hierophant",
@@ -1073,11 +2117,43 @@
       "description": "A single figure conducting a choir of statues. The statues are all that is left of the singers.",
       "type": "hierophant",
       "biome": "frost",
-      "stats": { "health": 260, "maxHealth": 260, "damage": 42, "speed": 64, "armor": 40, "resistance": 45, "knockbackResistance": 90, "xpValue": 720, "memoryValue": 110 },
-      "ai": { "behavior": "boss", "aggroRange": 480, "attackRange": 90, "attackCooldown": 1.8, "patrolRadius": 240 },
-      "hitbox": { "width": 68, "height": 80, "offsetX": 0, "offsetY": -14 },
-      "sprite": { "texture": "enemy_choir_hierophant", "width": 96, "height": 96 },
-      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+      "stats": {
+        "health": 260,
+        "maxHealth": 260,
+        "damage": 42,
+        "speed": 64,
+        "armor": 40,
+        "resistance": 45,
+        "knockbackResistance": 90,
+        "xpValue": 720,
+        "memoryValue": 110
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 480,
+        "attackRange": 90,
+        "attackCooldown": 1.8,
+        "patrolRadius": 240
+      },
+      "hitbox": {
+        "width": 68,
+        "height": 80,
+        "offsetX": 0,
+        "offsetY": -14
+      },
+      "sprite": {
+        "texture": "enemy_choir_hierophant",
+        "width": 96,
+        "height": 96
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 1,
+          "max": 2
+        }
+      ]
     },
     {
       "id": "hollow_behemoth",
@@ -1085,11 +2161,483 @@
       "description": "It has no name left to announce, so it announces itself with the floor.",
       "type": "behemoth",
       "biome": "void",
-      "stats": { "health": 320, "maxHealth": 320, "damage": 48, "speed": 55, "armor": 50, "resistance": 45, "knockbackResistance": 100, "xpValue": 780, "memoryValue": 120 },
-      "ai": { "behavior": "boss", "aggroRange": 480, "attackRange": 96, "attackCooldown": 1.9, "patrolRadius": 240 },
-      "hitbox": { "width": 76, "height": 84, "offsetX": 0, "offsetY": -14 },
-      "sprite": { "texture": "enemy_hollow_behemoth", "width": 96, "height": 96 },
-      "lootTable": [{ "item": "memory_fragment", "chance": 1.0, "min": 1, "max": 2 }]
+      "stats": {
+        "health": 320,
+        "maxHealth": 320,
+        "damage": 48,
+        "speed": 55,
+        "armor": 50,
+        "resistance": 45,
+        "knockbackResistance": 100,
+        "xpValue": 780,
+        "memoryValue": 120
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 480,
+        "attackRange": 96,
+        "attackCooldown": 1.9,
+        "patrolRadius": 240
+      },
+      "hitbox": {
+        "width": 76,
+        "height": 84,
+        "offsetX": 0,
+        "offsetY": -14
+      },
+      "sprite": {
+        "texture": "enemy_hollow_behemoth",
+        "width": 96,
+        "height": 96
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1.0,
+          "min": 1,
+          "max": 2
+        }
+      ]
+    },
+    {
+      "id": "ash_herald",
+      "name": "Ash Herald",
+      "description": "It carries a bell of cooled slag and rings the shape of fire.",
+      "type": "ash_herald",
+      "biome": "ash",
+      "stats": {
+        "health": 190,
+        "maxHealth": 190,
+        "damage": 30,
+        "speed": 95,
+        "armor": 145,
+        "resistance": 15,
+        "knockbackResistance": 30,
+        "xpValue": 130,
+        "memoryValue": 16
+      },
+      "ai": {
+        "behavior": "storm_caller",
+        "aggroRange": 340,
+        "attackRange": 300,
+        "attackCooldown": 2.1,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 30,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_ash_herald",
+        "width": 30,
+        "height": 44
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 2,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "cinder_hound",
+      "name": "Cinder Hound",
+      "description": "Something that used to be a dog and still remembers the chase.",
+      "type": "cinder_hound",
+      "biome": "ash",
+      "stats": {
+        "health": 120,
+        "maxHealth": 120,
+        "damage": 22,
+        "speed": 165,
+        "armor": 60,
+        "resistance": 15,
+        "knockbackResistance": 30,
+        "xpValue": 90,
+        "memoryValue": 11
+      },
+      "ai": {
+        "behavior": "relentless",
+        "aggroRange": 260,
+        "attackRange": 42,
+        "attackCooldown": 1.15,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 24,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_cinder_hound",
+        "width": 24,
+        "height": 44
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 2,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "frost_oracle",
+      "name": "Frost Oracle",
+      "description": "It turns slowly, and the cold turns with it.",
+      "type": "frost_oracle",
+      "biome": "frost",
+      "stats": {
+        "health": 210,
+        "maxHealth": 210,
+        "damage": 34,
+        "speed": 70,
+        "armor": 150,
+        "resistance": 15,
+        "knockbackResistance": 30,
+        "xpValue": 150,
+        "memoryValue": 18
+      },
+      "ai": {
+        "behavior": "sweeper",
+        "aggroRange": 400,
+        "attackRange": 260,
+        "attackCooldown": 2.4,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 32,
+        "height": 52,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_frost_oracle",
+        "width": 32,
+        "height": 52
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 2,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "rime_duelist",
+      "name": "Rime Duelist",
+      "description": "A courtier of the long winter, still bowing to an absent queen.",
+      "type": "rime_duelist",
+      "biome": "frost",
+      "stats": {
+        "health": 300,
+        "maxHealth": 300,
+        "damage": 44,
+        "speed": 118,
+        "armor": 90,
+        "resistance": 15,
+        "knockbackResistance": 30,
+        "xpValue": 175,
+        "memoryValue": 21
+      },
+      "ai": {
+        "behavior": "duelist",
+        "aggroRange": 320,
+        "attackRange": 66,
+        "attackCooldown": 1.7,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 34,
+        "height": 50,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_rime_duelist",
+        "width": 34,
+        "height": 50
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 2,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "bloom_sentinel",
+      "name": "Bloom Sentinel",
+      "description": "Roots hold it up; the flowers decide where it strikes.",
+      "type": "bloom_sentinel",
+      "biome": "bloom",
+      "stats": {
+        "health": 320,
+        "maxHealth": 320,
+        "damage": 40,
+        "speed": 62,
+        "armor": 170,
+        "resistance": 15,
+        "knockbackResistance": 30,
+        "xpValue": 180,
+        "memoryValue": 22
+      },
+      "ai": {
+        "behavior": "pillar_warden",
+        "aggroRange": 360,
+        "attackRange": 240,
+        "attackCooldown": 2.5,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 38,
+        "height": 56,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_bloom_sentinel",
+        "width": 38,
+        "height": 56
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 2,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "petal_stalker",
+      "name": "Petal Stalker",
+      "description": "It moves when the petals fall, and only then.",
+      "type": "petal_stalker",
+      "biome": "bloom",
+      "stats": {
+        "health": 140,
+        "maxHealth": 140,
+        "damage": 28,
+        "speed": 155,
+        "armor": 55,
+        "resistance": 15,
+        "knockbackResistance": 30,
+        "xpValue": 110,
+        "memoryValue": 13
+      },
+      "ai": {
+        "behavior": "ambush",
+        "aggroRange": 300,
+        "attackRange": 52,
+        "attackCooldown": 1.3,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 26,
+        "height": 46,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_petal_stalker",
+        "width": 26,
+        "height": 46
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 2,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "grave_warden",
+      "name": "Grave Warden",
+      "description": "It keeps the rows straight, even now.",
+      "type": "grave_warden",
+      "biome": "catacomb",
+      "stats": {
+        "health": 340,
+        "maxHealth": 340,
+        "damage": 42,
+        "speed": 66,
+        "armor": 180,
+        "resistance": 15,
+        "knockbackResistance": 30,
+        "xpValue": 190,
+        "memoryValue": 23
+      },
+      "ai": {
+        "behavior": "pillar_warden",
+        "aggroRange": 380,
+        "attackRange": 250,
+        "attackCooldown": 2.6,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 38,
+        "height": 56,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_grave_warden",
+        "width": 38,
+        "height": 56
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 2,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "void_herald",
+      "name": "Void Herald",
+      "description": "It announces an absence, and the air makes room.",
+      "type": "void_herald",
+      "biome": "void",
+      "stats": {
+        "health": 230,
+        "maxHealth": 230,
+        "damage": 36,
+        "speed": 88,
+        "armor": 160,
+        "resistance": 15,
+        "knockbackResistance": 30,
+        "xpValue": 165,
+        "memoryValue": 20
+      },
+      "ai": {
+        "behavior": "wall_warden",
+        "aggroRange": 420,
+        "attackRange": 280,
+        "attackCooldown": 2.3,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 32,
+        "height": 52,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_void_herald",
+        "width": 32,
+        "height": 52
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 2,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "hive_slinger",
+      "name": "Hive Slinger",
+      "description": "It lobs resin sacs that burst into stinging light.",
+      "type": "hive_slinger",
+      "biome": "hive",
+      "stats": {
+        "health": 150,
+        "maxHealth": 150,
+        "damage": 26,
+        "speed": 108,
+        "armor": 65,
+        "resistance": 15,
+        "knockbackResistance": 30,
+        "xpValue": 120,
+        "memoryValue": 15
+      },
+      "ai": {
+        "behavior": "bombardier",
+        "aggroRange": 380,
+        "attackRange": 300,
+        "attackCooldown": 1.9,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 26,
+        "height": 44,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_hive_slinger",
+        "width": 26,
+        "height": 44
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 2,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "mire_lurker",
+      "name": "Mire Lurker",
+      "description": "The bog moves first; the body follows.",
+      "type": "mire_lurker",
+      "biome": "mire",
+      "stats": {
+        "health": 180,
+        "maxHealth": 180,
+        "damage": 30,
+        "speed": 135,
+        "armor": 65,
+        "resistance": 15,
+        "knockbackResistance": 30,
+        "xpValue": 125,
+        "memoryValue": 15
+      },
+      "ai": {
+        "behavior": "ambush",
+        "aggroRange": 280,
+        "attackRange": 54,
+        "attackCooldown": 1.4,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 28,
+        "height": 48,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_mire_lurker",
+        "width": 28,
+        "height": 48
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 2,
+          "max": 6
+        }
+      ]
     }
   ],
   "eliteModifiers": [

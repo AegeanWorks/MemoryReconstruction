@@ -10,7 +10,7 @@
     "index.html",
     "package.json"
   ],
-  "ui_checked_at": "2026-10-28",
+  "ui_checked_at": "2026-10-30",
   "ui_source": "detected",
   "topics": [
     "aikit",
@@ -54,5 +54,6 @@
     "aegean-game-license",
     "drm-free",
     "commercial-license"
-  ]
+  ],
+  "ui_required": true
 }

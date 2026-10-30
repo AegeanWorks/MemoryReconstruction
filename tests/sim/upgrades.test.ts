@@ -33,3 +33,28 @@ describe('upgrades', () => {
     expect(computeStats({ guard: 10 }).damageReduction).toBeLessThan(1);
   });
 });
+
+describe('expanded upgrade pool', () => {
+  it('adds six new customization picks', () => {
+    const ids = new Set(UPGRADES.map((u) => u.id));
+    for (const id of ['vigor', 'frenzy', 'deadeye', 'aegis', 'channel', 'siphon'])
+      expect(ids.has(id)).toBe(true);
+  });
+
+  it('applies the new picks to stats', () => {
+    const stats = computeStats({
+      vigor: 1,
+      frenzy: 1,
+      deadeye: 1,
+      aegis: 1,
+      channel: 1,
+      siphon: 1,
+    });
+    expect(stats.maxHealth).toBeGreaterThan(BASE_STATS.maxHealth);
+    expect(stats.attackSpeed).toBeGreaterThan(BASE_STATS.attackSpeed);
+    expect(stats.critChance).toBeGreaterThan(BASE_STATS.critChance);
+    expect(stats.damageReduction).toBeGreaterThan(0);
+    expect(stats.boltDamage).toBeGreaterThan(BASE_STATS.boltDamage);
+    expect(stats.lifesteal).toBeGreaterThan(0);
+  });
+});

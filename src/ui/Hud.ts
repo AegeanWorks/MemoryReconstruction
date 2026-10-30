@@ -41,7 +41,7 @@ export class Hud {
   private readonly floorName = h('div', { class: 'hud-floor' });
   private readonly objectives = h('div', { class: 'hud-objectives' });
   private readonly bossName = h('div', { class: 'boss-name' });
-  private readonly boss = bar('boss', false, true);
+  private readonly boss = bar('boss', true, true);
   private readonly bossBar = h('div', { class: 'boss-bar hidden' }, this.bossName, this.boss.root);
   private readonly minimap = h('canvas', { class: 'minimap', width: '190', height: '140' });
   private readonly shards = h('span');
@@ -231,7 +231,7 @@ export class Hud {
       this.flowLabel,
       flowActive
         ? `FLOW ${Math.min(p.resonance, RESONANCE_MAX)} · x${resonanceMultiplier(p.resonance).toFixed(2)}`
-        : 'FLOW —'
+        : 'FLOW · IDLE'
     );
 
     const biome = biomeInfo(world.plan.biome);
@@ -252,7 +252,11 @@ export class Hud {
     if (boss) {
       this.setText(this.bossName, boss.def.name);
       this.setWidth(this.boss.fill, boss.health / boss.maxHealth);
-      if (this.boss.lag) this.setWidth(this.boss.lag, boss.health / boss.maxHealth);
+      this.setWidth(this.boss.lag!, boss.health / boss.maxHealth);
+      this.setText(
+        this.boss.text!,
+        `${Math.max(0, Math.ceil((boss.health / boss.maxHealth) * 100))}%`
+      );
     }
 
     const near = world.nearbyInteractable();

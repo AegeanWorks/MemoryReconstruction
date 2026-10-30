@@ -68,7 +68,9 @@ function interactableLook(it: Interactable): { prop: string; size: number; glow:
   if (it.kind === 'lever') return { prop: 'lever', size: 48, glow: 0x9fd8ff };
   if (it.kind === 'archive') return { prop: 'furn_shelf', size: 70, glow: 0xb8a4ff };
   if (it.kind === 'merchant') return { prop: 'npc_smith', size: 58, glow: 0xffb060 };
-  if (it.kind === 'gate') return { prop: 'ruins_door', size: 82, glow: 0xffd98a };
+  if (it.kind === 'gate') return { prop: 'ruins_door', size: 168, glow: 0xffd98a };
+  // The doorway back out to the Sanctuary hub.
+  if (it.kind === 'door') return { prop: 'ruins_door', size: 84, glow: 0xffd98a };
   if (it.kind === 'npc') {
     const NPC_PROPS: Record<string, string> = {
       archivist: 'npc_archivist',
@@ -337,6 +339,7 @@ export class ActorView {
 
     if (e.state === 'spawning') this.drawSpawnRune(e, pos.x, pos.y);
     if (e.state === 'windup') this.drawTelegraph(e, pos.x, pos.y);
+    else if (e.state === 'attack' && e.attack === 'sweep') this.drawSweepBeam(e, pos.x, pos.y);
     if (!e.isBoss && e.health < e.maxHealth && e.state !== 'dying')
       this.drawHealthBar(e, pos.x, pos.y);
   }
@@ -618,7 +621,70 @@ export class ActorView {
         }
         break;
       }
+      case 'fan': {
+        for (const o of [-0.5, -0.25, 0, 0.25, 0.5])
+          g.moveTo(x, y)
+            .lineTo(x + Math.cos(angle + o) * 280, y + Math.sin(angle + o) * 280)
+            .stroke({ width: 3, color: 0xff7a5a, alpha: urgency * 0.7 });
+        break;
+      }
+      case 'wall': {
+        // A curtain across the lane, with a visible gap to dive through.
+        const nx = Math.cos(angle + Math.PI / 2);
+        const ny = Math.sin(angle + Math.PI / 2);
+        const gap = 2;
+        for (let i = 0; i < 6; i++) {
+          if (i === gap || i === gap + 1) continue;
+          const ox = x + nx * (-100 + i * 40);
+          const oy = y + ny * (-100 + i * 40);
+          g.moveTo(ox, oy)
+            .lineTo(ox + Math.cos(angle) * 90, oy + Math.sin(angle) * 90)
+            .stroke({ width: 10, color: 0xff8a5a, alpha: urgency * 0.35 });
+        }
+        g.moveTo(x + nx * 40, y + ny * 40)
+          .lineTo(x + nx * 80, y + ny * 80)
+          .stroke({ width: 2, color: 0x9df3ff, alpha: urgency * 0.8 });
+        break;
+      }
+      case 'pillars': {
+        for (let i = 1; i <= 5; i++) {
+          const side = i % 2 === 0 ? 44 : -44;
+          g.circle(
+            x + Math.cos(angle) * 58 * i + Math.cos(angle + Math.PI / 2) * side,
+            y + Math.sin(angle) * 58 * i + Math.sin(angle + Math.PI / 2) * side,
+            36
+          ).stroke({ width: 2, color: 0xff9a5a, alpha: urgency * (1 - i * 0.1) });
+        }
+        break;
+      }
+      case 'sweep': {
+        const span = 1.8;
+        const radius = 220;
+        g.moveTo(x, y)
+          .arc(x, y, radius, angle - span / 2, angle + span / 2)
+          .lineTo(x, y)
+          .fill({ color: 0xff6a4a, alpha: urgency * 0.22 });
+        g.moveTo(x + Math.cos(angle - span / 2) * radius, y + Math.sin(angle - span / 2) * radius)
+          .arc(x, y, radius, angle - span / 2, angle + span / 2)
+          .stroke({ width: 3, color: 0xffb060, alpha: urgency });
+        break;
+      }
     }
+  }
+
+  /** The live rotating beam while a sweep resolves. */
+  private drawSweepBeam(e: Enemy, x: number, y: number): void {
+    const span = 1.8;
+    const base = Math.atan2(e.dirY, e.dirX);
+    const progress = 1 - e.stateTime / 0.7;
+    const angle = base - span / 2 + progress * span;
+    const g = this.telegraphs;
+    g.moveTo(x, y)
+      .lineTo(x + Math.cos(angle) * 520, y + Math.sin(angle) * 520)
+      .stroke({ width: e.isBoss ? 30 : 22, color: 0xff7a4a, alpha: 0.4 });
+    g.moveTo(x, y)
+      .lineTo(x + Math.cos(angle) * 520, y + Math.sin(angle) * 520)
+      .stroke({ width: 3, color: 0xffe0c0, alpha: 0.9 });
   }
 
   private drawHealthBar(e: Enemy, x: number, y: number): void {
@@ -768,7 +834,8 @@ export class ActorView {
           });
           label.anchor.set(0.5);
           label.resolution = 2;
-          label.position.set(0, it.kind === 'structure' ? -78 : it.kind === 'gate' ? -70 : -52);
+          // The exit sign sits above its arch so it never covers the doorway.
+          label.position.set(0, it.kind === 'npc' ? -70 : -112);
           root.addChild(label);
           this.labels.push({ text: label, x: it.x, y: it.y });
         }
@@ -822,18 +889,14 @@ export class ActorView {
     if (!visible) for (const label of this.labels) label.text.visible = false;
   }
 
-  /** Only stations near the walker keep a floating name, which prevents edge clipping. */
+  /** Names fade in as the walker approaches, and never sit under the prompt. */
   private updateLabels(): void {
     const p = this.world.player;
     for (const label of this.labels) {
       const distance = Math.hypot(label.x - p.x, label.y - p.y);
-      // Keep the radius tight enough that the top row's labels are not shown
-      // while the player is still at the spawn and they would clip the viewport.
-      // Right next to a station the interaction prompt already names it, so the
-      // floating label would only overlap the player.
-      const near = this.labelsEnabled && distance > 62 && distance < 200;
+      const near = this.labelsEnabled && distance > 54 && distance < 260;
       label.text.visible = near;
-      if (near) label.text.alpha = Math.min(1, (200 - distance) / 45);
+      if (near) label.text.alpha = Math.min(1, (260 - distance) / 60);
     }
   }
 

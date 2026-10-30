@@ -223,6 +223,66 @@ export const UPGRADES: readonly UpgradeDef[] = [
     maxStacks: 1,
     apply: (s) => void (s.shockwave = true),
   },
+  {
+    id: 'vigor',
+    name: 'Deep Breath',
+    description: '+35 max health',
+    rarity: 'rare',
+    maxStacks: 3,
+    apply: (s) => void (s.maxHealth += 35),
+  },
+  {
+    id: 'frenzy',
+    name: 'Frenzy',
+    description: '+20% attack speed',
+    rarity: 'rare',
+    maxStacks: 3,
+    apply: (s) => void (s.attackSpeed *= 1.2),
+  },
+  {
+    id: 'deadeye',
+    name: 'Deadeye',
+    description: '+12% critical chance, +25% critical damage',
+    rarity: 'epic',
+    maxStacks: 2,
+    apply: (s) => {
+      s.critChance += 0.12;
+      s.critMultiplier += 0.25;
+    },
+  },
+  {
+    id: 'aegis',
+    name: 'Aegis',
+    description: '+8% damage reduction, +10 max health',
+    rarity: 'rare',
+    maxStacks: 3,
+    apply: (s) => {
+      s.damageReduction = Math.min(0.6, s.damageReduction + 0.08);
+      s.maxHealth += 10;
+    },
+  },
+  {
+    id: 'channel',
+    name: 'Channel',
+    description: '+25% bolt damage, -15% bolt cost',
+    rarity: 'rare',
+    maxStacks: 3,
+    apply: (s) => {
+      s.boltDamage *= 1.25;
+      s.boltCost *= 0.85;
+    },
+  },
+  {
+    id: 'siphon',
+    name: 'Siphon',
+    description: '+3% lifesteal, kills restore 4 mana',
+    rarity: 'rare',
+    maxStacks: 3,
+    apply: (s) => {
+      s.lifesteal += 0.03;
+      s.manaOnKill += 4;
+    },
+  },
 ];
 
 const BY_ID = new Map(UPGRADES.map((u) => [u.id, u]));

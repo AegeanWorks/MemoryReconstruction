@@ -4,6 +4,7 @@
 import { angleBetween, inArc, rollDamage, type Arena } from './combat';
 import type { InputFrame, Player } from './entities';
 import { moveAndCollide } from './physics';
+import { applyAspect } from './aspects';
 import { applyEquipment, emptyEquipment, type EquipmentSlots } from './equipment';
 import { computeStats } from './upgrades';
 import { WEAPONS, weaponDef } from './weapons';
@@ -69,7 +70,10 @@ export function createPlayer(x: number, y: number): Player {
 /** Recomputes stats after an upgrade, keeping health and mana as the same absolute values plus any gain. */
 export function refreshStats(player: Player, equipped?: EquipmentSlots): void {
   const before = player.stats;
-  const after = applyEquipment(computeStats(player.upgrades), equipped ?? player.equipment);
+  const after = applyAspect(
+    applyEquipment(computeStats(player.upgrades), equipped ?? player.equipment),
+    player.aspect
+  );
   player.health = Math.min(
     after.maxHealth,
     player.health + Math.max(0, after.maxHealth - before.maxHealth)

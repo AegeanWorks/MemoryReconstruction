@@ -139,6 +139,7 @@ export function restoreRun(data: unknown): RunState | undefined {
   run.player.equipment ??= { weapon: null, armor: null, trinket: null };
   run.player.inventory ??= [];
   run.player.nextEquipmentId ??= 1;
+  run.player.aspect ??= 'none';
   refreshStats(run.player);
   run.player.health = Math.min(health, run.player.stats.maxHealth);
   run.player.mana = Math.min(mana, run.player.stats.maxMana);

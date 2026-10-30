@@ -17,6 +17,8 @@ import { loadSprites, type SpriteLibrary } from './sheets';
 
 /** World pixels visible vertically; the zoom follows the window height. */
 const VIEW_HEIGHT = 520;
+/** Inside a house the camera fills the screen with that one room. */
+const VIEW_HEIGHT_INTERIOR = 470;
 const LOOK_AHEAD = 0.18;
 const LOOK_AHEAD_MAX = 90;
 
@@ -25,6 +27,17 @@ interface FloorScene {
   level: LevelView;
   actors: ActorView;
   effects: Effects;
+}
+
+/**
+ * Keeps a camera axis inside `[min, max]` when that span is wider than the
+ * view, and centres the span when it is not.
+ */
+function clampToSpan(value: number, min: number, max: number, halfView: number): number {
+  const lo = min + halfView;
+  const hi = max - halfView;
+  if (lo >= hi) return (min + max) / 2;
+  return Math.min(Math.max(value, lo), hi);
 }
 
 export class Renderer {
@@ -76,6 +89,11 @@ export class Renderer {
     this.scene = { world, level, actors, effects };
     this.camX = world.player.x;
     this.camY = world.player.y;
+    // Snap the room framing instead of easing in from the previous screen.
+    this.zoom = Math.max(
+      0.5,
+      this.app.screen.height / (world.mode === 'sanctuary' ? VIEW_HEIGHT_INTERIOR : VIEW_HEIGHT)
+    );
     this.darkness.alpha = art.darkness;
   }
 
@@ -129,7 +147,9 @@ export class Renderer {
   private updateScene(scene: FloorScene, alpha: number, dt: number): void {
     const w = this.app.screen.width;
     const h = this.app.screen.height;
-    this.zoom = Math.max(1, h / VIEW_HEIGHT);
+    const viewHeight = scene.world.mode === 'sanctuary' ? VIEW_HEIGHT_INTERIOR : VIEW_HEIGHT;
+    const targetZoom = Math.max(0.5, h / viewHeight);
+    this.zoom += (targetZoom - this.zoom) * Math.min(1, 8 * dt);
 
     const target = scene.actors.playerPosition(alpha);
     // Lean the camera toward the cursor so the player sees where they aim.
@@ -144,7 +164,14 @@ export class Renderer {
     const follow = 1 - Math.exp(-10 * dt);
     this.camX += (target.x + lookX - this.camX) * follow;
     this.camY += (target.y + lookY - this.camY) * follow;
-
+    // A resident's room is one small stage: hold it framed instead of letting
+    // the camera crop the top wall when the walker stands near the door.
+    if (scene.world.mode === 'sanctuary') {
+      const halfW = w / this.zoom / 2;
+      const halfH = h / this.zoom / 2;
+      this.camX = clampToSpan(this.camX, 32, scene.world.floor.grid.width * 32 - 32, halfW);
+      this.camY = clampToSpan(this.camY, 32, scene.world.floor.grid.height * 32 - 32, halfH);
+    }
     const shake = scene.effects.shakeOffset();
     this.camera.scale.set(this.zoom);
     this.camera.position.set(

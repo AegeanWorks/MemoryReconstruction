@@ -22,11 +22,16 @@ export interface EquipmentDef {
 export interface EquipmentItem {
   uid: number;
   defId: string;
+  /** Permanent reforge ranks from the Sanctuary, 0..3. */
+  rank?: number;
 }
 
 export type EquipmentSlots = Record<EquipmentSlot, EquipmentItem | null>;
 
 export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'trinket'];
+/** Each reforge rank multiplies a relic's numeric mods by this fraction. */
+export const REFORGE_STEP = 0.12;
+export const REFORGE_MAX = 3;
 
 export const EQUIPMENT: readonly EquipmentDef[] = (equipmentJson as { items: EquipmentDef[] })
   .items;
@@ -70,8 +75,10 @@ export function applyEquipment(
     const item = equipped[slot];
     if (!item) continue;
     const def = equipmentDef(item.defId);
-    for (const [key, value] of Object.entries(def.mods)) {
-      if (typeof value !== 'number') continue;
+    const scale = 1 + REFORGE_STEP * Math.max(0, Math.min(REFORGE_MAX, item.rank ?? 0));
+    for (const [key, raw] of Object.entries(def.mods)) {
+      if (typeof raw !== 'number') continue;
+      const value = raw * scale;
       const stat = key as keyof PlayerStats;
       const current = out[stat];
       if (typeof current !== 'number') continue;
@@ -108,7 +115,7 @@ export function rarityRank(rarity: EquipmentRarity): number {
 /** A short "is this better?" score, used only by the UI. */
 export function equipmentScore(item: EquipmentItem): number {
   const def = equipmentDef(item.defId);
-  let score = rarityRank(def.rarity) * 10;
+  let score = rarityRank(def.rarity) * 10 + (item.rank ?? 0) * 4;
   for (const value of Object.values(def.mods)) if (typeof value === 'number') score += value;
   return score;
 }
