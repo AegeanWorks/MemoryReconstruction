@@ -81,6 +81,7 @@
     "prop_memory_chest": "sprites/props/memory_chest.png",
     "prop_barrel": "sprites/props/barrel.png",
     "prop_lever": "sprites/props/lever.png",
+    "prop_shrine": "sprites/props/shrine.png",
     "prop_npc_archivist": "sprites/props/npc_archivist.png",
     "prop_npc_smith": "sprites/props/npc_smith.png",
     "prop_npc_gardener": "sprites/props/npc_gardener.png",
