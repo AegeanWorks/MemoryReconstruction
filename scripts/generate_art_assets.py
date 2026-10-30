@@ -955,20 +955,53 @@ def _keeper(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: 
     cloth = style["cloth"]
     accent = style["accent"]
     cx = 0.50 + lunge
-    # Halo.
-    ellipse(draw, cell, cx - 0.22, 0.08 + bob, cx + 0.22, 0.22 + bob, outline=accent, width=2)
-    # Robe.
-    poly(draw, cell, [(cx - 0.14, 0.27 + bob), (cx + 0.14, 0.27 + bob), (cx + 0.29, 0.90), (cx - 0.29, 0.90)],
+    sway = math.sin(t * math.tau) * 0.006
+    # Radiant halo: ring, inner ring and a crown of short rays.
+    ellipse(draw, cell, cx - 0.23, 0.06 + bob, cx + 0.23, 0.20 + bob, outline=accent, width=3)
+    ellipse(draw, cell, cx - 0.17, 0.09 + bob, cx + 0.17, 0.17 + bob, outline=accent, width=1)
+    for i in range(9):
+        a = math.pi + i * math.pi / 8
+        rx, ry = cx + math.cos(a) * 0.25, 0.13 + bob + math.sin(a) * 0.085
+        line(draw, cell, [(cx + math.cos(a) * 0.205, 0.13 + bob + math.sin(a) * 0.068), (rx, ry)], accent, 1)
+    # Layered robe: dark outer mantle over a lit inner stole, wide hem.
+    poly(draw, cell, [(cx - 0.27, 0.86), (cx - 0.20, 0.42 + bob), (cx - 0.09, 0.30 + bob),
+                      (cx + 0.09, 0.30 + bob), (cx + 0.20, 0.42 + bob), (cx + 0.27, 0.86)],
          fill=cloth, outline=Outline, width=3)
-    poly(draw, cell, [(cx - 0.10, 0.31 + bob), (cx + 0.10, 0.31 + bob), (cx + 0.16, 0.84), (cx - 0.16, 0.84)],
+    poly(draw, cell, [(cx - 0.14, 0.86), (cx - 0.11, 0.40 + bob), (cx + 0.11, 0.40 + bob), (cx + 0.14, 0.86)],
          fill=body)
-    rect(draw, cell, cx - 0.15, 0.48, cx + 0.15, 0.52, fill=accent)
-    ellipse(draw, cell, cx - 0.08, 0.18 + bob, cx + 0.08, 0.33 + bob, fill=light, outline=Outline, width=2)
-    ellipse(draw, cell, cx + 0.00, 0.235 + bob, cx + 0.04, 0.27 + bob, fill=style["eye"])
-    # Staff.
-    line(draw, cell, [(cx + 0.20, 0.22), (cx + 0.20, 0.90)], cloth, 3)
-    ellipse(draw, cell, cx + 0.15, 0.13, cx + 0.25, 0.23, fill=accent, outline=Outline, width=2)
-    line(draw, cell, [(cx + 0.20, 0.52), (cx + 0.31, 0.48)], accent, 2)
+    poly(draw, cell, [(cx - 0.055, 0.40 + bob), (cx + 0.055, 0.40 + bob), (cx + 0.065, 0.86), (cx - 0.065, 0.86)],
+         fill=mix(body, (255, 255, 255), 0.22))
+    # Hem band and two gold sashes.
+    rect(draw, cell, cx - 0.28, 0.81, cx + 0.28, 0.86, fill=mix(cloth, Outline, 0.35), outline=Outline, width=2)
+    rect(draw, cell, cx - 0.28, 0.815, cx + 0.28, 0.832, fill=accent)
+    for y in (0.55, 0.68):
+        rect(draw, cell, cx - 0.16, y, cx + 0.16, y + 0.028, fill=accent)
+    # Shoulder mantle with a lit leading edge.
+    poly(draw, cell, [(cx - 0.24, 0.40 + bob), (cx - 0.12, 0.30 + bob), (cx + 0.12, 0.30 + bob), (cx + 0.24, 0.40 + bob),
+                      (cx + 0.16, 0.50 + bob), (cx - 0.16, 0.50 + bob)],
+         fill=mix(cloth, light, 0.30), outline=Outline, width=2)
+    line(draw, cell, [(cx - 0.22, 0.405 + bob), (cx - 0.10, 0.315 + bob), (cx + 0.10, 0.315 + bob), (cx + 0.22, 0.405 + bob)],
+         mix(light, (255, 255, 255), 0.45), 2)
+    # Sleeves crossed at the waist, hands in gold cuffs.
+    line(draw, cell, [(cx - 0.18, 0.45 + bob), (cx - 0.10, 0.62), (cx + 0.02, 0.60)], cloth, 8)
+    line(draw, cell, [(cx + 0.18, 0.45 + bob), (cx + 0.12, 0.60), (cx + 0.02, 0.60)], mix(cloth, light, 0.2), 7)
+    ellipse(draw, cell, cx - 0.05, 0.575, cx + 0.06, 0.645, fill=light, outline=Outline, width=2)
+    # Hooded head sunk in shadow, lit eyes, gold circlet.
+    ellipse(draw, cell, cx - 0.09, 0.19 + bob, cx + 0.09, 0.34 + bob, fill=(18, 16, 26), outline=Outline, width=3)
+    rect(draw, cell, cx - 0.085, 0.205 + bob, cx + 0.085, 0.235 + bob, fill=accent)
+    _enemy_eyes(draw, cell, cx, 0.275 + bob, dict(style, eyes='glare'), spread=0.032, r=0.018)
+    # Crozier: tall shaft, spiral head and a floating memory gem.
+    line(draw, cell, [(cx + 0.26 + sway, 0.12), (cx + 0.26, 0.88)], Outline, 6)
+    line(draw, cell, [(cx + 0.26 + sway, 0.12), (cx + 0.26, 0.88)], mix(cloth, light, 0.35), 3)
+    ellipse(draw, cell, cx + 0.19, 0.06, cx + 0.33, 0.20, outline=accent, width=3)
+    poly(draw, cell, [(cx + 0.26, 0.085), (cx + 0.30, 0.125), (cx + 0.26, 0.165), (cx + 0.22, 0.125)],
+         fill=light, outline=Outline, width=1)
+    ellipse(draw, cell, cx + 0.215, 0.105, cx + 0.245, 0.145, fill=(255, 250, 220))
+    # Small blessing motes drifting off the hem.
+    for i in range(3):
+        mx = cx - 0.22 + i * 0.20
+        my = 0.76 - i * 0.05 + math.sin(t * math.tau + i) * 0.01
+        ellipse(draw, cell, mx - 0.012, my - 0.012, mx + 0.012, my + 0.012, fill=accent)
 
 
 def _warden(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
