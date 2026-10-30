@@ -15,6 +15,7 @@ import {
   reforgeRelic,
   createExpedition,
   echoesEarned,
+  restCost,
   purchaseOffering,
   purchaseRestoration,
   sectionNumber,
@@ -281,7 +282,7 @@ export class App {
     this.renderer.clearFloor();
     this.sound.playAmbience('sanctuary');
     const saved = this.store.loadRun();
-    const restCost = saved ? 10 + saved.depth * 2 : 0;
+    const restPrice = saved ? restCost(saved.depth) : 0;
     this.screens.show(
       sanctuaryScreen({
         meta: this.meta,
@@ -293,7 +294,7 @@ export class App {
               maxHealth: saved.player.stats.maxHealth,
             }
           : undefined,
-        restCost,
+        restCost: restPrice,
         onEnter: (id) => this.click(() => this.enterBuilding(id)),
         onRestoration: () => this.click(() => this.openHubPanel()),
         onTraining: () => this.click(() => this.showTraining()),
@@ -311,8 +312,10 @@ export class App {
           }),
         onRest: () =>
           this.click(() => {
-            this.restSavedRun(restCost);
-            this.showExpedition();
+            // Rest is for the expedition in progress: heal it and go back in,
+            // never drop the player into a fresh-run screen that discards it.
+            const run = this.restSavedRun(restPrice);
+            if (run) this.startRun(run);
           }),
         onMemories: () =>
           this.click(() =>
@@ -348,7 +351,7 @@ export class App {
     this.state = 'hub';
     this.input.releaseAll();
     const saved = this.store.loadRun();
-    const restCost = saved ? 10 + saved.depth * 2 : 0;
+    const restPrice = saved ? restCost(saved.depth) : 0;
     const reopen = (): void => this.openHubPanel();
     this.screens.show(
       hubScreen({
@@ -361,11 +364,11 @@ export class App {
               maxHealth: saved.player.stats.maxHealth,
             }
           : undefined,
-        restCost,
+        restCost: restPrice,
         onRest: () =>
           this.click(() => {
-            this.restSavedRun(restCost);
-            reopen();
+            const run = this.restSavedRun(restPrice);
+            if (run) this.startRun(run);
           }),
         onExpedition: () => this.click(() => this.showExpedition()),
         onContinue: () =>
@@ -391,7 +394,7 @@ export class App {
     this.state = 'hub';
     this.input.releaseAll();
     const saved = this.store.loadRun();
-    const restCost = saved ? 10 + saved.depth * 2 : 0;
+    const restPrice = saved ? restCost(saved.depth) : 0;
     this.screens.show(
       expeditionScreen({
         meta: this.meta,
@@ -402,7 +405,7 @@ export class App {
               maxHealth: saved.player.stats.maxHealth,
             }
           : undefined,
-        restCost,
+        restCost: restPrice,
         onContinue: () =>
           this.click(() => {
             const run = this.store.loadRun();
@@ -410,8 +413,10 @@ export class App {
           }),
         onRest: () =>
           this.click(() => {
-            this.restSavedRun(restCost);
-            this.showExpedition();
+            // Rest is for the expedition in progress: heal it and go back in,
+            // never drop the player into a fresh-run screen that discards it.
+            const run = this.restSavedRun(restPrice);
+            if (run) this.startRun(run);
           }),
         onStart: (depth) => this.click(() => this.startExpedition(depth)),
         onBack: () => this.click(() => this.closeHubPanel()),
@@ -554,9 +559,10 @@ export class App {
   }
 
   /** Heals the saved expedition between floors at the cost of echoes. */
-  private restSavedRun(cost: number): void {
+  /** Heals the saved expedition and returns it, so rest can resume it directly. */
+  private restSavedRun(cost: number): RunState | undefined {
     const run = this.store.loadRun();
-    if (!run || this.meta.echoes < cost) return;
+    if (!run || this.meta.echoes < cost) return undefined;
     const p = run.player;
     p.health = p.stats.maxHealth;
     p.mana = p.stats.maxMana;
@@ -564,6 +570,7 @@ export class App {
     this.store.saveRun(run);
     this.meta = { ...this.meta, echoes: this.meta.echoes - cost };
     this.store.saveMeta(this.meta);
+    return run;
   }
 
   private startExpedition(startDepth: number): void {

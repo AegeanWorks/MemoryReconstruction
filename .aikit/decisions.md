@@ -332,3 +332,14 @@ or the architecture; see the header above for where each entry goes. -->
   2. **Scoped labels**: the page-width rule now targets only the hub's own direct section label, and column labels size to their column (`width: 100%`).
   3. **Varying wall gap**: the gap index is `enemy.id % 4` in both the launch and the telegraph, so the warning and the curtain agree while no longer always opening on the player's centre line.
 - **Consequences**: short clicks and taps are reliable; the hub has no full-width rule crossing its columns; the wall pattern requires a real dodge. Verified by Playwright: three instant right-clicks spend mana and four instant melee taps damage an enemy, all screens have no off-screen or clipped elements, combat resolves without NaN, and old/corrupt saves still boot to the title. 150 tests and all project gates pass.
+### ADR-034: Rest resumes the expedition, and the game declares a headless mechanics core
+
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: A progression audit found that paying for Rest healed the saved expedition and then opened the Set Out screen, where starting a fresh run silently discarded the run the player had just paid to heal. The hub also labelled the action `Rest · 0 echoes` when no expedition existed. Separately, AIKit warned that the game had no mechanics contract, so the simulation could not be tested without a browser.
+- **Decision**:
+  1. **Rest resumes**: `restSavedRun` now returns the healed `RunState`, and all three call sites (hub, restoration ledger, Set Out screen) call `startRun` on it. Paying for rest puts the player back into the healed expedition instead of a fresh-run screen.
+  2. **Honest label**: the hub shows `Rest · N echoes` only when an expedition exists, and plain `Rest` otherwise; it remains disabled without a save or at full health.
+  3. **One price rule**: the `10 + depth * 2` formula moved to `restCost(depth)` in `hub.ts`, used by every call site and covered by a unit test.
+  4. **Mechanics contract**: `package.json` gains `test:mechanics` (the headless `tests/sim` suite), and `.aikit/project.json` declares `mechanics.core` (`src/sim`, `src/data`) with `mechanics.test` and `mechanics_required: true`. AIKit now runs the simulation gate on every check.
+- **Consequences**: rest has the effect its price implies, the label never advertises a zero-cost heal, and the sim is verifiable headlessly (118 mechanics tests) as a first-class gate. Full suite: 151 tests; all gates pass.

@@ -1,51 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "runtime-audit",
+    "task_id": "rest-and-mechanics",
     "last_phase": "phase 5",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793347993.602511,
-    "owner": "kilo:runtime-audit",
-    "started_by": "kilo:runtime-audit",
+    "updated_at": 1793358629.3343532,
+    "owner": "kilo:rest-mechanics",
+    "started_by": "kilo:rest-mechanics",
     "continuations": [],
-    "completed_at": 1793348012.5952046
+    "completed_at": 1793358630.4484248
   },
   "checkpoints": [
-    {
-      "task_id": "living-sanctuary",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[6/6] Unique Echo Trial bosses implemented and verified visually: Choir Hierophant (masked four-armed conductor, eye halo) and Hollow Behemoth (horned spiked quadruped), both 192px unique models; trials now apply 1.5x health and spawn the player 9 tiles back; trial titles 'The Frozen Choir' and 'The Nameless'. Fixed shape carving/islands, library archive prompt, hound model, weapon art, sanctuary furniture. 118 tests, 7/7 gates, cleanup done. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793027945.7814627,
-      "timestamp_str": "2026-10-26 18:19:05",
-      "agent": "kilo:living"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[6/6] Player-reported fixes verified by direct screenshots and probes: spine layout exceeded the 6-cell grid (GRID_W now 7; new player-radius clearance test proves every room reachable over 160 floors); full-health hearts / full potion pickups now convert to shards instead of homing forever; sword/spear/greatsword held models redesigned to be clearly distinct; Sanctuary restaged with darker stone, central dais + columns, circular rugs, standing banners, benches and planters. 120 tests, 7/7 gates, build passes, temp images cleaned. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793031235.1775227,
-      "timestamp_str": "2026-10-26 19:13:55",
-      "agent": "kilo:living"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "in_progress",
-      "phase_num": 3,
-      "description": "[5/6] Browser/screenshot QA pass: fix Echo Trial spawn activation and dual-relic drops, Sanctuary furniture/label collisions and dais resolution, HUD bleed into Sanctuary menus, duplicate bossIntro toast, map initial visited state, banner bleed on end/menu screens, inventory supplies layout, and quest-log lit class",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793040483.1125445,
-      "timestamp_str": "2026-10-26 21:48:03",
-      "agent": "antigravity:cc5b8488",
-      "continued_from": "kilo:living"
-    },
     {
       "task_id": "living-sanctuary",
       "phase": "in_progress",
@@ -250,6 +216,44 @@
       "timestamp": 1793348012.5952058,
       "timestamp_str": "2026-10-30 11:13:32",
       "agent": "kilo:runtime-audit"
+    },
+    {
+      "task_id": "rest-and-mechanics",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan: make Rest resume the healed expedition instead of opening Set Out, show an honest rest price, extract restCost(depth), and declare a headless mechanics contract so AIKit can test the simulation without a browser",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793358601.3497827,
+      "timestamp_str": "2026-10-30 14:10:01",
+      "agent": "kilo:rest-mechanics",
+      "impact_assessment": {
+        "why": "paying for Rest then being pushed into a fresh-run screen discarded the healed run, and the game had no headless mechanics gate",
+        "benefits": "rest does what its price promises, one price rule with a test, and a mechanics gate on every check",
+        "risks": "contract: App rest call sites, hub exports, project.json/package.json scripts; dependency: none; concurrency: single-threaded; state: no save schema change",
+        "mitigation": "return the healed run from restSavedRun and start it at every call site, unit-test restCost, run the full and mechanics suites"
+      }
+    },
+    {
+      "task_id": "rest-and-mechanics",
+      "phase": "phase 5",
+      "phase_num": 5,
+      "description": "[2/2] Done: Rest heals and resumes the saved run from hub, ledger and Set Out screen; hub shows 'Rest' with no price when no run exists; restCost(depth) extracted and unit-tested; mechanics contract added (src/sim, src/data, npm run test:mechanics) with mechanics_required true. Verified in Playwright: rest spends 16 echoes and resumes at 120 HP, label is plain 'Rest' without a save. 151 tests, 118 mechanics tests, 8/8 gates. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793358629.3343532,
+      "timestamp_str": "2026-10-30 14:10:29",
+      "agent": "kilo:rest-mechanics"
+    },
+    {
+      "task_id": "rest-and-mechanics",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'rest-and-mechanics' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793358630.4484303,
+      "timestamp_str": "2026-10-30 14:10:30",
+      "agent": "kilo:rest-mechanics"
     }
   ]
 }

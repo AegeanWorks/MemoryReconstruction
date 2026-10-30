@@ -55,5 +55,13 @@
     "drm-free",
     "commercial-license"
   ],
-  "ui_required": true
+  "ui_required": true,
+  "mechanics": {
+    "core": [
+      "src/sim",
+      "src/data"
+    ],
+    "test": "npm run test:mechanics"
+  },
+  "mechanics_required": true
 }

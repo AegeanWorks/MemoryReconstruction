@@ -21,6 +21,7 @@ import {
   reforgeCost,
   reforgeRelic,
   relicRank,
+  restCost,
   restorationLevel,
   restoredLevels,
   sectionNumber,
@@ -260,5 +261,15 @@ describe('aspect persistence', () => {
     delete (run.player as { aspect?: string }).aspect;
     const restored = restoreRun(JSON.parse(JSON.stringify(run)))!;
     expect(restored.player.aspect).toBe('none');
+  });
+});
+
+describe('rest price', () => {
+  it('scales with depth and is never negative', () => {
+    expect(restCost(0)).toBe(10);
+    expect(restCost(3)).toBe(16);
+    expect(restCost(15)).toBe(40);
+    expect(restCost(-4)).toBe(10);
+    expect(restCost(3.9)).toBe(16);
   });
 });

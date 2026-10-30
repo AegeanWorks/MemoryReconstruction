@@ -144,6 +144,10 @@ export function chooseAspect(
 }
 
 export const CHECKPOINT_STEP = 3;
+/** Echoes to fully heal the saved expedition at a given depth. */
+export function restCost(depth: number): number {
+  return 10 + Math.max(0, Math.floor(depth)) * 2;
+}
 /** Echoes per shard offering at the Cairn. */
 export const CAIRN_COST = 20;
 /** Offerings that can be banked before setting out. */

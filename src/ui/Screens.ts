@@ -299,7 +299,11 @@ export function sanctuaryScreen(opts: {
 
   const continueBtn = button('Continue Expedition', opts.onContinue, 'btn');
   continueBtn.disabled = !opts.canContinue;
-  const restBtn = button(`Rest · ${opts.restCost} echoes`, opts.onRest, 'btn');
+  const restBtn = button(
+    opts.saved ? `Rest · ${opts.restCost} echoes` : 'Rest',
+    opts.onRest,
+    'btn'
+  );
   restBtn.disabled =
     !opts.saved ||
     !opts.canContinue ||
