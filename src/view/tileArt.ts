@@ -23,7 +23,7 @@ export interface TileTextures {
   aoWest: Texture;
   aoEast: Texture;
   threshold: Texture;
-  deco: Partial<Record<Deco, Texture>>;
+  deco: Partial<Record<Deco, Texture[]>>;
 }
 
 function canvas(w = T, h = T): { el: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
@@ -240,29 +240,43 @@ function paintThreshold(art: BiomeArt): Texture {
   return toTexture(el);
 }
 
-function paintDeco(art: BiomeArt, rng: Rng, kind: Deco): Texture {
+function paintDeco(art: BiomeArt, rng: Rng, kind: Deco, variant = 0): Texture {
   const { el, ctx } = canvas();
   switch (kind) {
     case Deco.Crack: {
       ctx.strokeStyle = shade(art.grout, -0.3);
       ctx.lineWidth = 1;
       ctx.beginPath();
-      let x = rng.int(4, 12);
-      let y = rng.int(4, 12);
+      // Each variant starts elsewhere and branches differently, so a floor of
+      // cracks does not read as one repeated stamp.
+      const origins: Array<[number, number]> = [
+        [rng.int(4, 12), rng.int(4, 12)],
+        [rng.int(18, 26), rng.int(4, 10)],
+        [rng.int(6, 24), rng.int(20, 27)],
+      ];
+      let [x, y] = origins[variant % origins.length];
       ctx.moveTo(x, y);
-      for (let i = 0; i < 4; i++) {
-        x += rng.int(2, 6);
+      const steps = variant === 1 ? 3 : 4;
+      for (let i = 0; i < steps; i++) {
+        x += rng.int(variant === 2 ? -6 : 2, variant === 2 ? -2 : 6);
         y += rng.int(-2, 5);
         ctx.lineTo(x, y);
       }
       ctx.stroke();
+      if (variant === 1) {
+        // A short spur off the main fracture.
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + rng.int(2, 6), y - rng.int(2, 5));
+        ctx.stroke();
+      }
       break;
     }
     case Deco.Rubble:
       for (let i = 0; i < 4; i++) {
         const x = rng.int(4, 26);
         const y = rng.int(4, 26);
-        const s = rng.int(2, 4);
+        const s = rng.int(2, 4) + (variant === 2 ? 1 : 0);
         ctx.fillStyle = shade(art.wallFace, -0.2);
         ctx.fillRect(x, y, s, s);
         ctx.fillStyle = shade(art.wallHighlight, -0.1);
@@ -275,8 +289,11 @@ function paintDeco(art: BiomeArt, rng: Rng, kind: Deco): Texture {
       for (let i = 0; i < 6; i++) {
         ctx.fillStyle = shade(art.growth, rng.range(-0.3, 0.1));
         ctx.globalAlpha = 0.8;
+        // Variant 2 grows from one corner like a creeping colony.
+        const x = variant === 2 ? rng.int(2, 12) : rng.int(6, 26);
+        const y = variant === 2 ? rng.int(2, 12) : rng.int(6, 26);
         ctx.beginPath();
-        ctx.arc(rng.int(6, 26), rng.int(6, 26), rng.int(1, 3), 0, Math.PI * 2);
+        ctx.arc(x, y, rng.int(1, 3), 0, Math.PI * 2);
         ctx.fill();
       }
       break;
@@ -285,11 +302,26 @@ function paintDeco(art: BiomeArt, rng: Rng, kind: Deco): Texture {
       ctx.globalAlpha = 0.7;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.arc(16, 16, 9, 0, Math.PI * 2);
-      ctx.moveTo(16, 8);
-      ctx.lineTo(16, 24);
-      ctx.moveTo(10, 13);
-      ctx.lineTo(22, 19);
+      if (variant === 0) {
+        ctx.arc(16, 16, 9, 0, Math.PI * 2);
+        ctx.moveTo(16, 8);
+        ctx.lineTo(16, 24);
+        ctx.moveTo(10, 13);
+        ctx.lineTo(22, 19);
+      } else if (variant === 1) {
+        // A four-point ward.
+        ctx.moveTo(16, 6);
+        ctx.lineTo(26, 16);
+        ctx.lineTo(16, 26);
+        ctx.lineTo(6, 16);
+        ctx.closePath();
+      } else {
+        // Three concentric arcs.
+        for (let r = 5; r <= 11; r += 3) {
+          ctx.moveTo(16 + r, 16);
+          ctx.arc(16, 16, r, 0, Math.PI * 1.2);
+        }
+      }
       ctx.stroke();
       break;
     case Deco.None:
@@ -316,10 +348,12 @@ export function tileTextures(biome: BiomeId): TileTextures {
     aoEast: paintOcclusion('east'),
     threshold: paintThreshold(art),
     deco: {
-      [Deco.Crack]: paintDeco(art, rng, Deco.Crack),
-      [Deco.Rubble]: paintDeco(art, rng, Deco.Rubble),
-      [Deco.Moss]: paintDeco(art, rng, Deco.Moss),
-      [Deco.Glyph]: paintDeco(art, rng, Deco.Glyph),
+      // Several variants per kind: one shared crack repeated on every tile
+      // read as a stamped pattern rather than weathering.
+      [Deco.Crack]: [0, 1, 2].map((v) => paintDeco(art, rng, Deco.Crack, v)),
+      [Deco.Rubble]: [0, 1, 2].map((v) => paintDeco(art, rng, Deco.Rubble, v)),
+      [Deco.Moss]: [0, 1, 2].map((v) => paintDeco(art, rng, Deco.Moss, v)),
+      [Deco.Glyph]: [0, 1, 2].map((v) => paintDeco(art, rng, Deco.Glyph, v)),
     },
   };
   cache.set(biome, textures);

@@ -129,8 +129,10 @@ export class LevelView {
     if (tile === Tile.Floor || tile === Tile.Door) {
       put(tex.floor[variantAt(tx, ty, tex.floor.length)]);
       const deco = grid.deco[grid.index(tx, ty)] as Deco;
-      const decoTex = tex.deco[deco];
-      if (decoTex) put(decoTex);
+      const decoVariants = tex.deco[deco];
+      if (decoVariants && decoVariants.length > 0) {
+        put(decoVariants[variantAt(tx, ty, decoVariants.length)]);
+      }
       if (deco === Deco.Glyph) this.addGlyphLight(glowLayer, tx, ty);
       if (tile === Tile.Door) put(tex.threshold);
       if (grid.get(tx, ty - 1) === Tile.Wall) put(tex.aoNorth);

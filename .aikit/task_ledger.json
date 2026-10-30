@@ -1,44 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-eyes-v1",
+    "task_id": "art-deco-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793386885.8111603,
+    "updated_at": 1793389340.6468973,
     "owner": "kilo:main",
     "started_by": "kilo:main",
     "continuations": [],
-    "completed_at": 1793386886.6497312
+    "completed_at": 1793389341.198223
   },
   "checkpoints": [
-    {
-      "task_id": "room-overlay-fix",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'room-overlay-fix' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793361402.142466,
-      "timestamp_str": "2026-10-30 14:56:42",
-      "agent": "kilo:overlay-fix"
-    },
-    {
-      "task_id": "keyboard-menus",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan: let Tab, Space and arrows reach DOM menus while keeping gameplay suppression, and document menu keyboard navigation",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793363612.859568,
-      "timestamp_str": "2026-10-30 15:33:32",
-      "agent": "kilo:keyboard",
-      "impact_assessment": {
-        "why": "Tab and Space were prevented for the whole session, so keyboard users could not navigate or activate any menu",
-        "benefits": "full keyboard access to the hub, places and all overlays",
-        "risks": "contract: Input keydown suppression, README controls; dependency: none; concurrency: single-threaded; state: none",
-        "mitigation": "gate suppression on the presence of a .screen, verify focus order and activation in Playwright, keep play bindings unchanged"
-      }
-    },
     {
       "task_id": "keyboard-menus",
       "phase": "phase 5",
@@ -239,6 +212,27 @@
       "status": "completed",
       "timestamp": 1793386886.6497338,
       "timestamp_str": "2026-10-30 22:01:26",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-deco-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Added three variants each for the four floor deco kinds (crack, rubble, moss, glyph) and picked one per tile from the stable tile hash, so a floor of cracks no longer reads as a single stamped pattern. Cracks get three different origins and a spur variant, glyphs get a circle ward, a four-point ward and concentric arcs, moss gets a creeping-corner variant, rubble a chunkier one. Typecheck, lint, 151 tests and 8/8 gates pass; two biome captures reviewed with zero console errors. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793389340.6468973,
+      "timestamp_str": "2026-10-30 22:42:20",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-deco-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-deco-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793389341.198226,
+      "timestamp_str": "2026-10-30 22:42:21",
       "agent": "kilo:main"
     }
   ]
