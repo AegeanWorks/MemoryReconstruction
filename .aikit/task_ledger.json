@@ -1,49 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "rest-and-mechanics",
+    "task_id": "room-overlay-fix",
     "last_phase": "phase 5",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793358629.3343532,
-    "owner": "kilo:rest-mechanics",
-    "started_by": "kilo:rest-mechanics",
+    "updated_at": 1793361401.8888738,
+    "owner": "kilo:overlay-fix",
+    "started_by": "kilo:overlay-fix",
     "continuations": [],
-    "completed_at": 1793358630.4484248
+    "completed_at": 1793361402.1424649
   },
   "checkpoints": [
-    {
-      "task_id": "living-sanctuary",
-      "phase": "in_progress",
-      "phase_num": 5,
-      "description": "[5/6] Completed 31-screenshot Playwright QA pass (ADR-026): fixed Echo Trial spawn activation and dual-relic drops, Sanctuary furniture/label collisions and 192px dais/rug resolution, HUD/hint/banner bleed across Sanctuary and end screens, duplicate bossIntro toast, map initial visited state, Relics supplies 3-column layout, and quest-log lit class; 121 tests and 7/7 gates pass (checklists: passed)",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793041547.5132704,
-      "timestamp_str": "2026-10-26 22:05:47",
-      "agent": "antigravity:cc5b8488"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "in_progress",
-      "phase_num": 5,
-      "description": "[6/6] Completed since-push audit and browser QA verification (ADR-022..026): all 121 tests and 7/7 gates pass (checklists: passed)",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793042200.1679802,
-      "timestamp_str": "2026-10-26 22:16:40",
-      "agent": "antigravity:cc5b8488"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'living-sanctuary' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793042268.0566318,
-      "timestamp_str": "2026-10-26 22:17:48",
-      "agent": "antigravity:cc5b8488"
-    },
     {
       "task_id": "visual-qa-2026-10-29",
       "phase": "phase 2",
@@ -254,6 +222,44 @@
       "timestamp": 1793358630.4484303,
       "timestamp_str": "2026-10-30 14:10:30",
       "agent": "kilo:rest-mechanics"
+    },
+    {
+      "task_id": "room-overlay-fix",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan: fix in-room overlays ejecting the player to the hub on Escape, document the mechanics gate in README and the agent guide, and record the verification",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793361387.8600588,
+      "timestamp_str": "2026-10-30 14:56:27",
+      "agent": "kilo:overlay-fix",
+      "impact_assessment": {
+        "why": "Escape from the room menu, inventory or settings left the room because the menu stored state hub",
+        "benefits": "Escape is a real toggle everywhere and the headless gate is documented",
+        "risks": "contract: App menu state and closeOverlay, docs; dependency: none; concurrency: single-threaded; state: no save changes",
+        "mitigation": "use the paused overlay state, make closeOverlay room-aware, keep the hub root inert on Escape, and verify the exact sequences in Playwright"
+      }
+    },
+    {
+      "task_id": "room-overlay-fix",
+      "phase": "phase 5",
+      "phase_num": 5,
+      "description": "[2/2] Done: room menu uses paused state, closeOverlay resumes the room for sanctuary worlds, Escape closes hub sub-screens but is inert on the hub root. Verified sequences: room menu closes to room, room inventory and room settings return to room, Back to the Sanctuary still leaves, hub Escape does nothing, run inventory resumes play. Documented npm run test:mechanics in README and docs. 151 tests, 118 mechanics tests, gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793361401.8888738,
+      "timestamp_str": "2026-10-30 14:56:41",
+      "agent": "kilo:overlay-fix"
+    },
+    {
+      "task_id": "room-overlay-fix",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'room-overlay-fix' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793361402.142466,
+      "timestamp_str": "2026-10-30 14:56:42",
+      "agent": "kilo:overlay-fix"
     }
   ]
 }

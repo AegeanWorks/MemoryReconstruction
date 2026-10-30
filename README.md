@@ -118,6 +118,7 @@ npm install
 npm start          # opens the dev server on http://localhost:3000
 
 npm test           # unit and simulation tests
+npm run test:mechanics  # headless simulation gate (tests/sim)
 npm run build      # production build in dist/
 ```
 

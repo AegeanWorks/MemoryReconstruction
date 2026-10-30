@@ -7,7 +7,8 @@ Read [ARCHITECTURE.md](ARCHITECTURE.md) first. This guide covers common changes.
 ```bash
 npm install
 npm run dev        # play at http://localhost:3000
-npm test           # vitest: sim, save and asset tests
+npm test                  # vitest: sim, save and asset tests
+npm run test:mechanics    # headless sim gate declared in .aikit/project.json
 npm run lint && npm run typecheck && npm run build
 ```
 

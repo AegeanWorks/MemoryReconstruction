@@ -543,7 +543,7 @@ export class App {
   }
 
   private showSanctuaryMenu(): void {
-    this.state = 'hub';
+    this.state = 'paused';
     this.input.releaseAll();
     const reopen = (): void => this.showSanctuaryMenu();
     this.screens.show(
@@ -558,7 +558,6 @@ export class App {
     );
   }
 
-  /** Heals the saved expedition between floors at the cost of echoes. */
   /** Heals the saved expedition and returns it, so rest can resume it directly. */
   private restSavedRun(cost: number): RunState | undefined {
     const run = this.store.loadRun();
@@ -907,13 +906,17 @@ export class App {
 
   private onMenu(action: MenuAction): void {
     const closeOverlay = (): void => {
-      if (this.world?.mode === 'sanctuary') this.closeHubPanel();
+      // An overlay opened inside a resident's room returns to that room, never
+      // to the hub: only the explicit "Back to the Sanctuary" leaves.
+      if (this.world?.mode === 'sanctuary') this.resumeRoom();
       else this.resume();
     };
     if (action === 'pause') {
       if (this.state === 'sanctuary') this.showSanctuaryMenu();
-      else if (this.state === 'hub') this.closeHubPanel();
-      else if (this.state === 'playing') this.pause();
+      else if (this.state === 'hub') {
+        // Escape closes a hub sub-screen, but does nothing on the hub root.
+        if (!document.querySelector('.sanctuary-hub')) this.showHub();
+      } else if (this.state === 'playing') this.pause();
       else if (this.state === 'paused' || this.state === 'map' || this.state === 'inventory')
         closeOverlay();
     } else if (action === 'map') {

@@ -343,3 +343,13 @@ or the architecture; see the header above for where each entry goes. -->
   3. **One price rule**: the `10 + depth * 2` formula moved to `restCost(depth)` in `hub.ts`, used by every call site and covered by a unit test.
   4. **Mechanics contract**: `package.json` gains `test:mechanics` (the headless `tests/sim` suite), and `.aikit/project.json` declares `mechanics.core` (`src/sim`, `src/data`) with `mechanics.test` and `mechanics_required: true`. AIKit now runs the simulation gate on every check.
 - **Consequences**: rest has the effect its price implies, the label never advertises a zero-cost heal, and the sim is verifiable headlessly (118 mechanics tests) as a first-class gate. Full suite: 151 tests; all gates pass.
+### ADR-035: Overlays inside a resident's room return to the room, not the hub
+
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: A state fuzz across title, hub, room and gameplay found no crashes, but tracing showed that the in-room pause menu stored state `hub`. Pressing Escape a second time therefore ran the hub branch and ejected the player from the room. Inventory and settings opened inside a room had the same flaw through the shared `closeOverlay` path.
+- **Decision**:
+  1. **Distinct state**: `showSanctuaryMenu` sets `paused`, the same overlay state used by the dungeon pause, so a second Escape takes the overlay-close branch.
+  2. **Room-aware close**: `closeOverlay` resumes the room when the active world is a Sanctuary interior, and only the explicit `Back to the Sanctuary` button calls `showHub`.
+  3. **Hub root is inert**: Escape still closes hub sub-screens (restoration, reliquary, reforge and the rest), but does nothing on the hub screen itself, so Escape cannot cause a redundant re-render loop.
+- **Consequences**: Escape now behaves as a toggle everywhere: room menu opens and closes in the room, inventory and settings return to the room, hub sub-screens return to the hub. Verified with Playwright sequences for room menu, room inventory, room settings, hub Escape and inventory in a run; no console errors. All gates pass.
