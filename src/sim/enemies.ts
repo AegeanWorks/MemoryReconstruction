@@ -499,8 +499,9 @@ function launch(arena: Arena, enemy: Enemy): void {
     }
     case 'wall': {
       // A curtain of bolts with one gap: dash the gap or leave the lane.
-      // Fixed gap so the telegraph and the curtain agree.
-      const gap = 2;
+      // Gap varies per caster but the telegraph reads the same id, so the
+      // warning and the curtain always agree.
+      const gap = enemy.id % 4;
       for (let i = 0; i < 6; i++) {
         if (i === gap || i === gap + 1) continue;
         const offset = -100 + i * 40;

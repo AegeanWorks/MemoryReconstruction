@@ -1240,11 +1240,16 @@
   font-size: 34px;
   letter-spacing: 0.14em;
 }
-.section-label,
+.sanctuary-hub > .section-label,
 .building-grid,
 .hub-lower,
 .hub-footer {
   width: min(1180px, 96vw);
+}
+/* Column labels must size to their own column, not the page. */
+.hub-places > .section-label,
+.hub-expedition > .section-label {
+  width: 100%;
 }
 .hub-lower {
   display: grid;

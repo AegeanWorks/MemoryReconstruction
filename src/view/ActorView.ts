@@ -632,7 +632,7 @@ export class ActorView {
         // A curtain across the lane, with a visible gap to dive through.
         const nx = Math.cos(angle + Math.PI / 2);
         const ny = Math.sin(angle + Math.PI / 2);
-        const gap = 2;
+        const gap = e.id % 4;
         for (let i = 0; i < 6; i++) {
           if (i === gap || i === gap + 1) continue;
           const ox = x + nx * (-100 + i * 40);

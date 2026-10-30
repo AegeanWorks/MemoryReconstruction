@@ -1,39 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "sanctuary-polish-2",
+    "task_id": "runtime-audit",
     "last_phase": "phase 5",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793316073.4436874,
-    "owner": "kilo:sanctuary-polish",
-    "started_by": "kilo:sanctuary-polish",
+    "updated_at": 1793347993.602511,
+    "owner": "kilo:runtime-audit",
+    "started_by": "kilo:runtime-audit",
     "continuations": [],
-    "completed_at": 1793316083.605289
+    "completed_at": 1793348012.5952046
   },
   "checkpoints": [
-    {
-      "task_id": "living-sanctuary",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[6/6] Implemented: 192px nearest-filtered bosses; per-stance idle/walk/attack weapon models; 16 sections incl two boss-only Echo Trials (1.5x health, solo octagon arenas); arena/library room types + rounded/octagon/cave room shapes; weapon art (V) with cooldowns; grave hound/void cantor; deep caster beam/hook, skirmisher bombs, volatile deaths, room ambushes; sanctuary furniture (shelves/tables/chairs/crates/planters/barrels/lanterns) and library decor; archive prompt/fragment. 118 tests, 7/7 gates, direct image review. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793013583.9747276,
-      "timestamp_str": "2026-10-26 14:19:43",
-      "agent": "kilo:living"
-    },
-    {
-      "task_id": "living-sanctuary",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[6/6] Direct image pass: four room shapes now truly carve (rounded/octagon/cave; boundary corners allowed, unreachable pockets pruned; 118 tests), plus verified sharp 192px bosses, per-stance idle/walk/attack models, 16 sections with 2 solo Echo Trial arenas, arena/library rooms, weapon art (V), grave hound/void cantor, deep caster beam/hook and skirmisher bombs, volatile deaths/ambushes, library archive prompt, and furnished Sanctuary (shelves/tables/chairs/crates/planters/lanterns). 7/7 gates, cleanup done. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793017265.8043666,
-      "timestamp_str": "2026-10-26 15:21:05",
-      "agent": "kilo:living"
-    },
     {
       "task_id": "living-sanctuary",
       "phase": "phase 5",
@@ -251,6 +229,27 @@
       "timestamp": 1793316083.6052916,
       "timestamp_str": "2026-10-30 02:21:23",
       "agent": "kilo:sanctuary-polish"
+    },
+    {
+      "task_id": "runtime-audit",
+      "phase": "phase 5",
+      "phase_num": 5,
+      "description": "[4/4] Runtime audit of the shipped game: exercised title, hub, 8 places, 5 rooms, dialogue/quests, combat, menus, level-up, death, retry, restart, victory, and old/corrupt saves. Fixed two defects and one weak pattern: dropped sub-frame clicks/taps (attack+bolt press latches), hub column labels forced to page width, and the wall attack's fixed centre gap. Verified 3 instant right-clicks spend mana, 4 instant melee taps damage an enemy, no off-screen/clipped UI, no NaN in combat, no console errors. 150 tests, 7/7 gates. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793347993.602511,
+      "timestamp_str": "2026-10-30 11:13:13",
+      "agent": "kilo:runtime-audit"
+    },
+    {
+      "task_id": "runtime-audit",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'runtime-audit' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793348012.5952058,
+      "timestamp_str": "2026-10-30 11:13:32",
+      "agent": "kilo:runtime-audit"
     }
   ]
 }

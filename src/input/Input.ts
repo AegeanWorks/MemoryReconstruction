@@ -33,6 +33,8 @@ export class Input {
   private mouseLeft = false;
   private mouseRight = false;
   private latched = {
+    attack: false,
+    bolt: false,
     dash: false,
     potion: false,
     interact: false,
@@ -59,8 +61,14 @@ export class Input {
       this.usingPad = false;
     });
     target.addEventListener('mousedown', (e) => {
-      if (e.button === 0) this.mouseLeft = true;
-      if (e.button === 2) this.mouseRight = true;
+      if (e.button === 0) {
+        this.mouseLeft = true;
+        this.latched.attack = true;
+      }
+      if (e.button === 2) {
+        this.mouseRight = true;
+        this.latched.bolt = true;
+      }
     });
     window.addEventListener('mouseup', (e) => {
       if (e.button === 0) this.mouseLeft = false;
@@ -87,6 +95,9 @@ export class Input {
     if (e.code === 'Digit1') this.latched.weapon = 0;
     if (e.code === 'Digit2') this.latched.weapon = 1;
     if (e.code === 'Digit3') this.latched.weapon = 2;
+    // Latch presses so a click or tap shorter than one frame still registers.
+    if (e.code === KEYS.attack[0]) this.latched.attack = true;
+    if (e.code === KEYS.bolt[0]) this.latched.bolt = true;
     if (e.code === 'Escape' || e.code === 'KeyP') this.onMenu('pause');
     if (e.code === 'Tab' || e.code === 'KeyM') this.onMenu('map');
     if (e.code === 'Enter') this.onMenu('confirm');
@@ -99,6 +110,8 @@ export class Input {
     this.mouseLeft = false;
     this.mouseRight = false;
     this.latched = {
+      attack: false,
+      bolt: false,
       dash: false,
       potion: false,
       interact: false,
@@ -173,8 +186,8 @@ export class Input {
       moveY,
       aimX: aim.x,
       aimY: aim.y,
-      attack: this.mouseLeft || this.any(KEYS.attack) || padHeld(7),
-      bolt: this.mouseRight || this.any(KEYS.bolt) || padHeld(6),
+      attack: this.mouseLeft || this.any(KEYS.attack) || padHeld(7) || this.latched.attack,
+      bolt: this.mouseRight || this.any(KEYS.bolt) || padHeld(6) || this.latched.bolt,
       dash: this.latched.dash,
       potion: this.latched.potion,
       interact: this.latched.interact,
@@ -184,6 +197,8 @@ export class Input {
       art: this.latched.art,
     };
     this.latched = {
+      attack: false,
+      bolt: false,
       dash: false,
       potion: false,
       interact: false,

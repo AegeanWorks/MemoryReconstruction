@@ -322,3 +322,13 @@ or the architecture; see the header above for where each entry goes. -->
   4. **Boss exposure**: `fan` joins the Crystal Guardian's pattern and `sweep` joins the Frost Warden's, so the new attack types appear outside the ten new enemies. Unused boss-pattern entries for non-boss ids were removed.
   5. **Encoding**: a raw 0xB7 byte from a PowerShell write corrupted the mod separator and previously the Reforge button. `tests/encoding.test.ts` now fails when a source file is not valid UTF-8 (not only when it already contains U+FFFD), and the damaged file was repaired by mapping stray cp1252 bytes back to characters.
 - **Consequences**: aspects survive level-ups, relic swaps and Continue; the hub fits laptop-height windows; the Reforge explains its effect; two bosses showcase the new attacks. 150 tests and all project gates pass.
+### ADR-033: Runtime test pass - click latches, hub column labels and wall gaps
+
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: A live-play audit (title, hub, all eight places, all five rooms, dialogue, quests, combat, menus, level-up, death, retry, restart, victory, old and corrupt saves) found no crashes but surfaced two real defects and one weak pattern. Mouse clicks and key taps that begin and end between two simulation frames were dropped because attack and bolt only sampled held state. On the hub, the `Places` and `Expedition` section labels inherited a page-width rule inside a 360px column, so their rules ran across the whole screen. The new `wall` attack always left its dodge gap on the caster's centre line, making it free to ignore.
+- **Decision**:
+  1. **Press latches**: `Input` now latches attack and bolt on mouse-down and on the first bound key, including them in the frame and clearing them after it. A click shorter than a frame still fires exactly once; holding still auto-repeats as before.
+  2. **Scoped labels**: the page-width rule now targets only the hub's own direct section label, and column labels size to their column (`width: 100%`).
+  3. **Varying wall gap**: the gap index is `enemy.id % 4` in both the launch and the telegraph, so the warning and the curtain agree while no longer always opening on the player's centre line.
+- **Consequences**: short clicks and taps are reliable; the hub has no full-width rule crossing its columns; the wall pattern requires a real dodge. Verified by Playwright: three instant right-clicks spend mana and four instant melee taps damage an enemy, all screens have no off-screen or clipped elements, combat resolves without NaN, and old/corrupt saves still boot to the title. 150 tests and all project gates pass.
