@@ -1,38 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-props-v2",
+    "task_id": "art-backdrops-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793382702.078373,
+    "updated_at": 1793383611.9551513,
     "owner": "kilo:main",
     "started_by": "kilo:main",
     "continuations": [],
-    "completed_at": 1793382702.6883252
+    "completed_at": 1793383612.641689
   },
   "checkpoints": [
-    {
-      "task_id": "sanctuary-polish-2",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'sanctuary-polish-2' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793316083.6052916,
-      "timestamp_str": "2026-10-30 02:21:23",
-      "agent": "kilo:sanctuary-polish"
-    },
-    {
-      "task_id": "runtime-audit",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[4/4] Runtime audit of the shipped game: exercised title, hub, 8 places, 5 rooms, dialogue/quests, combat, menus, level-up, death, retry, restart, victory, and old/corrupt saves. Fixed two defects and one weak pattern: dropped sub-frame clicks/taps (attack+bolt press latches), hub column labels forced to page width, and the wall attack's fixed centre gap. Verified 3 instant right-clicks spend mana, 4 instant melee taps damage an enemy, no off-screen/clipped UI, no NaN in combat, no console errors. 150 tests, 7/7 gates. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793347993.602511,
-      "timestamp_str": "2026-10-30 11:13:13",
-      "agent": "kilo:runtime-audit"
-    },
     {
       "task_id": "runtime-audit",
       "phase": "completed",
@@ -252,6 +231,27 @@
       "status": "completed",
       "timestamp": 1793382702.6883273,
       "timestamp_str": "2026-10-30 20:51:42",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-backdrops-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Gave the eight bare biome backdrops real silhouettes: burnt trunks and a broken arch for ash, sunken arches and kelp for abyss, jagged ridges for frost, blossoms over arches for bloom, chimney stacks and pipe gantries for foundry, leaning swamp trees with hanging moss for mire, stacked hexagonal comb chambers for hive, and receding tomb niches for catacomb. All thirteen biomes verified in situ with zero console errors; 8/8 gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793383611.9551513,
+      "timestamp_str": "2026-10-30 21:06:51",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-backdrops-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-backdrops-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793383612.6416922,
+      "timestamp_str": "2026-10-30 21:06:52",
       "agent": "kilo:main"
     }
   ]

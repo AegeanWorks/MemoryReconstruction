@@ -1403,6 +1403,129 @@ def background_image(biome: str) -> Image.Image:
             sd.polygon([(x, size), (x + 24, size * 0.25), (x + 12, size * 0.55), (x + 52, 0), (x + 66, size)], fill=color)
         sd.ellipse((190, 150, 330, 290), outline=art["accent"] + (130,), width=2)
         sd.ellipse((214, 174, 306, 266), outline=art["accent"] + (70,), width=1)
+    elif biome == "ash":
+        # Burnt trunks, a broken arch and drifting embers.
+        for i in range(9):
+            x = i * 58 + rng.randrange(-14, 14)
+            h = rng.randrange(150, 340)
+            w = rng.randrange(8, 20)
+            sd.polygon([(x, size), (x + w, size), (x + w * 0.7, size - h), (x + w * 0.1, size - h)], fill=color)
+            for b in range(2):
+                by = size - h * (0.55 + b * 0.2)
+                sd.line([(x + w * 0.4, by), (x + w * 0.4 + rng.choice((-1, 1)) * rng.randrange(20, 46), by - 24)], fill=color, width=4)
+        sd.arc((150, size - 190, 380, size + 30), 180, 360, fill=color, width=26)
+        for _ in range(40):
+            ex, ey = rng.randrange(size), rng.randrange(size)
+            sd.ellipse((ex, ey, ex + 2, ey + 2), fill=art["accent"] + (rng.randrange(70, 170),))
+    elif biome == "abyss":
+        # Sunken arches and tall kelp fans under deep water.
+        for i in range(4):
+            x = 20 + i * 130 + rng.randrange(-12, 12)
+            w = rng.randrange(58, 86)
+            h = rng.randrange(140, 230)
+            sd.rectangle((x, size - h, x + w, size), fill=color)
+            sd.arc((x - 6, size - h - w * 0.5, x + w + 6, size - h + w * 0.5), 180, 360, fill=color, width=14)
+        for i in range(14):
+            x = rng.randrange(size)
+            h = rng.randrange(90, 260)
+            sway = rng.randrange(-14, 14)
+            sd.line([(x, size), (x + sway * 0.4, size - h * 0.5), (x + sway, size - h)], fill=color, width=rng.randrange(3, 7))
+        for _ in range(30):
+            bx, by = rng.randrange(size), rng.randrange(size)
+            r = rng.randrange(1, 4)
+            sd.ellipse((bx - r, by - r, bx + r, by + r), outline=art["accent"] + (90,), width=1)
+    elif biome == "frost":
+        # Jagged ice ridges across a pale horizon.
+        for i in range(8):
+            x = i * 66 + rng.randrange(-18, 18)
+            w = rng.randrange(70, 140)
+            h = rng.randrange(90, 240)
+            sd.polygon([(x, size), (x + w * 0.45, size - h), (x + w, size)], fill=color)
+        for i in range(6):
+            x = rng.randrange(size)
+            y = size - rng.randrange(180, 320)
+            sd.polygon([(x, y), (x + 16, y + 34), (x + 4, y + 60), (x - 10, y + 30)], fill=color)
+        sd.rectangle((0, size - 26, size, size), fill=art["silhouette"] + (255,))
+    elif biome == "bloom":
+        # Overgrown arches swallowed by enormous blossoms.
+        for i in range(4):
+            x = 10 + i * 128 + rng.randrange(-10, 10)
+            w = rng.randrange(64, 92)
+            h = rng.randrange(150, 230)
+            sd.rectangle((x, size - h, x + 16, size), fill=color)
+            sd.rectangle((x + w - 16, size - h, x + w, size), fill=color)
+            sd.arc((x, size - h - 20, x + w, size - h + w), 180, 360, fill=color, width=16)
+        for _ in range(16):
+            cx, cy = rng.randrange(size), rng.randrange(60, size - 40)
+            r = rng.randrange(10, 26)
+            for petal in range(6):
+                a = petal * math.tau / 6
+                px, py = cx + math.cos(a) * r * 0.7, cy + math.sin(a) * r * 0.7
+                sd.ellipse((px - r * 0.5, py - r * 0.5, px + r * 0.5, py + r * 0.5), fill=color)
+    elif biome == "foundry":
+        # Chimney stacks, pipe gantries and furnace glow behind the wall.
+        for i in range(6):
+            x = 10 + i * 86 + rng.randrange(-14, 14)
+            w = rng.randrange(28, 50)
+            h = rng.randrange(180, 380)
+            sd.rectangle((x, size - h, x + w, size), fill=color)
+            sd.rectangle((x - 6, size - h, x + w + 6, size - h + 14), fill=color)
+        for i in range(3):
+            y = size - 120 - i * 70
+            sd.rectangle((0, y, size, y + 10), fill=color)
+            for gx in range(30, size, 90):
+                sd.line([(gx, y), (gx, y + 40)], fill=color, width=5)
+        for _ in range(26):
+            gx, gy = rng.randrange(size), rng.randrange(size)
+            sd.ellipse((gx - 2, gy - 2, gx + 2, gy + 2), fill=art["accent"] + (rng.randrange(60, 150),))
+    elif biome == "mire":
+        # Gnarled swamp trees with hanging moss over still water.
+        for i in range(9):
+            x = i * 58 + rng.randrange(-16, 16)
+            h = rng.randrange(160, 320)
+            w = rng.randrange(10, 24)
+            lean = rng.randrange(-26, 26)
+            sd.polygon([(x, size), (x + w, size), (x + w + lean, size - h), (x + lean, size - h)], fill=color)
+            for m in range(3):
+                mx = x + lean + rng.randrange(-30, 30)
+                sd.line([(mx, size - h + 30), (mx + rng.randrange(-8, 8), size - h + rng.randrange(70, 140))],
+                        fill=color, width=rng.randrange(2, 5))
+        sd.rectangle((0, size - 34, size, size), fill=art["silhouette"] + (255,))
+        for _ in range(20):
+            bx, by = rng.randrange(size), size - rng.randrange(6, 40)
+            sd.line([(bx, by), (bx + rng.randrange(10, 40), by)], fill=art["accent"] + (50,), width=1)
+    elif biome == "hive":
+        # Giant hexagonal chambers stacked into comb walls.
+        def cell(cx: float, cy: float, r: float) -> None:
+            sd.polygon(
+                [(cx + math.cos(math.pi / 3 * i - math.pi / 6) * r,
+                  cy + math.sin(math.pi / 3 * i - math.pi / 6) * r) for i in range(6)],
+                fill=color,
+            )
+
+        for row in range(4):
+            for col in range(6):
+                cx = 40 + col * 92 + (46 if row % 2 else 0)
+                cy = size - 40 - row * 84
+                cell(cx, cy, rng.randrange(30, 44))
+        for _ in range(30):
+            gx, gy = rng.randrange(size), rng.randrange(size)
+            sd.ellipse((gx - 2, gy - 2, gx + 2, gy + 2), fill=art["accent"] + (rng.randrange(70, 160),))
+    elif biome == "catacomb":
+        # Receding stone arches over stacked tomb niches.
+        for i in range(5):
+            x = 12 + i * 104 + rng.randrange(-8, 8)
+            w = rng.randrange(58, 76)
+            h = rng.randrange(190, 300)
+            sd.rectangle((x, size - h, x + 14, size), fill=color)
+            sd.rectangle((x + w - 14, size - h, x + w, size), fill=color)
+            sd.arc((x, size - h - 24, x + w, size - h + w), 180, 360, fill=color, width=14)
+            for niche in range(3):
+                ny = size - h + 46 + niche * 62
+                sd.rectangle((x + 22, ny, x + w - 22, ny + 26), fill=color)
+        for _ in range(24):
+            dx, dy = rng.randrange(size), rng.randrange(size)
+            sd.ellipse((dx - 2, dy - 2, dx + 2, dy + 2), fill=art["accent"] + (rng.randrange(40, 120),))
     sil = sil.filter(ImageFilter.GaussianBlur(1.2))
     img.alpha_composite(sil)
     return img
