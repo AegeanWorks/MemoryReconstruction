@@ -52,9 +52,11 @@ assets/
 - `enemies[id]` - 64x64 grid, 4 columns, 4 rows, origin and animation rows.
 - `tilesets[biome]` - legacy side-view tiles; the game paints its top-down
   tiles at runtime instead (see Runtime).
-- `props` - chests, wells, the exit rift and obstacle statues/trees/crystals.
+- `props` - chests, wells, the exit rift, obstacle statues/trees/crystals and the
+  five hooded residents (archivist, smith, gardener, warden, lamplighter).
 - `ui` - shard, fragment and potion icons used by the HUD and pickups.
-- `backgrounds`, `particles` - not used by the current renderer.
+- `backgrounds` - the tiling backdrop drawn behind each biome's rooms.
+- `particles` - spark, smoke, blood and magic effect sheets.
 
 The atlas is bundled at build time, while the images are served from the
 `assets` public directory. Both development and production use the same
@@ -70,12 +72,16 @@ The atlas is bundled at build time, while the images are served from the
 - **Actors** use the atlas sheets: the player's idle/walk/attack/dash strips
   (flipped by aim) and each enemy's idle/attack/death rows. Several generated
   enemy walk rows have blank odd frames, so walking reuses the idle row with a
-  bob.
+  bob. Living enemy frames carry a soft top-left **rim light** derived from the
+  alpha edge, so silhouettes separate from dark tiles.
+- **Backdrop** is a `TilingSprite` of the biome's `backgrounds` texture at 55%
+  alpha behind the tile chunks, so the void between rooms carries atmosphere
+  instead of reading as flat black. The biome colour stays as the base fill.
 - **Lighting** is a screen-space darkness vignette centred on the player plus
   additive glows on the player, projectiles, pickups, glyphs and the rift.
-- **Layers**, bottom to top: tiles, ground (telegraphs, glows, pickups),
-  depth-sorted actors and props, effects, overlay (projectiles, health bars),
-  then the vignette and hurt flash.
+- **Layers**, bottom to top: backdrop, tiles, ground (telegraphs, glows,
+  pickups), depth-sorted actors and props, effects, overlay (projectiles,
+  health bars), then the vignette and hurt flash.
 - The `.wgsl` shaders under `assets/shaders/` are not used by the renderer.
 
 ## Characters
@@ -96,6 +102,18 @@ The atlas is bundled at build time, while the images are served from the
 | Void Walker | elongated rift | glide |
 | The Forgotten | broken armor, empty helm | relentless |
 | The Keeper | gold robe, halo, staff | judgment |
+
+## Residents and rooms
+
+The five Sanctuary residents share one silhouette: a hood brim over a shadowed
+face with a bright gaze, a shoulder mantle, cuffed arms, a hem band and a role
+prop (open tome, hammer and apron, shears, crested spear, hung lantern). They
+are drawn to read at the 58 px in-world height.
+
+The recurring room furniture is drawn to be recognisable at a glance: the ruins
+statue is a weathered memorial (stepped plinth, bowed hood, planted sword, moss
+and cracks) and the forest tree is a forked gnarled trunk under a layered
+canopy.
 
 ## Biomes
 

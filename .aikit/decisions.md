@@ -363,3 +363,14 @@ or the architecture; see the header above for where each entry goes. -->
   - Canvas behaviour is unchanged in play: Tab is still the map key and Space still dashes, with the default action suppressed.
   - The README controls table documents menu navigation (`Tab` then `Enter` or `Space`). Existing `.btn:focus-visible` and `.card:focus-visible` styles provide the visible ring.
 - **Consequences**: every hub card, place, footer action and menu control can be reached and activated from the keyboard. Verified with Playwright: Tab cycles through the five Enter buttons and the station buttons, Space opens the Training Yard, Enter enters a resident room from its card, and Tab in play still opens the map without moving focus.
+### ADR-037: Rooms sit in a biome backdrop and actors carry a rim light
+
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: A screenshot sweep of six biomes showed two art problems. The void between rooms was a single flat colour, so floors read as islands floating in black and the floor art had no depth. Resident and obstacle sprites regressed to flat boxes: NPCs were a beige trapezoid with a detached floating head, and the ruins statue and forest tree that flank every room were plain shapes with no silhouette.
+- **Decision**:
+  1. **Backdrop layer**: `SpriteLibrary` loads the per-biome `backgrounds` entries the atlas already referenced but never drew, and `LevelView` paints them as a `TilingSprite` at 55% alpha behind the tile chunks. The biome colour stays as the base fill, so rooms still separate from the void.
+  2. **Residents**: the five NPC props are redrawn as one connected silhouette, hood brim over a shadowed face with a bright gaze, shoulder mantle, arms with cuffs, hem band and a role prop (tome, hammer and apron, shears, crested spear, hung lantern) that reads at the 58 px in-world height.
+  3. **Obstacle props**: the ruins statue becomes a weathered memorial (stepped plinth, bowed hood, planted sword, moss and cracks) and the forest tree becomes a forked gnarled trunk under a layered canopy.
+  4. **Rim light**: `rim_light` derives a top-left edge band from the alpha channel and composites a lightened accent tint, applied to every living enemy frame in `enemy_frame` so actors separate from dark tiles.
+- **Consequences**: every biome now carries atmospheric depth behind the rooms and the recurring room furniture reads as deliberate art. All regeneration stays inside `scripts/generate_art_assets.py` with unchanged atlas keys and cell sizes; typecheck, 151 tests and all eight project gates pass, and a six-biome Playwright sweep renders with no console errors.

@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `4`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `49`
+- **Total Top-Level Functions**: `50`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `2656`
+- **Total Source Lines**: `2775`
 
 ---
 
@@ -19,7 +19,7 @@
 ### [`scripts/generate_art_assets.py`](scripts/generate_art_assets.py)
 > *Generate the Memory Reconstruction art set.*
 
-**Size**: `2242` lines (`115302` bytes)
+**Size**: `2361` lines (`122797` bytes)
 
 **Functions:**
 - `def rgba(color, alpha)`
@@ -52,6 +52,7 @@
 - `def _hound(draw, cell, style, row, frame, t)`
 - `def _hierophant(draw, cell, style, row, frame, t)`
 - `def _behemoth(draw, cell, style, row, frame, t)`
+- `def rim_light(img, color, offset, strength)` - *Lights the top-left silhouette edge so actors read against dark tiles.*
 - `def enemy_frame(kind, row, frame, frames, cell)`
 - `def tile_image(biome, tile_type, variant)`
 - `def background_image(biome)`

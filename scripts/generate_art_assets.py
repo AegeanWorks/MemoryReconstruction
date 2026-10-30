@@ -18,7 +18,7 @@ import math
 import random
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "assets"
@@ -1205,6 +1205,22 @@ ENEMY_DRAW = {
 }
 
 
+def rim_light(img: Image.Image, color: tuple[int, ...], offset: int = 2 * SS,
+              strength: int = 96) -> None:
+    """Lights the top-left silhouette edge so actors read against dark tiles.
+
+    Takes the alpha channel, shifts a copy down-right, and keeps only the band
+    where the shifted copy is empty: the outline that faces the light source.
+    """
+    alpha = img.getchannel("A")
+    shifted = Image.new("L", img.size, 0)
+    shifted.paste(alpha, (offset, offset))
+    rim = ImageChops.subtract(alpha, shifted).filter(ImageFilter.GaussianBlur(SS * 0.8))
+    layer = Image.new("RGBA", img.size, tuple(color[:3]) + (0,))
+    layer.putalpha(rim.point(lambda value: int(value * strength / 255)))
+    img.alpha_composite(layer)
+
+
 def enemy_frame(kind: str, row: int, frame: int, frames: int, cell: int = ENEMY_CELL) -> Image.Image:
     img = blank(cell)
     draw = ImageDraw.Draw(img)
@@ -1217,6 +1233,9 @@ def enemy_frame(kind: str, row: int, frame: int, frames: int, cell: int = ENEMY_
         _enemy_common(draw, cell, style, row, frame, t)
     glow(img, lambda g: ellipse(g, cell, 0.42, 0.26 + bob, 0.58, 0.42 + bob, fill=style["accent"], ), 2.4)
     ENEMY_DRAW[style["kind"]](draw, cell, style, row, frame, t)
+    if row != 3:
+        # Rim light belongs on living frames only; the death strip fades out.
+        rim_light(img, mix(style["light"], (255, 255, 255), 0.35))
     if row == 3:
         alpha = max(60, 255 - frame * 50)
         overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
@@ -1516,21 +1535,66 @@ def prop_image(kind: str) -> Image.Image:
         for i in range(4):
             ellipse(draw, cell, 0.38 + i * 0.06, 0.28 - i * 0.02, 0.44 + i * 0.06, 0.34 - i * 0.02, fill=accent)
     elif kind == "statue":
-        rect(draw, cell, 0.30, 0.72, 0.70, 0.92, fill=dark, outline=Outline, width=2)
-        rect(draw, cell, 0.38, 0.44, 0.62, 0.74, fill=light, outline=Outline, width=2)
-        ellipse(draw, cell, 0.40, 0.28, 0.60, 0.48, fill=light, outline=Outline, width=2)
-        line(draw, cell, [(0.38, 0.50), (0.22, 0.62)], light, 4)
-        line(draw, cell, [(0.62, 0.50), (0.78, 0.62)], light, 4)
+        # A weathered memorial: stepped plinth, robed guardian with a bowed
+        # hood, a sword planted point-down, and moss in the cracks.
+        moss = (78, 96, 58)
+        chip = mix(light, dark, 0.55)
+        # Two-tier plinth.
+        rect(draw, cell, 0.22, 0.84, 0.78, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.28, 0.78, 0.72, 0.86, fill=chip, outline=Outline, width=2)
+        rect(draw, cell, 0.30, 0.845, 0.70, 0.855, fill=mix(dark, light, 0.35))
+        # Robe body, widest at the hem.
+        poly(
+            draw,
+            cell,
+            [(0.37, 0.42), (0.50, 0.38), (0.63, 0.42), (0.69, 0.80), (0.31, 0.80)],
+            fill=light,
+            outline=Outline,
+            width=3,
+        )
+        poly(draw, cell, [(0.44, 0.44), (0.56, 0.44), (0.60, 0.78), (0.40, 0.78)], fill=mix(light, dark, 0.22))
+        # Shoulder mantle.
+        poly(draw, cell, [(0.34, 0.43), (0.50, 0.37), (0.66, 0.43), (0.62, 0.52), (0.38, 0.52)], fill=chip, outline=Outline, width=2)
+        line(draw, cell, [(0.34, 0.445), (0.66, 0.445)], mix(light, (255, 255, 255), 0.3), 1)
+        # Sword: hilt at the chest, blade down through the robe.
+        rect(draw, cell, 0.41, 0.50, 0.59, 0.515, fill=dark, outline=Outline, width=1)
+        rect(draw, cell, 0.485, 0.455, 0.515, 0.505, fill=dark)
+        poly(draw, cell, [(0.475, 0.515), (0.525, 0.515), (0.515, 0.80), (0.485, 0.80)], fill=(214, 222, 232), outline=Outline, width=1)
+        # Bowed hood and shadowed face.
+        poly(draw, cell, [(0.38, 0.36), (0.50, 0.16), (0.62, 0.36), (0.56, 0.42), (0.44, 0.42)], fill=chip, outline=Outline, width=3)
+        ellipse(draw, cell, 0.44, 0.275, 0.56, 0.375, fill=(26, 26, 34), outline=Outline, width=1)
+        # Weathering: hairline cracks, a chipped corner and moss at the base.
+        line(draw, cell, [(0.60, 0.47), (0.64, 0.60), (0.61, 0.70)], mix(chip, Outline, 0.35), 1)
+        line(draw, cell, [(0.40, 0.58), (0.37, 0.66)], mix(chip, Outline, 0.35), 1)
+        poly(draw, cell, [(0.72, 0.78), (0.78, 0.78), (0.78, 0.82)], fill=dark)
+        ellipse(draw, cell, 0.26, 0.80, 0.36, 0.87, fill=moss)
+        ellipse(draw, cell, 0.64, 0.82, 0.74, 0.88, fill=moss)
+        ellipse(draw, cell, 0.46, 0.84, 0.56, 0.90, fill=mix(moss, (60, 90, 50), 0.5))
     elif kind == "crystal_cluster":
         for i, (x, h) in enumerate(((0.34, 0.62), (0.50, 0.80), (0.66, 0.52))):
             poly(draw, cell, [(x, 0.90 - h), (x + 0.10, 0.90 - h * 0.55), (x + 0.05, 0.92), (x - 0.07, 0.92), (x - 0.11, 0.90 - h * 0.62)],
                  fill=light if i == 1 else dark, outline=Outline, width=2)
             line(draw, cell, [(x + 0.01, 0.92 - h * 0.7), (x + 0.01, 0.88)], accent, 1)
     elif kind == "ancient_tree":
-        rect(draw, cell, 0.43, 0.34, 0.57, 0.94, fill=dark, outline=Outline, width=2)
-        ellipse(draw, cell, 0.16, 0.12, 0.84, 0.56, fill=light, outline=Outline, width=3)
-        ellipse(draw, cell, 0.28, 0.08, 0.72, 0.42, fill=mix(light, accent, 0.25))
-        line(draw, cell, [(0.50, 0.54), (0.62, 0.44), (0.68, 0.30)], accent, 2)
+        # A gnarled, leaning tree: split trunk, root flare, layered canopy and
+        # a few glowing spores caught in the branches.
+        bark_hi = mix(light, (190, 170, 120), 0.45)
+        # Canopy sits behind the trunk so the silhouette reads as one tree.
+        ellipse(draw, cell, 0.10, 0.06, 0.62, 0.46, fill=dark, outline=Outline, width=3)
+        ellipse(draw, cell, 0.38, 0.02, 0.92, 0.42, fill=dark, outline=Outline, width=3)
+        ellipse(draw, cell, 0.20, 0.12, 0.80, 0.44, fill=light, outline=Outline, width=2)
+        ellipse(draw, cell, 0.30, 0.10, 0.68, 0.34, fill=mix(light, accent, 0.35))
+        ellipse(draw, cell, 0.24, 0.16, 0.44, 0.32, fill=mix(light, accent, 0.2))
+        # Root flare and a leaning, forked trunk.
+        poly(draw, cell, [(0.34, 0.90), (0.66, 0.90), (0.60, 0.60), (0.52, 0.42), (0.44, 0.60)], fill=dark, outline=Outline, width=2)
+        poly(draw, cell, [(0.44, 0.88), (0.38, 0.90), (0.44, 0.80)], fill=dark, outline=Outline, width=1)
+        poly(draw, cell, [(0.56, 0.88), (0.64, 0.90), (0.56, 0.80)], fill=dark, outline=Outline, width=1)
+        line(draw, cell, [(0.50, 0.86), (0.52, 0.62), (0.48, 0.46)], bark_hi, 2)
+        line(draw, cell, [(0.53, 0.58), (0.72, 0.40)], bark_hi, 2)
+        line(draw, cell, [(0.47, 0.56), (0.30, 0.36)], bark_hi, 2)
+        # Spores drifting from the canopy.
+        for sx, sy in ((0.66, 0.30), (0.74, 0.44), (0.34, 0.42), (0.24, 0.50)):
+            ellipse(draw, cell, sx - 0.02, sy - 0.02, sx + 0.02, sy + 0.02, fill=accent)
     elif kind == "ruins_door":
         rect(draw, cell, 0.16, 0.16, 0.84, 0.94, fill=dark, outline=Outline, width=3, radius=0.28)
         rect(draw, cell, 0.24, 0.26, 0.76, 0.94, fill=light, outline=Outline, width=2, radius=0.22)
@@ -1873,24 +1937,79 @@ def prop_image(kind: str) -> Image.Image:
         for x, y in ((0.30, 0.38), (0.55, 0.36), (0.74, 0.42)):
             ellipse(draw, cell, x - 0.015, y - 0.015, x + 0.015, y + 0.015, fill=accent)
     elif kind.startswith("npc_"):
-        # Robed figure with a lantern; colour differs per NPC.
-        line(draw, cell, [(0.50, 0.24), (0.50, 0.42)], accent, 2)
-        ellipse(draw, cell, 0.42, 0.16, 0.58, 0.32, fill=light, outline=Outline, width=2)
-        poly(draw, cell, [(0.36, 0.34), (0.64, 0.34), (0.74, 0.92), (0.26, 0.92)], fill=dark, outline=Outline, width=3)
-        poly(draw, cell, [(0.42, 0.38), (0.58, 0.38), (0.62, 0.84), (0.38, 0.84)], fill=light)
-        ellipse(draw, cell, 0.63, 0.44, 0.75, 0.56, fill=accent, outline=Outline, width=1)
-        if kind == "npc_warden":
-            # Crested helm and a gate spear.
-            poly(draw, cell, [(0.44, 0.16), (0.50, 0.04), (0.56, 0.16)], fill=accent, outline=Outline, width=1)
-            line(draw, cell, [(0.30, 0.30), (0.30, 0.96)], light, 3)
-            poly(draw, cell, [(0.27, 0.26), (0.30, 0.16), (0.33, 0.26)], fill=accent, outline=Outline, width=1)
-            ellipse(draw, cell, 0.38, 0.56, 0.62, 0.74, fill=dark, outline=accent, width=2)
+        # A hooded resident: shoulders, arms, robe hem and boots all connect to
+        # a single silhouette so the figure reads as a person at 58 px tall.
+        trim = mix(accent, (255, 246, 214), 0.35)
+        hem = mix(dark, Outline, 0.45)
+        skin = (214, 178, 146)
+        # Boots peek under the hem.
+        rect(draw, cell, 0.40, 0.88, 0.48, 0.95, fill=hem, outline=Outline, width=2, radius=0.015)
+        rect(draw, cell, 0.52, 0.88, 0.60, 0.95, fill=hem, outline=Outline, width=2, radius=0.015)
+        # Robe: shoulders wider than the waist so it is not a plain box.
+        poly(
+            draw,
+            cell,
+            [(0.36, 0.40), (0.50, 0.36), (0.64, 0.40), (0.70, 0.90), (0.30, 0.90)],
+            fill=dark,
+            outline=Outline,
+            width=3,
+        )
+        # Front panel and vertical fold for form.
+        poly(draw, cell, [(0.43, 0.44), (0.57, 0.44), (0.61, 0.86), (0.39, 0.86)], fill=mix(dark, light, 0.30))
+        line(draw, cell, [(0.50, 0.46), (0.50, 0.85)], hem, 2)
+        # Shoulder mantle, then the hem band with its accent trim.
+        poly(draw, cell, [(0.34, 0.38), (0.50, 0.33), (0.66, 0.38), (0.62, 0.50), (0.38, 0.50)], fill=light, outline=Outline, width=2)
+        rect(draw, cell, 0.31, 0.85, 0.69, 0.90, fill=hem, outline=Outline, width=2)
+        rect(draw, cell, 0.31, 0.855, 0.69, 0.875, fill=trim)
+        # Arms with cuffs, one raised so the pose has gesture.
+        line(draw, cell, [(0.37, 0.46), (0.30, 0.60), (0.32, 0.72)], dark, 7)
+        line(draw, cell, [(0.63, 0.46), (0.70, 0.60), (0.67, 0.70)], dark, 7)
+        ellipse(draw, cell, 0.28, 0.70, 0.37, 0.79, fill=skin, outline=Outline, width=2)
+        ellipse(draw, cell, 0.64, 0.68, 0.73, 0.77, fill=skin, outline=Outline, width=2)
+        # Hood brim over a shadowed face with a single bright gaze.
+        draw.polygon(
+            [(int(0.34 * cell * SS), int(0.40 * cell * SS)), (int(0.50 * cell * SS), int(0.14 * cell * SS)),
+             (int(0.66 * cell * SS), int(0.40 * cell * SS))],
+            fill=mix(light, (255, 255, 255), 0.18),
+            outline=Outline,
+            width=int(3 * SS),
+        )
+        ellipse(draw, cell, 0.42, 0.24, 0.58, 0.40, fill=(18, 16, 26), outline=Outline, width=2)
+        rect(draw, cell, 0.455, 0.321, 0.487, 0.343, fill=accent, radius=0.004)
+        rect(draw, cell, 0.513, 0.321, 0.545, 0.343, fill=accent, radius=0.004)
+        # Role props silhouette the resident at a glance.
+        if kind == "npc_archivist":
+            # A tome held open, pages catching the vault light.
+            rect(draw, cell, 0.36, 0.62, 0.50, 0.80, fill=mix(accent, (255, 255, 255), 0.35), outline=Outline, width=2)
+            rect(draw, cell, 0.50, 0.62, 0.64, 0.80, fill=trim, outline=Outline, width=2)
+            line(draw, cell, [(0.50, 0.63), (0.50, 0.79)], Outline, 2)
+            ellipse(draw, cell, 0.46, 0.30, 0.55, 0.38, fill=(30, 26, 40, 0))
+        elif kind == "npc_smith":
+            # Hammer over the shoulder and a heavy apron.
+            rect(draw, cell, 0.68, 0.20, 0.72, 0.66, fill=mix(dark, (90, 70, 50), 0.4), outline=Outline, width=2)
+            poly(draw, cell, [(0.60, 0.16), (0.80, 0.16), (0.81, 0.24), (0.59, 0.24)], fill=light, outline=Outline, width=2)
+            rect(draw, cell, 0.42, 0.55, 0.58, 0.86, fill=mix(dark, (40, 34, 30), 0.5), outline=Outline, width=2)
+            for y in (0.62, 0.70, 0.78):
+                line(draw, cell, [(0.43, y), (0.57, y)], accent, 1)
+        elif kind == "npc_gardener":
+            # Shears and a sprig of living green.
+            line(draw, cell, [(0.70, 0.60), (0.80, 0.44)], light, 3)
+            line(draw, cell, [(0.74, 0.60), (0.66, 0.44)], light, 3)
+            ellipse(draw, cell, 0.74, 0.30, 0.84, 0.42, fill=accent, outline=Outline, width=2)
+            line(draw, cell, [(0.79, 0.42), (0.82, 0.55)], mix(dark, (40, 80, 40), 0.3), 2)
+        elif kind == "npc_warden":
+            # Crested helm and a gate spear planted at the shoulder.
+            poly(draw, cell, [(0.38, 0.20), (0.50, 0.02), (0.62, 0.20)], fill=trim, outline=Outline, width=2)
+            line(draw, cell, [(0.80, 0.14), (0.80, 0.94)], light, 4)
+            poly(draw, cell, [(0.74, 0.12), (0.80, 0.02), (0.86, 0.12)], fill=accent, outline=Outline, width=2)
+            rect(draw, cell, 0.38, 0.54, 0.62, 0.72, fill=mix(dark, light, 0.25), outline=light, width=2)
         elif kind == "npc_lamplighter":
-            # A brighter lantern that actually reads as a light source.
-            ellipse(draw, cell, 0.58, 0.38, 0.82, 0.62, fill=(255, 228, 160, 90))
-            ellipse(draw, cell, 0.63, 0.44, 0.77, 0.58, fill=accent, outline=Outline, width=2)
-            line(draw, cell, [(0.70, 0.42), (0.70, 0.30)], light, 2)
-            ellipse(draw, cell, 0.65, 0.26, 0.75, 0.36, fill=light)
+            # A hung lantern that reads as the room's light source: halo first,
+            # then the hot lantern glass over it.
+            ellipse(draw, cell, 0.58, 0.42, 0.84, 0.76, fill=(255, 228, 160, 60))
+            line(draw, cell, [(0.70, 0.30), (0.70, 0.52)], hem, 2)
+            rect(draw, cell, 0.62, 0.50, 0.78, 0.66, fill=mix(accent, (255, 255, 255), 0.4), outline=Outline, width=2)
+            ellipse(draw, cell, 0.655, 0.53, 0.745, 0.63, fill=(255, 244, 206))
     return img
 
 

@@ -2,7 +2,7 @@
  * Static floor rendering: tile sprites grouped into chunks (hidden when off
  * screen), animated door barriers and glyph lights.
  */
-import { Container, Graphics, Sprite, type Texture } from 'pixi.js';
+import { Container, Graphics, Sprite, TilingSprite, type Texture } from 'pixi.js';
 import type { BiomeId } from '../sim/content';
 import type { FloorMap } from '../sim/dungeon';
 import { Deco, Tile, TILE_SIZE, type TileGrid } from '../sim/tiles';
@@ -59,12 +59,31 @@ export class LevelView {
   constructor(
     private readonly floor: FloorMap,
     biome: BiomeId,
-    private readonly propTextures: Record<string, Texture>
+    private readonly propTextures: Record<string, Texture>,
+    backdrop?: Texture
   ) {
     this.biome = biome;
     this.accent = hex(BIOME_ART[biome].accent);
+    if (backdrop) this.addBackdrop(backdrop);
     this.build(biome);
     this.root.addChild(this.doors);
+  }
+
+  /**
+   * A dim tiling backdrop under the floor so the void between rooms carries the
+   * biome's atmosphere instead of reading as flat black.
+   */
+  private addBackdrop(texture: Texture): void {
+    const grid = this.floor.grid;
+    const bg = new TilingSprite({
+      texture,
+      width: grid.width * T,
+      height: grid.height * T,
+    });
+    bg.scale.set(1);
+    bg.alpha = 0.55;
+    bg.tint = 0xffffff;
+    this.root.addChild(bg);
   }
 
   private build(biome: BiomeId): void {

@@ -34,6 +34,8 @@ export interface SpriteLibrary {
   enemies: Record<string, ActorSheet>;
   props: Record<string, Texture>;
   ui: Record<string, Texture>;
+  /** Tiling backdrop per biome, drawn behind the floor to give rooms depth. */
+  backgrounds: Record<string, Texture>;
 }
 
 interface AtlasEnemy {
@@ -58,6 +60,7 @@ interface Atlas {
     animations: Record<string, AtlasPlayerAnim>;
   };
   enemies: Record<string, AtlasEnemy>;
+  backgrounds: Record<string, string>;
   props: Record<string, string>;
   ui: Record<string, string>;
 }
@@ -170,7 +173,12 @@ async function loadEnemy(entry: AtlasEnemy): Promise<ActorSheet> {
 
 export async function loadSprites(onProgress?: (fraction: number) => void): Promise<SpriteLibrary> {
   const enemyKeys = Object.keys(data.enemies); // aikit:allow-secret
-  const total = enemyKeys.length + Object.keys(data.props).length + Object.keys(data.ui).length + 1;
+  const total =
+    enemyKeys.length +
+    Object.keys(data.props).length +
+    Object.keys(data.ui).length +
+    Object.keys(data.backgrounds).length +
+    1;
   let done = 0;
   const tick = <T>(value: T): T => {
     done++;
@@ -194,8 +202,12 @@ export async function loadSprites(onProgress?: (fraction: number) => void): Prom
     );
     return out;
   };
-  const [props, ui] = await Promise.all([loadMap(data.props), loadMap(data.ui)]);
-  return { player, enemies, props, ui };
+  const [props, ui, backgrounds] = await Promise.all([
+    loadMap(data.props),
+    loadMap(data.ui),
+    loadMap(data.backgrounds),
+  ]);
+  return { player, enemies, props, ui, backgrounds };
 }
 
 /** Every image path the atlas references, for asset checks. */
@@ -205,5 +217,6 @@ export function atlasImagePaths(): string[] {
     ...Object.values(data.enemies).map((e) => e.texture),
     ...Object.values(data.props),
     ...Object.values(data.ui),
+    ...Object.values(data.backgrounds),
   ];
 }

@@ -81,7 +81,12 @@ export class Renderer {
     const biome = world.plan.biome;
     const art = BIOME_ART[biome];
     this.app.renderer.background.color = art.background;
-    const level = new LevelView(world.floor, biome, this.sprites.props);
+    const level = new LevelView(
+      world.floor,
+      biome,
+      this.sprites.props,
+      this.sprites.backgrounds[biome]
+    );
     const actors = new ActorView(this.sprites, world);
     const effects = new Effects(hex(art.accent));
     this.camera.addChild(level.root, actors.ground, actors.actors, effects.layer, actors.overlay);
