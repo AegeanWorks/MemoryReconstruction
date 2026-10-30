@@ -1,62 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "keyboard-menus",
-    "last_phase": "phase 5",
+    "task_id": "run-lifecycle-audit",
+    "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793363661.3932018,
-    "owner": "kilo:keyboard",
-    "started_by": "kilo:keyboard",
+    "updated_at": 1793374802.3551068,
+    "owner": "kilo:main",
+    "started_by": "kilo:main",
     "continuations": [],
-    "completed_at": 1793363661.6569972
+    "completed_at": 1793374802.7267902
   },
   "checkpoints": [
-    {
-      "task_id": "sanctuary-buildings",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/5] Plan: rebuild the Sanctuary as a village - five NPC buildings with facades and door labels, a dedicated lit interior per building, and a spotlight that blacks out the rest of the sanctuary while inside; wire prompts, fade, tests and docs",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793283909.2832043,
-      "timestamp_str": "2026-10-29 17:25:09",
-      "agent": "kilo:sanctuary-build",
-      "impact_assessment": {
-        "why": "the Sanctuary still reads as one flat hall with five NPCs standing in the open, and the user wants real buildings, separate interiors and door signage",
-        "benefits": "a legible hub with architecture, distinct interiors for every resident, and a clear inside/outside state",
-        "risks": "contract: InteractableKind, Sanctuary layout constants, World sanctuary mode, Renderer focus layer; dependency: none; concurrency: single-threaded; state: no save schema change, but a save inside a building must not strand the player on reload",
-        "mitigation": "keep building state in World only (never persisted), always spawn outside on load, add sim tests for enter/exit and label/prop uniqueness, verify with Playwright screenshots"
-      }
-    },
-    {
-      "task_id": "sanctuary-buildings",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[2/5] Re-scope: replace the walkable village square with a UI Sanctuary hub (building cards with facade art, stations, Set Out), and keep only each resident's interior as a walkable world entered from the hub; exit returns to the hub UI. Removes the square layout, walking-to-door prompts and the spotlight, adds per-building rooms and a sanctuary backdrop.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793291546.5708902,
-      "timestamp_str": "2026-10-29 19:32:26",
-      "agent": "kilo:sanctuary-build",
-      "impact_assessment": {
-        "why": "the user judged the walkable square unprofessional; a UI hub reads cleanly and still keeps the interiors as real playable rooms",
-        "benefits": "a crisp hub screen, each resident in a real room, simpler sim (one room per world), and no camera/spotlight complexity",
-        "risks": "contract: World options and sanctuary exports, sanctuary event flow, hub screen; dependency: none; concurrency: single-threaded; state: hub is never persisted, entering a room always spawns at that room's entrance",
-        "mitigation": "rewrite sanctuary layout and tests together, keep station ids stable for the rebuild ledger, verify hub and all five interiors with Playwright and one vision reviewer"
-      }
-    },
-    {
-      "task_id": "sanctuary-buildings",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[5/5] Delivered: Sanctuary is now a UI hub (facade cards for all five residents, restoration ledger, Places and Expedition panels, footer), and every resident has a real walkable 21x13 interior with themed furniture, a resident to talk to, and a door back to the hub. Removed the walkable square, spotlight, door toggling and station prompt handling. Verified hub-to-room-to-dialogue-to-room and door-to-hub flows with Playwright; 131 tests and 7/7 project gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793298638.6637855,
-      "timestamp_str": "2026-10-29 21:30:38",
-      "agent": "kilo:sanctuary-build"
-    },
     {
       "task_id": "sanctuary-buildings",
       "phase": "completed",
@@ -260,6 +215,44 @@
       "timestamp": 1793363661.6569984,
       "timestamp_str": "2026-10-30 15:34:21",
       "agent": "kilo:keyboard"
+    },
+    {
+      "task_id": "run-lifecycle-audit",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Plan: audit the run lifecycle end-to-end - death and game over, meta reward claims, save persistence across reload, cairn banked shards and attuned relic carrying into the next run; [2/3] fix any real bugs found; [3/3] verify, document and deliver",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793372130.6956112,
+      "timestamp_str": "2026-10-30 17:55:30",
+      "agent": "kilo:main",
+      "impact_assessment": {
+        "why": "every prior audit pass tested systems inside a live run; the loop that closes a run (death, rewards, persistence, next-run carry-over) was never driven end-to-end, so progression bugs could ship silently",
+        "benefits": "players cannot lose earned echoes/shards/relics on death or reload, and cairn/reliquary choices provably reach the next run",
+        "risks": "contract: none, read-mostly audit plus targeted fixes; dependency: none beyond existing Playwright; concurrency: none; state: tests mutate localStorage in an ephemeral browser profile only",
+        "mitigation": "drive the game only through the public __MR__ debug handle, fix findings with unit tests first, keep edits inside the audited flow"
+      }
+    },
+    {
+      "task_id": "run-lifecycle-audit",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/3] No bugs found: cairn 3x45 shards spent on set out, attuned echo_dagger equipped first, reforge rank 2 carried, mid-run save + title Continue restored depth/shards/equipment, death banked +67 echoes and cleared the run, abandon recorded the run, rest healed 80/120->120/120 for 16 echoes and resumed at depth 3, victory paid the +60 bonus and showed The World Remembers, meta persisted across reloads, zero console errors in three Playwright audits; [3/3] no code change needed, ledger only",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793374802.3551068,
+      "timestamp_str": "2026-10-30 18:40:02",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "run-lifecycle-audit",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'run-lifecycle-audit' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793374802.7267923,
+      "timestamp_str": "2026-10-30 18:40:02",
+      "agent": "kilo:main"
     }
   ]
 }
