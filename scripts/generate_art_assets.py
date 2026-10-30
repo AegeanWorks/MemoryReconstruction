@@ -100,6 +100,7 @@ ENEMY_STYLES = {
         "eye": (250, 255, 228, 255),
         "scale": 1.0,
         "antlers": True,
+        "eyes": "glare",
     },
     "caveDweller": {
         "kind": "hunched",
@@ -129,6 +130,7 @@ ENEMY_STYLES = {
         "accent": (166, 104, 255, 255),
         "eye": (214, 170, 255, 255),
         "scale": 1.04,
+        "eyes": "hollow",
     },
     "crystalGuardian": {
         "kind": "duelist",
@@ -148,6 +150,7 @@ ENEMY_STYLES = {
         "eye": (255, 255, 255, 255),
         "scale": 0.94,
         "shards": True,
+        "eyes": "many",
     },
     "voidWalker": {
         "kind": "wisp",
@@ -158,6 +161,7 @@ ENEMY_STYLES = {
         "eye": (255, 70, 110, 255),
         "scale": 1.12,
         "rift": True,
+        "eyes": "single",
     },
     "forgotten": {
         "kind": "construct",
@@ -168,6 +172,7 @@ ENEMY_STYLES = {
         "eye": (226, 212, 255, 255),
         "scale": 1.16,
         "broken": True,
+        "eyes": "hollow",
     },
     "keeper": {
         "kind": "keeper",
@@ -195,6 +200,7 @@ ENEMY_STYLES = {
         "accent": (255, 196, 96, 255),
         "eye": (255, 250, 220, 255),
         "scale": 0.94,
+        "eyes": "slits",
     },
     "bogLeech": {
         "kind": "beast",
@@ -204,6 +210,7 @@ ENEMY_STYLES = {
         "accent": (184, 224, 106, 255),
         "eye": (240, 255, 180, 255),
         "scale": 1.02,
+        "eyes": "single",
     },
     "plagueCaster": {
         "kind": "hunched",
@@ -214,6 +221,7 @@ ENEMY_STYLES = {
         "eye": (240, 255, 200, 255),
         "scale": 1.0,
         "ears": True,
+        "eyes": "slits",
     },
     "cinderWarden": {
         "kind": "warden",
@@ -241,6 +249,7 @@ ENEMY_STYLES = {
         "accent": (92, 232, 255, 255),
         "eye": (200, 255, 255, 255),
         "scale": 1.3,
+        "eyes": "single",
     },
     "thornMatriarch": {
         "kind": "matriarch",
@@ -277,6 +286,7 @@ ENEMY_STYLES = {
         "accent": (200, 232, 120, 255),
         "eye": (255, 250, 190, 255),
         "scale": 1.32,
+        "eyes": "many",
     },
     "bombardier": {
         "kind": "hunched",
@@ -295,6 +305,7 @@ ENEMY_STYLES = {
         "accent": (255, 220, 120, 255),
         "eye": (255, 255, 220, 255),
         "scale": 0.96,
+        "eyes": "many",
     },
     "hiveGuard": {
         "kind": "hunched",
@@ -305,6 +316,7 @@ ENEMY_STYLES = {
         "eye": (255, 240, 200, 255),
         "scale": 1.16,
         "ears": True,
+        "eyes": "many",
     },
     "catacombArcher": {
         "kind": "hunched",
@@ -314,6 +326,7 @@ ENEMY_STYLES = {
         "accent": (143, 216, 200, 255),
         "eye": (220, 255, 245, 255),
         "scale": 1.0,
+        "eyes": "slits",
     },
     "boneKnight": {
         "kind": "duelist",
@@ -350,6 +363,7 @@ ENEMY_STYLES = {
         "accent": (143, 216, 200, 255),
         "eye": (220, 255, 245, 255),
         "scale": 1.08,
+        "eyes": "glare",
     },
     "voidCantor": {
         "kind": "hunched",
@@ -360,6 +374,7 @@ ENEMY_STYLES = {
         "eye": (220, 230, 255, 255),
         "scale": 1.0,
         "ears": True,
+        "eyes": "many",
     },
     "choirHierophant": {
         "kind": "hierophant",
@@ -750,6 +765,38 @@ def _enemy_common(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, f
     return bob, step + lunge
 
 
+def _enemy_eyes(draw: ImageDraw.ImageDraw, cell: int, cx: float, cy: float,
+                style: dict, spread: float = 0.042, r: float = 0.021) -> None:
+    """Draws an archetype's eye motif.
+
+    Several enemies share a body kind (wisp, hunched, construct), so without a
+    per-enemy motif they all read as the same two-dot blob. `style["eyes"]`
+    picks the motif; the default is the paired eyes the older art used.
+    """
+    eye = style["eye"]
+    mode = style.get("eyes", "pair")
+    if mode == "slits":
+        for dx in (-spread, spread):
+            rect(draw, cell, cx + dx - r, cy - r * 0.42, cx + dx + r, cy + r * 0.42, fill=eye, radius=0.004)
+    elif mode == "single":
+        ellipse(draw, cell, cx - r * 1.6, cy - r * 1.6, cx + r * 1.6, cy + r * 1.6, fill=eye, outline=Outline, width=1)
+        ellipse(draw, cell, cx - r * 0.45, cy - r * 0.45, cx + r * 0.45, cy + r * 0.45, fill=(12, 12, 20))
+    elif mode == "many":
+        for dx, dy, s in ((-spread, 0.0, 1.0), (spread, 0.0, 1.0), (0.0, -r * 1.7, 0.72)):
+            ellipse(draw, cell, cx + dx - r * s, cy + dy - r * s, cx + dx + r * s, cy + dy + r * s, fill=eye)
+    elif mode == "hollow":
+        for dx in (-spread, spread):
+            ellipse(draw, cell, cx + dx - r, cy - r, cx + dx + r, cy + r, fill=(10, 9, 16))
+            ellipse(draw, cell, cx + dx - r, cy - r, cx + dx + r, cy + r, outline=eye, width=1)
+    elif mode == "glare":
+        for dx in (-spread, spread):
+            poly(draw, cell, [(cx + dx - r, cy + r * 0.55), (cx + dx + r * 1.05, cy - r * 0.45),
+                              (cx + dx + r, cy + r * 0.75)], fill=eye)
+    else:
+        ellipse(draw, cell, cx - spread - r, cy - r, cx - spread + r, cy + r, fill=eye)
+        ellipse(draw, cell, cx + spread - r, cy - r, cx + spread + r, cy + r, fill=eye)
+
+
 def _construct(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
     bob, march = _enemy_common(draw, cell, style, row, frame, t)
     dark = mix(style["body"], style["cloth"], 0.45)
@@ -768,7 +815,8 @@ def _construct(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, fram
     poly(draw, cell, [(left - 0.04, top + 0.23), (left + 0.05, top + 0.08), (right - 0.05, top + 0.08), (right + 0.04, top + 0.23)],
          fill=dark, outline=Outline, width=3)
     rect(draw, cell, 0.42 + lean, top - 0.01, 0.58 + lean, top + 0.15, fill=body, outline=Outline, width=3, radius=0.03)
-    rect(draw, cell, 0.45 + lean, top + 0.045, 0.55 + lean, top + 0.075, fill=accent)
+    _enemy_eyes(draw, cell, 0.50 + lean, top + 0.065, dict(style, eye=accent, eyes=style.get("eyes", "slits")),
+                spread=0.040, r=0.016)
     # Core.
     ellipse(draw, cell, 0.44 + lean, top + 0.30, 0.56 + lean, top + 0.42, fill=accent, outline=Outline, width=2)
     # Arms.
@@ -805,8 +853,7 @@ def _hunched(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame:
     ellipse(draw, cell, cx - 0.12, 0.22 + bob, cx + 0.13, 0.42 + bob, fill=light, outline=Outline, width=3)
     poly(draw, cell, [(cx - 0.10, 0.29 + bob), (cx, 0.25 + bob), (cx + 0.10, 0.29 + bob), (cx + 0.03, 0.37 + bob), (cx - 0.03, 0.37 + bob)],
          fill=(222, 214, 190, 255), outline=Outline, width=2)
-    ellipse(draw, cell, cx + 0.015, 0.295 + bob, cx + 0.055, 0.325 + bob, fill=style["eye"])
-    ellipse(draw, cell, cx - 0.055, 0.295 + bob, cx - 0.015, 0.325 + bob, fill=style["eye"])
+    _enemy_eyes(draw, cell, cx, 0.310 + bob, style, spread=0.036, r=0.019)
     # Claws and legs.
     line(draw, cell, [(cx - 0.16, 0.48), (cx - 0.28, 0.61), (cx - 0.31 + sway, 0.68)], body, 4)
     line(draw, cell, [(cx + 0.17, 0.48), (cx + 0.29, 0.58), (cx + 0.32 - sway, 0.67)], body, 4)
@@ -835,8 +882,7 @@ def _wisp(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: in
                       (cx - 0.15, 0.74), (cx - 0.23, 0.79)], fill=cloth, outline=Outline, width=3)
     ellipse(draw, cell, cx - 0.15, 0.24 + bob, cx + 0.16, 0.52 + bob, fill=body, outline=Outline, width=2)
     ellipse(draw, cell, cx - 0.10, 0.25 + bob, cx + 0.11, 0.44 + bob, fill=cloth)
-    ellipse(draw, cell, cx + 0.01, 0.30 + bob, cx + 0.055, 0.345 + bob, fill=style["eye"])
-    ellipse(draw, cell, cx - 0.057, 0.30 + bob, cx - 0.012, 0.345 + bob, fill=style["eye"])
+    _enemy_eyes(draw, cell, cx - 0.004, 0.3225 + bob, style, spread=0.038, r=0.022)
     # Ribbon arms.
     line(draw, cell, [(cx - 0.12, 0.47), (cx - 0.27, 0.55 + sway), (cx - 0.32, 0.48)], body, 3)
     line(draw, cell, [(cx + 0.12, 0.47), (cx + 0.27, 0.55 - sway), (cx + 0.32, 0.48)], body, 3)
@@ -866,7 +912,8 @@ def _beast(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: i
     ellipse(draw, cell, cx - 0.20, 0.49 + bob, cx + 0.15, 0.70 + bob, fill=mix(body, light, 0.28))
     ellipse(draw, cell, cx + 0.13, 0.30 + bob, cx + 0.38, 0.55 + bob, fill=light, outline=Outline, width=3)
     ellipse(draw, cell, cx + 0.18, 0.34 + bob, cx + 0.34, 0.48 + bob, fill=cloth)
-    ellipse(draw, cell, cx + 0.29, 0.36 + bob, cx + 0.335, 0.395 + bob, fill=style["eye"])
+    _enemy_eyes(draw, cell, cx + 0.29, 0.378 + bob, dict(style, eyes=style.get("eyes", "single")),
+                spread=0.0, r=0.023)
     # Antlers.
     for sign in (-1, 1):
         line(draw, cell, [(cx + 0.23, 0.32 + bob), (cx + 0.20 + sign * 0.03, 0.19 + bob), (cx + 0.15 + sign * 0.10, 0.13 + bob)], accent, 2)
@@ -888,6 +935,8 @@ def _duelist(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame:
          fill=cloth, outline=Outline, width=2)
     ellipse(draw, cell, cx - 0.09, 0.18 + bob, cx + 0.09, 0.34 + bob, fill=light, outline=Outline, width=3)
     rect(draw, cell, cx - 0.07, 0.235 + bob, cx + 0.07, 0.27 + bob, fill=accent)
+    _enemy_eyes(draw, cell, cx, 0.2525 + bob, dict(style, eye=Outline, eyes=style.get("eyes", "slits")),
+                spread=0.034, r=0.018)
     rect(draw, cell, cx - 0.08, 0.70, cx - 0.01, 0.91, fill=cloth, outline=Outline, width=2, radius=0.02)
     rect(draw, cell, cx + 0.01, 0.70, cx + 0.08, 0.91, fill=cloth, outline=Outline, width=2, radius=0.02)
     angle = -0.9 + (1.8 * t if row == 2 else 0.0)

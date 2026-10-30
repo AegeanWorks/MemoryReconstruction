@@ -1,45 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-interact-v1",
+    "task_id": "art-eyes-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793385149.648693,
+    "updated_at": 1793386885.8111603,
     "owner": "kilo:main",
     "started_by": "kilo:main",
     "continuations": [],
-    "completed_at": 1793385150.2454753
+    "completed_at": 1793386886.6497312
   },
   "checkpoints": [
-    {
-      "task_id": "room-overlay-fix",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Plan: fix in-room overlays ejecting the player to the hub on Escape, document the mechanics gate in README and the agent guide, and record the verification",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793361387.8600588,
-      "timestamp_str": "2026-10-30 14:56:27",
-      "agent": "kilo:overlay-fix",
-      "impact_assessment": {
-        "why": "Escape from the room menu, inventory or settings left the room because the menu stored state hub",
-        "benefits": "Escape is a real toggle everywhere and the headless gate is documented",
-        "risks": "contract: App menu state and closeOverlay, docs; dependency: none; concurrency: single-threaded; state: no save changes",
-        "mitigation": "use the paused overlay state, make closeOverlay room-aware, keep the hub root inert on Escape, and verify the exact sequences in Playwright"
-      }
-    },
-    {
-      "task_id": "room-overlay-fix",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[2/2] Done: room menu uses paused state, closeOverlay resumes the room for sanctuary worlds, Escape closes hub sub-screens but is inert on the hub root. Verified sequences: room menu closes to room, room inventory and room settings return to room, Back to the Sanctuary still leaves, hub Escape does nothing, run inventory resumes play. Documented npm run test:mechanics in README and docs. 151 tests, 118 mechanics tests, gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793361401.8888738,
-      "timestamp_str": "2026-10-30 14:56:41",
-      "agent": "kilo:overlay-fix"
-    },
     {
       "task_id": "room-overlay-fix",
       "phase": "completed",
@@ -246,6 +218,27 @@
       "status": "completed",
       "timestamp": 1793385150.245478,
       "timestamp_str": "2026-10-30 21:32:30",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-eyes-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Split the shared two-dot eye motif into six archetype motifs (pair, slits, single, many, hollow, glare) behind an _enemy_eyes helper, and assigned motifs to fifteen enemies so families stop reading as the same blob: hollow for shadow and forgotten, single cyclops for voidWalker, bogLeech and leviathan, triple for prismEntity, voidCantor, hiveDrone, hiveGuard, mireSovereign, slit visors for solderWisp, plagueCaster, catacombArcher, angled glare for spirit and graveHound. All 35 enemy sheets reviewed before and after, in-game biome sweep with zero console errors, 151 tests and 8/8 gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793386885.8111603,
+      "timestamp_str": "2026-10-30 22:01:25",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-eyes-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-eyes-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793386886.6497338,
+      "timestamp_str": "2026-10-30 22:01:26",
       "agent": "kilo:main"
     }
   ]

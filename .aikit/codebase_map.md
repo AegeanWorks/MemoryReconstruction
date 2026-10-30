@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `4`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `50`
+- **Total Top-Level Functions**: `51`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `3008`
+- **Total Source Lines**: `3057`
 
 ---
 
@@ -19,7 +19,7 @@
 ### [`scripts/generate_art_assets.py`](scripts/generate_art_assets.py)
 > *Generate the Memory Reconstruction art set.*
 
-**Size**: `2594` lines (`137679` bytes)
+**Size**: `2643` lines (`139909` bytes)
 
 **Functions:**
 - `def rgba(color, alpha)`
@@ -35,6 +35,7 @@
 - `def player_scarf(state, t, bob)`
 - `def player_frame(state, frame, frames, weapon)`
 - `def _enemy_common(draw, cell, style, row, frame, t)`
+- `def _enemy_eyes(draw, cell, cx, cy, style, spread, r)` - *Draws an archetype's eye motif.*
 - `def _construct(draw, cell, style, row, frame, t)`
 - `def _hunched(draw, cell, style, row, frame, t)`
 - `def _wisp(draw, cell, style, row, frame, t)`
