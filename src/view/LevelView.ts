@@ -30,6 +30,28 @@ const OBSTACLE_PROPS: Record<BiomeId, string> = {
 };
 const T = TILE_SIZE;
 
+/**
+ * Small non-blocking clutter drawn along room walls, per biome. These are view
+ * only: they never touch the simulation, so pickups, enemies and pathing are
+ * unaffected. Keys must exist in sprite_atlas.json props.
+ */
+const ROOM_DRESSING: Record<BiomeId, string[]> = {
+  ruins: ['barrel', 'furn_crate', 'bone_pile'],
+  forest: ['furn_herbs', 'barrel', 'ancient_tree'],
+  caves: ['furn_crate', 'bone_pile', 'barrel'],
+  crystal: ['crystal_cluster', 'furn_lantern'],
+  void: ['furn_candle', 'bone_pile'],
+  sanctuary: ['furn_lantern', 'furn_planter'],
+  ash: ['furn_brazier', 'barrel'],
+  abyss: ['coral', 'furn_herbs'],
+  frost: ['ice_spire', 'furn_crate'],
+  bloom: ['furn_herbs', 'furn_planter', 'ancient_tree'],
+  foundry: ['furn_crate', 'furn_lantern', 'cog_pillar'],
+  mire: ['furn_herbs', 'bone_pile', 'ancient_tree'],
+  hive: ['hive_comb', 'furn_crate'],
+  catacomb: ['bone_pile', 'furn_candle'],
+};
+
 interface Chunk {
   container: Container;
   x0: number;
@@ -60,13 +82,55 @@ export class LevelView {
     private readonly floor: FloorMap,
     biome: BiomeId,
     private readonly propTextures: Record<string, Texture>,
-    backdrop?: Texture
+    backdrop?: Texture,
+    dressRooms = false
   ) {
     this.biome = biome;
     this.accent = hex(BIOME_ART[biome].accent);
     if (backdrop) this.addBackdrop(backdrop);
     this.build(biome);
+    if (dressRooms) this.addDressing(biome);
     this.root.addChild(this.doors);
+  }
+
+  /**
+   * Scatters a little wall clutter through each room so dungeon floors read as
+   * lived-in places rather than empty stone. Placement is deterministic per
+   * room and tile, and never lands on a doorway or a glyph.
+   */
+  private addDressing(biome: BiomeId): void {
+    const kinds = ROOM_DRESSING[biome] ?? ROOM_DRESSING.ruins;
+    const grid = this.floor.grid;
+    const layer = new Container();
+    for (const room of this.floor.rooms) {
+      const seed = room.x * 7919 + room.y * 104729 + room.w * 31;
+      const count = 1 + ((seed >>> 3) % 2);
+      const candidates: Array<[number, number]> = [];
+      for (let ty = room.y; ty < room.y + room.h; ty++) {
+        for (let tx = room.x; tx < room.x + room.w; tx++) {
+          const tile = grid.get(tx, ty);
+          if (tile !== Tile.Floor) continue;
+          // Along a wall base, so clutter frames the room instead of blocking it.
+          if (grid.get(tx, ty - 1) !== Tile.Wall) continue;
+          const deco = grid.deco[grid.index(tx, ty)] as Deco;
+          if (deco === Deco.Glyph) continue;
+          candidates.push([tx, ty]);
+        }
+      }
+      if (candidates.length < 3) continue;
+      for (let i = 0; i < count; i++) {
+        const pick = candidates[(seed + i * 977) % candidates.length];
+        const texture = this.propTextures[kinds[(seed + i * 37) % kinds.length]];
+        if (!texture) continue;
+        const sprite = new Sprite(texture);
+        sprite.anchor.set(0.5, 1);
+        sprite.position.set(pick[0] * T + T / 2, pick[1] * T + T);
+        sprite.scale.set(0.34);
+        sprite.alpha = 0.92;
+        layer.addChild(sprite);
+      }
+    }
+    this.root.addChild(layer);
   }
 
   /**

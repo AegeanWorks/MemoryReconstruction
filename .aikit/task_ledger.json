@@ -1,38 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-deco-v1",
+    "task_id": "art-dressing-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793389340.6468973,
+    "updated_at": 1793391075.7572503,
     "owner": "kilo:main",
     "started_by": "kilo:main",
     "continuations": [],
-    "completed_at": 1793389341.198223
+    "completed_at": 1793391076.0235798
   },
   "checkpoints": [
-    {
-      "task_id": "keyboard-menus",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[2/2] Done: Input suppresses Space/Tab/arrows only when no .screen is open, so menus get native focus and activation while play keeps Tab=map and Space=dash. Verified: Tab cycles five building Enter buttons then station buttons, Space opens Training Yard, Enter enters a room from its card, in-play Tab still opens the map. README documents Tab + Enter/Space. 151 tests, gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793363661.3932018,
-      "timestamp_str": "2026-10-30 15:34:21",
-      "agent": "kilo:keyboard"
-    },
-    {
-      "task_id": "keyboard-menus",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'keyboard-menus' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793363661.6569984,
-      "timestamp_str": "2026-10-30 15:34:21",
-      "agent": "kilo:keyboard"
-    },
     {
       "task_id": "run-lifecycle-audit",
       "phase": "phase 2",
@@ -233,6 +212,27 @@
       "status": "completed",
       "timestamp": 1793389341.198226,
       "timestamp_str": "2026-10-30 22:42:21",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-dressing-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Added deterministic view-only room dressing: one or two small wall-base props per dungeon room, per-biome from existing atlas props (barrel, crate, bone pile, herbs, lantern, brazier, coral, comb, candle). Placement is seeded from the room rectangle, skips doorways and glyphs, never touches the simulation, and is disabled in Sanctuary interiors. Verified in ruins and catacombs with zero console errors; typecheck, lint, 151 tests and 8/8 gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793391075.7572503,
+      "timestamp_str": "2026-10-30 23:11:15",
+      "agent": "kilo:main"
+    },
+    {
+      "task_id": "art-dressing-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-dressing-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793391076.0235813,
+      "timestamp_str": "2026-10-30 23:11:16",
       "agent": "kilo:main"
     }
   ]
