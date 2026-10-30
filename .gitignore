@@ -51,6 +51,9 @@ assets/generated/
 screenshots/
 replays/
 benchmarks/
+# The generator writes a banner on every run; the shipped brand art lives in
+# assets/social-preview.png, so this regenerated copy is not tracked.
+assets/banner.png
 
 # TypeScript
 *.tsbuildinfo
