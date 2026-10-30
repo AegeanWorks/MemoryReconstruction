@@ -353,3 +353,13 @@ or the architecture; see the header above for where each entry goes. -->
   2. **Room-aware close**: `closeOverlay` resumes the room when the active world is a Sanctuary interior, and only the explicit `Back to the Sanctuary` button calls `showHub`.
   3. **Hub root is inert**: Escape still closes hub sub-screens (restoration, reliquary, reforge and the rest), but does nothing on the hub screen itself, so Escape cannot cause a redundant re-render loop.
 - **Consequences**: Escape now behaves as a toggle everywhere: room menu opens and closes in the room, inventory and settings return to the room, hub sub-screens return to the hub. Verified with Playwright sequences for room menu, room inventory, room settings, hub Escape and inventory in a run; no console errors. All gates pass.
+### ADR-036: Keyboard users can navigate and activate every menu
+
+- **Date**: 2026-10-30
+- **Status**: Accepted
+- **Context**: `Input` called `preventDefault()` on Tab, Space and the arrow keys for the whole session. On the canvas that is correct, but every menu is a DOM screen, so Tab could not move focus and Space could not activate a focused button. The hub was mouse-only for keyboard users even though it is built from real buttons.
+- **Decision**:
+  - `Input` only suppresses those keys when no `.screen` is open. With a menu open, Tab moves focus normally, Space and Enter activate the focused control, and arrows can scroll.
+  - Canvas behaviour is unchanged in play: Tab is still the map key and Space still dashes, with the default action suppressed.
+  - The README controls table documents menu navigation (`Tab` then `Enter` or `Space`). Existing `.btn:focus-visible` and `.card:focus-visible` styles provide the visible ring.
+- **Consequences**: every hub card, place, footer action and menu control can be reached and activated from the keyboard. Verified with Playwright: Tab cycles through the five Enter buttons and the station buttons, Space opens the Training Yard, Enter enters a resident room from its card, and Tab in play still opens the map without moving focus.

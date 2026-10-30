@@ -81,8 +81,14 @@ export class Input {
   }
 
   private keyDown(e: KeyboardEvent): void {
-    // Keep Space/arrows from scrolling and Tab from leaving the canvas.
-    if (['Space', 'Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code))
+    // In play, keep Space/arrows from scrolling and Tab from leaving the
+    // canvas. With a menu screen open, those keys belong to the DOM: Tab must
+    // move focus and Space must activate the focused button.
+    const screenOpen = !!document.querySelector('.screen');
+    if (
+      !screenOpen &&
+      ['Space', 'Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)
+    )
       e.preventDefault();
     if (e.repeat) return;
     this.held.add(e.code);

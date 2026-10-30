@@ -1,55 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "room-overlay-fix",
+    "task_id": "keyboard-menus",
     "last_phase": "phase 5",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793361401.8888738,
-    "owner": "kilo:overlay-fix",
-    "started_by": "kilo:overlay-fix",
+    "updated_at": 1793363661.3932018,
+    "owner": "kilo:keyboard",
+    "started_by": "kilo:keyboard",
     "continuations": [],
-    "completed_at": 1793361402.1424649
+    "completed_at": 1793363661.6569972
   },
   "checkpoints": [
-    {
-      "task_id": "visual-qa-2026-10-29",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/4] Plan: fix the concrete defects from a 17-screen single-vision-subagent QA pass - clipped/wrapping checkpoint rows, unbalanced hub/quest card grids, undersized map with incomplete legend, title CTA readability, boss-bar readability and idle Flow label; verify with fresh screenshots and gates",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793278709.0267823,
-      "timestamp_str": "2026-10-29 15:58:29",
-      "agent": "kilo:visual-qa",
-      "impact_assessment": {
-        "why": "the last visual pass was three days ago and a fresh review found real layout, readability and map-legibility defects on the shipping screens",
-        "benefits": "clean 1280x720 and 1024x640 surfaces, an informative map, and readable boss/flow HUD without regressing the established style",
-        "risks": "contract: DOM/CSS only plus map canvas drawing and HUD text; dependency: none; concurrency: single-threaded; state: no save or sim schema changes",
-        "mitigation": "limit changes to presentation, keep sim untouched, re-screenshot every affected screen at both sizes, run 121 tests plus all 7 project gates"
-      }
-    },
-    {
-      "task_id": "visual-qa-2026-10-29",
-      "phase": "phase 5",
-      "phase_num": 5,
-      "description": "[4/4] Implemented and verified: checkpoint rows keep full section names (tag moved to note line), balanced centered card rows, map fills the canvas with a complete legend, boss bar has a name plate + HP %, idle Flow reads FLOW \u00b7 IDLE, menu scrims hide the HUD, and the title menu has a backing panel with a disabled-Continue explanation. One vision subagent confirmed all targeted items FIXED with no new P0/P1; 121 tests, lint, typecheck, build and 7/7 gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793281722.4987721,
-      "timestamp_str": "2026-10-29 16:48:42",
-      "agent": "kilo:visual-qa"
-    },
-    {
-      "task_id": "visual-qa-2026-10-29",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'visual-qa-2026-10-29' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793281757.3143096,
-      "timestamp_str": "2026-10-29 16:49:17",
-      "agent": "kilo:visual-qa"
-    },
     {
       "task_id": "sanctuary-buildings",
       "phase": "phase 2",
@@ -260,6 +222,44 @@
       "timestamp": 1793361402.142466,
       "timestamp_str": "2026-10-30 14:56:42",
       "agent": "kilo:overlay-fix"
+    },
+    {
+      "task_id": "keyboard-menus",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Plan: let Tab, Space and arrows reach DOM menus while keeping gameplay suppression, and document menu keyboard navigation",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793363612.859568,
+      "timestamp_str": "2026-10-30 15:33:32",
+      "agent": "kilo:keyboard",
+      "impact_assessment": {
+        "why": "Tab and Space were prevented for the whole session, so keyboard users could not navigate or activate any menu",
+        "benefits": "full keyboard access to the hub, places and all overlays",
+        "risks": "contract: Input keydown suppression, README controls; dependency: none; concurrency: single-threaded; state: none",
+        "mitigation": "gate suppression on the presence of a .screen, verify focus order and activation in Playwright, keep play bindings unchanged"
+      }
+    },
+    {
+      "task_id": "keyboard-menus",
+      "phase": "phase 5",
+      "phase_num": 5,
+      "description": "[2/2] Done: Input suppresses Space/Tab/arrows only when no .screen is open, so menus get native focus and activation while play keeps Tab=map and Space=dash. Verified: Tab cycles five building Enter buttons then station buttons, Space opens Training Yard, Enter enters a room from its card, in-play Tab still opens the map. README documents Tab + Enter/Space. 151 tests, gates pass. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793363661.3932018,
+      "timestamp_str": "2026-10-30 15:34:21",
+      "agent": "kilo:keyboard"
+    },
+    {
+      "task_id": "keyboard-menus",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'keyboard-menus' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793363661.6569984,
+      "timestamp_str": "2026-10-30 15:34:21",
+      "agent": "kilo:keyboard"
     }
   ]
 }

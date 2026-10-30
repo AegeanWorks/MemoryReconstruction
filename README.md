@@ -142,6 +142,7 @@ npm run build      # production build in dist/
 | Pick a card       | 1 / 2 / 3        | -           |
 | Confirm card      | Enter / B        | B           |
 | Reroll cards      | R                | -           |
+| Menus             | Tab + Enter/Space| -           |
 
 ## How It Is Built
 
