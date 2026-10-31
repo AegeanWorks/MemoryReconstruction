@@ -478,3 +478,28 @@ describe('finisher', () => {
     expect(world.player.mana).toBe(manaBefore2);
   });
 });
+
+describe('interrupt', () => {
+  it('a melee hit during an enemy windup staggers and cancels the attack', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'combat');
+    stepFor(world, 0.5);
+    const enemy = world.enemies[0];
+    enemy.state = 'windup';
+    enemy.stateTime = 0.5;
+    world.damageEnemy(enemy, 5, 'melee', false, 0);
+    expect(enemy.state).toBe('stagger');
+  });
+
+  it('a boss is not interrupted by a hit during windup', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'combat');
+    stepFor(world, 0.5);
+    const enemy = world.enemies[0];
+    enemy.isBoss = true;
+    enemy.state = 'windup';
+    enemy.stateTime = 0.5;
+    world.damageEnemy(enemy, 5, 'melee', false, 0);
+    expect(enemy.state).toBe('windup');
+  });
+});

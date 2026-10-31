@@ -485,3 +485,11 @@ or the architecture; see the header above for where each entry goes. -->
 - **Context**: Finishing a wounded enemy felt no different from any other hit, so cleanup was a chore rather than a reward.
 - **Decision**: In `damageEnemy`, a melee hit on an enemy below 30% health deals +50% damage and restores 4 mana. Non-melee sources and healthy enemies are unaffected. The sim stays deterministic and no save format changes.
 - **Consequences**: aggressive play is rewarded with bigger finishing hits and mana. 156 tests (2 new), lint, typecheck, build, mechanics and all 8 gates pass.
+
+### ADR-048: Melee hits can interrupt an enemy windup
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: A hit during an enemy's telegraph did nothing to the attack, so windups could only be dodged, never punished.
+- **Decision**: `staggerEnemy` now staggers during `windup` for non-bosses, cancelling the telegraphed attack. Bosses and enemies already in `attack` still complete their attack, preserving fairness. `staggerEnemy`'s signature is unchanged.
+- **Consequences**: players gain a skill-based interrupt layer. 158 tests (2 new), lint, typecheck, build, mechanics and all 8 gates pass.

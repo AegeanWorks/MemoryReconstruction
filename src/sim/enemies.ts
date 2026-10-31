@@ -155,13 +155,8 @@ function defaultAttack(def: EnemyDef): AttackKind {
 
 /** Puts an enemy into its stagger state after a hit (bosses and attackers keep going). */
 export function staggerEnemy(enemy: Enemy): void {
-  if (
-    enemy.isBoss ||
-    enemy.state === 'windup' ||
-    enemy.state === 'attack' ||
-    enemy.state === 'spawning'
-  )
-    return;
+  if (enemy.isBoss || enemy.state === 'attack' || enemy.state === 'spawning') return;
+  // Interrupt: a hit during windup cancels the telegraphed attack and staggers.
   enemy.state = 'stagger';
   enemy.stateTime = STAGGER_TIME;
 }
