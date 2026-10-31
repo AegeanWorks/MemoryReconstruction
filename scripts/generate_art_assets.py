@@ -821,40 +821,89 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
             line(draw, cell, [butt, base], pal["outline"], 4)
             line(draw, cell, [butt, base], pal["gold"], 2)
             nx, ny = -dy * 0.045, dx * 0.045
-            poly(draw, cell, [(base[0] + nx, base[1] + ny), tip, (base[0] - nx, base[1] - ny)],
-                 fill=pal["blade"], outline=pal["outline"], width=2)
+            # Winged leaf spearhead with diamond bevel
+            poly(draw, cell, [
+                (base[0] + nx * 0.7, base[1] + ny * 0.7),
+                (base[0] + nx * 1.35 + dx * 0.02, base[1] + ny * 1.35 + dy * 0.02),
+                tip,
+                (base[0] - nx * 1.35 + dx * 0.02, base[1] - ny * 1.35 + dy * 0.02),
+                (base[0] - nx * 0.7, base[1] - ny * 0.7),
+            ], fill=pal["blade"], outline=pal["outline"], width=2)
             line(draw, cell, [base, tip], pal["blade_core"], 1)
+            # Crossguard lugs
             line(draw, cell, [(hand[0] - dy * 0.055, hand[1] + dx * 0.055),
                               (hand[0] + dy * 0.055, hand[1] - dx * 0.055)], pal["gold"], 2)
+            # Fluttering cyan tassel at the socket
+            tassel = (base[0] - dy * 0.045 - dx * 0.025, base[1] + dx * 0.045 - dy * 0.025)
+            line(draw, cell, [base, tassel], pal["scarf"], 2)
+            # Butt ferrule cap
+            ellipse(draw, cell, butt[0] - 0.015, butt[1] - 0.015, butt[0] + 0.015, butt[1] + 0.015,
+                    fill=pal["gold"], outline=pal["outline"], width=1)
             if attacking and t > 0.1:
                 alpha = int(230 * max(0.0, 1.0 - abs(t - 0.42) * 1.5))
                 streak = (tip[0] + dx * 0.14, tip[1] + dy * 0.14)
                 line(draw, cell, [hand, streak], rgba(pal["scarf"][:3], max(40, alpha)), 3)
         else:
             heavy = weapon == "greatsword"
-            length = (0.46 if heavy else 0.34) if attacking else (0.40 if heavy else 0.32)
-            half_width = 0.16 if heavy else 0.085
+            length = (0.48 if heavy else 0.34) if attacking else (0.42 if heavy else 0.32)
+            half_width = 0.17 if heavy else 0.085
             tip = (hand[0] + dx * length, hand[1] + dy * length)
             px, py = -dy * length * half_width, dx * length * half_width
-            # Tapered blade: broad at the guard, pointed at the tip.
-            poly(draw, cell, [
-                (hand[0] + px, hand[1] + py),
-                (tip[0] + px * 0.45, tip[1] + py * 0.45),
-                tip,
-                (tip[0] - px * 0.45, tip[1] - py * 0.45),
-                (hand[0] - px, hand[1] - py),
-            ], fill=pal["blade"], outline=pal["outline"], width=2)
-            line(draw, cell, [hand, tip], pal["blade_core"], 2)
+
             if heavy:
-                line(draw, cell, [(hand[0] + px * 0.35, hand[1] + py * 0.35),
-                                  (tip[0] + px * 0.15, tip[1] + py * 0.15)], pal["outline"], 1)
-            guard = 0.15 if heavy else 0.10
-            line(draw, cell, [(hand[0] - dy * guard, hand[1] + dx * guard),
-                              (hand[0] + dy * guard, hand[1] - dx * guard)],
-                 pal["gold"], 3 if heavy else 2)
-            ellipse(draw, cell, hand[0] - dx * 0.035 - 0.022, hand[1] - dy * 0.035 - 0.022,
-                    hand[0] - dx * 0.035 + 0.022, hand[1] - dy * 0.035 + 0.022,
-                    fill=pal["gold"], outline=pal["outline"], width=1)
+                # Colossus Greatsword: Zweihänder blade with parrying flukes & amber runic fissures
+                poly(draw, cell, [
+                    (hand[0] + px, hand[1] + py),
+                    (tip[0] + px * 0.5, tip[1] + py * 0.5),
+                    tip,
+                    (tip[0] - px * 0.5, tip[1] - py * 0.5),
+                    (hand[0] - px, hand[1] - py),
+                ], fill=pal["blade"], outline=pal["outline"], width=2)
+                line(draw, cell, [hand, tip], pal["blade_core"], 2)
+                # Parrying flukes projecting above the ricasso
+                fluke_m = (hand[0] + dx * length * 0.32, hand[1] + dy * length * 0.32)
+                fluke_l = (fluke_m[0] + px * 1.45 + dx * 0.02, fluke_m[1] + py * 1.45 + dy * 0.02)
+                fluke_r = (fluke_m[0] - px * 1.45 + dx * 0.02, fluke_m[1] - py * 1.45 + dy * 0.02)
+                line(draw, cell, [fluke_l, fluke_m, fluke_r], pal["gold"], 2)
+                # Molten amber runic spine nodes
+                for r_step in (0.48, 0.68, 0.84):
+                    rx, ry = hand[0] + dx * length * r_step, hand[1] + dy * length * r_step
+                    ellipse(draw, cell, rx - 0.012, ry - 0.012, rx + 0.012, ry + 0.012, fill=pal["gold"])
+                # Heavy crossguard
+                guard = 0.16
+                line(draw, cell, [(hand[0] - dy * guard, hand[1] + dx * guard),
+                                  (hand[0] + dy * guard, hand[1] - dx * guard)],
+                     pal["gold"], 3)
+                # Faceted heavy pommel
+                pommel = (hand[0] - dx * 0.055, hand[1] - dy * 0.055)
+                ellipse(draw, cell, pommel[0] - 0.024, pommel[1] - 0.024,
+                        pommel[0] + 0.024, pommel[1] + 0.024,
+                        fill=pal["gold"], outline=pal["outline"], width=1)
+            else:
+                # Remembrance Sword: elegant arming sword with curved quillons & cyan gem
+                poly(draw, cell, [
+                    (hand[0] + px, hand[1] + py),
+                    (tip[0] + px * 0.45, tip[1] + py * 0.45),
+                    tip,
+                    (tip[0] - px * 0.45, tip[1] - py * 0.45),
+                    (hand[0] - px, hand[1] - py),
+                ], fill=pal["blade"], outline=pal["outline"], width=2)
+                line(draw, cell, [hand, tip], pal["blade_core"], 2)
+                # Swept curved quillons
+                guard = 0.11
+                g1 = (hand[0] - dy * guard + dx * 0.016, hand[1] + dx * guard + dy * 0.016)
+                g2 = (hand[0] + dy * guard + dx * 0.016, hand[1] - dx * guard + dy * 0.016)
+                line(draw, cell, [g1, hand, g2], pal["gold"], 2)
+                # Inset cyan memory core gem at ricasso
+                gem_p = (hand[0] + dx * 0.038, hand[1] + dy * 0.038)
+                ellipse(draw, cell, gem_p[0] - 0.014, gem_p[1] - 0.014,
+                        gem_p[0] + 0.014, gem_p[1] + 0.014,
+                        fill=pal["scarf"], outline=pal["outline"], width=1)
+                # Spherical golden pommel
+                pommel = (hand[0] - dx * 0.038, hand[1] - dy * 0.038)
+                ellipse(draw, cell, pommel[0] - 0.018, pommel[1] - 0.018,
+                        pommel[0] + 0.018, pommel[1] + 0.018,
+                        fill=pal["gold"], outline=pal["outline"], width=1)
             if state in ("idle", "walk"):
                 gr = 0.012
                 ellipse(draw, cell, tip[0] - gr, tip[1] - gr, tip[0] + gr, tip[1] + gr, fill=pal["blade_core"])

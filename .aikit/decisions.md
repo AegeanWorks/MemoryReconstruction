@@ -576,3 +576,16 @@ or the architecture; see the header above for where each entry goes. -->
   3. In `src/ui/ui.css`, upgrade `.dialogue-panel` with a gold border bar, narrative serif typography, and rich background contrast; add ethereal crimson drop-shadow to `.heading.dead`.
   4. Preserve all health bar and vitals styling intact as mandated by user constraint.
 - **Consequences**: Enhanced environmental immersion, crisp combat telegraph anticipation, and atmospheric dialogue framing with 100% health bar stability. 168 tests, lint, typecheck, build, mechanics, and all 8 gates pass.
+
+### ADR-058: Weapon model silhouette differentiation across all player stances
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Player weapon models in the sprite generation pipeline were simple generic bars with minimal stance distinction beyond length.
+- **Decision**: Upgrade `player_frame` in `scripts/generate_art_assets.py` to give each weapon stance an unmistakable silhouette and decorative styling:
+  1. Spear: Leaf-bladed spearhead with barbed side lugs, crossguard lugs, a dynamic fluttering cyan tassel at the socket, and a gold butt ferrule cap.
+  2. Sword (Remembrance Blade): Swept curved golden quillons, an embedded cyan memory crystal gem at the ricasso, a dual-tone tapered blade, and a spherical golden pommel.
+  3. Greatsword (Void Colossus): Broad Zweihänder blade with parrying flukes above the ricasso, molten amber runic nodes etched along the spine, a heavy reinforced crossguard, and an octagonal pommel.
+  4. Regenerated all 9 weapon-bearing player animation sprite sheets (`idle`, `walk`, `attack` for sword, spear, greatsword).
+  5. The health bar remains completely untouched.
+- **Consequences**: Immediate visual recognition of equipped stance and weapon identity across all movement and attack states. 168 tests, lint, typecheck, build, mechanics, and all 8 gates pass.
