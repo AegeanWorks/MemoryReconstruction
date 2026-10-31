@@ -941,6 +941,13 @@ export class ActorView {
           rift.anchor.set(0.5);
           rift.width = rift.height = 84;
           root.addChild(rift);
+          const runeOrbit = new Sprite(fxTextures().rune);
+          runeOrbit.anchor.set(0.5);
+          runeOrbit.width = runeOrbit.height = 110;
+          runeOrbit.tint = this.accent;
+          runeOrbit.blendMode = 'add';
+          runeOrbit.alpha = 0.4;
+          root.addChild(runeOrbit);
         } else {
           const look = interactableLook(it);
           root.addChild(makeShadow(26));
@@ -978,6 +985,10 @@ export class ActorView {
         if (it.kind === 'portal') {
           root.children[1].rotation = this.time * 0.8;
           root.children[0].alpha = 0.55 + 0.2 * Math.sin(this.time * 3);
+          if (root.children[2]) {
+            root.children[2].rotation = -this.time * 0.45;
+            root.children[2].alpha = 0.3 + 0.15 * Math.sin(this.time * 2.2);
+          }
         } else {
           // Spent chests and wells go dark.
           root.children[1].alpha = it.used ? 0 : 0.3 + 0.12 * Math.sin(this.time * 2.5);

@@ -589,3 +589,16 @@ or the architecture; see the header above for where each entry goes. -->
   4. Regenerated all 9 weapon-bearing player animation sprite sheets (`idle`, `walk`, `attack` for sword, spear, greatsword).
   5. The health bar remains completely untouched.
 - **Consequences**: Immediate visual recognition of equipped stance and weapon identity across all movement and attack states. 168 tests, lint, typecheck, build, mechanics, and all 8 gates pass.
+
+### ADR-059: Cohesive art polish — punchy combat text pop, low-health heartbeat vignette, interactive button depth, and portal rune orbit
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Visual and UI presentation needed a cohesive finishing polish to tie together the updated weapon models, telegraphs, and atmospheric effects while strictly preserving the user's preferred health bar design. Combat numbers lacked initial dynamic pop, critical player health lacked immersive peripheral feedback, UI buttons felt flat on hover, and void portals lacked an orbital mystic aura.
+- **Decision**:
+  1. In `src/view/Effects.ts`, upgrade floating combat text scaling with an initial pop (`0.65 + 3.8 * t` settling to `1.0`), giving damage and healing numbers punchy impact.
+  2. In `src/view/Renderer.ts`, add a pulsing crimson screen-edge heartbeat vignette when player health falls below 28%, alerting the player to critical danger without obstructing visibility or modifying the HUD.
+  3. In `src/view/ActorView.ts`, add a counter-rotating rune orbital ring (`fxTextures().rune`) around portal rifts, completing their void distortion visual identity.
+  4. In `src/ui/ui.css`, add hover elevation (`translateY(-2px)`), inset edge highlight, and rich golden button glow to `.btn` and `.btn.primary`.
+  5. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
+- **Consequences**: Tactile combat numbers, immersive peril signaling, mystic portal presence, and tactile UI controls unified across the game. 168 tests, lint, typecheck, build, mechanics, and all 8 AIKit gates pass cleanly.

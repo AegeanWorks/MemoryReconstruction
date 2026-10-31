@@ -506,17 +506,26 @@
 }
 .btn:hover,
 .btn:focus-visible {
+  transform: translateY(-2px);
   border-color: var(--gold);
-  box-shadow: 0 0 18px rgba(255, 217, 138, 0.22);
+  box-shadow:
+    0 4px 18px rgba(255, 217, 138, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
   outline: none;
 }
 .btn:active {
   transform: translateY(1px);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
 }
 .btn.primary {
   background: linear-gradient(180deg, #6b5420, #3e2f10);
   border-color: var(--gold);
   color: #fff3cf;
+}
+.btn.primary:hover {
+  box-shadow:
+    0 4px 22px rgba(255, 217, 138, 0.35),
+    inset 0 1px 0 rgba(255, 245, 210, 0.3);
 }
 .btn[disabled] {
   opacity: 0.4;

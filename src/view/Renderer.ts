@@ -212,6 +212,15 @@ export class Renderer {
     this.darkness.width = this.darkness.height = size;
 
     this.flash.clear();
+    const p = scene.world.player;
+    const hpRatio = p.health / Math.max(1, p.stats?.maxHealth ?? 100);
+    if (hpRatio < 0.28) {
+      const beat = (Math.sin(this.time * 6) + 1) * 0.5;
+      const severity = (0.28 - hpRatio) / 0.28;
+      const alpha = (0.04 + 0.08 * beat) * severity;
+      const strokeW = Math.max(16, Math.min(w, h) * 0.05);
+      this.flash.rect(0, 0, w, h).stroke({ width: strokeW, color: 0x99000b, alpha });
+    }
     if (scene.effects.hurtFlash > 0)
       this.flash.rect(0, 0, w, h).fill({ color: 0xff2020, alpha: scene.effects.hurtFlash * 0.22 });
   }

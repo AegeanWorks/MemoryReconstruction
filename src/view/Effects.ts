@@ -644,7 +644,7 @@ export class Effects {
       f.text.y += f.vy * dt;
       const t = f.age / f.life;
       f.text.alpha = t < 0.7 ? 1 : 1 - (t - 0.7) / 0.3;
-      f.text.scale.set(t < 0.1 ? 0.6 + 4 * t : 1);
+      f.text.scale.set(t < 0.12 ? 0.65 + 3.8 * t : Math.max(1, 1.1 - (t - 0.12) * 0.5));
     }
   }
 
