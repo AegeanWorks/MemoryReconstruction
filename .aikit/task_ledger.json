@@ -1,65 +1,16 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-wisp-silhouettes-v1",
+    "task_id": "art-beast-silhouettes-v1",
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1793440384.1265664,
+    "updated_at": 1793440538.740156,
     "owner": "opencode:art",
     "started_by": "opencode:art",
     "continuations": []
   },
   "checkpoints": [
-    {
-      "task_id": "art-atmosphere-v1",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "[2/3] Implemented the per-biome atmosphere profiles, four new particle textures, the pooled Effects field, the atmosphere unit test, and the README, Graphics, Architecture and ADR documentation",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793399577.752583,
-      "timestamp_str": "2026-10-31 01:32:57",
-      "agent": "opencode:atmosphere"
-    },
-    {
-      "task_id": "art-atmosphere-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Phase 4 green: 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; 16-section Playwright sweep shows 32-48 motes per biome with the expected textures and motions and zero console errors; headless software rendering loses about 1.5 fps with the field on. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793400182.7097354,
-      "timestamp_str": "2026-10-31 01:43:02",
-      "agent": "opencode:atmosphere"
-    },
-    {
-      "task_id": "art-atmosphere-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-atmosphere-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793400194.83201,
-      "timestamp_str": "2026-10-31 01:43:14",
-      "agent": "opencode:atmosphere"
-    },
-    {
-      "task_id": "art-hero-scarf-v2",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Plan: replace the player's four-point scarf with a tapered two-tail ribbon, animate hem and idle breathing, regenerate the sheets, then verify idle, walk, attack and dash at 8x and in play",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793428096.639721,
-      "timestamp_str": "2026-10-31 09:28:16",
-      "agent": "opencode:scarf",
-      "impact_assessment": {
-        "why": "The Memory Walker's scarf is a short zigzag that reads as a cyan checkmark in every frame, and the cloak hem is static, so the character who is on screen constantly has little cloth motion.",
-        "benefits": "A tapered two-tail ribbon with per-frame sway, a hem trim and a breathing bob gives the hero a readable cloth silhouette and more life at gameplay scale.",
-        "risks": "contract: none; dependency: none; concurrency: none; state: none; art: deterministic player sheets only, atlas keys and frame sizes stay the same.",
-        "mitigation": "Keep the generator deterministic, inspect all four states at 8x, reload a live run for an in-game check, and rerun tests, typecheck, build and the eight gates."
-      }
-    },
     {
       "task_id": "art-hero-scarf-v2",
       "phase": "phase 3",
@@ -254,6 +205,55 @@
       "status": "in_progress",
       "timestamp": 1793440384.1265664,
       "timestamp_str": "2026-10-31 12:53:04",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-wisp-silhouettes-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-wisp-silhouettes-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793440400.5270908,
+      "timestamp_str": "2026-10-31 12:53:20",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-beast-silhouettes-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Plan: differentiate the three beast-kind enemies (wildling quadruped, cogHound angular plated with gear, bogLeech slug) in _beast",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793440473.4116826,
+      "timestamp_str": "2026-10-31 12:54:33",
+      "agent": "opencode:art",
+      "impact_assessment": {
+        "why": "wildling, cogHound and bogLeech share one beast body.",
+        "benefits": "Three distinct beast silhouettes at play scale.",
+        "risks": "contract: _beast signature and atlas keys unchanged; dependency: none; concurrency: none; state: generated PNGs only.",
+        "mitigation": "Regenerate, capture, gates."
+      }
+    },
+    {
+      "task_id": "art-beast-silhouettes-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "[2/3] Implement: _beast branches on mechanical (cogHound angular plated body with gear) and slug (bogLeech elongated slug with eye stalks); wildling keeps quadruped; legs/antlers guarded.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793440538.374908,
+      "timestamp_str": "2026-10-31 12:55:38",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-beast-silhouettes-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Verify: 154 tests, lint, typecheck, build, mechanics, 8/8 gates; codebase map refreshed; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793440538.740156,
+      "timestamp_str": "2026-10-31 12:55:38",
       "agent": "opencode:art"
     }
   ]

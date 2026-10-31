@@ -185,6 +185,7 @@ ENEMY_STYLES = {
     },
     "cogHound": {
         "kind": "beast",
+        "mechanical": True,
         "body": (124, 98, 62, 255),
         "light": (196, 158, 96, 255),
         "cloth": (74, 58, 38, 255),
@@ -204,6 +205,7 @@ ENEMY_STYLES = {
     },
     "bogLeech": {
         "kind": "beast",
+        "slug": True,
         "body": (62, 88, 58, 255),
         "light": (124, 158, 92, 255),
         "cloth": (40, 58, 40, 255),
@@ -1282,19 +1284,46 @@ def _beast(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: i
     accent = style["accent"]
     cx = 0.50 + lunge
     step = math.sin(t * math.tau) * 0.03 if row == 1 else 0.0
-    ellipse(draw, cell, cx - 0.26, 0.45 + bob, cx + 0.23, 0.76 + bob, fill=body, outline=Outline, width=3)
-    ellipse(draw, cell, cx - 0.20, 0.49 + bob, cx + 0.15, 0.70 + bob, fill=mix(body, light, 0.28))
-    ellipse(draw, cell, cx + 0.13, 0.30 + bob, cx + 0.38, 0.55 + bob, fill=light, outline=Outline, width=3)
-    ellipse(draw, cell, cx + 0.18, 0.34 + bob, cx + 0.34, 0.48 + bob, fill=cloth)
-    _enemy_eyes(draw, cell, cx + 0.29, 0.378 + bob, dict(style, eyes=style.get("eyes", "single")),
-                spread=0.0, r=0.023)
-    # Antlers.
-    for sign in (-1, 1):
-        line(draw, cell, [(cx + 0.23, 0.32 + bob), (cx + 0.20 + sign * 0.03, 0.19 + bob), (cx + 0.15 + sign * 0.10, 0.13 + bob)], accent, 2)
-    # Legs.
-    for i, x in enumerate((-0.17, -0.02, 0.12)):
-        rect(draw, cell, cx + x - 0.035, 0.69, cx + x + 0.035, 0.91 + (step if i % 2 else -step), fill=cloth, outline=Outline, width=2, radius=0.02)
-    line(draw, cell, [(cx - 0.24, 0.52), (cx - 0.34, 0.46 + math.sin(t * math.tau) * 0.03)], cloth, 3)
+    if style.get("mechanical"):  # cog hound: angular plated body with a gear
+        poly(draw, cell, [(cx - 0.28, 0.50 + bob), (cx - 0.10, 0.42 + bob), (cx + 0.16, 0.44 + bob),
+                          (cx + 0.30, 0.52 + bob), (cx + 0.26, 0.74 + bob), (cx - 0.22, 0.76 + bob)],
+             fill=body, outline=Outline, width=3)
+        ellipse(draw, cell, cx + 0.10, 0.30 + bob, cx + 0.36, 0.52 + bob, fill=light, outline=Outline, width=2)
+        # Gear on the flank.
+        for i in range(6):
+            a = i * math.pi / 3 + t * math.tau * 0.5
+            gx = cx + 0.23 + math.cos(a) * 0.11
+            gy = 0.62 + bob + math.sin(a) * 0.11
+            rect(draw, cell, gx - 0.018, gy - 0.04, gx + 0.018, gy + 0.04, fill=accent, outline=Outline, width=1)
+        ellipse(draw, cell, cx + 0.19, 0.58 + bob, cx + 0.27, 0.66 + bob, fill=cloth, outline=Outline, width=1)
+        _enemy_eyes(draw, cell, cx + 0.29, 0.378 + bob, dict(style, eyes=style.get("eyes", "single")),
+                    spread=0.0, r=0.023)
+    elif style.get("slug"):  # bog leech: elongated slug, no legs
+        ellipse(draw, cell, cx - 0.30, 0.52 + bob, cx + 0.32, 0.74 + bob, fill=body, outline=Outline, width=3)
+        ellipse(draw, cell, cx - 0.22, 0.56 + bob, cx + 0.24, 0.68 + bob, fill=mix(body, light, 0.28))
+        ellipse(draw, cell, cx + 0.20, 0.40 + bob, cx + 0.40, 0.60 + bob, fill=light, outline=Outline, width=2)
+        ellipse(draw, cell, cx + 0.26, 0.44 + bob, cx + 0.36, 0.54 + bob, fill=cloth)
+        # Eye stalks.
+        line(draw, cell, [(cx + 0.28, 0.46 + bob), (cx + 0.30, 0.34 + bob)], body, 2)
+        line(draw, cell, [(cx + 0.34, 0.48 + bob), (cx + 0.38, 0.36 + bob)], body, 2)
+        ellipse(draw, cell, cx + 0.27, 0.30 + bob, cx + 0.33, 0.36 + bob, fill=accent, outline=Outline, width=1)
+        ellipse(draw, cell, cx + 0.35, 0.32 + bob, cx + 0.41, 0.38 + bob, fill=accent, outline=Outline, width=1)
+    else:  # wildling: quadruped (original)
+        ellipse(draw, cell, cx - 0.26, 0.45 + bob, cx + 0.23, 0.76 + bob, fill=body, outline=Outline, width=3)
+        ellipse(draw, cell, cx - 0.20, 0.49 + bob, cx + 0.15, 0.70 + bob, fill=mix(body, light, 0.28))
+        ellipse(draw, cell, cx + 0.13, 0.30 + bob, cx + 0.38, 0.55 + bob, fill=light, outline=Outline, width=3)
+        ellipse(draw, cell, cx + 0.18, 0.34 + bob, cx + 0.34, 0.48 + bob, fill=cloth)
+        _enemy_eyes(draw, cell, cx + 0.29, 0.378 + bob, dict(style, eyes=style.get("eyes", "single")),
+                    spread=0.0, r=0.023)
+    if not style.get("slug") and not style.get("mechanical"):
+        # Antlers (wildling only).
+        for sign in (-1, 1):
+            line(draw, cell, [(cx + 0.23, 0.32 + bob), (cx + 0.20 + sign * 0.03, 0.19 + bob), (cx + 0.15 + sign * 0.10, 0.13 + bob)], accent, 2)
+    if not style.get("slug"):
+        # Legs.
+        for i, x in enumerate((-0.17, -0.02, 0.12)):
+            rect(draw, cell, cx + x - 0.035, 0.69, cx + x + 0.035, 0.91 + (step if i % 2 else -step), fill=cloth, outline=Outline, width=2, radius=0.02)
+        line(draw, cell, [(cx - 0.24, 0.52), (cx - 0.34, 0.46 + math.sin(t * math.tau) * 0.03)], cloth, 3)
 
 
 def _duelist(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:

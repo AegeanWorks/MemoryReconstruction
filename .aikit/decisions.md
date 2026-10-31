@@ -449,3 +449,15 @@ or the architecture; see the header above for where each entry goes. -->
   2. **Shared language**: the trailing tatters, ribbon arms, three accent dots and `_enemy_eyes` stay common so the family still reads as related, while the antler, shard and rift details remain on top.
   3. **No contract change**: `_wisp`'s signature, frame sizes, atlas keys and the `ENEMY_STYLES` entries are unchanged; only the drawn silhouette varies.
 - **Consequences**: all six wisp-kind sheets regenerate with distinct bodies. 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; a live room with all six wisps spawned shows every silhouette with zero console errors.
+
+### ADR-044: The three beast-kind enemies get distinct silhouettes
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Wildling, cog hound and bog leech shared one `_beast` quadruped body with palette swaps.
+- **Decision**:
+  1. **Cog hound**: angular plated body with a rotating gear on the flank and a bolted head plate.
+  2. **Bog leech**: elongated slug body with eye stalks and no legs.
+  3. **Wildling**: retains the original quadruped silhouette.
+  4. **Guards**: legs and antlers are skipped for the slug; antlers only for the wildling.
+- **Consequences**: all three beast-kind sheets regenerate with distinct bodies. 154 tests, lint, typecheck, build, mechanics and all 8 gates pass.
