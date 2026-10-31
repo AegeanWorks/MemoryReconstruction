@@ -778,12 +778,17 @@ export class App {
       if (inSanctuary) this.closeHubPanel();
       else this.resume();
     };
+    let status = 'Click a carried relic to equip it.';
     const render = (): void => {
       this.screens.show(
         inventoryScreen(
           world,
           () => this.click(close),
-          () => render()
+          (message) => {
+            if (message) status = message;
+            render();
+          },
+          status
         )
       );
     };
@@ -930,9 +935,14 @@ export class App {
         this.showInventory();
       else if (this.state === 'inventory') closeOverlay();
     } else if (action === 'confirm' && this.state === 'choice') {
-      // Gamepad B confirms the selection without reaching for the mouse.
-      const confirm = document.querySelector<HTMLButtonElement>('.btn.confirm');
-      if (confirm && !confirm.disabled) confirm.click();
+      // Gamepad confirm takes the focused card, else the first card, and the
+      // screen's own arming guard still protects against an accidental press.
+      const focused = document.activeElement;
+      const card =
+        focused instanceof HTMLButtonElement && focused.classList.contains('card')
+          ? focused
+          : document.querySelector<HTMLButtonElement>('.card');
+      card?.click();
     }
   }
 }

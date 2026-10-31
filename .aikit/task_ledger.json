@@ -1,49 +1,16 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-enemy-walk-v1",
+    "task_id": "fix-inventory-choice-hud-v1",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1793435664.014884,
-    "owner": "opencode:walk",
-    "started_by": "opencode:walk",
-    "continuations": [],
-    "completed_at": 1793435690.593449
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1793439222.1301537,
+    "owner": "opencode:ui-fix",
+    "started_by": "opencode:ui-fix",
+    "continuations": []
   },
   "checkpoints": [
-    {
-      "task_id": "art-keeper-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Rebuilt the final boss renderer: the Keeper was a flat tan trapezoid with a stick staff at 192px. It now has a double-ring radiant halo with a crown of rays, a layered robe with lit inner stole, hem band and gold sashes, a shoulder mantle with a lit edge, crossed sleeves with gold cuffs, a shadowed hood with a gold circlet and glaring eyes, a tall crozier with a spiral head and a floating memory gem, and drifting blessing motes. Also audited live effect layers: telegraphs, projectile glows, hit flash, damage numbers and the lever prompt all render correctly, and confirmed the runtime particle system is procedural (fxArt.ts) while sprites/particles and two UI icons are unused legacy. Verified in the live Keeper fight with zero console errors; 151 tests and 8/8 gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793392738.5201375,
-      "timestamp_str": "2026-10-30 23:38:58",
-      "agent": "kilo:main"
-    },
-    {
-      "task_id": "art-keeper-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-keeper-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793392738.7825508,
-      "timestamp_str": "2026-10-30 23:38:58",
-      "agent": "kilo:main"
-    },
-    {
-      "task_id": "art-bosses2-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Rebuilt the Bone Tyrant: tattered ragged-hem cloak, layered spiked bone pauldrons, ribbed breastplate with sternum jewel, skull with heavy jaw, teeth, hollow sockets and a five-spike crown with gem, plus a shortened great cleaver that no longer clips the frame. Gave the Void Cantor a dedicated cantor archetype instead of reusing the small hunched body at scale 1.0: hovering choral robe fraying into ribbons, shoulder cowl with stole ends, deep hood with three eyes and a singing mouth, conducting arms with bony fingers and orbiting hymn glyphs. Also mapped all 52 enemy sprite keys and found 17 late enemies still borrow older sheets with only a tint (documented as intentional). Bone Tyrant verified in the live catacombs fight; Void Cantor sheet reviewed and its key mapping confirmed (void_cantor and void_herald both resolve to voidCantor); zero console errors; 151 tests and 8/8 gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793395440.174187,
-      "timestamp_str": "2026-10-31 00:24:00",
-      "agent": "kilo:main"
-    },
     {
       "task_id": "art-bosses2-v1",
       "phase": "completed",
@@ -248,6 +215,45 @@
       "timestamp": 1793435690.5934515,
       "timestamp_str": "2026-10-31 11:34:50",
       "agent": "opencode:walk"
+    },
+    {
+      "task_id": "fix-inventory-choice-hud-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Plan: make inventory rows click-to-equip with live stats and safe discard, switch choice cards to one-click or 1/2/3 with right-click ignored and a short arming delay, move HP/mana/XP to a bottom-center HUD panel, and enrich the level-up sound",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793438185.0399027,
+      "timestamp_str": "2026-10-31 12:16:25",
+      "agent": "opencode:ui-fix",
+      "impact_assessment": {
+        "why": "The inventory only reacts through small action buttons with no stat feedback, choice cards need a second confirmation and do not filter non-left input, HP and XP sit in the top-left corner away from the action, and the level-up cue is a short arpeggio.",
+        "benefits": "A click anywhere on a bag row equips it, live stats show the effect, discard needs a deliberate second click, choice cards take one left click or 1/2/3 with a short arming delay, the bottom center carries HP/mana/XP, and level-up gets a layered fanfare.",
+        "risks": "contract: inventoryScreen signature and choice input behaviour; dependency: none; concurrency: none; state: UI state only, no save or simulation changes; UX: single-click cards can be misclicked, so the screen arms after a short delay and ignores right-click.",
+        "mitigation": "Playwright sequences for row click, button click, discard confirm, right-click and number-key choice, 1/2/3 and left-click selection, bottom HUD at 1440x900 and 1024x640, plus tests, build and all eight gates."
+      }
+    },
+    {
+      "task_id": "fix-inventory-choice-hud-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "[2/3] Implement: inventory rows click-to-equip with live stats and armed discard, choice cards single-click with arming grace and RMB ignored, HUD vitals moved to bottom center, level-up fanfare",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793439217.6500516,
+      "timestamp_str": "2026-10-31 12:33:37",
+      "agent": "opencode:ui-fix"
+    },
+    {
+      "task_id": "fix-inventory-choice-hud-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Verify: 154 tests, lint, typecheck, build, mechanics, 8/8 gates; Playwright inventory/choice/HUD flows with zero console errors; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793439222.1301537,
+      "timestamp_str": "2026-10-31 12:33:42",
+      "agent": "opencode:ui-fix"
     }
   ]
 }

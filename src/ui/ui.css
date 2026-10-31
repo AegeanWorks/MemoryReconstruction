@@ -40,9 +40,10 @@
 }
 .hud-vitals {
   position: absolute;
-  left: 20px;
-  top: 18px;
-  width: 280px;
+  left: 50%;
+  bottom: 18px;
+  width: 360px;
+  transform: translateX(-50%);
   display: grid;
   gap: 6px;
 }
@@ -1065,6 +1066,51 @@
 .gear-actions {
   display: flex;
   gap: 6px;
+}
+.gear-row.clickable {
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.gear-row.clickable:hover,
+.gear-row.clickable:focus-visible {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.05);
+  outline: none;
+}
+.gear-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.gear-stat {
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+.gear-stat b {
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--gold);
+  margin-right: 3px;
+}
+.gear-swap {
+  color: var(--cyan);
+  opacity: 0.85;
+}
+.gear-status {
+  min-height: 18px;
+  margin-top: 6px;
+  font-family: var(--serif);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+.btn.danger {
+  border-color: rgba(255, 120, 120, 0.55);
+  color: #ffb3b3;
 }
 .btn.small {
   padding: 6px 10px;

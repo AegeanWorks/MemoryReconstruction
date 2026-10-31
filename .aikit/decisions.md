@@ -424,3 +424,17 @@ or the architecture; see the header above for where each entry goes. -->
   2. **Real walk row**: `loadEnemy` reads the walk row at its atlas frame rate instead of reusing idle frames; the view's vertical bob remains on top.
   3. **Sheets and docs**: every enemy sheet regenerates, and Graphics describes the walk row plus the view bob.
 - **Consequences**: all 41 walk rows have four populated frames and moving enemies sway instead of only bobbing. Idle, attack and death rows are unchanged. A live room with all six new early mobs chasing the player shows the walk rows with zero console errors.
+
+### ADR-042: Relic bag becomes click-to-equip and skill choice becomes single-click
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: The relic bag only reacted through small Equip and Discard buttons with no stat feedback, so swapping gear mid-run was fiddly and the effect of a relic was invisible. The upgrade choice screen asked for a second confirmation (click twice or press Enter), which the playtest feedback called out as interrupting the flow, and a right-button press during play could bleed into the choice screen. The HP, mana and XP bars sat in the top-left corner, away from the action, and the level-up cue was a short four-note arpeggio.
+- **Decision**:
+  1. **Clickable relic rows**: the whole carried-relic row is now a button. Clicking anywhere on it equips the relic (or swaps it with the worn one), and the worn relic returns to the bag. The row announces the swap in a status line and keeps a separate Discard button.
+  2. **Safe discard**: Discard arms on the first click and asks for a second click within 2.6 seconds, turning red while armed, so a stray click cannot destroy a relic.
+  3. **Live stats**: the bag shows the player's current melee, bolt, armor, crit and lifesteal so the effect of a swap is visible.
+  4. **Single-click choice**: a card is taken by one left click or by the 1/2/3 keys. The screen arms 320 ms after it opens so the swing click that was still mid-air when the level-up fired cannot spend the level, and non-primary buttons (right/bolt) are ignored. The context menu is suppressed inside the choice screen.
+  5. **Bottom HUD**: the HP, mana and XP bars move to a centred panel at the bottom of the screen, where the action is. The flow, dash pips and kit stay with them.
+  6. **Level-up fanfare**: the level-up sound becomes a rising swell, a bright run and a ringing peak chord.
+- **Consequences**: relic swaps and level-up picks now take one deliberate action, right-button presses no longer leak into menus, and the vital bars sit under the player. 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; Playwright verified the inventory, choice and HUD flows with zero console errors.

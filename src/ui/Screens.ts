@@ -861,13 +861,17 @@ export function sanctuaryMenuScreen(opts: {
   );
 }
 
-/** Relics carried and worn, with equip/discard actions. */
+/** Relics carried and worn, with click-to-equip rows, live stats and safe discard. */
 export function inventoryScreen(
   world: World,
   onClose: () => void,
-  onChanged: () => void
+  onChanged: (message?: string) => void,
+  status = 'Click a carried relic to equip it.'
 ): HTMLElement {
   const p = world.player;
+  const s = p.stats;
+  const statChip = (label: string, value: string): HTMLElement =>
+    h('span', { class: 'gear-stat' }, h('b', {}, value), ` ${label}`);
   const slotRows = EQUIPMENT_SLOTS.map((slot) => {
     const item = p.equipment[slot];
     const def = item ? equipmentDef(item.defId) : undefined;
@@ -886,7 +890,7 @@ export function inventoryScreen(
             'Unequip',
             () => {
               world.unequip(slot);
-              onChanged();
+              onChanged(`${def.name} returned to the bag.`);
             },
             'btn small'
           )
@@ -895,37 +899,75 @@ export function inventoryScreen(
   });
   const bagRows = p.inventory.map((item) => {
     const def = equipmentDef(item.defId);
-    return h(
+    const worn = p.equipment[def.slot];
+    const wornDef = worn ? equipmentDef(worn.defId) : undefined;
+    const equip = (): void => {
+      world.equipItem(item.uid);
+      onChanged(
+        wornDef
+          ? `Equipped ${def.name}; ${wornDef.name} returned to the bag.`
+          : `Equipped ${def.name}.`
+      );
+    };
+    let discardArmed = false;
+    const discard = button(
+      'Discard',
+      () => {
+        if (!discardArmed) {
+          discardArmed = true;
+          discard.textContent = 'Confirm discard';
+          discard.classList.add('danger');
+          window.setTimeout(() => {
+            if (!discard.isConnected) return;
+            discardArmed = false;
+            discard.textContent = 'Discard';
+            discard.classList.remove('danger');
+          }, 2600);
+          return;
+        }
+        world.discardItem(item.uid);
+        onChanged(`Discarded ${def.name}.`);
+      },
+      'btn small'
+    );
+    const row = h(
       'div',
-      { class: `gear-row ${def.rarity}` },
+      {
+        class: `gear-row clickable ${def.rarity}`,
+        role: 'button',
+        tabindex: '0',
+        title: `Equip ${def.name}`,
+      },
       h('span', { class: 'gear-slot' }, def.slot),
       h(
         'div',
         { class: 'gear-copy' },
         h('div', { class: 'gear-name' }, def.name),
-        h('div', { class: 'gear-desc' }, def.description)
+        h(
+          'div',
+          { class: 'gear-desc' },
+          def.description,
+          wornDef ? h('span', { class: 'gear-swap' }, ` · swaps with ${wornDef.name}`) : null
+        )
       ),
       h(
         'div',
         { class: 'gear-actions' },
-        button(
-          'Equip',
-          () => {
-            world.equipItem(item.uid);
-            onChanged();
-          },
-          'btn small primary'
-        ),
-        button(
-          'Discard',
-          () => {
-            world.discardItem(item.uid);
-            onChanged();
-          },
-          'btn small'
-        )
+        button(worn ? 'Swap' : 'Equip', equip, 'btn small primary'),
+        discard
       )
     );
+    row.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('button')) return;
+      equip();
+    });
+    row.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        equip();
+      }
+    });
+    return row;
   });
   return h(
     'div',
@@ -935,6 +977,15 @@ export function inventoryScreen(
     h(
       'div',
       { class: 'panel gear-panel' },
+      h(
+        'div',
+        { class: 'gear-stats' },
+        statChip('Melee', `${s.meleeDamage}`),
+        statChip('Bolt', `${s.boltDamage}`),
+        statChip('Armor', `${Math.round(s.damageReduction * 100)}%`),
+        statChip('Crit', `${Math.round(s.critChance * 100)}%`),
+        statChip('Lifesteal', `${Math.round(s.lifesteal * 100)}%`)
+      ),
       h('div', { class: 'gear-title' }, 'Worn'),
       ...slotRows,
       h('div', { class: 'gear-title' }, `Carried · ${p.inventory.length}`),
@@ -943,11 +994,12 @@ export function inventoryScreen(
       h(
         'div',
         { class: 'supplies-grid' },
-        supplyRow('Memory Flasks', `${p.potions}/${p.stats.maxPotions}`, 'Q — drink'),
+        supplyRow('Memory Flasks', `${p.potions}/${s.maxPotions}`, 'Q — drink'),
         supplyRow('Bombs', `${p.bombs}`, 'G — throw'),
         supplyRow('Traps', `${p.traps}`, 'T — place')
       )
     ),
+    h('div', { class: 'gear-status' }, status),
     h('div', { class: 'menu' }, button('Close', onClose, 'btn primary'))
   );
 }
@@ -1156,7 +1208,6 @@ export function choiceScreen(
   onPick: (id: string) => void,
   reroll?: { cost: number; shards: number; onReroll: () => void }
 ): { el: HTMLElement; onKey: (e: KeyboardEvent) => void } {
-  let selected: string | undefined;
   const cards = choice.options.map((id, i) => {
     const def = upgradeDef(id);
     const count = taken[id] ?? 0;
@@ -1174,30 +1225,22 @@ export function choiceScreen(
       )
     );
   });
-  // One click only selects. Committing needs the confirm button, so a misclick
-  // in the middle of a fight never spends a level on the wrong echo.
-  const confirm = button(
-    'Select a card',
-    () => {
-      if (selected) onPick(selected);
-    },
-    'btn primary confirm'
-  );
-  confirm.disabled = true;
-  const select = (id: string): void => {
-    // Selecting the same card twice is a deliberate confirm, so mouse users do
-    // not have to reach for the button mid-fight.
-    if (selected === id) {
-      onPick(id);
-      return;
-    }
-    selected = id;
-    cards.forEach((card, index) => card.classList.toggle('selected', choice.options[index] === id));
-    confirm.disabled = false;
-    confirm.textContent = `Take ${upgradeDef(id).name}`;
+  // One deliberate click takes the card. The screen arms after a short grace
+  // moment so the swing click that was still mid-air when the levelup fired
+  // cannot spend the level, and non-primary buttons (right/bolt) are ignored.
+  let armed = false;
+  window.setTimeout(() => {
+    armed = true;
+  }, 320);
+  const pick = (id: string): void => {
+    if (!armed) return;
+    onPick(id);
   };
   cards.forEach((card, index) =>
-    card.addEventListener('click', () => select(choice.options[index]))
+    card.addEventListener('click', (event) => {
+      if (event.button !== 0) return;
+      pick(choice.options[index]);
+    })
   );
   const affordable = !!reroll && reroll.shards >= reroll.cost;
   const rerollButton =
@@ -1210,23 +1253,19 @@ export function choiceScreen(
     { class: 'screen' },
     h('div', { class: 'heading' }, SOURCE_TITLES[choice.source]),
     h('div', { class: 'cards' }, ...cards),
-    choice.options.length > 0 ? h('div', { class: 'menu confirm-menu' }, confirm) : null,
     rerollButton ? h('div', { class: 'menu reroll-menu' }, rerollButton) : null,
     h(
       'div',
       { class: 'meta-line' },
-      rerollButton
-        ? 'Click a card twice or confirm · 1/2/3 then Enter · R rerolls'
-        : 'Click a card twice or confirm · 1/2/3 then Enter'
+      rerollButton ? 'Click a card · 1 / 2 / 3 · R rerolls' : 'Click a card · 1 / 2 / 3'
     )
   );
+  // The canvas treats a right press as the bolt; inside the choice screen it
+  // must never flash the browser context menu or re-trigger combat input.
+  el.addEventListener('contextmenu', (event) => event.preventDefault());
   const onKey = (e: KeyboardEvent): void => {
     const index = ['Digit1', 'Digit2', 'Digit3'].indexOf(e.code);
-    if (index >= 0 && choice.options[index]) select(choice.options[index]);
-    if (e.code === 'Enter' && selected) {
-      e.preventDefault();
-      onPick(selected);
-    }
+    if (index >= 0 && choice.options[index]) pick(choice.options[index]);
     // Ignore auto-repeat so holding R cannot spend several rerolls at once.
     if (e.code === 'KeyR' && !e.repeat && reroll && affordable && choice.options.length > 0)
       reroll.onReroll();

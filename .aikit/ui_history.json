@@ -194,5 +194,19 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "a1aa47a6b9db5b8cf22b3cd9383f2b1d4cff87e50d3210d0d984e3d702ddbc11"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "baseline_commit": "873d823ce0ec5dc36920074dcbe61d9ae9ac5abf",
+    "contract_hash": "95160ade0a890d579eb44f504bc03a7e4a2f5a819e32114c9f380064423b4042",
+    "started_at": 1793438229.4024222,
+    "finished_at": 1793439214.197025,
+    "strikes": 0,
+    "reviewer": "opencode",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "e723e730da6885354a5aa43043c163942dafdac9e361a9ff8f008cbc0c81a29a"
   }
 ]

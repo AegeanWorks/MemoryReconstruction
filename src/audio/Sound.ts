@@ -125,7 +125,7 @@ export class Sound {
           this.chord([392, 494, 587], 0.4, 0.12);
           break;
         case 'levelUp':
-          this.arpeggio([523, 659, 784, 1047], 0.07, 0.14);
+          this.fanfare();
           break;
         case 'graze':
           this.tone(1400, 2200, 0.07, 'sine', 0.05, 'graze');
@@ -227,6 +227,34 @@ export class Sound {
   /** Plays a menu click. */
   click(): void {
     this.tone(880, 990, 0.05, 'sine', 0.06);
+  }
+
+  /** Level-up fanfare: a rising swell, a bright run, then a ringing peak. */
+  private fanfare(): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const swell = ctx.createOscillator();
+    const swellGain = ctx.createGain();
+    swell.type = 'triangle';
+    swell.frequency.setValueAtTime(262, t);
+    swell.frequency.exponentialRampToValueAtTime(523, t + 0.35);
+    this.envelope(swellGain, 0.12, 0.5, t);
+    swell.connect(swellGain).connect(this.sfx);
+    swell.start(t);
+    swell.stop(t + 0.55);
+    this.arpeggio([523, 659, 784, 1047], 0.06, 0.13);
+    [1047, 1319, 1568].forEach((freq, i) => {
+      const start = t + 0.32 + i * 0.015;
+      const tone = ctx.createOscillator();
+      const toneGain = ctx.createGain();
+      tone.type = 'sine';
+      tone.frequency.value = freq;
+      this.envelope(toneGain, 0.07, 0.7, start);
+      tone.connect(toneGain).connect(this.sfx);
+      tone.start(start);
+      tone.stop(start + 0.75);
+    });
   }
 
   /** Throttles a named sound so a crowd of identical events doesn't clip. */
