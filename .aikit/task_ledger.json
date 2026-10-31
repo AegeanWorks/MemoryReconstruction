@@ -3,24 +3,15 @@
   "active_task": {
     "task_id": "art-hero-scarf-v2",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1793429565.6716037,
     "owner": "opencode:scarf",
     "started_by": "opencode:scarf",
-    "continuations": []
+    "continuations": [],
+    "completed_at": 1793429595.6861308
   },
   "checkpoints": [
-    {
-      "task_id": "art-interact-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-interact-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793385150.245478,
-      "timestamp_str": "2026-10-30 21:32:30",
-      "agent": "kilo:main"
-    },
     {
       "task_id": "art-eyes-v1",
       "phase": "phase 4",
@@ -233,6 +224,16 @@
       "status": "in_progress",
       "timestamp": 1793429565.6716037,
       "timestamp_str": "2026-10-31 09:52:45",
+      "agent": "opencode:scarf"
+    },
+    {
+      "task_id": "art-hero-scarf-v2",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-hero-scarf-v2' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793429595.6861322,
+      "timestamp_str": "2026-10-31 09:53:15",
       "agent": "opencode:scarf"
     }
   ]
