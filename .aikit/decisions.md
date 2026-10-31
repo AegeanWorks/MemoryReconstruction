@@ -438,3 +438,14 @@ or the architecture; see the header above for where each entry goes. -->
   5. **Bottom HUD**: the HP, mana and XP bars move to a centred panel at the bottom of the screen, where the action is. The flow, dash pips and kit stay with them.
   6. **Level-up fanfare**: the level-up sound becomes a rising swell, a bright run and a ringing peak chord.
 - **Consequences**: relic swaps and level-up picks now take one deliberate action, right-button presses no longer leak into menus, and the vital bars sit under the player. 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; Playwright verified the inventory, choice and HUD flows with zero console errors.
+
+### ADR-043: The six wisp-kind enemies get distinct silhouettes
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Echo, spirit, shadow, prism entity, void walker and solder wisp all shared one `_wisp` body with palette and small toggle swaps, so the mid and late roster repeated a single floating-orb silhouette.
+- **Decision**:
+  1. **Branched body**: `_wisp` now selects a head/body shape from the style's flags instead of always drawing the same ellipse: prism entity gets a faceted gem cluster, void walker an elongated vertical tear, spirit a tall ghost with a trailing tail, shadow a hooded cloak, solder wisp an ember core with a flame tail, and echo a floating orb with an orbiting crystal.
+  2. **Shared language**: the trailing tatters, ribbon arms, three accent dots and `_enemy_eyes` stay common so the family still reads as related, while the antler, shard and rift details remain on top.
+  3. **No contract change**: `_wisp`'s signature, frame sizes, atlas keys and the `ENEMY_STYLES` entries are unchanged; only the drawn silhouette varies.
+- **Consequences**: all six wisp-kind sheets regenerate with distinct bodies. 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; a live room with all six wisps spawned shows every silhouette with zero console errors.

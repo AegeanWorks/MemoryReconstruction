@@ -1222,8 +1222,40 @@ def _wisp(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: in
     poly(draw, cell, [(cx - 0.17, 0.38 + bob), (cx + 0.15, 0.36 + bob), (cx + 0.20, 0.72),
                       (cx + 0.09, 0.82 + sway), (cx + 0.02, 0.73), (cx - 0.07, 0.88 - sway),
                       (cx - 0.15, 0.74), (cx - 0.23, 0.79)], fill=cloth, outline=Outline, width=3)
-    ellipse(draw, cell, cx - 0.15, 0.24 + bob, cx + 0.16, 0.52 + bob, fill=body, outline=Outline, width=2)
-    ellipse(draw, cell, cx - 0.10, 0.25 + bob, cx + 0.11, 0.44 + bob, fill=cloth)
+    eyes = style.get("eyes", "normal")
+    if style.get("shards"):  # prism entity: faceted gem body
+        for dx, dy in ((-0.06, -0.04), (0.07, -0.02), (0.0, 0.06)):
+            poly(draw, cell, [(cx + dx, 0.22 + bob + dy), (cx + dx + 0.10, 0.32 + bob + dy),
+                              (cx + dx + 0.04, 0.46 + bob + dy), (cx + dx - 0.06, 0.34 + bob + dy)],
+                 fill=body, outline=Outline, width=2)
+        ellipse(draw, cell, cx - 0.06, 0.28 + bob, cx + 0.07, 0.42 + bob, fill=light)
+    elif style.get("rift"):  # void walker: elongated vertical tear
+        poly(draw, cell, [(cx - 0.09, 0.18 + bob), (cx + 0.09, 0.18 + bob), (cx + 0.13, 0.52 + bob),
+                          (cx + 0.05, 0.70 + bob + sway * 0.5), (cx - 0.05, 0.70 + bob - sway * 0.5),
+                          (cx - 0.13, 0.52 + bob)], fill=body, outline=Outline, width=2)
+        ellipse(draw, cell, cx - 0.05, 0.22 + bob, cx + 0.05, 0.34 + bob, fill=light)
+    elif style.get("antlers"):  # spirit: tall ghost with a trailing tail
+        ellipse(draw, cell, cx - 0.16, 0.18 + bob, cx + 0.16, 0.50 + bob, fill=body, outline=Outline, width=2)
+        poly(draw, cell, [(cx - 0.12, 0.50 + bob), (cx + 0.12, 0.50 + bob), (cx + 0.06, 0.78 + sway),
+                          (cx - 0.02, 0.66 + bob), (cx - 0.08, 0.82 - sway)], fill=cloth, outline=Outline, width=2)
+        ellipse(draw, cell, cx - 0.10, 0.22 + bob, cx + 0.10, 0.42 + bob, fill=light)
+    elif eyes == "hollow":  # shadow: hooded cloak
+        poly(draw, cell, [(cx - 0.18, 0.52 + bob), (cx + 0.18, 0.52 + bob), (cx + 0.14, 0.20 + bob),
+                          (cx, 0.12 + bob), (cx - 0.14, 0.20 + bob)], fill=body, outline=Outline, width=2)
+        ellipse(draw, cell, cx - 0.12, 0.24 + bob, cx + 0.12, 0.46 + bob, fill=cloth)
+    elif eyes == "slits":  # solder wisp: ember core with a flame tail
+        ellipse(draw, cell, cx - 0.14, 0.26 + bob, cx + 0.14, 0.50 + bob, fill=body, outline=Outline, width=2)
+        poly(draw, cell, [(cx - 0.05, 0.20 + bob), (cx + 0.05, 0.20 + bob), (cx + 0.02, 0.08 + bob - sway * 0.3),
+                          (cx, 0.14 + bob), (cx - 0.02, 0.08 + bob + sway * 0.3)], fill=accent, outline=Outline, width=1)
+        ellipse(draw, cell, cx - 0.08, 0.30 + bob, cx + 0.08, 0.46 + bob, fill=light)
+    else:  # echo: floating orb with an orbiting crystal
+        ellipse(draw, cell, cx - 0.15, 0.26 + bob, cx + 0.15, 0.50 + bob, fill=body, outline=Outline, width=2)
+        ellipse(draw, cell, cx - 0.09, 0.30 + bob, cx + 0.09, 0.46 + bob, fill=light)
+        orbit = (math.sin(t * math.tau) * 0.10, math.cos(t * math.tau) * 0.06)
+        poly(draw, cell, [(cx + 0.22 + orbit[0], 0.30 + bob + orbit[1] - 0.05),
+                          (cx + 0.27 + orbit[0], 0.34 + bob + orbit[1]),
+                          (cx + 0.22 + orbit[0], 0.38 + bob + orbit[1] + 0.05),
+                          (cx + 0.17 + orbit[0], 0.34 + bob + orbit[1])], fill=accent, outline=Outline, width=1)
     _enemy_eyes(draw, cell, cx - 0.004, 0.3225 + bob, style, spread=0.038, r=0.022)
     # Ribbon arms.
     line(draw, cell, [(cx - 0.12, 0.47), (cx - 0.27, 0.55 + sway), (cx - 0.32, 0.48)], body, 3)

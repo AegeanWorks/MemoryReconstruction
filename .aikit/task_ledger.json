@@ -1,64 +1,16 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "fix-inventory-choice-hud-v1",
+    "task_id": "art-wisp-silhouettes-v1",
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1793439222.1301537,
-    "owner": "opencode:ui-fix",
-    "started_by": "opencode:ui-fix",
+    "updated_at": 1793440384.1265664,
+    "owner": "opencode:art",
+    "started_by": "opencode:art",
     "continuations": []
   },
   "checkpoints": [
-    {
-      "task_id": "art-bosses2-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-bosses2-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793395440.8266158,
-      "timestamp_str": "2026-10-31 00:24:00",
-      "agent": "kilo:main"
-    },
-    {
-      "task_id": "art-late-mobs-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Gave six late-section enemies dedicated sheets instead of borrowed art plus a tint: new oracle archetype (hovering seer with scrying orb) for tide_caller and frost_oracle, new herald archetype (banner-bearing wraith) for ash_herald, new witch archetype (petal gown, pointed hat, blossom staff) for petal_witch, and dedicated hound sheets for magma_hound and cinder_hound. Enemy style count rose 35 to 41 and the sprite keys now point at the new sheets; the redundant ENEMY_TINTS entries were removed so each carries its section colour in the art. Reviewed the six previews at 2x, ran a full biome capture with zero console errors, 151 tests and 8/8 gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793397087.2140863,
-      "timestamp_str": "2026-10-31 00:51:27",
-      "agent": "kilo:main"
-    },
-    {
-      "task_id": "art-late-mobs-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-late-mobs-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793397087.6063967,
-      "timestamp_str": "2026-10-31 00:51:27",
-      "agent": "kilo:main"
-    },
-    {
-      "task_id": "art-atmosphere-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Plan: add per-biome ambient particle layers, render them through Effects, cover the profile table with unit tests, then verify all 14 biomes in the browser",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793398812.5430079,
-      "timestamp_str": "2026-10-31 01:20:12",
-      "agent": "opencode:atmosphere",
-      "impact_assessment": {
-        "why": "Every room shares one faint accent-tinted dust field, so the fourteen biomes read as the same air and the title backdrop has little motion.",
-        "benefits": "Each biome gets its own layered atmosphere - dust, spores, embers, ash, snow, petals, bubbles, fireflies or drifting void - using pooled sprites with no gameplay or save impact.",
-        "risks": "contract: new view module and a changed Effects constructor; dependency: none; concurrency: none; state: runtime-only, no persisted data; perf: about fifty extra pooled sprites.",
-        "mitigation": "Validate every biome profile in a unit test, cap counts, reuse one sprite pool, render a 14-biome screenshot sweep, and run test, lint, typecheck and build."
-      }
-    },
     {
       "task_id": "art-atmosphere-v1",
       "phase": "phase 3",
@@ -254,6 +206,55 @@
       "timestamp": 1793439222.1301537,
       "timestamp_str": "2026-10-31 12:33:42",
       "agent": "opencode:ui-fix"
+    },
+    {
+      "task_id": "fix-inventory-choice-hud-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'fix-inventory-choice-hud-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793439290.0104675,
+      "timestamp_str": "2026-10-31 12:34:50",
+      "agent": "opencode:ui-fix"
+    },
+    {
+      "task_id": "art-wisp-silhouettes-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Plan: give the six wisp-kind enemies distinct silhouettes (echo orb+crystal, spirit ghost+antlers, shadow hooded, prism faceted gem, voidWalker tear, solderWisp ember) in _wisp, regenerating their sheets",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793440209.0490506,
+      "timestamp_str": "2026-10-31 12:50:09",
+      "agent": "opencode:art",
+      "impact_assessment": {
+        "why": "echo, spirit, shadow, prismEntity, voidWalker and solderWisp all share one wisp body with palette swaps, so the mid and late roster repeats one silhouette.",
+        "benefits": "Each wisp-kind enemy reads as a distinct creature at play scale without changing atlas keys or frame sizes.",
+        "risks": "contract: _wisp signature and atlas keys unchanged; dependency: none; concurrency: none; state: generated PNGs only.",
+        "mitigation": "Regenerate all sheets, run the asset test, capture a live room with all six wisps, 8/8 gates."
+      }
+    },
+    {
+      "task_id": "art-wisp-silhouettes-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "[2/3] Implement: _wisp now branches on shards/rift/antlers/hollow/slits/echo to draw distinct bodies (faceted gem, vertical tear, tall ghost, hooded cloak, ember core, orb+crystal); ribbon arms, tatters and accent dots retained; sheets regenerated",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793440277.1096053,
+      "timestamp_str": "2026-10-31 12:51:17",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-wisp-silhouettes-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Verify: 154 tests, lint, typecheck, build, mechanics, 8/8 gates; codebase map refreshed; live capture of all six wisps with zero console errors; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793440384.1265664,
+      "timestamp_str": "2026-10-31 12:53:04",
+      "agent": "opencode:art"
     }
   ]
 }

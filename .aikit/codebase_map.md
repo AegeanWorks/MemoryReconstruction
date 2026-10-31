@@ -10,7 +10,7 @@
 - **Total Classes**: `0`
 - **Total Top-Level Functions**: `62`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `3651`
+- **Total Source Lines**: `3683`
 
 ---
 
@@ -19,7 +19,7 @@
 ### [`scripts/generate_art_assets.py`](scripts/generate_art_assets.py)
 > *Generate the Memory Reconstruction art set.*
 
-**Size**: `3237` lines (`175689` bytes)
+**Size**: `3269` lines (`178466` bytes)
 
 **Functions:**
 - `def rgba(color, alpha)`
