@@ -376,6 +376,12 @@ export class World implements Arena {
       const p = this.player;
       p.mana = Math.min(p.stats.maxMana, p.mana + 4);
     }
+    // Critical hit reward: a crit restores mana and lengthens the flow window.
+    if (crit) {
+      const p = this.player;
+      p.mana = Math.min(p.stats.maxMana, p.mana + 3);
+      p.resonanceTime = Math.min(RESONANCE_WINDOW * 2, p.resonanceTime + 0.5);
+    }
     const dealt = Math.min(enemy.health, amount);
     enemy.health -= dealt;
     enemy.flash = 0.1;

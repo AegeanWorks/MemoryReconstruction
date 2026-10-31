@@ -501,3 +501,11 @@ or the architecture; see the header above for where each entry goes. -->
 - **Context**: Killing blows often wasted their excess damage, making clustered fights feel unrewarding.
 - **Decision**: In `damageEnemy`, when a melee hit kills, half the excess damage spills to the nearest living enemy within 120 px. Spillover uses a non-melee source so it cannot chain or double-count the finisher. Bosses and distant enemies are unaffected.
 - **Consequences**: multi-kills feel punchier. 160 tests (2 new), lint, typecheck, build, mechanics and all 8 gates pass.
+
+### ADR-050: Critical hits reward mana and extend flow
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Critical hits only dealt more damage, with no secondary reward, so they felt like a stat bump.
+- **Decision**: In `damageEnemy`, any critical hit restores 3 mana and extends the flow window by 0.5 s (capped at twice the base window). Applies to all sources.
+- **Consequences**: crits become a moment to celebrate and keep the streak alive. 161 tests (1 new), lint, typecheck, build, mechanics and all 8 gates pass.

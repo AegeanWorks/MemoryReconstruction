@@ -479,6 +479,21 @@ describe('finisher', () => {
   });
 });
 
+describe('crit reward', () => {
+  it('a critical hit restores mana and extends the flow window', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'combat');
+    stepFor(world, 0.5);
+    const enemy = world.enemies[0];
+    enemy.state = 'chase';
+    const manaBefore = world.player.mana;
+    const flowBefore = world.player.resonanceTime;
+    world.damageEnemy(enemy, 5, 'melee', true, 0);
+    expect(world.player.mana).toBe(Math.min(world.player.stats.maxMana, manaBefore + 3));
+    expect(world.player.resonanceTime).toBeGreaterThanOrEqual(flowBefore);
+  });
+});
+
 describe('interrupt', () => {
   it('a melee hit during an enemy windup staggers and cancels the attack', () => {
     const world = newWorld();

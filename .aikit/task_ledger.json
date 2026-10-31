@@ -1,66 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "mech-overkill-v1",
+    "task_id": "mech-crit-reward-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793441544.945232,
+    "updated_at": 1793441900.2243884,
     "owner": "opencode:mech",
     "started_by": "opencode:mech",
     "continuations": [],
-    "completed_at": 1793441548.415513
+    "completed_at": 1793441903.1417403
   },
   "checkpoints": [
-    {
-      "task_id": "art-hound-silhouettes-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Plan: differentiate the three hound-kind enemies (grave skeletal hound, magma hound with glowing cracks, cinder hound with ash wisps)",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793440785.2151034,
-      "timestamp_str": "2026-10-31 12:59:45",
-      "agent": "opencode:art",
-      "impact_assessment": {
-        "why": "graveHound, magmaHound and cinderHound share one hound body.",
-        "benefits": "Three distinct hound silhouettes at play scale.",
-        "risks": "contract: _hound signature and atlas keys unchanged; dependency: none; concurrency: none; state: generated PNGs only.",
-        "mitigation": "Regenerate, capture, gates."
-      }
-    },
-    {
-      "task_id": "art-hound-silhouettes-v1",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "[2/3] Implement: _hound gains magma crack lines and flame, cinder ash wisps; grave keeps skeletal base.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793440882.4035068,
-      "timestamp_str": "2026-10-31 13:01:22",
-      "agent": "opencode:art"
-    },
-    {
-      "task_id": "art-hound-silhouettes-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Verify: 154 tests, lint, typecheck, build, mechanics, 8/8 gates; codebase map refreshed; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793440882.6976936,
-      "timestamp_str": "2026-10-31 13:01:22",
-      "agent": "opencode:art"
-    },
-    {
-      "task_id": "art-hound-silhouettes-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-hound-silhouettes-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793440885.2395725,
-      "timestamp_str": "2026-10-31 13:01:25",
-      "agent": "opencode:art"
-    },
     {
       "task_id": "art-warden-silhouettes-v1",
       "phase": "phase 2",
@@ -255,6 +206,55 @@
       "status": "completed",
       "timestamp": 1793441548.415515,
       "timestamp_str": "2026-10-31 13:12:28",
+      "agent": "opencode:mech"
+    },
+    {
+      "task_id": "mech-crit-reward-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Plan: critical hits restore 3 mana and extend the flow window by 0.5s, making crits feel rewarding.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793441867.389656,
+      "timestamp_str": "2026-10-31 13:17:47",
+      "agent": "opencode:mech",
+      "impact_assessment": {
+        "why": "Crits deal more damage but have no secondary reward, so they feel like a stat bump rather than a dopamine moment.",
+        "benefits": "Crits become a moment to celebrate and extend the flow streak.",
+        "risks": "contract: damageEnemy signature unchanged; dependency: none; concurrency: none; state: sim only.",
+        "mitigation": "Unit test crit reward; existing tests pass; gates."
+      }
+    },
+    {
+      "task_id": "mech-crit-reward-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "[2/3] Implement: critical hits restore 3 mana and extend flow window by 0.5s (capped at 2x window).",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793441899.8603494,
+      "timestamp_str": "2026-10-31 13:18:19",
+      "agent": "opencode:mech"
+    },
+    {
+      "task_id": "mech-crit-reward-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Verify: 161 tests (1 new), lint, typecheck, build, mechanics, 8/8 gates; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793441900.2243884,
+      "timestamp_str": "2026-10-31 13:18:20",
+      "agent": "opencode:mech"
+    },
+    {
+      "task_id": "mech-crit-reward-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'mech-crit-reward-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793441903.141742,
+      "timestamp_str": "2026-10-31 13:18:23",
       "agent": "opencode:mech"
     }
   ]
