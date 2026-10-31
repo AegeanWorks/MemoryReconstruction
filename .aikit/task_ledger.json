@@ -3,24 +3,15 @@
   "active_task": {
     "task_id": "art-enemy-walk-v1",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1793435664.014884,
     "owner": "opencode:walk",
     "started_by": "opencode:walk",
-    "continuations": []
+    "continuations": [],
+    "completed_at": 1793435690.593449
   },
   "checkpoints": [
-    {
-      "task_id": "art-dressing-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-dressing-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793391076.0235813,
-      "timestamp_str": "2026-10-30 23:11:16",
-      "agent": "kilo:main"
-    },
     {
       "task_id": "art-keeper-v1",
       "phase": "phase 4",
@@ -246,6 +237,16 @@
       "status": "in_progress",
       "timestamp": 1793435664.014884,
       "timestamp_str": "2026-10-31 11:34:24",
+      "agent": "opencode:walk"
+    },
+    {
+      "task_id": "art-enemy-walk-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-enemy-walk-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793435690.5934515,
+      "timestamp_str": "2026-10-31 11:34:50",
       "agent": "opencode:walk"
     }
   ]
