@@ -370,14 +370,21 @@ export class ActorView {
     play(a, anim);
     const facing = this.world.player.x < e.x ? -1 : 1;
     const bob = moving ? Math.abs(Math.sin(this.time * 9 + e.id)) * 0.06 : 0;
-    // Windup: crouch and tremble; spawning: grow in.
+    // Windup: crouch and tremble; spawning: grow in; attack: lunging stretch.
     const windup = e.state === 'windup';
+    const attacking = e.state === 'attack';
+    const lunge = attacking ? Math.sin(Math.min(1, 1 - e.stateTime / 0.28) * Math.PI) * 0.14 : 0;
     const tremble = windup ? Math.sin(this.time * 60) * 1.2 : 0;
     const grow = e.state === 'spawning' ? Math.max(0.1, 1 - e.stateTime / 0.7) : 1;
     a.body.scale.set(
-      a.baseScale * facing * grow * (windup ? 1.08 : 1),
-      a.baseScale * grow * (1 + bob) * (windup ? 0.92 : 1)
+      a.baseScale * facing * grow * (windup ? 1.08 : 1 + lunge * 0.5),
+      a.baseScale * grow * (1 + bob) * (windup ? 0.92 : 1 - lunge * 0.2)
     );
+    // Kinetic knockback recoil tilt away from the impact vector
+    const knockSpeed = Math.abs(e.knockX) + Math.abs(e.knockY);
+    const knockLean = knockSpeed > 2 ? e.knockX * 0.0018 * facing : 0;
+    a.body.rotation = Math.max(-0.24, Math.min(0.24, knockLean));
+    a.flash.rotation = a.body.rotation;
     const deathProgress = e.state === 'dying' ? Math.max(0, 1 - e.stateTime / 0.5) : 0;
     a.body.x = tremble;
     a.body.y = -deathProgress * 8;
@@ -941,10 +948,27 @@ export class ActorView {
         return root;
       },
       (item, root) => {
-        const bob = item.kind === 'fragment' ? Math.sin(this.time * 3) * 4 : 0;
+        const bob =
+          item.kind === 'fragment'
+            ? Math.sin(this.time * 3 + item.id) * 4
+            : item.kind === 'shard'
+              ? Math.sin(this.time * 3.6 + item.id) * 2.5
+              : item.kind === 'potion'
+                ? Math.sin(this.time * 2.8 + item.id) * 2.2
+                : Math.sin(this.time * 2.2 + item.id) * 1.2;
         root.position.set(item.x, item.y + bob);
-        if (item.kind === 'fragment')
-          root.children[0].alpha = 0.45 + 0.25 * Math.sin(this.time * 4);
+        if (item.kind === 'shard') {
+          root.rotation = Math.sin(this.time * 2.2 + item.id) * 0.12;
+        }
+        if (root.children[0]) {
+          const pulse =
+            item.kind === 'fragment'
+              ? 0.45 + 0.25 * Math.sin(this.time * 4 + item.id)
+              : item.kind === 'shard'
+                ? 0.38 + 0.18 * Math.sin(this.time * 4.5 + item.id)
+                : 0.35 + 0.15 * Math.sin(this.time * 3 + item.id);
+          root.children[0].alpha = pulse;
+        }
       }
     );
   }

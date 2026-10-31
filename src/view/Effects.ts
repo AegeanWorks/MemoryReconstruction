@@ -148,10 +148,14 @@ export class Effects {
               Math.atan2(e.y - playerY, e.x - playerX),
               e.crit ? 14 : 7
             );
-            if (e.crit) this.star(e.x, e.y, 0xffd34a, 40, 0.35);
+            if (e.crit) {
+              this.star(e.x, e.y, 0xffd34a, 40, 0.35);
+              this.ring(e.x, e.y, 38, 0xffd98a, 0.3);
+            }
             this.number(e.x, e.y, `${e.amount}`, e.crit ? 0xffd34a : 0xffffff, e.crit ? 22 : 16);
           } else {
             this.burst(e.x, e.y, 0xff3b3b, 12, 140, 0.4, 4);
+            this.ring(e.x, e.y, 34, 0xff3b3b, 0.28);
             this.number(e.x, e.y, `-${e.amount}`, 0xff5a5a, 18);
           }
           break;

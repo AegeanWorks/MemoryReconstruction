@@ -652,4 +652,18 @@ or the architecture; see the header above for where each entry goes. -->
   3. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
 - **Consequences**: High-fidelity dark fantasy iron portcullis visuals and immediate tactical situational awareness on the minimap. 172 tests, lint, typecheck, build, mechanics, and all 8 AIKit gates pass cleanly.
 
+### ADR-064: Kinetic enemy knockback recoil, attack lunge, floating pickup levitation, and dialogue framing
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Combat feedback needed physical impact weight when weapons connect, enemies needed visual anticipation and forward commitment during attacks, ground pickups felt static without atmospheric floating animations, and dialogue panels lacked cinematic framing depth.
+- **Decision**:
+  1. In `src/view/ActorView.ts`, add dynamic angular tilt (`knockLean`) to enemies during knockback, giving every greatsword, spear, and sword strike visceral kinetic weight.
+  2. In `src/view/ActorView.ts`, add forward lunge squash-and-stretch (`lunge`) to enemies during attack states, creating clear forward anticipation.
+  3. In `src/view/ActorView.ts`, upgrade `syncPickups` with buoyant floating bobs, angular tilt sways, and breathing glow pulses for memory shards, healing elixirs, and supply crates.
+  4. In `src/view/Effects.ts`, add golden radiant shockwave rings on critical hits and crimson impact rings when player damage is taken.
+  5. In `src/ui/ui.css`, refine `.dialogue-panel` with backdrop-filter blur (10px), rounded corners, and inset golden highlights. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
+- **Consequences**: Visceral combat impact feel, lively animated pickups, and cohesive dark fantasy presentation. 172 tests, lint, typecheck, build, mechanics, and all 8 AIKit gates pass cleanly.
+
+
 
