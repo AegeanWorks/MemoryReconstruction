@@ -614,3 +614,14 @@ or the architecture; see the header above for where each entry goes. -->
   3. In `src/sim/world.ts`, scale room waves with chamber area and depth (up to 4-5 waves in deep grand halls), track `totalWaves` in `RoomState`, and emit shockwaves, camera rumble, and wave notices (`Wave X of Y`) on wave transitions.
   4. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
 - **Consequences**: Expansive combat environments, dramatic multi-wave escalation, and luminescent floor ward aesthetics while preserving 100% reachability clearance across all floor seeds. 170 tests, lint, typecheck, build, mechanics, and all 8 gates pass.
+
+### ADR-061: Elite enemy ground ward sigils and upgrade choice card tactile refinement
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Elite enemies had a head crown but lacked floor ground presence in dark dungeon chambers, and upgrade choice cards felt visually flat without clear selection affordances.
+- **Decision**:
+  1. In `src/view/ActorView.ts`, add `drawEliteAura` to render an amber floor sigil with four rotating ward pips beneath elite enemies, providing immediate tactical threat recognition in dark rooms.
+  2. In `src/ui/ui.css`, refine `.card` with active click compression (`transform: translateY(-4px) scale(1.0)`), hover lift, and transform key numbers into circular bordered key pills with serif typography.
+  3. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
+- **Consequences**: Immediate battlefield recognition of elite threats and tactile tarot-like upgrade cards fitting the dark fantasy aesthetic. 170 tests, lint, typecheck, build, mechanics, and all 8 AIKit gates pass cleanly.

@@ -595,8 +595,11 @@
 }
 .card:hover,
 .card:focus-visible {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-8px) scale(1.025);
   outline: none;
+}
+.card:active {
+  transform: translateY(-4px) scale(1.0);
 }
 .card .rarity {
   font-size: 11px;
@@ -621,8 +624,14 @@
   color: var(--ink-dim);
 }
 .card .num {
-  font-size: 12px;
+  font-family: var(--serif);
+  font-size: 11px;
+  font-weight: 700;
   color: var(--ink-dim);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 1px 8px;
+  background: rgba(0, 0, 0, 0.35);
 }
 .card.common {
   border-color: rgba(200, 205, 225, 0.35);

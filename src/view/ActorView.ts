@@ -390,7 +390,10 @@ export class ActorView {
     a.shadow.alpha = a.body.alpha;
 
     if (e.isBoss && e.state !== 'dying') this.drawBossAura(e, pos.x, pos.y);
-    if (e.elite && e.state !== 'dying') this.drawEliteCrown(e, pos.x, pos.y);
+    if (e.elite && e.state !== 'dying') {
+      this.drawEliteCrown(e, pos.x, pos.y);
+      this.drawEliteAura(e, pos.x, pos.y);
+    }
     if (e.state === 'spawning') this.drawSpawnRune(e, pos.x, pos.y);
     if (e.state === 'windup') this.drawTelegraph(e, pos.x, pos.y);
     else if (e.state === 'attack' && e.attack === 'sweep') this.drawSweepBeam(e, pos.x, pos.y);
@@ -447,6 +450,21 @@ export class ActorView {
       .closePath()
       .fill({ color: 0xffd98a, alpha: pulse })
       .stroke({ width: 1.2, color: 0xffffff, alpha: pulse });
+  }
+
+  /** Amber ward sigil beneath elite enemies. */
+  private drawEliteAura(e: Enemy, x: number, y: number): void {
+    const g = this.bossAuras;
+    const pulse = 0.35 + 0.18 * Math.sin(this.time * 3.5 + e.id);
+    const r = e.radius * 1.5;
+    g.circle(x, y, r).stroke({ width: 1.5, color: 0xffb84a, alpha: pulse });
+    for (let i = 0; i < 4; i++) {
+      const a = (i * Math.PI) / 2 + this.time * 0.8;
+      g.circle(x + Math.cos(a) * r, y + Math.sin(a) * r, 2.5).fill({
+        color: 0xffd98a,
+        alpha: pulse * 1.3,
+      });
+    }
   }
 
   /** Traps, poison pools and barrels, under the actors. */

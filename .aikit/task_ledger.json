@@ -1,66 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "grand-rooms-and-waves-v1",
+    "task_id": "elite-aura-and-card-polish-v1",
     "last_phase": "verification",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793473173.5555532,
+    "updated_at": 1793473622.953458,
     "owner": "antigravity",
     "started_by": "antigravity",
     "continuations": [],
-    "completed_at": 1793473177.0305843
+    "completed_at": 1793473627.5063555
   },
   "checkpoints": [
-    {
-      "task_id": "art-healthbar-polish-v1",
-      "phase": "in_progress",
-      "phase_num": 2,
-      "description": "[1/4] Plan: restore clean floating health bar styling and enhance enemy dissolution FX",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793470668.545136,
-      "timestamp_str": "2026-10-31 21:17:48",
-      "agent": "antigravity",
-      "impact_assessment": {
-        "why": "User requested restoration of the older clean health bar; continuing visual polish under /goal",
-        "benefits": "Clean minimalist HUD; rich enemy dissolution FX",
-        "risks": "contract: none; dependency: none; concurrency: none; state: presentation layer only",
-        "mitigation": "AIKit 8/8 gates pass"
-      }
-    },
-    {
-      "task_id": "art-healthbar-polish-v1",
-      "phase": "in_progress",
-      "phase_num": 3,
-      "description": "[2/4] Implement: restore clean floating health bar styling in ui.css, add weaponSwitch stance rings and starbursts, and enhance enemy death dissolution in Effects.ts",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793470944.5852437,
-      "timestamp_str": "2026-10-31 21:22:24",
-      "agent": "antigravity"
-    },
-    {
-      "task_id": "art-healthbar-polish-v1",
-      "phase": "in_progress",
-      "phase_num": 4,
-      "description": "[3/4] Verify: 168 tests, lint, typecheck, build, mechanics, 8/8 gates; codebase map refreshed; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793470950.8823042,
-      "timestamp_str": "2026-10-31 21:22:30",
-      "agent": "antigravity"
-    },
-    {
-      "task_id": "art-healthbar-polish-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-healthbar-polish-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793470955.4509544,
-      "timestamp_str": "2026-10-31 21:22:35",
-      "agent": "antigravity"
-    },
     {
       "task_id": "art-screens-glyphs-telegraphs-v1",
       "phase": "in_progress",
@@ -255,6 +206,55 @@
       "status": "completed",
       "timestamp": 1793473177.030586,
       "timestamp_str": "2026-10-31 21:59:37",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "elite-aura-and-card-polish-v1",
+      "phase": "planning",
+      "phase_num": 2,
+      "description": "[1/4] Plan: elite enemy ground ward sigil and relic choice card tactile polish (health bar untouched)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793473486.5508516,
+      "timestamp_str": "2026-10-31 22:04:46",
+      "agent": "antigravity",
+      "impact_assessment": {
+        "why": "User requested continuing to improve art style, graphics, animations, characters and UI",
+        "benefits": "High-threat tactical read for elite enemies via amber ground ward sigils and artifact card polish",
+        "risks": "contract: none; dependency: none; concurrency: none; state: presentation layer only",
+        "mitigation": "Health bar remains strictly untouched; 8/8 gates pass"
+      }
+    },
+    {
+      "task_id": "elite-aura-and-card-polish-v1",
+      "phase": "implementation",
+      "phase_num": 3,
+      "description": "[2/4] Implementation: elite ground ward sigil and relic choice card pill styling",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793473618.736012,
+      "timestamp_str": "2026-10-31 22:06:58",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "elite-aura-and-card-polish-v1",
+      "phase": "verification",
+      "phase_num": 4,
+      "description": "[3/4] Verification: 170 unit tests, 131 mechanics tests, typecheck, lint, build pass",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793473622.953458,
+      "timestamp_str": "2026-10-31 22:07:02",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "elite-aura-and-card-polish-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'elite-aura-and-card-polish-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793473627.5063572,
+      "timestamp_str": "2026-10-31 22:07:07",
       "agent": "antigravity"
     }
   ]
