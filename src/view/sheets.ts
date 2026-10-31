@@ -159,9 +159,9 @@ async function loadEnemy(entry: AtlasEnemy): Promise<ActorSheet> {
   const idle = row('idle');
   return {
     idle,
-    // Most generated walk strips have empty odd frames, so walking reuses the
-    // idle strip (faster) and the view adds a bob.
-    walk: { frames: idle.frames, fps: idle.fps * 2, loop: true },
+    // Walk strips carry a small side-to-side body sway; the view adds the
+    // vertical bob on top of it.
+    walk: row('walk'),
     attack: row('attack'),
     // The last death frame is blank; stop on the third.
     death: row('death', 3),

@@ -2,32 +2,15 @@
   "version": 1,
   "active_task": {
     "task_id": "art-enemy-walk-v1",
-    "last_phase": "phase 2",
-    "active_phase": 2,
+    "last_phase": "phase 4",
+    "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1793434099.7680597,
+    "updated_at": 1793435664.014884,
     "owner": "opencode:walk",
     "started_by": "opencode:walk",
-    "continuations": [],
-    "impact_assessment": {
-      "why": "Every enemy walk row has blank odd frames because _enemy_common returns a full plus-or-minus one step as the body's horizontal offset, which throws the body off-canvas; the renderer works around it by replaying idle frames, so moving enemies only bob.",
-      "benefits": "All 41 walk rows become valid and the renderer uses them, adding a side-to-side body sway to the existing vertical bob so every moving enemy reads as walking rather than sliding.",
-      "risks": "contract: sheets.loadEnemy now reads the walk row; dependency: none; concurrency: none; state: none; art: every enemy PNG regenerates, frame sizes and atlas keys stay the same.",
-      "mitigation": "Clamp the walk step to a small amplitude, inspect idle/walk/attack/death rows, chase a live room at two moments, and rerun tests, build and all eight gates."
-    }
+    "continuations": []
   },
   "checkpoints": [
-    {
-      "task_id": "art-dressing-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Added deterministic view-only room dressing: one or two small wall-base props per dungeon room, per-biome from existing atlas props (barrel, crate, bone pile, herbs, lantern, brazier, coral, comb, candle). Placement is seeded from the room rectangle, skips doorways and glyphs, never touches the simulation, and is disabled in Sanctuary interiors. Verified in ruins and catacombs with zero console errors; typecheck, lint, 151 tests and 8/8 gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793391075.7572503,
-      "timestamp_str": "2026-10-30 23:11:15",
-      "agent": "kilo:main"
-    },
     {
       "task_id": "art-dressing-v1",
       "phase": "completed",
@@ -253,6 +236,17 @@
         "risks": "contract: sheets.loadEnemy now reads the walk row; dependency: none; concurrency: none; state: none; art: every enemy PNG regenerates, frame sizes and atlas keys stay the same.",
         "mitigation": "Clamp the walk step to a small amplitude, inspect idle/walk/attack/death rows, chase a live room at two moments, and rerun tests, build and all eight gates."
       }
+    },
+    {
+      "task_id": "art-enemy-walk-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Phase 4 green: 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; all 41 walk rows now have four populated frames and the renderer reads them; a controlled live room with all six new early mobs chasing produced a capture with zero console errors. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793435664.014884,
+      "timestamp_str": "2026-10-31 11:34:24",
+      "agent": "opencode:walk"
     }
   ]
 }
