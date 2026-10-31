@@ -50,7 +50,9 @@ describe('dungeon generation', () => {
     const seen = reachable(floor);
     let walkable = 0;
     for (let y = 0; y < floor.grid.height; y++)
-      for (let x = 0; x < floor.grid.width; x++) if (floor.grid.isWalkable(x, y)) walkable++;
+      for (let x = 0; x < floor.grid.width; x++) {
+        if (floor.grid.isWalkable(x, y)) walkable++;
+      }
     expect(seen.size).toBe(walkable);
   });
 
@@ -124,5 +126,24 @@ describe('dungeon generation', () => {
     }
     expect(grandCount).toBeGreaterThan(10);
     expect(foundGlyph).toBe(true);
+  });
+
+  it('places iron enemy gates along perimeter walls of some combat rooms', () => {
+    let gateCount = 0;
+    for (const seed of SEEDS) {
+      const floor = generateFloor(seed, 2, { roomCount: 10 });
+      for (const room of floor.rooms) {
+        if (room.gates && room.gates.length > 0) {
+          gateCount++;
+          for (const gate of room.gates) {
+            expect(gate.tiles.length).toBeGreaterThan(0);
+            for (const t of gate.tiles) {
+              expect(floor.grid.get(t.x, t.y)).toBe(Tile.Gate);
+            }
+          }
+        }
+      }
+    }
+    expect(gateCount).toBeGreaterThan(0);
   });
 });

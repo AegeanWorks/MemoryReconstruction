@@ -12,6 +12,8 @@ export enum Tile {
   Wall = 2,
   /** A doorway tile; solid while its room is locked. */
   Door = 3,
+  /** An iron gate: enemies may enter through into the room; player cannot cross to the other side. */
+  Gate = 4,
 }
 
 /** Non-colliding floor decoration drawn on top of the floor tile. */
@@ -54,10 +56,14 @@ export class TileGrid {
     if (this.inBounds(tx, ty)) this.tiles[this.index(tx, ty)] = tile;
   }
 
-  isSolid(tx: number, ty: number): boolean {
+  isSolid(tx: number, ty: number, forEntity: 'player' | 'enemy' = 'player'): boolean {
     const tile = this.get(tx, ty);
     if (tile === Tile.Floor) return false;
     if (tile === Tile.Door) return this.lockedDoors.has(this.index(tx, ty));
+    if (tile === Tile.Gate) {
+      // Enemies may enter through gates into the room; player cannot cross to the other side
+      return forEntity === 'player';
+    }
     return true;
   }
 
@@ -77,7 +83,7 @@ export class TileGrid {
     return this.lockedDoors.has(this.index(tx, ty));
   }
 
-  isSolidAtPixel(px: number, py: number): boolean {
-    return this.isSolid(Math.floor(px / TILE_SIZE), Math.floor(py / TILE_SIZE));
+  isSolidAtPixel(px: number, py: number, forEntity: 'player' | 'enemy' = 'player'): boolean {
+    return this.isSolid(Math.floor(px / TILE_SIZE), Math.floor(py / TILE_SIZE), forEntity);
   }
 }

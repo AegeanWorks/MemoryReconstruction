@@ -805,7 +805,14 @@ export class World implements Arena {
     // just longer.
     const count = 3 + Math.floor(this.run.depth * 0.85) + this.rng.int(0, 2);
     for (let i = 0; i < count; i++) {
-      const spot = this.spawnPoint(room);
+      let spot: { x: number; y: number } | undefined;
+      // In rooms with gates, enemies emerge through the iron portcullises into the chamber
+      if (room.gates && room.gates.length > 0 && this.rng.chance(0.65)) {
+        const gate = this.rng.pick(room.gates);
+        spot = { x: gate.spawnX, y: gate.spawnY };
+      } else {
+        spot = this.spawnPoint(room);
+      }
       if (spot) this.spawnEnemy(this.rng.pick(this.plan.roster), spot.x, spot.y, room.id);
     }
   }

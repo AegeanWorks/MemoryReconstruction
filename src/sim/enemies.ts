@@ -203,7 +203,7 @@ export function updateEnemy(arena: Arena, enemy: Enemy, dt: number): boolean {
 
 function applyKnockback(arena: Arena, enemy: Enemy, dt: number): void {
   if (Math.abs(enemy.knockX) + Math.abs(enemy.knockY) < 1) return;
-  moveAndCollide(arena.grid, enemy, enemy.knockX * dt, enemy.knockY * dt);
+  moveAndCollide(arena.grid, enemy, enemy.knockX * dt, enemy.knockY * dt, 'enemy');
   const decay = Math.exp(-10 * dt);
   enemy.knockX *= decay;
   enemy.knockY *= decay;
@@ -217,7 +217,7 @@ function step(
   speed: number,
   dt: number
 ): void {
-  moveAndCollide(arena.grid, enemy, dirX * speed * dt, dirY * speed * dt);
+  moveAndCollide(arena.grid, enemy, dirX * speed * dt, dirY * speed * dt, 'enemy');
 }
 
 function chase(arena: Arena, enemy: Enemy, dt: number): void {
@@ -597,7 +597,8 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
       arena.grid,
       enemy,
       enemy.dirX * speed * dt,
-      enemy.dirY * speed * dt
+      enemy.dirY * speed * dt,
+      'enemy'
     );
     if (
       !enemy.attackLanded &&

@@ -66,6 +66,18 @@ describe('moveAndCollide', () => {
     moveAndCollide(grid, body, 100, 0);
     expect(body.x).toBeGreaterThan(6 * TILE_SIZE);
   });
+
+  it('treats a gate as solid for players but passable for enemies', () => {
+    const grid = arena();
+    grid.set(5, 4, Tile.Gate);
+    const player = { x: 4 * TILE_SIZE, y: 4.5 * TILE_SIZE, radius: 8 };
+    moveAndCollide(grid, player, 100, 0, 'player');
+    expect(player.x).toBeLessThan(5 * TILE_SIZE);
+
+    const enemy = { x: 4 * TILE_SIZE, y: 4.5 * TILE_SIZE, radius: 8 };
+    moveAndCollide(grid, enemy, 100, 0, 'enemy');
+    expect(enemy.x).toBeGreaterThan(6 * TILE_SIZE);
+  });
 });
 
 describe('separate', () => {

@@ -625,3 +625,19 @@ or the architecture; see the header above for where each entry goes. -->
   2. In `src/ui/ui.css`, refine `.card` with active click compression (`transform: translateY(-4px) scale(1.0)`), hover lift, and transform key numbers into circular bordered key pills with serif typography.
   3. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
 - **Consequences**: Immediate battlefield recognition of elite threats and tactile tarot-like upgrade cards fitting the dark fantasy aesthetic. 170 tests, lint, typecheck, build, mechanics, and all 8 AIKit gates pass cleanly.
+
+### ADR-062: One-way enemy spawn gates, portcullis grating art, and dungeon reachability isolation pruning
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: The user requested that combat rooms have gates where enemies may enter into the room, but the player cannot cross to the other side. Visually and mechanically, reinforcements needed one-way entrance thresholds that render as heavy iron portcullises and allow enemies to stream inward while blocking player escape.
+- **Decision**:
+  1. In `src/sim/tiles.ts`, introduce `Tile.Gate = 4` and update `isSolid`/`isSolidAtPixel` with an entity context parameter (`forEntity: 'player' | 'enemy' = 'player'`), blocking players while permitting enemy passage.
+  2. In `src/sim/physics.ts` (`moveAndCollide`, `moveAxis`, `overlapsSolid`, `slipAroundCorner`) and `src/sim/pathing.ts` (`FlowField`), propagate the entity filter so pathfinding flows through gates into the room for enemies while player collisions respect gates as impassable barriers.
+  3. In `src/sim/dungeon.ts`, implement `placeEnemyGates` to place 3-tile wide iron gates on perimeter walls of qualifying combat rooms and arenas, verifying exterior void bounds.
+  4. In `src/sim/dungeon.ts`, add post-furnish reachable island pruning to convert any floor pockets trapped by interior pillars against carved corner geometries into walls, guaranteeing 100% full floor reachability across all seeds.
+  5. In `src/sim/world.ts`, route enemy wave spawns through gates when present so reinforcements storm into the chamber from behind iron bars.
+  6. In `src/view/LevelView.ts`, render iron portcullis vertical grating bars, iron cross-braces, dark alcove backings, and pulsing ominous shadow glows over `Tile.Gate` tiles.
+  7. In `src/ui/ui.css`, refine `.toast` and `.memory-codex` styling. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
+- **Consequences**: Tactical reinforcement entrances, atmospheric iron portcullises, and robust one-way barriers with 100% test pass rate across all 15 suites and 8 AIKit strict gates.
+

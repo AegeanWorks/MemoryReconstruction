@@ -378,9 +378,13 @@ export class ActorView {
       a.baseScale * facing * grow * (windup ? 1.08 : 1),
       a.baseScale * grow * (1 + bob) * (windup ? 0.92 : 1)
     );
+    const deathProgress = e.state === 'dying' ? Math.max(0, 1 - e.stateTime / 0.5) : 0;
     a.body.x = tremble;
+    a.body.y = -deathProgress * 8;
+    a.body.tint = e.state === 'dying' ? 0xc8c0dc : 0xffffff;
     a.flash.scale.copyFrom(a.body.scale);
     a.flash.x = a.body.x;
+    a.flash.y = a.body.y;
     a.flash.textures = a.body.textures;
     a.flash.currentFrame = a.body.currentFrame;
     a.flash.tint = windup ? 0xff6a3a : 0xffffff;

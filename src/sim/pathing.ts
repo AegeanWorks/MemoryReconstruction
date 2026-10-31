@@ -51,9 +51,14 @@ export class FlowField {
       for (const [dx, dy] of NEIGHBOURS) {
         const nx = cx + dx;
         const ny = cy + dy;
-        if (g.isSolid(nx, ny)) continue;
+        if (g.isSolid(nx, ny, 'enemy')) continue;
         // No diagonal steps through wall corners.
-        if (dx !== 0 && dy !== 0 && (g.isSolid(cx + dx, cy) || g.isSolid(cx, cy + dy))) continue;
+        if (
+          dx !== 0 &&
+          dy !== 0 &&
+          (g.isSolid(cx + dx, cy, 'enemy') || g.isSolid(cx, cy + dy, 'enemy'))
+        )
+          continue;
         const next = g.index(nx, ny);
         if (this.distance[next] !== UNREACHED) continue;
         this.distance[next] = d + 1;
@@ -74,8 +79,13 @@ export class FlowField {
     for (const [dx, dy] of NEIGHBOURS) {
       const nx = tx + dx;
       const ny = ty + dy;
-      if (!g.inBounds(nx, ny) || g.isSolid(nx, ny)) continue;
-      if (dx !== 0 && dy !== 0 && (g.isSolid(tx + dx, ty) || g.isSolid(tx, ty + dy))) continue;
+      if (!g.inBounds(nx, ny) || g.isSolid(nx, ny, 'enemy')) continue;
+      if (
+        dx !== 0 &&
+        dy !== 0 &&
+        (g.isSolid(tx + dx, ty, 'enemy') || g.isSolid(tx, ty + dy, 'enemy'))
+      )
+        continue;
       const d = this.distance[g.index(nx, ny)];
       if (d < best) {
         best = d;

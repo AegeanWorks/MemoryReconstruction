@@ -1,94 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "elite-aura-and-card-polish-v1",
+    "task_id": "enemy-gates-mechanic-v1",
     "last_phase": "verification",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793473622.953458,
+    "updated_at": 1793474842.4490595,
     "owner": "antigravity",
     "started_by": "antigravity",
     "continuations": [],
-    "completed_at": 1793473627.5063555
+    "completed_at": 1793474845.6566942
   },
   "checkpoints": [
-    {
-      "task_id": "art-screens-glyphs-telegraphs-v1",
-      "phase": "in_progress",
-      "phase_num": 2,
-      "description": "[1/4] Plan: enhance dialogue typography, victory/death screen atmosphere, floor glyph luminescence, and dynamic telegraph charge pulses (preserving health bar)",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793471279.7865553,
-      "timestamp_str": "2026-10-31 21:27:59",
-      "agent": "antigravity",
-      "impact_assessment": {
-        "why": "User requested continued visual overhaul across models, sprites, animations, graphics, and UI with health bar strictly preserved",
-        "benefits": "Immersive NPC dialogue, cinematic screens, luminescent runes, and readable telegraph charge dynamics",
-        "risks": "contract: none; dependency: none; concurrency: none; state: presentation layer only",
-        "mitigation": "All 8 AIKit gates pass; health bar styling unmodified"
-      }
-    },
-    {
-      "task_id": "art-screens-glyphs-telegraphs-v1",
-      "phase": "in_progress",
-      "phase_num": 3,
-      "description": "[2/4] Implement: luminescent floor glyphs in tileArt.ts, dynamic windup progress indicators in ActorView.ts, and dialogue typography polish in ui.css (health bar untouched)",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793471406.7103639,
-      "timestamp_str": "2026-10-31 21:30:06",
-      "agent": "antigravity"
-    },
-    {
-      "task_id": "art-screens-glyphs-telegraphs-v1",
-      "phase": "in_progress",
-      "phase_num": 4,
-      "description": "[3/4] Verify: 168 tests, lint, typecheck, build, mechanics, 8/8 gates; codebase map refreshed; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793471411.3302236,
-      "timestamp_str": "2026-10-31 21:30:11",
-      "agent": "antigravity"
-    },
-    {
-      "task_id": "art-screens-glyphs-telegraphs-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-screens-glyphs-telegraphs-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793471415.87611,
-      "timestamp_str": "2026-10-31 21:30:15",
-      "agent": "antigravity"
-    },
-    {
-      "task_id": "art-weapon-models-v1",
-      "phase": "in_progress",
-      "phase_num": 2,
-      "description": "[1/4] Plan: upgrade weapon silhouettes with leaf-blade spear, gem-inlaid arming sword, and Zweihander colossus greatsword (health bar untouched)",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793472023.8864396,
-      "timestamp_str": "2026-10-31 21:40:23",
-      "agent": "antigravity",
-      "impact_assessment": {
-        "why": "User requested upgrade to weapon models across all player stances with health bar strictly untouched",
-        "benefits": "Distinct weapon models with leaf-blade spear & tassel, swept-guard sword & memory gem, and Zweihander flukes & amber spine nodes",
-        "risks": "contract: none; dependency: none; concurrency: none; state: generated PNG assets only",
-        "mitigation": "All 8 AIKit gates pass; health bar unmodified"
-      }
-    },
-    {
-      "task_id": "art-weapon-models-v1",
-      "phase": "in_progress",
-      "phase_num": 3,
-      "description": "[2/4] Implement: upgraded weapon models in generate_art_assets.py and regenerated 9 player animation sprite sheets (health bar untouched)",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793472029.398357,
-      "timestamp_str": "2026-10-31 21:40:29",
-      "agent": "antigravity"
-    },
     {
       "task_id": "art-weapon-models-v1",
       "phase": "in_progress",
@@ -255,6 +178,82 @@
       "status": "completed",
       "timestamp": 1793473627.5063572,
       "timestamp_str": "2026-10-31 22:07:07",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "ethereal-death-and-toast-refinement-v1",
+      "phase": "planning",
+      "phase_num": 2,
+      "description": "[1/4] Plan: enemy dissolution float ascension, toast banner backdrop, and modal panel depth",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793473883.6813557,
+      "timestamp_str": "2026-10-31 22:11:23",
+      "agent": "antigravity",
+      "impact_assessment": {
+        "why": "User requested continuing to improve art style, graphics, animations, models, UI",
+        "benefits": "Ethereal enemy dissolution upon defeat and readable glowing toast/panel presentation",
+        "risks": "contract: none; dependency: none; concurrency: none; state: presentation layer only",
+        "mitigation": "Preserve health bar untouched; pass all 8 strict AIKit gates"
+      }
+    },
+    {
+      "task_id": "enemy-gates-mechanic-v1",
+      "phase": "planning",
+      "phase_num": 2,
+      "description": "[1/5] Plan: one-way enemy gates (passable to enemies, impassable to player), gate tiles, portcullis visuals",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793474080.9838626,
+      "timestamp_str": "2026-10-31 22:14:40",
+      "agent": "antigravity",
+      "impact_assessment": {
+        "why": "User requested gates in some rooms where enemies may enter into the room but player cannot get into the other side",
+        "benefits": "Cinematic enemy reinforcement gates, tactical positioning, and atmospheric dungeon architecture",
+        "risks": "contract: none; dependency: none; concurrency: none; state: Tile.Gate added to tiles and room.gates in dungeon",
+        "mitigation": "Player clearance invariant preserved across all floor plans; health bar remains untouched; 8/8 gates pass"
+      }
+    },
+    {
+      "task_id": "ethereal-death-and-toast-refinement-v1",
+      "phase": "superseded",
+      "phase_num": 2,
+      "description": "Superseded by 'enemy-gates-mechanic-v1' without --complete or --reset",
+      "status": "superseded",
+      "timestamp": 1793474080.9838626,
+      "timestamp_str": "2026-10-31 22:14:40",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "enemy-gates-mechanic-v1",
+      "phase": "implementation",
+      "phase_num": 3,
+      "description": "[3/5] checklists: passed; implementation of Tile.Gate, enemy passability, portcullis visuals, and post-furnish reachability pruning",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793474838.088448,
+      "timestamp_str": "2026-10-31 22:27:18",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "enemy-gates-mechanic-v1",
+      "phase": "verification",
+      "phase_num": 4,
+      "description": "[4/5] checklists: passed; 172 unit tests, mechanics, lint, typecheck, build, and reachability pass 100%",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793474842.4490595,
+      "timestamp_str": "2026-10-31 22:27:22",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "enemy-gates-mechanic-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'enemy-gates-mechanic-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793474845.6566958,
+      "timestamp_str": "2026-10-31 22:27:25",
       "agent": "antigravity"
     }
   ]

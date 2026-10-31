@@ -18,27 +18,39 @@ const MAX_STEP = TILE_SIZE / 4;
 /** Pixels a body may be shifted sideways to slip past a wall corner it barely clips. */
 const CORNER_NUDGE = 8;
 
-function overlapsSolid(grid: TileGrid, x: number, y: number, r: number): boolean {
+function overlapsSolid(
+  grid: TileGrid,
+  x: number,
+  y: number,
+  r: number,
+  forEntity: 'player' | 'enemy' = 'player'
+): boolean {
   const x0 = Math.floor((x - r) / TILE_SIZE);
   const x1 = Math.floor((x + r - 0.001) / TILE_SIZE);
   const y0 = Math.floor((y - r) / TILE_SIZE);
   const y1 = Math.floor((y + r - 0.001) / TILE_SIZE);
   for (let ty = y0; ty <= y1; ty++)
-    for (let tx = x0; tx <= x1; tx++) if (grid.isSolid(tx, ty)) return true;
+    for (let tx = x0; tx <= x1; tx++) if (grid.isSolid(tx, ty, forEntity)) return true;
   return false;
 }
 
 /** Moves along one axis, stopping flush against the first solid tile. Returns true on contact. */
-function moveAxis(grid: TileGrid, body: Body, delta: number, axis: 'x' | 'y'): boolean {
+function moveAxis(
+  grid: TileGrid,
+  body: Body,
+  delta: number,
+  axis: 'x' | 'y',
+  forEntity: 'player' | 'enemy' = 'player'
+): boolean {
   if (delta === 0) return false;
   const next = body[axis] + delta;
   const nx = axis === 'x' ? next : body.x;
   const ny = axis === 'y' ? next : body.y;
-  if (!overlapsSolid(grid, nx, ny, body.radius)) {
+  if (!overlapsSolid(grid, nx, ny, body.radius, forEntity)) {
     body[axis] = next;
     return false;
   }
-  if (slipAroundCorner(grid, body, delta, axis)) return false;
+  if (slipAroundCorner(grid, body, delta, axis, forEntity)) return false;
   // Snap to the tile edge the body ran into.
   const r = body.radius;
   if (delta > 0) {
@@ -56,7 +68,13 @@ function moveAxis(grid: TileGrid, body: Body, delta: number, axis: 'x' | 'y'): b
  * it sideways (at most |delta| per step) instead of stopping dead. Returns
  * true when it slipped.
  */
-function slipAroundCorner(grid: TileGrid, body: Body, delta: number, axis: 'x' | 'y'): boolean {
+function slipAroundCorner(
+  grid: TileGrid,
+  body: Body,
+  delta: number,
+  axis: 'x' | 'y',
+  forEntity: 'player' | 'enemy' = 'player'
+): boolean {
   const other = axis === 'x' ? 'y' : 'x';
   for (let shift = 1; shift <= CORNER_NUDGE; shift++) {
     for (const sign of [1, -1]) {
@@ -64,12 +82,13 @@ function slipAroundCorner(grid: TileGrid, body: Body, delta: number, axis: 'x' |
       const ahead = body[axis] + delta;
       const sx = axis === 'x' ? ahead : side;
       const sy = axis === 'y' ? ahead : side;
-      const clearAhead = !overlapsSolid(grid, sx, sy, body.radius);
+      const clearAhead = !overlapsSolid(grid, sx, sy, body.radius, forEntity);
       const clearSide = !overlapsSolid(
         grid,
         axis === 'x' ? body.x : side,
         axis === 'y' ? body.y : side,
-        body.radius
+        body.radius,
+        forEntity
       );
       if (clearAhead && clearSide) {
         body[other] += sign * Math.min(shift, Math.abs(delta));
@@ -84,14 +103,20 @@ function slipAroundCorner(grid: TileGrid, body: Body, delta: number, axis: 'x' |
  * Moves a body by (dx, dy) against the grid. Returns whether it touched a
  * wall on either axis, which callers use to stop knockback or dashes.
  */
-export function moveAndCollide(grid: TileGrid, body: Body, dx: number, dy: number): boolean {
+export function moveAndCollide(
+  grid: TileGrid,
+  body: Body,
+  dx: number,
+  dy: number,
+  forEntity: 'player' | 'enemy' = 'player'
+): boolean {
   const steps = Math.max(1, Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)) / MAX_STEP));
   const sx = dx / steps;
   const sy = dy / steps;
   let hit = false;
   for (let i = 0; i < steps; i++) {
-    hit = moveAxis(grid, body, sx, 'x') || hit;
-    hit = moveAxis(grid, body, sy, 'y') || hit;
+    hit = moveAxis(grid, body, sx, 'x', forEntity) || hit;
+    hit = moveAxis(grid, body, sy, 'y', forEntity) || hit;
   }
   return hit;
 }

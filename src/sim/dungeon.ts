@@ -33,6 +33,14 @@ export interface Doorway {
   leadsTo: number;
 }
 
+export interface EnemyGate {
+  /** Perimeter wall tiles converted into an iron portcullis. */
+  tiles: Array<{ x: number; y: number }>;
+  direction: Direction;
+  spawnX: number;
+  spawnY: number;
+}
+
 export interface Room {
   id: number;
   cellX: number;
@@ -45,6 +53,8 @@ export interface Room {
   kind: RoomKind;
   shape: RoomShape;
   doors: Doorway[];
+  /** Iron enemy spawn gates along perimeter walls. */
+  gates?: EnemyGate[];
   /** Steps from the start room through doorways. */
   distance: number;
 }
@@ -110,6 +120,7 @@ export function generateFloor(seed: number, depth: number, options: FloorOptions
   }
   for (const [a, b] of links) carveCorridor(grid, rooms[a], rooms[b]);
   addWalls(grid);
+  placeEnemyGates(rng, grid, rooms);
   for (const room of rooms) furnish(rng, grid, room);
 
   const startRoom = 0;
@@ -467,6 +478,96 @@ function addWalls(grid: TileGrid): void {
   }
 }
 
+/**
+ * Places iron enemy spawn gates along perimeter walls of combat rooms and arenas.
+ * Enemies may emerge through the gate into the room, but the player cannot cross through.
+ */
+function placeEnemyGates(rng: Rng, grid: TileGrid, rooms: Room[]): void {
+  for (const room of rooms) {
+    if (room.kind !== 'combat' && room.kind !== 'arena') continue;
+    if (room.w < 12 || room.h < 9) continue;
+    if (!rng.chance(0.65)) continue;
+
+    const usedDirs = new Set(room.doors.map((d) => d.direction));
+    const directions = (['north', 'south', 'east', 'west'] as const).filter(
+      (d) => !usedDirs.has(d)
+    );
+    if (directions.length === 0) continue;
+
+    const validDirs: Array<{
+      dir: Direction;
+      gateTiles: Array<{ x: number; y: number }>;
+      spawnX: number;
+      spawnY: number;
+    }> = [];
+
+    for (const dir of directions) {
+      if (dir === 'north' || dir === 'south') {
+        const ty = dir === 'north' ? room.y - 1 : room.y + room.h;
+        const inY = dir === 'north' ? room.y : room.y + room.h - 1;
+        const outY = dir === 'north' ? room.y - 2 : room.y + room.h + 1;
+        const midX = Math.floor(room.x + room.w / 2);
+        const span = [midX - 1, midX, midX + 1];
+
+        const valid = span.every(
+          (tx) =>
+            grid.inBounds(tx, ty) &&
+            grid.get(tx, ty) === Tile.Wall &&
+            grid.get(tx, inY) === Tile.Floor &&
+            (!grid.inBounds(tx, outY) ||
+              grid.get(tx, outY) === Tile.Void ||
+              grid.get(tx, outY) === Tile.Wall)
+        );
+        if (valid) {
+          validDirs.push({
+            dir,
+            gateTiles: span.map((tx) => ({ x: tx, y: ty })),
+            spawnX: (midX + 0.5) * TILE_SIZE,
+            spawnY: (ty + 0.5) * TILE_SIZE,
+          });
+        }
+      } else {
+        const tx = dir === 'west' ? room.x - 1 : room.x + room.w;
+        const inX = dir === 'west' ? room.x : room.x + room.w - 1;
+        const outX = dir === 'west' ? room.x - 2 : room.x + room.w + 1;
+        const midY = Math.floor(room.y + room.h / 2);
+        const span = [midY - 1, midY, midY + 1];
+
+        const valid = span.every(
+          (ty) =>
+            grid.inBounds(tx, ty) &&
+            grid.get(tx, ty) === Tile.Wall &&
+            grid.get(inX, ty) === Tile.Floor &&
+            (!grid.inBounds(outX, ty) ||
+              grid.get(outX, ty) === Tile.Void ||
+              grid.get(outX, ty) === Tile.Wall)
+        );
+        if (valid) {
+          validDirs.push({
+            dir,
+            gateTiles: span.map((ty) => ({ x: tx, y: ty })),
+            spawnX: (tx + 0.5) * TILE_SIZE,
+            spawnY: (midY + 0.5) * TILE_SIZE,
+          });
+        }
+      }
+    }
+
+    if (validDirs.length === 0) continue;
+    const choice = rng.pick(validDirs);
+    for (const tile of choice.gateTiles) {
+      grid.set(tile.x, tile.y, Tile.Gate);
+    }
+    room.gates = room.gates ?? [];
+    room.gates.push({
+      tiles: choice.gateTiles,
+      direction: choice.dir,
+      spawnX: choice.spawnX,
+      spawnY: choice.spawnY,
+    });
+  }
+}
+
 /** Breadth-first steps from cell 0 through the links. */
 function cellDistances(count: number, links: Array<[number, number]>): number[] {
   const adjacency = Array.from({ length: count }, () => [] as number[]);
@@ -630,6 +731,38 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
       if (i % 2 === 0) continue;
       const a = (i / 8) * Math.PI * 2;
       pillar(Math.round(centre.x + Math.cos(a) * 4), Math.round(centre.y + Math.sin(a) * 4), 1);
+    }
+  }
+
+  // Prune any floor tiles trapped by pillars that can no longer reach the room centre
+  const startX = Math.floor(centre.x);
+  const startY = Math.floor(centre.y);
+  if (grid.isWalkable(startX, startY)) {
+    const seen = new Set<number>([grid.index(startX, startY)]);
+    const stack: Array<[number, number]> = [[startX, startY]];
+    while (stack.length > 0) {
+      const [x, y] = stack.pop()!;
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ] as const) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (nx < room.x || ny < room.y || nx >= room.x + room.w || ny >= room.y + room.h) continue;
+        const index = grid.index(nx, ny);
+        if (!grid.isWalkable(nx, ny) || seen.has(index)) continue;
+        seen.add(index);
+        stack.push([nx, ny]);
+      }
+    }
+    for (let y = room.y; y < room.y + room.h; y++) {
+      for (let x = room.x; x < room.x + room.w; x++) {
+        if (grid.get(x, y) === Tile.Floor && !seen.has(grid.index(x, y))) {
+          grid.set(x, y, Tile.Wall);
+        }
+      }
     }
   }
 }
