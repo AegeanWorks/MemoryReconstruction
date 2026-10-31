@@ -298,29 +298,46 @@ export class LevelView {
       }
       if (room.gates) {
         for (const gate of room.gates) {
-          const vertical = gate.direction === 'east' || gate.direction === 'west';
+          const isNorthOrSouth = gate.direction === 'north' || gate.direction === 'south';
           for (const t of gate.tiles) {
-            // Dark recessed alcove backing
-            g.rect(t.x * T, t.y * T, T, T).fill({ color: 0x07060e, alpha: 0.95 });
-            // Iron portcullis vertical bars with highlight edges
+            const px = t.x * T;
+            const py = t.y * T;
+            // 1. Dark recessed alcove backing
+            g.rect(px, py, T, T).fill({ color: 0x05040a, alpha: 0.96 });
+            // 2. Iron portcullis vertical bars (with shadow and specular highlight)
             for (let i = 0; i < 4; i++) {
-              const o = 4 + i * 8;
-              if (vertical) {
-                g.rect(t.x * T + o - 1, t.y * T, 2.5, T).fill({ color: 0x6e697e });
-                g.rect(t.x * T + o, t.y * T, 1, T).fill({ color: 0x9e99ae });
-              } else {
-                g.rect(t.x * T, t.y * T + o - 1, T, 2.5).fill({ color: 0x6e697e });
-                g.rect(t.x * T, t.y * T + o, T, 1).fill({ color: 0x9e99ae });
+              const ox = 4 + i * 8;
+              g.rect(px + ox - 1, py, 3, T).fill({ color: 0x3d3848 });
+              g.rect(px + ox, py, 1.5, T).fill({ color: 0x827d92 });
+              g.rect(px + ox + 0.5, py, 0.75, T).fill({ color: 0xb5b0c6 });
+            }
+            // 3. Horizontal cross-brace beams
+            const crossOffsets = [8, 22];
+            for (const oy of crossOffsets) {
+              g.rect(px, py + oy - 1, T, 3.5).fill({ color: 0x2e2938 });
+              g.rect(px, py + oy, T, 1.5).fill({ color: 0x6e687e });
+              // Studded rivets at intersections
+              for (let i = 0; i < 4; i++) {
+                const ox = 4 + i * 8;
+                g.circle(px + ox + 0.5, py + oy + 0.5, 1.25).fill({ color: 0xc8c2d8 });
               }
             }
-            // Iron cross-brace beam
-            if (vertical) g.rect(t.x * T + 14, t.y * T, 4, T).fill({ color: 0x484355 });
-            else g.rect(t.x * T, t.y * T + 14, T, 4).fill({ color: 0x484355 });
-            // Subtle ominous shadow glow
-            const glow = 0.25 + 0.12 * Math.sin(this.time * 2.8 + t.x);
-            g.rect(t.x * T, t.y * T, T, T).stroke({
+            // 4. Pointed iron gate teeth / spikes pointing into the chamber
+            if (isNorthOrSouth) {
+              const tipY = gate.direction === 'north' ? py + T : py;
+              const baseY = gate.direction === 'north' ? py + T - 4 : py + 4;
+              for (let i = 0; i < 4; i++) {
+                const ox = 4 + i * 8;
+                g.poly([px + ox - 1.5, baseY, px + ox + 2.5, baseY, px + ox + 0.5, tipY]).fill({
+                  color: 0xa8a2b8,
+                });
+              }
+            }
+            // 5. Ominous void threshold ember glow
+            const glow = 0.28 + 0.14 * Math.sin(this.time * 3 + t.x * 2.1 + t.y);
+            g.rect(px, py, T, T).stroke({
               width: 1.5,
-              color: 0xff6a4a,
+              color: 0xff5a3a,
               alpha: glow,
             });
           }

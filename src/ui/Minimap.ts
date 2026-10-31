@@ -104,6 +104,42 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
       ctx.lineTo(cx + s, cy - s * 0.7);
       ctx.stroke();
     }
+    // Iron enemy spawn gates: render a crimson barred hatch mark on the room perimeter
+    if (room.gates && room.gates.length > 0 && visited) {
+      ctx.strokeStyle = 'rgba(255, 106, 74, 0.95)';
+      ctx.lineWidth = Math.max(1.8, scale * 0.4);
+      for (const gate of room.gates) {
+        if (gate.direction === 'north' || gate.direction === 'south') {
+          const gy = gate.direction === 'north' ? y : y + rh;
+          const gx = ox + (room.x + room.w / 2) * scale;
+          const hw = Math.max(3, scale * 1.1);
+          ctx.beginPath();
+          ctx.moveTo(gx - hw, gy);
+          ctx.lineTo(gx + hw, gy);
+          ctx.stroke();
+          for (const dx of [-hw * 0.5, 0, hw * 0.5]) {
+            ctx.beginPath();
+            ctx.moveTo(gx + dx, gy - (gate.direction === 'north' ? 2 : -2));
+            ctx.lineTo(gx + dx, gy + (gate.direction === 'north' ? 2 : -2));
+            ctx.stroke();
+          }
+        } else {
+          const gx = gate.direction === 'west' ? x : x + rw;
+          const gy = oy + (room.y + room.h / 2) * scale;
+          const hh = Math.max(3, scale * 1.1);
+          ctx.beginPath();
+          ctx.moveTo(gx, gy - hh);
+          ctx.lineTo(gx, gy + hh);
+          ctx.stroke();
+          for (const dy of [-hh * 0.5, 0, hh * 0.5]) {
+            ctx.beginPath();
+            ctx.moveTo(gx - (gate.direction === 'west' ? 2 : -2), gy + dy);
+            ctx.lineTo(gx + (gate.direction === 'west' ? 2 : -2), gy + dy);
+            ctx.stroke();
+          }
+        }
+      }
+    }
   }
 
   // Unclaimed objectives pulse so a missed chest or well is easy to find again.

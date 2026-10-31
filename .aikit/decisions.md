@@ -641,3 +641,15 @@ or the architecture; see the header above for where each entry goes. -->
   7. In `src/ui/ui.css`, refine `.toast` and `.memory-codex` styling. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
 - **Consequences**: Tactical reinforcement entrances, atmospheric iron portcullises, and robust one-way barriers with 100% test pass rate across all 15 suites and 8 AIKit strict gates.
 
+### ADR-063: Studded portcullis lattice grating art and minimap tactical gate indicators
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Enemy spawn gates required richer visual presentation fitting the dark fantasy dungeon aesthetic, featuring vertical iron bars with specular highlights, studded rivets, and chamber-facing portcullis teeth, as well as clear situational awareness markers on the minimap and full-screen map.
+- **Decision**:
+  1. In `src/view/LevelView.ts`, upgrade `Tile.Gate` rendering to feature dark recessed alcove backing, 4 vertical iron bars with dual highlight and shadow edges, dual horizontal cross-braces, studded iron rivets at grid intersections, sharpened portcullis teeth pointing into the chamber, and pulsing void threshold glows.
+  2. In `src/ui/Minimap.ts`, add crimson barred hatch markers with perpendicular tick marks on room perimeters for visited rooms containing enemy gates, visible on both the HUD minimap and full-screen map.
+  3. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
+- **Consequences**: High-fidelity dark fantasy iron portcullis visuals and immediate tactical situational awareness on the minimap. 172 tests, lint, typecheck, build, mechanics, and all 8 AIKit gates pass cleanly.
+
+
