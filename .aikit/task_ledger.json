@@ -1,65 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-hound-silhouettes-v1",
+    "task_id": "art-warden-silhouettes-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793440882.6976936,
+    "updated_at": 1793441062.4392765,
     "owner": "opencode:art",
     "started_by": "opencode:art",
     "continuations": [],
-    "completed_at": 1793440885.239571
+    "completed_at": 1793441066.6200051
   },
   "checkpoints": [
-    {
-      "task_id": "art-early-mobs-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-early-mobs-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793433953.3380597,
-      "timestamp_str": "2026-10-31 11:05:53",
-      "agent": "opencode:earlymobs"
-    },
-    {
-      "task_id": "art-enemy-walk-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Plan: clamp the enemy walk step so all walk-row frames stay on canvas, switch the renderer from the idle workaround to the real walk row, regenerate every enemy sheet, and verify a moving room",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793434099.7680597,
-      "timestamp_str": "2026-10-31 11:08:19",
-      "agent": "opencode:walk",
-      "impact_assessment": {
-        "why": "Every enemy walk row has blank odd frames because _enemy_common returns a full plus-or-minus one step as the body's horizontal offset, which throws the body off-canvas; the renderer works around it by replaying idle frames, so moving enemies only bob.",
-        "benefits": "All 41 walk rows become valid and the renderer uses them, adding a side-to-side body sway to the existing vertical bob so every moving enemy reads as walking rather than sliding.",
-        "risks": "contract: sheets.loadEnemy now reads the walk row; dependency: none; concurrency: none; state: none; art: every enemy PNG regenerates, frame sizes and atlas keys stay the same.",
-        "mitigation": "Clamp the walk step to a small amplitude, inspect idle/walk/attack/death rows, chase a live room at two moments, and rerun tests, build and all eight gates."
-      }
-    },
-    {
-      "task_id": "art-enemy-walk-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Phase 4 green: 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; all 41 walk rows now have four populated frames and the renderer reads them; a controlled live room with all six new early mobs chasing produced a capture with zero console errors. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793435664.014884,
-      "timestamp_str": "2026-10-31 11:34:24",
-      "agent": "opencode:walk"
-    },
-    {
-      "task_id": "art-enemy-walk-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-enemy-walk-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793435690.5934515,
-      "timestamp_str": "2026-10-31 11:34:50",
-      "agent": "opencode:walk"
-    },
     {
       "task_id": "fix-inventory-choice-hud-v1",
       "phase": "phase 2",
@@ -254,6 +206,55 @@
       "status": "completed",
       "timestamp": 1793440885.2395725,
       "timestamp_str": "2026-10-31 13:01:25",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-warden-silhouettes-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Plan: differentiate the two warden-kind enemies (cinder ember cracks, frost crystal horns)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793440985.5097616,
+      "timestamp_str": "2026-10-31 13:03:05",
+      "agent": "opencode:art",
+      "impact_assessment": {
+        "why": "cinderWarden and frostWarden share one warden body.",
+        "benefits": "Two distinct warden reads at play scale.",
+        "risks": "contract: _warden signature and atlas keys unchanged; dependency: none; concurrency: none; state: generated PNGs only.",
+        "mitigation": "Regenerate, capture, gates."
+      }
+    },
+    {
+      "task_id": "art-warden-silhouettes-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "[2/3] Implement: _warden gains cinder ember cracks and frost crystal horns.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793441061.9988124,
+      "timestamp_str": "2026-10-31 13:04:21",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-warden-silhouettes-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Verify: 154 tests, lint, typecheck, build, mechanics, 8/8 gates; codebase map refreshed; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793441062.4392765,
+      "timestamp_str": "2026-10-31 13:04:22",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-warden-silhouettes-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-warden-silhouettes-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793441066.6200063,
+      "timestamp_str": "2026-10-31 13:04:26",
       "agent": "opencode:art"
     }
   ]

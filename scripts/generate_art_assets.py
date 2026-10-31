@@ -227,6 +227,7 @@ ENEMY_STYLES = {
     },
     "cinderWarden": {
         "kind": "warden",
+        "cinder": True,
         "body": (78, 54, 46, 255),
         "light": (196, 118, 68, 255),
         "cloth": (52, 36, 32, 255),
@@ -236,6 +237,7 @@ ENEMY_STYLES = {
     },
     "frostWarden": {
         "kind": "warden",
+        "frost": True,
         "body": (70, 100, 124, 255),
         "light": (176, 220, 244, 255),
         "cloth": (44, 66, 86, 255),
@@ -1434,6 +1436,14 @@ def _warden(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: 
     line(draw, cell, [(cx + 0.28, 0.48), (cx + 0.36, 0.66), (cx + 0.30, 0.84)], body, 6)
     rect(draw, cell, cx - 0.20, 0.78, cx - 0.06, 0.94, fill=cloth, outline=Outline, width=2)
     rect(draw, cell, cx + 0.06, 0.78, cx + 0.20, 0.94, fill=cloth, outline=Outline, width=2)
+    if style.get("cinder"):
+        for i in range(3):
+            line(draw, cell, [(cx - 0.14 + i * 0.10, 0.50 + bob), (cx - 0.10 + i * 0.10, 0.64 + bob)], accent, 2)
+        ellipse(draw, cell, cx - 0.08, 0.14 + bob, cx + 0.08, 0.22 + bob, fill=accent)
+    if style.get("frost"):
+        for i in range(3):
+            poly(draw, cell, [(cx - 0.26 + i * 0.16, 0.30 + bob), (cx - 0.22 + i * 0.16, 0.22 + bob),
+                              (cx - 0.18 + i * 0.16, 0.30 + bob)], fill=accent, outline=Outline, width=1)
 
 
 def _serpent(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:

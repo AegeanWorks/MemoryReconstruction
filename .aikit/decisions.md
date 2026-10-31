@@ -469,3 +469,11 @@ or the architecture; see the header above for where each entry goes. -->
 - **Context**: Grave hound, magma hound and cinder hound shared one hound body with palette swaps.
 - **Decision**: Magma hound gains glowing crack lines and a flame on the snout; cinder hound gains rising ash wisps; grave hound keeps the skeletal base.
 - **Consequences**: all three hound-kind sheets regenerate with distinct reads. 154 tests, lint, typecheck, build, mechanics and all 8 gates pass.
+
+### ADR-046: The two warden-kind enemies get distinct reads
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Cinder warden and frost warden shared one warden body with palette swaps.
+- **Decision**: Cinder warden gains ember crack lines and a glowing heart; frost warden gains crystal horns on the helm.
+- **Consequences**: both warden sheets regenerate with distinct reads. 154 tests, lint, typecheck, build, mechanics and all 8 gates pass.
