@@ -564,3 +564,15 @@ or the architecture; see the header above for where each entry goes. -->
   2. In `src/view/Effects.ts`, add visual flares for `weaponSwitch` events (stance-specific color ring and starburst: cyan for spear, molten amber for greatsword, gold for sword).
   3. Enhance `enemyDied` events with ascending starburst dissolution particles and dual-tiered celestial shockwave rings for boss defeats.
 - **Consequences**: Unobstructed bottom-center HUD vitals view matching player aesthetic preference; crisp visual confirmation for stance swapping; rewarding death dissolution feedback. 168 tests, lint, typecheck, build, mechanics, and all 8 gates pass.
+
+### ADR-057: Luminescent floor glyphs, dynamic telegraph charge contours, and dialogue typography polish
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Visual and UI improvements continued under the goal prompt with the strict invariant that the health bar must not be modified. Environment floor glyphs were flat single-stroke lines, enemy attack telegraphs lacked dynamic windup progress indicators, and dialogue text lacked narrative book typography.
+- **Decision**:
+  1. In `src/view/tileArt.ts`, enhance `Deco.Glyph` rendering with a dual-pass stroke: an ambient luminescent glow halo (3.5px, 0.24 alpha) followed by the crisp carved line (1px, 0.85 alpha).
+  2. In `src/view/ActorView.ts`, add advancing contour lines and expanding inner shockwave rings to enemy attack telegraphs (`strike`, `slam`, `charge`), providing clear anticipation of attack timing.
+  3. In `src/ui/ui.css`, upgrade `.dialogue-panel` with a gold border bar, narrative serif typography, and rich background contrast; add ethereal crimson drop-shadow to `.heading.dead`.
+  4. Preserve all health bar and vitals styling intact as mandated by user constraint.
+- **Consequences**: Enhanced environmental immersion, crisp combat telegraph anticipation, and atmospheric dialogue framing with 100% health bar stability. 168 tests, lint, typecheck, build, mechanics, and all 8 gates pass.

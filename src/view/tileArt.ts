@@ -309,8 +309,6 @@ function paintDeco(art: BiomeArt, rng: Rng, kind: Deco, variant = 0): Texture {
       break;
     case Deco.Glyph:
       ctx.strokeStyle = art.accent;
-      ctx.globalAlpha = 0.7;
-      ctx.lineWidth = 1;
       ctx.beginPath();
       if (variant === 0) {
         ctx.arc(16, 16, 9, 0, Math.PI * 2);
@@ -332,7 +330,14 @@ function paintDeco(art: BiomeArt, rng: Rng, kind: Deco, variant = 0): Texture {
           ctx.arc(16, 16, r, 0, Math.PI * 1.2);
         }
       }
+      // Luminescent glow halo behind the crisp carved rune
+      ctx.lineWidth = 3.5;
+      ctx.globalAlpha = 0.24;
       ctx.stroke();
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.85;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
       break;
     case Deco.None:
       break;

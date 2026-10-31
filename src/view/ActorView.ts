@@ -591,13 +591,23 @@ export class ActorView {
         g.moveTo(x, y)
           .arc(x, y, reach, angle - 0.95, angle + 0.95)
           .lineTo(x, y)
-          .fill({ color: TELEGRAPH_COLOR, alpha: urgency * 0.5 });
+          .fill({ color: TELEGRAPH_COLOR, alpha: urgency * 0.45 });
+        // Advancing arc contour as the swing readies
+        const progressReach = reach * (0.3 + 0.7 * Math.min(1, 1 - e.stateTime / 0.8));
+        g.arc(x, y, progressReach, angle - 0.95, angle + 0.95).stroke({
+          width: 2,
+          color: 0xffa070,
+          alpha: urgency * 0.9,
+        });
         break;
       }
       case 'slam': {
         const r = slamRadius(e);
         g.circle(x, y, r).fill({ color: TELEGRAPH_COLOR, alpha: urgency * 0.35 });
         g.circle(x, y, r).stroke({ width: 2, color: TELEGRAPH_COLOR, alpha: 0.8 });
+        // Expanding inner shockwave indicator ring
+        const progressR = r * (0.2 + 0.8 * Math.min(1, 1 - e.stateTime / 0.8));
+        g.circle(x, y, progressR).stroke({ width: 1.5, color: 0xffe0a0, alpha: urgency * 0.85 });
         break;
       }
       case 'lunge':
@@ -611,6 +621,11 @@ export class ActorView {
         g.poly([x + nx, y + ny, ex + nx, ey + ny, ex - nx, ey - ny, x - nx, y - ny]).fill({
           color: TELEGRAPH_COLOR,
           alpha: urgency * 0.4,
+        });
+        g.poly([x + nx, y + ny, ex + nx, ey + ny, ex - nx, ey - ny, x - nx, y - ny]).stroke({
+          width: 1.5,
+          color: 0xffa070,
+          alpha: urgency * 0.8,
         });
         break;
       }

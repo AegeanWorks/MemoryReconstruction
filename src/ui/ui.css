@@ -478,6 +478,10 @@
 }
 .heading.dead {
   color: #ff8a96;
+  text-shadow:
+    0 0 18px rgba(255, 77, 94, 0.4),
+    0 2px 8px #000;
+  letter-spacing: 0.16em;
 }
 .menu {
   display: grid;
@@ -1177,13 +1181,21 @@
   width: min(560px, 92vw);
   display: grid;
   gap: 8px;
-  padding: 16px 20px;
+  padding: 18px 24px;
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(180deg, rgba(24, 20, 42, 0.94), rgba(12, 10, 24, 0.96));
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.6),
+    inset 0 0 1px rgba(255, 217, 138, 0.2);
 }
 .dialogue-line {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.6;
+  color: #f0ecfa;
+  letter-spacing: 0.02em;
 }
 .pending-run {
   width: min(620px, 92vw);
