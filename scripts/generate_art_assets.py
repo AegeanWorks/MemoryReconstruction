@@ -56,7 +56,7 @@ PLAYER = {
 
 ENEMY_STYLES = {
     "scavenger": {
-        "kind": "hunched",
+        "kind": "scavenger",
         "body": (78, 58, 52, 255),
         "light": (132, 98, 80, 255),
         "cloth": (103, 78, 62, 255),
@@ -103,7 +103,7 @@ ENEMY_STYLES = {
         "eyes": "glare",
     },
     "caveDweller": {
-        "kind": "hunched",
+        "kind": "cave_crawler",
         "body": (116, 112, 122, 255),
         "light": (174, 168, 180, 255),
         "cloth": (78, 76, 88, 255),
@@ -213,7 +213,7 @@ ENEMY_STYLES = {
         "eyes": "single",
     },
     "plagueCaster": {
-        "kind": "hunched",
+        "kind": "plague_caster",
         "body": (84, 106, 72, 255),
         "light": (150, 176, 118, 255),
         "cloth": (52, 68, 48, 255),
@@ -289,7 +289,7 @@ ENEMY_STYLES = {
         "eyes": "many",
     },
     "bombardier": {
-        "kind": "hunched",
+        "kind": "bombardier",
         "body": (96, 62, 40, 255),
         "light": (186, 132, 82, 255),
         "cloth": (58, 38, 26, 255),
@@ -308,7 +308,7 @@ ENEMY_STYLES = {
         "eyes": "many",
     },
     "hiveGuard": {
-        "kind": "hunched",
+        "kind": "hive_guard",
         "body": (96, 70, 36, 255),
         "light": (190, 150, 76, 255),
         "cloth": (56, 40, 20, 255),
@@ -319,7 +319,7 @@ ENEMY_STYLES = {
         "eyes": "many",
     },
     "catacombArcher": {
-        "kind": "hunched",
+        "kind": "archer",
         "body": (78, 82, 78, 255),
         "light": (164, 160, 140, 255),
         "cloth": (44, 50, 50, 255),
@@ -980,6 +980,234 @@ def _hunched(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame:
         line(draw, cell, [(cx + 0.22, 0.40), (cx + 0.38, 0.36)], accent, 3)
 
 
+def _scavenger(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    """A lean rag-picker: bone mask, loot sack and one overlong claw arm."""
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.015
+    # Loot sack slung behind the shoulder.
+    ellipse(draw, cell, cx - 0.36, 0.40 + bob, cx - 0.16, 0.60 + bob,
+            fill=mix(cloth, body, 0.3), outline=Outline, width=2)
+    line(draw, cell, [(cx - 0.32, 0.42 + bob), (cx - 0.20, 0.34 + bob)], light, 2)
+    # Hunched torso with layered rags.
+    poly(draw, cell, [(cx - 0.15, 0.36 + bob), (cx + 0.10, 0.30 + bob), (cx + 0.20, 0.45 + bob),
+                      (cx + 0.16, 0.74), (cx + 0.05, 0.86), (cx - 0.13, 0.83), (cx - 0.21, 0.62)],
+         fill=cloth, outline=Outline, width=3)
+    for i in range(3):
+        line(draw, cell, [(cx - 0.17 + i * 0.04, 0.46 + i * 0.10), (cx + 0.11 - i * 0.02, 0.50 + i * 0.10)],
+             mix(cloth, light, 0.25), 1)
+    # Right shoulder plate and short arm.
+    poly(draw, cell, [(cx + 0.02, 0.36 + bob), (cx + 0.22, 0.40 + bob), (cx + 0.18, 0.50 + bob),
+                      (cx + 0.03, 0.46 + bob)], fill=body, outline=Outline, width=2)
+    line(draw, cell, [(cx + 0.14, 0.47 + bob), (cx + 0.28, 0.55 + bob), (cx + 0.30, 0.66)],
+         body, 3)
+    line(draw, cell, [(cx + 0.30, 0.66), (cx + 0.34, 0.70), (cx + 0.29, 0.73)], light, 2)
+    # Long claw arm on the other side.
+    line(draw, cell, [(cx - 0.12, 0.43 + bob), (cx - 0.28, 0.53 + bob), (cx - 0.34 + sway, 0.71)],
+         body, 4)
+    for f in range(3):
+        line(draw, cell, [(cx - 0.34 + sway, 0.70), (cx - 0.41 + f * 0.035, 0.78 + f * 0.01)],
+             light, 1)
+    # Bone mask and necklace.
+    ellipse(draw, cell, cx - 0.09, 0.20 + bob, cx + 0.10, 0.36 + bob, fill=light, outline=Outline, width=3)
+    poly(draw, cell, [(cx - 0.075, 0.27 + bob), (cx + 0.005, 0.23 + bob), (cx + 0.08, 0.27 + bob),
+                      (cx + 0.035, 0.35 + bob), (cx - 0.03, 0.35 + bob)],
+         fill=(222, 214, 190, 255), outline=Outline, width=2)
+    _enemy_eyes(draw, cell, cx, 0.305 + bob, style, spread=0.034, r=0.017)
+    for i in range(3):
+        ellipse(draw, cell, cx - 0.07 + i * 0.05, 0.39 + bob, cx - 0.05 + i * 0.05, 0.41 + bob, fill=light)
+    # Legs.
+    rect(draw, cell, cx - 0.10, 0.72, cx - 0.02, 0.92, fill=body, outline=Outline, width=2, radius=0.02)
+    rect(draw, cell, cx + 0.03, 0.72, cx + 0.11, 0.92, fill=body, outline=Outline, width=2, radius=0.02)
+    if row == 2:
+        line(draw, cell, [(cx - 0.34, 0.70), (cx - 0.44, 0.62)], accent, 3)
+
+
+def _bombardier(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    """A stout bomber: fuse hood, bomb bandolier and a round bomb in hand."""
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.01
+    # Pressure tank on the back.
+    ellipse(draw, cell, cx + 0.15, 0.34 + bob, cx + 0.34, 0.60 + bob,
+            fill=mix(cloth, light, 0.3), outline=Outline, width=2)
+    line(draw, cell, [(cx + 0.30, 0.38 + bob), (cx + 0.24, 0.50 + bob)], light, 1)
+    # Barrel torso.
+    poly(draw, cell, [(cx - 0.22, 0.38 + bob), (cx + 0.16, 0.36 + bob), (cx + 0.24, 0.70),
+                      (cx + 0.12, 0.82), (cx - 0.14, 0.82), (cx - 0.24, 0.68)],
+         fill=cloth, outline=Outline, width=3)
+    ellipse(draw, cell, cx - 0.19, 0.44 + bob, cx + 0.13, 0.75, fill=body, outline=Outline, width=2)
+    # Bomb bandolier.
+    rect(draw, cell, cx - 0.22, 0.56 + bob, cx + 0.19, 0.60 + bob, fill=Outline)
+    for i, x in enumerate((-0.13, 0.00, 0.13)):
+        ellipse(draw, cell, cx + x - 0.035, 0.53 + bob, cx + x + 0.035, 0.61 + bob,
+                fill=accent, outline=Outline, width=1)
+        line(draw, cell, [(cx + x, 0.53 + bob), (cx + x + 0.02, 0.48 + bob)], light, 1)
+    # Wide boots.
+    rect(draw, cell, cx - 0.16, 0.76, cx - 0.02, 0.93, fill=body, outline=Outline, width=2, radius=0.02)
+    rect(draw, cell, cx + 0.02, 0.76, cx + 0.16, 0.93, fill=body, outline=Outline, width=2, radius=0.02)
+    # Thick arms; the right hand holds a bomb.
+    line(draw, cell, [(cx - 0.18, 0.45 + bob), (cx - 0.29, 0.55 + bob), (cx - 0.24, 0.65)], body, 5)
+    line(draw, cell, [(cx + 0.14, 0.45 + bob), (cx + 0.26, 0.53 + bob), (cx + 0.23, 0.63)], body, 5)
+    ellipse(draw, cell, cx + 0.17, 0.58 + sway, cx + 0.29, 0.70 + sway, fill=accent, outline=Outline, width=2)
+    line(draw, cell, [(cx + 0.24, 0.58 + sway), (cx + 0.26, 0.52 + sway)], light, 1)
+    # Hood and fuse.
+    ellipse(draw, cell, cx - 0.10, 0.20 + bob, cx + 0.10, 0.36 + bob, fill=cloth, outline=Outline, width=3)
+    ellipse(draw, cell, cx - 0.07, 0.24 + bob, cx + 0.07, 0.34 + bob, fill=(14, 13, 22))
+    _enemy_eyes(draw, cell, cx, 0.295 + bob, dict(style, eyes='glare'), spread=0.036, r=0.018)
+    line(draw, cell, [(cx, 0.20 + bob), (cx - 0.02, 0.12 + bob)], light, 2)
+    ellipse(draw, cell, cx - 0.035, 0.10 + bob, cx - 0.005, 0.13 + bob, fill=accent, outline=Outline, width=1)
+    if row == 2:
+        ellipse(draw, cell, cx + 0.42, 0.26, cx + 0.50, 0.34, fill=accent, outline=Outline, width=1)
+
+
+def _cave_crawler(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    """A low, wide cave dweller with oversized ears and long forearms."""
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.018
+    # Low body and back ridge.
+    ellipse(draw, cell, cx - 0.31, 0.48 + bob, cx + 0.21, 0.78 + bob, fill=body, outline=Outline, width=3)
+    ellipse(draw, cell, cx - 0.25, 0.52 + bob, cx + 0.13, 0.73 + bob, fill=mix(body, light, 0.25))
+    for i in range(3):
+        x = cx - 0.24 + i * 0.14
+        poly(draw, cell, [(x, 0.50 + bob), (x + 0.05, 0.40 + bob), (x + 0.10, 0.50 + bob)],
+             fill=light, outline=Outline, width=1)
+    # Hind legs.
+    rect(draw, cell, cx - 0.24, 0.70, cx - 0.14, 0.93, fill=cloth, outline=Outline, width=2, radius=0.02)
+    rect(draw, cell, cx - 0.08, 0.70, cx + 0.02, 0.93, fill=cloth, outline=Outline, width=2, radius=0.02)
+    # Long forearms planted on the floor.
+    line(draw, cell, [(cx - 0.16, 0.58 + bob), (cx - 0.32, 0.73), (cx - 0.35 + sway, 0.89)],
+         body, 4)
+    line(draw, cell, [(cx + 0.05, 0.58 + bob), (cx + 0.14, 0.74), (cx + 0.12 + sway, 0.89)],
+         body, 4)
+    for x in (cx - 0.37 + sway, cx + 0.10 + sway):
+        for f in range(2):
+            line(draw, cell, [(x, 0.88), (x - 0.03 + f * 0.06, 0.94)], light, 1)
+    # Head with huge ears.
+    ellipse(draw, cell, cx + 0.11, 0.40 + bob, cx + 0.37, 0.62 + bob, fill=light, outline=Outline, width=3)
+    poly(draw, cell, [(cx + 0.14, 0.44 + bob), (cx + 0.08, 0.26 + bob), (cx + 0.23, 0.40 + bob)],
+         fill=light, outline=Outline, width=2)
+    poly(draw, cell, [(cx + 0.28, 0.43 + bob), (cx + 0.38, 0.27 + bob), (cx + 0.37, 0.46 + bob)],
+         fill=light, outline=Outline, width=2)
+    _enemy_eyes(draw, cell, cx + 0.24, 0.50 + bob, dict(style, eyes='single'), spread=0.0, r=0.022)
+    if row == 2:
+        line(draw, cell, [(cx + 0.35, 0.52), (cx + 0.48, 0.48)], accent, 2)
+
+
+def _plague_caster(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    """A thin plague doctor: long beak, wide hat and a vial staff."""
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.012
+    # Ragged robe.
+    poly(draw, cell, [(cx - 0.13, 0.36 + bob), (cx + 0.13, 0.36 + bob), (cx + 0.22, 0.87),
+                      (cx + 0.10, 0.84), (cx + 0.03, 0.92), (cx - 0.05, 0.84), (cx - 0.17, 0.89),
+                      (cx - 0.22, 0.85)], fill=cloth, outline=Outline, width=3)
+    rect(draw, cell, cx - 0.12, 0.55 + bob, cx + 0.12, 0.58 + bob, fill=accent)
+    # Staff with a hanging vial.
+    line(draw, cell, [(cx - 0.30 + sway, 0.12), (cx - 0.27, 0.93)], mix(cloth, light, 0.4), 3)
+    ellipse(draw, cell, cx - 0.35 + sway, 0.30, cx - 0.28 + sway, 0.39, fill=accent, outline=Outline, width=1)
+    line(draw, cell, [(cx - 0.32 + sway, 0.30), (cx - 0.30 + sway, 0.24)], light, 1)
+    # Thin arms.
+    line(draw, cell, [(cx - 0.12, 0.43 + bob), (cx - 0.26, 0.53), (cx - 0.29 + sway, 0.42)], body, 3)
+    line(draw, cell, [(cx + 0.12, 0.43 + bob), (cx + 0.24, 0.56), (cx + 0.27, 0.67)], body, 3)
+    # Beaked mask.
+    ellipse(draw, cell, cx - 0.075, 0.20 + bob, cx + 0.075, 0.36 + bob, fill=light, outline=Outline, width=3)
+    poly(draw, cell, [(cx + 0.03, 0.27 + bob), (cx + 0.24, 0.30 + bob), (cx + 0.04, 0.34 + bob)],
+         fill=light, outline=Outline, width=2)
+    _enemy_eyes(draw, cell, cx, 0.265 + bob, dict(style, eyes='pair'), spread=0.030, r=0.014)
+    # Wide hat.
+    ellipse(draw, cell, cx - 0.20, 0.17 + bob, cx + 0.20, 0.22 + bob, fill=cloth, outline=Outline, width=3)
+    poly(draw, cell, [(cx - 0.07, 0.18 + bob), (cx - 0.02, 0.08 + bob), (cx + 0.06, 0.18 + bob)],
+         fill=cloth, outline=Outline, width=2)
+    # Miasma motes.
+    for i in range(3):
+        my = 0.88 - ((t * 0.4 + i * 0.33) % 1) * 0.24
+        ellipse(draw, cell, cx + 0.22 - i * 0.04, my, cx + 0.235 - i * 0.04, my + 0.014, fill=accent)
+
+
+def _hive_guard(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    """A bulky chitin guard: plated torso, mandibles and a barbed spear."""
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.012
+    # Spear behind the body.
+    line(draw, cell, [(cx + 0.34, 0.10), (cx + 0.30, 0.94)], mix(cloth, light, 0.4), 3)
+    poly(draw, cell, [(cx + 0.34, 0.10), (cx + 0.39, 0.20), (cx + 0.34, 0.18), (cx + 0.29, 0.20)],
+         fill=light, outline=Outline, width=1)
+    # Translucent wings.
+    ellipse(draw, cell, cx - 0.30, 0.40 + sway, cx - 0.04, 0.62 + sway,
+            fill=(*accent[:3], 35), outline=Outline, width=1)
+    ellipse(draw, cell, cx + 0.02, 0.38 - sway, cx + 0.26, 0.60 - sway,
+            fill=(*accent[:3], 35), outline=Outline, width=1)
+    # Segmented torso.
+    ellipse(draw, cell, cx - 0.22, 0.38 + bob, cx + 0.22, 0.78 + bob, fill=body, outline=Outline, width=3)
+    for i in range(3):
+        y = 0.46 + i * 0.09 + bob
+        rect(draw, cell, cx - 0.19, y, cx + 0.19, y + 0.045, fill=mix(body, light, 0.3 + i * 0.08))
+    # Shoulder pauldrons.
+    for sign in (-1, 1):
+        poly(draw, cell, [(cx + sign * 0.10, 0.38 + bob), (cx + sign * 0.28, 0.34 + bob),
+                          (cx + sign * 0.30, 0.48 + bob), (cx + sign * 0.12, 0.48 + bob)],
+             fill=mix(cloth, light, 0.25), outline=Outline, width=2)
+    # Head, many eyes and mandibles.
+    ellipse(draw, cell, cx - 0.11, 0.20 + bob, cx + 0.11, 0.36 + bob, fill=light, outline=Outline, width=3)
+    _enemy_eyes(draw, cell, cx, 0.275 + bob, dict(style, eyes='many'), spread=0.050, r=0.018)
+    for sign in (-1, 1):
+        poly(draw, cell, [(cx + sign * 0.05, 0.31 + bob), (cx + sign * 0.17, 0.34 + bob),
+                          (cx + sign * 0.08, 0.37 + bob)], fill=accent, outline=Outline, width=1)
+    # Legs and arms.
+    rect(draw, cell, cx - 0.15, 0.73, cx - 0.05, 0.93, fill=cloth, outline=Outline, width=2, radius=0.02)
+    rect(draw, cell, cx + 0.04, 0.73, cx + 0.14, 0.93, fill=cloth, outline=Outline, width=2, radius=0.02)
+    line(draw, cell, [(cx - 0.20, 0.47 + bob), (cx - 0.32, 0.58), (cx - 0.28, 0.70)], body, 4)
+    line(draw, cell, [(cx + 0.18, 0.47 + bob), (cx + 0.30, 0.56), (cx + 0.30, 0.42)], body, 4)
+    if row == 2:
+        line(draw, cell, [(cx + 0.30, 0.42), (cx + 0.44, 0.38)], accent, 3)
+
+
+def _archer(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
+    """A skeletal archer: ribcage, skull, bow and a back quiver."""
+    bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
+    body, light, cloth, accent = style["body"], style["light"], style["cloth"], style["accent"]
+    cx = 0.50 + lunge
+    sway = math.sin(t * math.tau) * 0.012
+    # Quiver and arrows behind the shoulder.
+    rect(draw, cell, cx + 0.15, 0.28 + bob, cx + 0.27, 0.60 + bob, fill=cloth, outline=Outline, width=2, radius=0.02)
+    for i in range(3):
+        line(draw, cell, [(cx + 0.18 + i * 0.035, 0.30 + bob), (cx + 0.16 + i * 0.035, 0.18 + bob)], light, 1)
+        poly(draw, cell, [(cx + 0.16 + i * 0.035, 0.18 + bob), (cx + 0.18 + i * 0.035, 0.14 + bob),
+                          (cx + 0.20 + i * 0.035, 0.18 + bob)], fill=accent, outline=Outline, width=1)
+    # Ragged cloak behind the ribs.
+    poly(draw, cell, [(cx - 0.20, 0.40 + bob), (cx + 0.14, 0.38 + bob), (cx + 0.18, 0.80),
+                      (cx + 0.07, 0.86), (cx - 0.02, 0.78), (cx - 0.12, 0.87), (cx - 0.19, 0.78)],
+         fill=cloth, outline=Outline, width=2)
+    # Spine and ribcage.
+    line(draw, cell, [(cx, 0.38 + bob), (cx - 0.01, 0.69)], light, 2)
+    for i in range(4):
+        y = 0.44 + i * 0.055 + bob
+        line(draw, cell, [(cx - 0.10, y + 0.02), (cx, y), (cx + 0.10, y + 0.02)], light, 1)
+    ellipse(draw, cell, cx - 0.09, 0.66, cx + 0.09, 0.75, fill=light, outline=Outline, width=1)
+    # Skull.
+    ellipse(draw, cell, cx - 0.08, 0.20 + bob, cx + 0.08, 0.35 + bob, fill=light, outline=Outline, width=3)
+    _enemy_eyes(draw, cell, cx, 0.275 + bob, dict(style, eyes='hollow'), spread=0.034, r=0.018)
+    rect(draw, cell, cx - 0.05, 0.32 + bob, cx + 0.05, 0.36 + bob, fill=mix(light, Outline, 0.25))
+    # Bow on the leading arm and a nocked arrow.
+    line(draw, cell, [(cx - 0.26, 0.30), (cx - 0.34, 0.50 + sway), (cx - 0.26, 0.70)],
+         mix(cloth, light, 0.55), 3)
+    line(draw, cell, [(cx - 0.26, 0.30), (cx - 0.18, 0.50), (cx - 0.26, 0.70)], light, 1)
+    line(draw, cell, [(cx - 0.30, 0.50 + sway), (cx + 0.14, 0.44)], light, 2)
+    poly(draw, cell, [(cx + 0.14, 0.44), (cx + 0.20, 0.42), (cx + 0.15, 0.46)], fill=accent, outline=Outline, width=1)
+    line(draw, cell, [(cx - 0.10, 0.44 + bob), (cx - 0.24, 0.50 + sway)], body, 3)
+    if row == 2:
+        line(draw, cell, [(cx - 0.30, 0.50), (cx - 0.40, 0.46)], accent, 2)
+
+
 def _wisp(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
     bob, lunge = _enemy_common(draw, cell, style, row, frame, t)
     body = style["body"]
@@ -1597,6 +1825,12 @@ def _behemoth(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame
 ENEMY_DRAW = {
     "construct": _construct,
     "hunched": _hunched,
+    "scavenger": _scavenger,
+    "bombardier": _bombardier,
+    "cave_crawler": _cave_crawler,
+    "plague_caster": _plague_caster,
+    "hive_guard": _hive_guard,
+    "archer": _archer,
     "wisp": _wisp,
     "beast": _beast,
     "duelist": _duelist,

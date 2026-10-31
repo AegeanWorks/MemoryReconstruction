@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `4`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `56`
+- **Total Top-Level Functions**: `62`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `3415`
+- **Total Source Lines**: `3649`
 
 ---
 
@@ -19,7 +19,7 @@
 ### [`scripts/generate_art_assets.py`](scripts/generate_art_assets.py)
 > *Generate the Memory Reconstruction art set.*
 
-**Size**: `3001` lines (`160658` bytes)
+**Size**: `3235` lines (`175533` bytes)
 
 **Functions:**
 - `def rgba(color, alpha)`
@@ -39,6 +39,12 @@
 - `def _enemy_eyes(draw, cell, cx, cy, style, spread, r)` - *Draws an archetype's eye motif.*
 - `def _construct(draw, cell, style, row, frame, t)`
 - `def _hunched(draw, cell, style, row, frame, t)`
+- `def _scavenger(draw, cell, style, row, frame, t)` - *A lean rag-picker: bone mask, loot sack and one overlong claw arm.*
+- `def _bombardier(draw, cell, style, row, frame, t)` - *A stout bomber: fuse hood, bomb bandolier and a round bomb in hand.*
+- `def _cave_crawler(draw, cell, style, row, frame, t)` - *A low, wide cave dweller with oversized ears and long forearms.*
+- `def _plague_caster(draw, cell, style, row, frame, t)` - *A thin plague doctor: long beak, wide hat and a vial staff.*
+- `def _hive_guard(draw, cell, style, row, frame, t)` - *A bulky chitin guard: plated torso, mandibles and a barbed spear.*
+- `def _archer(draw, cell, style, row, frame, t)` - *A skeletal archer: ribcage, skull, bow and a back quiver.*
 - `def _wisp(draw, cell, style, row, frame, t)`
 - `def _beast(draw, cell, style, row, frame, t)`
 - `def _duelist(draw, cell, style, row, frame, t)`

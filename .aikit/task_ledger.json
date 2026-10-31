@@ -1,38 +1,16 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-hero-scarf-v2",
+    "task_id": "art-early-mobs-v1",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1793429565.6716037,
-    "owner": "opencode:scarf",
-    "started_by": "opencode:scarf",
-    "continuations": [],
-    "completed_at": 1793429595.6861308
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1793433895.6807036,
+    "owner": "opencode:earlymobs",
+    "started_by": "opencode:earlymobs",
+    "continuations": []
   },
   "checkpoints": [
-    {
-      "task_id": "art-eyes-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Split the shared two-dot eye motif into six archetype motifs (pair, slits, single, many, hollow, glare) behind an _enemy_eyes helper, and assigned motifs to fifteen enemies so families stop reading as the same blob: hollow for shadow and forgotten, single cyclops for voidWalker, bogLeech and leviathan, triple for prismEntity, voidCantor, hiveDrone, hiveGuard, mireSovereign, slit visors for solderWisp, plagueCaster, catacombArcher, angled glare for spirit and graveHound. All 35 enemy sheets reviewed before and after, in-game biome sweep with zero console errors, 151 tests and 8/8 gates pass. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793386885.8111603,
-      "timestamp_str": "2026-10-30 22:01:25",
-      "agent": "kilo:main"
-    },
-    {
-      "task_id": "art-eyes-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-eyes-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793386886.6497338,
-      "timestamp_str": "2026-10-30 22:01:26",
-      "agent": "kilo:main"
-    },
     {
       "task_id": "art-deco-v1",
       "phase": "phase 4",
@@ -235,6 +213,34 @@
       "timestamp": 1793429595.6861322,
       "timestamp_str": "2026-10-31 09:53:15",
       "agent": "opencode:scarf"
+    },
+    {
+      "task_id": "art-early-mobs-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Plan: give the six hunched early enemies dedicated bodies - scavenger sack and claw, bombardier bandolier and fuse, low cave crawler, beaked plague caster, chitin hive guard and skeletal archer - then regenerate and verify each in play",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793431108.8776493,
+      "timestamp_str": "2026-10-31 10:18:28",
+      "agent": "opencode:earlymobs",
+      "impact_assessment": {
+        "why": "Scavenger, bombardier, cave dweller, plague caster, hive guard and catacomb archer all borrow the same hunched blob body with palette and eye swaps, so the first four sections repeat one silhouette.",
+        "benefits": "Each early enemy gets a distinct read at gameplay scale: sack and hook, bomb bandolier and fuse hood, low wide crawler, beaked plague doctor, plated insect guard and ribbed archer with bow.",
+        "risks": "contract: none; dependency: none; concurrency: none; state: none; art: deterministic enemy sheets only, frame sizes and atlas keys stay the same.",
+        "mitigation": "Regenerate only the affected sheets, inspect idle and attack rows at 3x, spawn each enemy in a live room, and rerun tests, build and all eight gates."
+      }
+    },
+    {
+      "task_id": "art-early-mobs-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Phase 4 green: 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; six enemy sheets regenerated and only those PNGs changed; all six spawned together in a live ruins room and reviewed in the full 4x4 sheets with zero console errors. checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793433895.6807036,
+      "timestamp_str": "2026-10-31 11:04:55",
+      "agent": "opencode:earlymobs"
     }
   ]
 }

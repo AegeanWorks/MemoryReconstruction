@@ -97,12 +97,16 @@ The atlas is bundled at build time, while the images are served from the
 | Asset | Silhouette | Motion |
 |---|---|---|
 | Memory Walker | hood, shadowed face with glowing eyes, forked two-tail scarf, shard blade | bob, scarf sway, hem sway, walk, slash arc, dash streaks |
-| Scavenger | hunched rags, bone mask, claws | lope, lunge |
+| Scavenger | lean rags, bone mask, loot sack, one overlong claw arm | lope, lunge, rake |
 | Guardian | blocky stone, cyan core | heavy march, slam |
 | Memory Echo | floating tatters, two eyes | drift, pulse |
 | Wildling | antlered forest beast | prowl |
 | Spirit | antlered wisp | float |
-| Cave Dweller | low body, large ears | scuttle |
+| Cave Dweller | low wide body, huge ears, planted forearms | scuttle |
+| Ash Bombardier | stout barrel body, bomb bandolier, fuse hood | waddle, lob |
+| Plague Chanter | thin robe, beaked mask, vial staff | drift, cast |
+| Hive Guard | chitin plates, mandibles, barbed spear | march, thrust |
+| Catacomb Archer | ribcage, skull, bow and quiver | draw, loose |
 | Crystal Golem | faceted mass, crystal growths | stomp |
 | Shadow | tall void silhouette | phase drift |
 | Crystal Guardian | slim armor, rapier | duelist sweep |

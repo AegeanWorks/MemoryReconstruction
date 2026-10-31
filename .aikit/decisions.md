@@ -398,3 +398,18 @@ or the architecture; see the header above for where each entry goes. -->
   3. **Cloth treatment**: the main tail is a mid-tone cloth with a lit cyan top edge, the under-tail sits below it so the fork reads at play scale, and a low-alpha glow keeps the ribbon visible in dark rooms. A gold clasp joins it at the shoulder.
   4. **Hem motion**: the cloak hem sways with the walk cycle and breathes with the idle bob, and the idle bob rises from 0.008 to 0.011.
 - **Consequences**: the player's silhouette now carries a readable forked scarf and a moving hem in all ten player sheets. Regeneration stays deterministic and changes only `assets/sprites/player/*.png`; atlas keys and frame sizes are unchanged. Verified at 10x across idle, walk, attack and dash and in a fresh ruins run with zero console errors.
+
+### ADR-040: The six early hunched enemies get dedicated bodies
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Scavenger, bombardier, cave dweller, plague caster, hive guard and catacomb archer all shared the `hunched` body with palette and eye swaps, so the first four sections repeated one silhouette and the casters were told apart mostly by colour.
+- **Decision**:
+  1. **Scavenger**: a lean rag-picker with an off-centre loot sack, a bone mask, a short hook arm and one overlong claw arm.
+  2. **Ash Bombardier**: a stout barrel torso with a pressure tank, a three-bomb bandolier, a fuse hood and a held bomb.
+  3. **Cave Dweller**: a low, wide crawler with a back ridge, huge ears, a single eye and planted forearms.
+  4. **Plague Chanter**: a thin robed doctor with a beaked mask, wide hat and a staff carrying a hanging vial.
+  5. **Hive Guard**: a bulky chitin torso with three plates, pauldrons, mandibles, translucent wings and a barbed spear.
+  6. **Catacomb Archer**: a skeletal ribcage, skull, ragged cloak, back quiver and a drawn bow with a nocked arrow.
+  7. **Wiring**: `ENEMY_STYLES` points those six ids at the new body kinds, and `ENEMY_DRAW` registers the functions. Frame sizes and atlas keys are unchanged.
+- **Consequences**: the early roster now reads as six different creatures in the first four sections. Only the six affected enemy PNGs regenerate; a live room with all six spawned shows every silhouette with zero console errors.
