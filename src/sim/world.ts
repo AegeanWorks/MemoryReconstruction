@@ -369,6 +369,13 @@ export class World implements Arena {
     knockback: number
   ): number {
     if (enemy.state === 'spawning' || enemy.state === 'dying') return 0;
+    // Finisher: a melee hit on a wounded enemy (below 30% health) deals +50%
+    // damage and restores a sliver of mana, rewarding aggressive cleanup.
+    if (source === 'melee' && enemy.health > 0 && enemy.health <= enemy.maxHealth * 0.3) {
+      amount = Math.round(amount * 1.5);
+      const p = this.player;
+      p.mana = Math.min(p.stats.maxMana, p.mana + 4);
+    }
     const dealt = Math.min(enemy.health, amount);
     enemy.health -= dealt;
     enemy.flash = 0.1;

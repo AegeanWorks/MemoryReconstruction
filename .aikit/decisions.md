@@ -477,3 +477,11 @@ or the architecture; see the header above for where each entry goes. -->
 - **Context**: Cinder warden and frost warden shared one warden body with palette swaps.
 - **Decision**: Cinder warden gains ember crack lines and a glowing heart; frost warden gains crystal horns on the helm.
 - **Consequences**: both warden sheets regenerate with distinct reads. 154 tests, lint, typecheck, build, mechanics and all 8 gates pass.
+
+### ADR-047: Melee finisher rewards cleaning up wounded enemies
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Finishing a wounded enemy felt no different from any other hit, so cleanup was a chore rather than a reward.
+- **Decision**: In `damageEnemy`, a melee hit on an enemy below 30% health deals +50% damage and restores 4 mana. Non-melee sources and healthy enemies are unaffected. The sim stays deterministic and no save format changes.
+- **Consequences**: aggressive play is rewarded with bigger finishing hits and mana. 156 tests (2 new), lint, typecheck, build, mechanics and all 8 gates pass.

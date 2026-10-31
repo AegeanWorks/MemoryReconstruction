@@ -442,3 +442,39 @@ describe('World', () => {
     expect(restoreRun({ version: 0 })).toBeUndefined();
   });
 });
+
+describe('finisher', () => {
+  it('melee hits on a wounded enemy deal +50% damage and restore mana', () => {
+    const world = newWorld();
+    const roomId = teleportToRoom(world, 'combat');
+    stepFor(world, 0.5);
+    const enemy = world.enemies[0];
+    enemy.state = 'chase';
+    // Wound the enemy below 30%.
+    enemy.health = Math.max(1, Math.floor(enemy.maxHealth * 0.2));
+    const before = enemy.health;
+    const manaBefore = world.player.mana;
+    const dealt = world.damageEnemy(enemy, 10, 'melee', false, 0);
+    // 10 * 1.5 = 15, but capped by remaining health.
+    expect(dealt).toBe(Math.min(before, 15));
+    expect(world.player.mana).toBe(Math.min(world.player.stats.maxMana, manaBefore + 4));
+  });
+
+  it('does not trigger on healthy enemies or non-melee sources', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'combat');
+    stepFor(world, 0.5);
+    const enemy = world.enemies[0];
+    enemy.health = enemy.maxHealth; // healthy
+    const manaBefore = world.player.mana;
+    world.damageEnemy(enemy, 10, 'melee', false, 0);
+    expect(world.player.mana).toBe(manaBefore);
+    // non-melee on a wounded enemy
+    const enemy2 = world.enemies[1] ?? world.enemies[0];
+    enemy2.state = 'chase';
+    enemy2.health = Math.max(1, Math.floor(enemy2.maxHealth * 0.2));
+    const manaBefore2 = world.player.mana;
+    world.damageEnemy(enemy2, 10, 'bolt', false, 0);
+    expect(world.player.mana).toBe(manaBefore2);
+  });
+});
