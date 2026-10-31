@@ -20,6 +20,12 @@ export interface FxTextures {
   bubble: Texture;
   /** Screen-space darkness with a clear centre, stretched over the viewport. */
   vignette: Texture;
+  /** 4-point glittering starburst for critical hits, level up, and rare drops. */
+  star: Texture;
+  /** Ancient runic ring with radial tick marks, used for boss halos and portal rifts. */
+  rune: Texture;
+  /** Gradient comet tail for projectile wakes and dash ribbons. */
+  comet: Texture;
 }
 
 function paint(size: number, draw: (ctx: CanvasRenderingContext2D, size: number) => void): Texture {
@@ -125,6 +131,80 @@ export function fxTextures(): FxTextures {
       g.addColorStop(1, 'rgba(0,0,0,1)');
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, s, s);
+    }),
+    star: paint(48, (ctx, s) => {
+      const c = s / 2;
+      // Soft center halo
+      const g = ctx.createRadialGradient(c, c, 0, c, c, s * 0.45);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.3, 'rgba(255,255,255,0.6)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, s, s);
+      // Sharp 4-point cross
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.beginPath();
+      ctx.moveTo(c, 2);
+      ctx.quadraticCurveTo(c, c, s - 2, c);
+      ctx.quadraticCurveTo(c, c, c, s - 2);
+      ctx.quadraticCurveTo(c, c, 2, c);
+      ctx.quadraticCurveTo(c, c, c, 2);
+      ctx.fill();
+    }),
+    rune: paint(128, (ctx, s) => {
+      const c = s / 2;
+      const rOuter = s * 0.44;
+      const rInner = s * 0.36;
+      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(c, c, rOuter, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(c, c, rInner, 0, Math.PI * 2);
+      ctx.stroke();
+      // 8 radial runes / tick marks
+      for (let i = 0; i < 8; i++) {
+        const a = (i * Math.PI) / 4;
+        const cos = Math.cos(a);
+        const sin = Math.sin(a);
+        ctx.beginPath();
+        ctx.moveTo(c + cos * (rInner - 2), c + sin * (rInner - 2));
+        ctx.lineTo(c + cos * (rOuter + 3), c + sin * (rOuter + 3));
+        ctx.stroke();
+      }
+      // Cardinal diamonds
+      for (let i = 0; i < 4; i++) {
+        const a = (i * Math.PI) / 2;
+        const dx = c + Math.cos(a) * (rOuter + 7);
+        const dy = c + Math.sin(a) * (rOuter + 7);
+        ctx.fillStyle = 'rgba(255,255,255,0.95)';
+        ctx.beginPath();
+        ctx.moveTo(dx, dy - 3);
+        ctx.lineTo(dx + 3, dy);
+        ctx.lineTo(dx, dy + 3);
+        ctx.lineTo(dx - 3, dy);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }),
+    comet: paint(64, (ctx, s) => {
+      // Horizontal tapered streak: center at (16, s/2), head radius ~10, tail extending right
+      const cy = s / 2;
+      const hx = 16;
+      const g = ctx.createLinearGradient(hx - 8, cy, s, cy);
+      g.addColorStop(0, 'rgba(255,255,255,0)');
+      g.addColorStop(0.18, 'rgba(255,255,255,1)');
+      g.addColorStop(0.5, 'rgba(255,255,255,0.6)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(hx, cy - 8);
+      ctx.quadraticCurveTo(s * 0.6, cy - 2, s - 2, cy);
+      ctx.quadraticCurveTo(s * 0.6, cy + 2, hx, cy + 8);
+      ctx.arc(hx, cy, 8, Math.PI * 0.5, Math.PI * 1.5);
+      ctx.fill();
     }),
   };
   return cached;

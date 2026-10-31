@@ -112,9 +112,12 @@ export class ActorView {
   /** Over actors: projectiles and health bars. */
   readonly overlay = new Container();
 
+  private readonly bossAuras = new Graphics();
   private readonly telegraphs = new Graphics();
   private readonly hazardsG = new Graphics();
   private readonly bars = new Graphics();
+  private readonly afterimages: Array<{ sprite: Sprite; age: number; life: number }> = [];
+  private dashGhostTimer = 0;
   private readonly player: ActorSprite;
   private readonly playerLight: Sprite;
   private readonly enemies = new Map<number, ActorSprite>();
@@ -134,7 +137,7 @@ export class ActorView {
   ) {
     this.actors.sortableChildren = true;
     this.accent = hex(BIOME_ART[world.plan.biome].accent);
-    this.ground.addChild(this.telegraphs, this.hazardsG);
+    this.ground.addChild(this.bossAuras, this.telegraphs, this.hazardsG);
     this.player = makeActor(sprites.player, 56);
     this.actors.addChild(this.player.root);
     this.addDecor();
@@ -205,28 +208,48 @@ export class ActorView {
 
   update(dt: number, alpha: number): void {
     this.time += dt;
+    this.bossAuras.clear();
     this.telegraphs.clear();
     this.hazardsG.clear();
     this.bars.clear();
+    this.updateAfterimages(dt);
     this.drawHazards();
     this.drawBlasts();
     this.drawBombs();
     this.updateLabels();
-    this.updatePlayer(alpha);
+    this.updatePlayer(dt, alpha);
     this.syncEnemies(dt, alpha);
     this.syncProjectiles(alpha);
     this.syncPickups();
     this.syncInteractables();
   }
 
-  private updatePlayer(alpha: number): void {
+  private updateAfterimages(dt: number): void {
+    for (let i = this.afterimages.length - 1; i >= 0; i--) {
+      const g = this.afterimages[i];
+      g.age += dt;
+      if (g.age >= g.life) {
+        g.sprite.destroy();
+        this.afterimages.splice(i, 1);
+        continue;
+      }
+      g.sprite.alpha = 0.55 * (1 - g.age / g.life);
+    }
+  }
+
+  private updatePlayer(dt: number, alpha: number): void {
     const p = this.world.player;
     const a = this.player;
     const sheet = this.sprites.player;
     const pos = this.playerPosition(alpha);
     a.root.position.set(pos.x, pos.y);
     a.root.zIndex = pos.y;
+
+    // Lantern light flares during dash or flow surge
+    const surge = p.action === 'dash' ? 1.25 : 1 + Math.min(0.25, (p.resonance / 10) * 0.25);
     this.playerLight.position.set(pos.x, pos.y);
+    this.playerLight.width = this.playerLight.height = 260 * surge;
+    this.playerLight.alpha = 0.16 * surge;
 
     const attackAnim =
       p.weapon === 'spear'
@@ -257,8 +280,36 @@ export class ActorView {
     if (p.action === 'attack' && a.current === attackAnim && p.swingTime < 0.02)
       a.current = undefined;
     play(a, anim);
+
+    // Dashing ghost afterimages
+    if (p.action === 'dash') {
+      this.dashGhostTimer -= dt;
+      if (this.dashGhostTimer <= 0) {
+        this.dashGhostTimer = 0.04;
+        const ghost = new Sprite(a.body.texture);
+        ghost.anchor.copyFrom(a.body.anchor);
+        ghost.position.set(pos.x, pos.y);
+        ghost.scale.copyFrom(a.body.scale);
+        ghost.tint = 0x6fe7ff;
+        ghost.blendMode = 'add';
+        ghost.alpha = 0.55;
+        ghost.zIndex = pos.y - 1;
+        this.actors.addChild(ghost);
+        this.afterimages.push({ sprite: ghost, age: 0, life: 0.22 });
+      }
+    } else {
+      this.dashGhostTimer = 0;
+    }
+
+    // Dynamic movement lean and idle breathing
+    const moving = p.action === 'move';
+    const lean = moving ? (pos.x - this.previousPlayer.x) * 0.03 : 0;
+    a.body.rotation = Math.max(-0.15, Math.min(0.15, lean));
+    a.flash.rotation = a.body.rotation;
+
+    const breathe = p.action === 'idle' ? 1 + Math.sin(this.time * 3.5) * 0.025 : 1;
     const facing = Math.cos(p.aim) < 0 ? -1 : 1;
-    const squash = p.action === 'dash' ? 0.88 : 1;
+    const squash = (p.action === 'dash' ? 0.88 : 1) * breathe;
     a.body.scale.set((a.baseScale * facing) / squash, a.baseScale * squash);
     a.flash.scale.copyFrom(a.body.scale);
     a.flash.textures = a.body.textures;
@@ -338,11 +389,64 @@ export class ActorView {
       e.state === 'spawning' ? grow : e.state === 'dying' ? Math.max(0, e.stateTime / 0.5) : 1;
     a.shadow.alpha = a.body.alpha;
 
+    if (e.isBoss && e.state !== 'dying') this.drawBossAura(e, pos.x, pos.y);
+    if (e.elite && e.state !== 'dying') this.drawEliteCrown(e, pos.x, pos.y);
     if (e.state === 'spawning') this.drawSpawnRune(e, pos.x, pos.y);
     if (e.state === 'windup') this.drawTelegraph(e, pos.x, pos.y);
     else if (e.state === 'attack' && e.attack === 'sweep') this.drawSweepBeam(e, pos.x, pos.y);
     if (!e.isBoss && e.health < e.maxHealth && e.state !== 'dying')
       this.drawHealthBar(e, pos.x, pos.y);
+  }
+
+  /** Rotating runic aura beneath bosses that intensifies across phase transitions. */
+  private drawBossAura(e: Enemy, x: number, y: number): void {
+    const g = this.bossAuras;
+    const hpFrac = e.maxHealth > 0 ? e.health / e.maxHealth : 1;
+    const phase = hpFrac < 0.33 ? 3 : hpFrac < 0.66 ? 2 : 1;
+    const speed = phase === 3 ? 3.4 : phase === 2 ? 2.2 : 1.2;
+    const angle = this.time * speed;
+    const radius = e.radius * 2.2;
+    const color = phase === 3 ? 0xff3b3b : phase === 2 ? 0xff7a3a : 0xb86cff;
+    const alpha = (phase === 3 ? 0.65 : phase === 2 ? 0.45 : 0.3) + 0.1 * Math.sin(this.time * 6);
+
+    // Outer and inner concentric runic bands
+    g.circle(x, y, radius).stroke({ width: 2, color, alpha });
+    g.circle(x, y, radius * 0.72).stroke({ width: 1.5, color, alpha: alpha * 0.7 });
+
+    // Radial notches / spokes
+    const count = phase === 3 ? 12 : 8;
+    for (let i = 0; i < count; i++) {
+      const a = angle + (i * Math.PI * 2) / count;
+      g.moveTo(x + Math.cos(a) * (radius * 0.72), y + Math.sin(a) * (radius * 0.72))
+        .lineTo(x + Math.cos(a) * (radius + 4), y + Math.sin(a) * (radius + 4))
+        .stroke({ width: 1.5, color, alpha });
+    }
+
+    // Outer orbital glyphs
+    for (let i = 0; i < 4; i++) {
+      const a = -angle * 1.5 + (i * Math.PI) / 2;
+      const gx = x + Math.cos(a) * (radius + 8);
+      const gy = y + Math.sin(a) * (radius + 8);
+      g.circle(gx, gy, 3).fill({ color: 0xffffff, alpha: alpha * 0.9 });
+    }
+  }
+
+  /** Golden crest above elite enemies. */
+  private drawEliteCrown(e: Enemy, x: number, y: number): void {
+    const g = this.bars;
+    const top = y - e.def.displayHeight * 0.95 - 14;
+    const pulse = 0.75 + 0.25 * Math.sin(this.time * 4 + e.id);
+    // 3-peak golden crown
+    g.moveTo(x - 8, top + 6)
+      .lineTo(x - 10, top - 2)
+      .lineTo(x - 4, top + 2)
+      .lineTo(x, top - 6)
+      .lineTo(x + 4, top + 2)
+      .lineTo(x + 10, top - 2)
+      .lineTo(x + 8, top + 6)
+      .closePath()
+      .fill({ color: 0xffd98a, alpha: pulse })
+      .stroke({ width: 1.2, color: 0xffffff, alpha: pulse });
   }
 
   /** Traps, poison pools and barrels, under the actors. */
@@ -698,7 +802,7 @@ export class ActorView {
   }
 
   private syncProjectiles(alpha: number): void {
-    const glowTex = fxTextures().glow;
+    const fx = fxTextures();
     this.sync(
       this.projectiles,
       this.world.projectiles,
@@ -706,19 +810,30 @@ export class ActorView {
       (b: Projectile) => {
         const root = new Container();
         const color = b.owner === 'player' ? PLAYER_COLOR : ENEMY_SHOT_COLOR;
-        const halo = new Sprite(glowTex);
+        const tail = new Sprite(fx.comet);
+        tail.anchor.set(0.18, 0.5);
+        tail.blendMode = 'add';
+        tail.tint = color;
+        tail.width = b.radius * 7.5;
+        tail.height = b.radius * 3.4;
+        const halo = new Sprite(fx.glow);
         halo.anchor.set(0.5);
         halo.width = halo.height = b.radius * 7;
         halo.tint = color;
         halo.blendMode = 'add';
-        const core = new Graphics().circle(0, 0, b.radius * 0.75).fill({ color: 0xffffff });
-        root.addChild(halo, core);
+        const core = new Graphics().circle(0, 0, b.radius * 0.8).fill({ color: 0xffffff });
+        root.addChild(tail, halo, core);
         return root;
       },
       (b, root) => {
         const pos = this.lerp(b.id, b.x, b.y, alpha);
         root.position.set(pos.x, pos.y);
         root.alpha = Math.min(1, b.life * 4);
+        const tail = root.children[0] as Sprite;
+        if (tail) {
+          tail.rotation = Math.atan2(b.vy, b.vx) + Math.PI;
+          tail.alpha = 0.65 + 0.35 * Math.sin(this.time * 24 + b.id);
+        }
       }
     );
   }

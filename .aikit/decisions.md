@@ -541,3 +541,15 @@ or the architecture; see the header above for where each entry goes. -->
 - **Context**: The carried bag was unbounded, held unlimited relics with no limit read, discarded relics paid nothing, and a large vault overflowed every run with gear the player never chose to carry.
 - **Decision**: `INVENTORY_SLOTS = 6` caps the carried bag. An expedition carries the attuned relic first, then vault order, into worn slots then bag slots; overflow stays in the vault. A full bag auto-sells relic pickups for shards (8 / 14 / 24 by rarity) via the `equipment` event's optional `sold` field. Unequipping into a full bag is refused. The bag's Discard becomes a confirmed Sell for the same shard price, and the Set Out screen sells vault relics for echoes (10 / 20 / 35 by rarity, +5 per reforge rank), clearing rank and attunement. Both sells arm for 2.6 s before confirming.
 - **Consequences**: bag space is a real choice, vault excess is visible and trimable, and old saves over the cap stay playable and self-heal by selling. 167 tests (8 new), lint, typecheck, build, mechanics and all gates pass.
+
+### ADR-055: Comprehensive art style, graphics, character models, animation and UI overhaul
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: The game's visual presentation had plain bullet dots without wakes, minimal secondary animation motion on the walker, no dash afterimages, flat boss floor presence without phase indicators, and flat dark HUD and upgrade choice overlays.
+- **Decision**: Overhaul the visual and UI layers across four dimensions:
+  1. Graphics & FX: Add `star`, `rune`, and `comet` procedural textures to `fxTextures`. Critical hits, level ups, fragments, and flawless rooms trigger sparkling starbursts. Upgrade weapon slashes with distinct signatures (Spear piercing lance with diamond tip and vortex pressure waves; Greatsword molten seismic arc and finisher ground shockwave; Sword glowing core spine).
+  2. Character Models & Motion: Player character gains kinetic velocity lean, idle breathing micro-motion, embroidered golden cloak hem trim, and a fading cyan phantom dash afterimage trail. Projectiles gain directional comet wake trails. Elite enemies gain floating golden crowns, and bosses gain rotating runic ground auras that accelerate and flare across 3 health phase transitions.
+  3. Environment: Walls gain crisp alternating vertical mortar seams and wall caps gain masonry stone joints.
+  4. HUD & UI: Elevate HUD vitals with dark slate plate framing, jewel gradients and gloss highlights on HP/Mana, glowing flow streak meter with fire aura, boss bar phase notches at 33% and 66%, and tarot-like upgrade cards with animated top light sheen and rarity glows.
+- **Consequences**: Visual fidelity, character readability, combat responsiveness, and dark fantasy roguelike aesthetics are significantly heightened. 168 tests (1 new), lint, typecheck, build, mechanics and all 8 gates pass.

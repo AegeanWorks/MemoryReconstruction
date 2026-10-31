@@ -180,6 +180,13 @@ function paintWallCap(art: BiomeArt, rng: Rng, lip: boolean): Texture {
   ctx.fillStyle = art.wallCap;
   ctx.fillRect(0, 0, T, T);
   speckle(ctx, rng, art.wallCap, 30, 0.15);
+  // Masonry cap joints
+  ctx.fillStyle = shade(art.wallCap, -0.22);
+  ctx.fillRect(0, 0, 1, T);
+  ctx.fillRect(T / 2, 0, 1, T);
+  ctx.fillStyle = shade(art.wallCap, 0.08);
+  ctx.fillRect(1, 0, 1, T);
+  ctx.fillRect(T / 2 + 1, 0, 1, T);
   if (lip) {
     ctx.fillStyle = shade(art.wallHighlight, -0.15);
     ctx.fillRect(0, T - 4, T, 2);
@@ -202,15 +209,18 @@ function paintWallFace(art: BiomeArt, rng: Rng, variant: number): Texture {
       ctx.fillRect(x + 1, y + 1, 14, 6);
       ctx.fillStyle = shade(art.wallFace, 0.12 - row * 0.04);
       ctx.fillRect(x + 1, y + 1, 14, 1);
+      // Vertical mortar seams
+      ctx.fillStyle = art.wallMortar;
+      ctx.fillRect(x, y, 1, 8);
     }
     ctx.fillStyle = art.wallMortar;
     ctx.fillRect(0, y, T, 1);
   }
   // Light from above, occlusion where the wall meets the floor.
   const gradient = ctx.createLinearGradient(0, 0, 0, T);
-  gradient.addColorStop(0, 'rgba(255,255,255,0.10)');
+  gradient.addColorStop(0, 'rgba(255,255,255,0.12)');
   gradient.addColorStop(0.7, 'rgba(0,0,0,0)');
-  gradient.addColorStop(1, 'rgba(0,0,0,0.35)');
+  gradient.addColorStop(1, 'rgba(0,0,0,0.38)');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, T, T);
   return toTexture(el);

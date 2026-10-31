@@ -401,7 +401,12 @@
         { "type": "ember_rain", "damage": 12, "interval": 3, "visual": "falling_embers" }
       ],
       "secrets": [{ "type": "forge_cache", "chance": 0.05, "reward": "resources" }],
-      "boss": { "id": "cinder_warden", "variant": "The Cinder Warden", "depth": 55, "arena": "cold_forge" }
+      "boss": {
+        "id": "cinder_warden",
+        "variant": "The Cinder Warden",
+        "depth": 55,
+        "arena": "cold_forge"
+      }
     },
     {
       "id": "abyss",
@@ -436,7 +441,12 @@
         { "type": "undertow", "trigger": "stand", "effect": "pull", "damage": 10 }
       ],
       "secrets": [{ "type": "drowned_diary", "chance": 0.04, "reward": "lore_entry" }],
-      "boss": { "id": "leviathan", "variant": "The Drowned Leviathan", "depth": 65, "arena": "flooded_atrium" }
+      "boss": {
+        "id": "leviathan",
+        "variant": "The Drowned Leviathan",
+        "depth": 65,
+        "arena": "flooded_atrium"
+      }
     },
     {
       "id": "frost",
@@ -471,7 +481,12 @@
         { "type": "black_ice", "trigger": "stand", "effect": "slide", "damage": 8 }
       ],
       "secrets": [{ "type": "frozen_letter", "chance": 0.04, "reward": "lore_entry" }],
-      "boss": { "id": "frost_warden", "variant": "The Frost Warden", "depth": 75, "arena": "glass_gallery" }
+      "boss": {
+        "id": "frost_warden",
+        "variant": "The Frost Warden",
+        "depth": 75,
+        "arena": "glass_gallery"
+      }
     },
     {
       "id": "bloom",
@@ -492,7 +507,12 @@
       "structureTypes": [
         { "name": "memory_garden", "weight": 20, "size": "large", "special": "heal_zone" },
         { "name": "root_hall", "weight": 18, "size": "large" },
-        { "name": "blooming_altar", "weight": 12, "size": "medium", "special": "fragment_synthesis" },
+        {
+          "name": "blooming_altar",
+          "weight": 12,
+          "size": "medium",
+          "special": "fragment_synthesis"
+        },
         { "name": "quiet_grove", "weight": 10, "size": "small", "safe": true }
       ],
       "enemyDistribution": {
@@ -506,14 +526,26 @@
         { "type": "thorn_vines", "damage": 12, "slow": 0.5, "visual": "green_thorns" }
       ],
       "secrets": [{ "type": "first_bloom", "chance": 0.05, "reward": "blessing" }],
-      "boss": { "id": "thorn_matriarch", "variant": "The Thorn Matriarch", "depth": 85, "arena": "memory_garden" }
+      "boss": {
+        "id": "thorn_matriarch",
+        "variant": "The Thorn Matriarch",
+        "depth": 85,
+        "arena": "memory_garden"
+      }
     },
     {
       "id": "foundry",
       "name": "The Sleepless Foundry",
       "description": "A clockwork works that kept producing a world after the world was gone. The belts still turn.",
       "theme": "Mechanical persistence",
-      "colorPalette": { "primary": "#4A4038", "secondary": "#3E352E", "accent": "#C08A3E", "dark": "#1C1712", "light": "#E0B96A", "hazard": "#FFB347" },
+      "colorPalette": {
+        "primary": "#4A4038",
+        "secondary": "#3E352E",
+        "accent": "#C08A3E",
+        "dark": "#1C1712",
+        "light": "#E0B96A",
+        "hazard": "#FFB347"
+      },
       "musicTheme": "combat",
       "ambientSounds": ["gear_grind", "steam_vent", "distant_bell"],
       "tilesets": ["tileset_foundry"],
@@ -528,16 +560,30 @@
         "shadow": { "weight": 25, "minDepth": 20, "maxDepth": 100 }
       },
       "lootModifiers": { "memoryFragmentRate": 3.0, "weaponChance": 0.3, "crystalChance": 0.3 },
-      "environmentalHazards": [{ "type": "steam_vent", "damage": 14, "interval": 3.5, "visual": "steam" }],
+      "environmentalHazards": [
+        { "type": "steam_vent", "damage": 14, "interval": 3.5, "visual": "steam" }
+      ],
       "secrets": [{ "type": "foreman_key", "chance": 0.05, "reward": "equipment" }],
-      "boss": { "id": "clockwork_regent", "variant": "The Clockwork Regent", "depth": 95, "arena": "assembly_line" }
+      "boss": {
+        "id": "clockwork_regent",
+        "variant": "The Clockwork Regent",
+        "depth": 95,
+        "arena": "assembly_line"
+      }
     },
     {
       "id": "mire",
       "name": "The Whispering Mire",
       "description": "A swamp fed by every memory that was buried instead of grieved. It repeats names back to you.",
       "theme": "Buried names",
-      "colorPalette": { "primary": "#33463A", "secondary": "#2C3D32", "accent": "#6F8F4E", "dark": "#131C16", "light": "#A9C482", "hazard": "#B8E06A" },
+      "colorPalette": {
+        "primary": "#33463A",
+        "secondary": "#2C3D32",
+        "accent": "#6F8F4E",
+        "dark": "#131C16",
+        "light": "#A9C482",
+        "hazard": "#B8E06A"
+      },
       "musicTheme": "exploration",
       "ambientSounds": ["bog_bubble", "reed_whisper", "deep_plop"],
       "tilesets": ["tileset_mire"],
@@ -551,17 +597,35 @@
         "plague_caster": { "weight": 32, "minDepth": 60, "maxDepth": 120 },
         "drowned": { "weight": 30, "minDepth": 40, "maxDepth": 110 }
       },
-      "lootModifiers": { "memoryFragmentRate": 3.8, "accessoryChance": 0.3, "legendaryChance": 0.05 },
-      "environmentalHazards": [{ "type": "poison_bog", "damage": 10, "interval": 1.2, "visual": "bubbles" }],
+      "lootModifiers": {
+        "memoryFragmentRate": 3.8,
+        "accessoryChance": 0.3,
+        "legendaryChance": 0.05
+      },
+      "environmentalHazards": [
+        { "type": "poison_bog", "damage": 10, "interval": 1.2, "visual": "bubbles" }
+      ],
       "secrets": [{ "type": "drowned_name", "chance": 0.05, "reward": "lore_entry" }],
-      "boss": { "id": "mire_sovereign", "variant": "The Mire Sovereign", "depth": 100, "arena": "sunken_grove" }
+      "boss": {
+        "id": "mire_sovereign",
+        "variant": "The Mire Sovereign",
+        "depth": 100,
+        "arena": "sunken_grove"
+      }
     },
     {
       "id": "hive",
       "name": "The Hollow Hive",
       "description": "A settlement built from wax and borrowed bone. Something in the comb still hums a work song.",
       "theme": "Belonging, gone wrong",
-      "colorPalette": { "primary": "#4A3520", "secondary": "#3E2C1B", "accent": "#C08A3E", "dark": "#1A1108", "light": "#E8C070", "hazard": "#FFB347" },
+      "colorPalette": {
+        "primary": "#4A3520",
+        "secondary": "#3E2C1B",
+        "accent": "#C08A3E",
+        "dark": "#1A1108",
+        "light": "#E8C070",
+        "hazard": "#FFB347"
+      },
       "musicTheme": "combat",
       "ambientSounds": ["comb_hum", "wing_drone", "wax_crack"],
       "tilesets": ["tileset_hive"],
@@ -578,14 +642,26 @@
       "lootModifiers": { "memoryFragmentRate": 4.0, "weaponChance": 0.32, "accessoryChance": 0.3 },
       "environmentalHazards": [{ "type": "sticky_wax", "trigger": "stand", "effect": "slow" }],
       "secrets": [{ "type": "royal_jelly", "chance": 0.06, "reward": "heal" }],
-      "boss": { "id": "hive_queen", "variant": "The Hive Queen", "depth": 110, "arena": "queens_hall" }
+      "boss": {
+        "id": "hive_queen",
+        "variant": "The Hive Queen",
+        "depth": 110,
+        "arena": "queens_hall"
+      }
     },
     {
       "id": "catacomb",
       "name": "The Bone Catacombs",
       "description": "The sanctuary's older foundations, stacked with everyone who was remembered here first. They still keep rank.",
       "theme": "The weight of the remembered",
-      "colorPalette": { "primary": "#3E4446", "secondary": "#343A3C", "accent": "#7E8C8A", "dark": "#141A1B", "light": "#D8D2B8", "hazard": "#8FD8C8" },
+      "colorPalette": {
+        "primary": "#3E4446",
+        "secondary": "#343A3C",
+        "accent": "#7E8C8A",
+        "dark": "#141A1B",
+        "light": "#D8D2B8",
+        "hazard": "#8FD8C8"
+      },
       "musicTheme": "exploration",
       "ambientSounds": ["bone_click", "cold_drip", "distant_chant"],
       "tilesets": ["tileset_catacomb"],
@@ -602,7 +678,12 @@
       "lootModifiers": { "memoryFragmentRate": 4.4, "weaponChance": 0.34, "legendaryChance": 0.06 },
       "environmentalHazards": [{ "type": "bone_dust", "damage": 12, "interval": 2.5 }],
       "secrets": [{ "type": "first_name", "chance": 0.06, "reward": "lore_entry" }],
-      "boss": { "id": "bone_tyrant", "variant": "The Bone Tyrant", "depth": 120, "arena": "barrow_hall" }
+      "boss": {
+        "id": "bone_tyrant",
+        "variant": "The Bone Tyrant",
+        "depth": 120,
+        "arena": "barrow_hall"
+      }
     }
   ],
   "globalSettings": {

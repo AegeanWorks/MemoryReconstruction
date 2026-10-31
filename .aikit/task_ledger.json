@@ -1,66 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "mech-relic-bag-v1",
+    "task_id": "art-graphics-models-ui-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793457100.9662473,
+    "updated_at": 1793458610.5400035,
     "owner": "antigravity",
     "started_by": "antigravity",
     "continuations": [],
-    "completed_at": 1793457113.1621225
+    "completed_at": 1793458616.1854382
   },
   "checkpoints": [
-    {
-      "task_id": "mech-crit-reward-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Plan: critical hits restore 3 mana and extend the flow window by 0.5s, making crits feel rewarding.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793441867.389656,
-      "timestamp_str": "2026-10-31 13:17:47",
-      "agent": "opencode:mech",
-      "impact_assessment": {
-        "why": "Crits deal more damage but have no secondary reward, so they feel like a stat bump rather than a dopamine moment.",
-        "benefits": "Crits become a moment to celebrate and extend the flow streak.",
-        "risks": "contract: damageEnemy signature unchanged; dependency: none; concurrency: none; state: sim only.",
-        "mitigation": "Unit test crit reward; existing tests pass; gates."
-      }
-    },
-    {
-      "task_id": "mech-crit-reward-v1",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "[2/3] Implement: critical hits restore 3 mana and extend flow window by 0.5s (capped at 2x window).",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793441899.8603494,
-      "timestamp_str": "2026-10-31 13:18:19",
-      "agent": "opencode:mech"
-    },
-    {
-      "task_id": "mech-crit-reward-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Verify: 161 tests (1 new), lint, typecheck, build, mechanics, 8/8 gates; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793441900.2243884,
-      "timestamp_str": "2026-10-31 13:18:20",
-      "agent": "opencode:mech"
-    },
-    {
-      "task_id": "mech-crit-reward-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'mech-crit-reward-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793441903.141742,
-      "timestamp_str": "2026-10-31 13:18:23",
-      "agent": "opencode:mech"
-    },
     {
       "task_id": "art-duelist-silhouettes-v1",
       "phase": "phase 2",
@@ -255,6 +206,55 @@
       "status": "completed",
       "timestamp": 1793457113.162125,
       "timestamp_str": "2026-10-31 17:31:53",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "art-graphics-models-ui-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/4] Plan: comprehensive visual overhaul across graphics pipeline, character animations/models, FX, and roguelike HUD/UI",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793457301.5700948,
+      "timestamp_str": "2026-10-31 17:35:01",
+      "agent": "antigravity",
+      "impact_assessment": {
+        "why": "Elevate visual fidelity, combat kinetic feel, character readability, and UI aesthetics to commercial indie roguelike standards",
+        "benefits": "Fluid dash ghosting, distinct weapon trails, energetic projectile wakes, boss phase auras, jewel HUD vitals, ornate upgrade cards, and immersive dark fantasy theme",
+        "risks": "contract: no breaking changes to sim or events; dependency: none (pixi.js & css only); concurrency: none; state: visual/UI presentation layer only",
+        "mitigation": "Thorough unit tests, non-breaking presentation wrappers, all 8 AIKit gates pass"
+      }
+    },
+    {
+      "task_id": "art-graphics-models-ui-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "[2/4] Implement: dash afterimages, weapon slash signatures, starburst crits, comet wakes, boss runic floor aura, elite crown, masonry wall joints, and roguelike HUD/card aesthetics",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793458597.0607622,
+      "timestamp_str": "2026-10-31 17:56:37",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "art-graphics-models-ui-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/4] Verify: 168 tests (1 new), lint, typecheck, build, mechanics, 8/8 gates; codebase map refreshed; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793458610.5400035,
+      "timestamp_str": "2026-10-31 17:56:50",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "art-graphics-models-ui-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-graphics-models-ui-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793458616.1854398,
+      "timestamp_str": "2026-10-31 17:56:56",
       "agent": "antigravity"
     }
   ]

@@ -18,4 +18,11 @@ describe('assets', () => {
     expect(shade(once, -0.5)).toMatch(/^#[0-9a-f]{6}$/);
     expect(shade('#000000', 1)).toBe('#ffffff');
   });
+
+  it('shades colors with precision across light and dark bounds', () => {
+    expect(shade('#102030', 0)).toBe('#102030');
+    expect(shade('#ffffff', -1)).toBe('#000000');
+    expect(shade('#ffffff', 0.5)).toBe('#ffffff');
+    expect(shade('#333333', 0.25)).toMatch(/^#[0-9a-f]{6}$/);
+  });
 });

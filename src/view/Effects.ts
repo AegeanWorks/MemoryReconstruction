@@ -34,6 +34,14 @@ interface Ring {
   radius: number;
 }
 
+interface StarBurst {
+  sprite: Sprite;
+  age: number;
+  life: number;
+  targetScale: number;
+  rotSpeed: number;
+}
+
 interface FloatingText {
   text: Text;
   vy: number;
@@ -80,6 +88,7 @@ export class Effects {
   private readonly slashes: Slash[] = [];
   private readonly rings: Ring[] = [];
   private readonly texts: FloatingText[] = [];
+  private readonly stars: StarBurst[] = [];
   private readonly motes: AmbientMote[] = [];
   private readonly motePool: AtmosphereLayer[] = [];
   private shake = 0;
@@ -111,6 +120,7 @@ export class Effects {
           break;
         case 'dash':
           this.burst(e.x, e.y, 0x6fe7ff, 10, 60, 0.35, 5);
+          this.star(e.x, e.y, 0x6fe7ff, 28, 0.22);
           break;
         case 'bolt':
           this.burst(
@@ -131,6 +141,7 @@ export class Effects {
               Math.atan2(e.y - playerY, e.x - playerX),
               e.crit ? 14 : 7
             );
+            if (e.crit) this.star(e.x, e.y, 0xffd34a, 40, 0.35);
             this.number(e.x, e.y, `${e.amount}`, e.crit ? 0xffd34a : 0xffffff, e.crit ? 22 : 16);
           } else {
             this.burst(e.x, e.y, 0xff3b3b, 12, 140, 0.4, 4);
@@ -171,6 +182,7 @@ export class Effects {
           break;
         case 'fragmentFound':
           this.ring(playerX, playerY, 140, 0xffd98a, 0.7);
+          this.star(playerX, playerY, 0xffd98a, 56, 0.5);
           break;
         case 'potion':
           this.burst(playerX, playerY, 0x7dff9a, 16, 80, 0.6, 4);
@@ -178,6 +190,7 @@ export class Effects {
           break;
         case 'levelUp':
           this.ring(playerX, playerY, 120, 0xffd98a, 0.6);
+          this.star(playerX, playerY, 0xffd98a, 64, 0.6);
           this.number(playerX, playerY - 40, 'LEVEL UP', 0xffd98a, 20);
           break;
         case 'graze':
@@ -194,6 +207,7 @@ export class Effects {
           break;
         case 'lootSurge':
           this.ring(e.x, e.y, e.kind === 'jackpot' ? 100 : 70, 0xffd98a, 0.5);
+          this.star(e.x, e.y, 0xffd98a, e.kind === 'jackpot' ? 56 : 42, 0.4);
           this.number(
             e.x,
             e.y - 24,
@@ -203,6 +217,7 @@ export class Effects {
           );
           break;
         case 'flawlessRoom':
+          this.star(playerX, playerY, 0x6fe7ff, 50, 0.45);
           this.number(playerX, playerY - 30, `FLAWLESS +${e.shards}`, 0x9df3ff, 15);
           break;
         case 'objectiveComplete':
@@ -327,6 +342,7 @@ export class Effects {
     this.updateParticles(dt);
     this.updateSlashes(dt);
     this.updateRings(dt);
+    this.updateStars(dt);
     this.updateTexts(dt);
     this.updateMotes(dt, view);
   }
@@ -405,6 +421,40 @@ export class Effects {
     this.rings.push({ sprite, age: 0, life, radius });
   }
 
+  private star(x: number, y: number, color = 0xffe978, size = 32, life = 0.35): void {
+    const sprite = new Sprite(fxTextures().star);
+    sprite.anchor.set(0.5);
+    sprite.position.set(x, y);
+    sprite.tint = color;
+    sprite.blendMode = 'add';
+    sprite.scale.set(0.2);
+    this.layer.addChild(sprite);
+    this.stars.push({
+      sprite,
+      age: 0,
+      life,
+      targetScale: size / 48,
+      rotSpeed: (this.random() - 0.5) * 8,
+    });
+  }
+
+  private updateStars(dt: number): void {
+    for (let i = this.stars.length - 1; i >= 0; i--) {
+      const s = this.stars[i];
+      s.age += dt;
+      const t = s.age / s.life;
+      if (t >= 1) {
+        s.sprite.destroy();
+        this.stars.splice(i, 1);
+        continue;
+      }
+      s.sprite.rotation += s.rotSpeed * dt;
+      const scale = s.targetScale * (t < 0.2 ? t / 0.2 : 1 - (t - 0.2) * 0.4);
+      s.sprite.scale.set(scale);
+      s.sprite.alpha = 1 - t;
+    }
+  }
+
   private number(x: number, y: number, label: string, color: number, size: number): void {
     const text = new Text({
       text: label,
@@ -460,48 +510,91 @@ export class Effects {
       }
       const t = s.age / SLASH_LIFE;
       const alpha = 1 - t;
-      // Spear: a fast forward thrust line. Greatsword: a wider, heavier arc.
+      // Spear: a fast forward thrust line with diamond tip and vortex pressure waves.
       if (s.weapon === 'spear') {
         const tip = 30 + 78 * Math.min(1, t * 2.6);
         const ex = s.x + Math.cos(s.angle) * tip;
         const ey = s.y + Math.sin(s.angle) * tip;
+        // Central piercing lance
         g.moveTo(s.x + Math.cos(s.angle) * 10, s.y + Math.sin(s.angle) * 10)
           .lineTo(ex, ey)
-          .stroke({ width: 6 * alpha + 1, color: 0xd8f6ff, alpha });
-        g.circle(ex, ey, 5 + 4 * alpha).fill({ color: 0xffffff, alpha: alpha * 0.8 });
-        g.moveTo(ex - Math.cos(s.angle + 1.4) * 12, ey - Math.sin(s.angle + 1.4) * 12)
+          .stroke({ width: 7 * alpha + 1, color: 0xd8f6ff, alpha });
+        g.moveTo(s.x + Math.cos(s.angle) * 12, s.y + Math.sin(s.angle) * 12)
           .lineTo(ex, ey)
-          .lineTo(ex - Math.cos(s.angle - 1.4) * 12, ey - Math.sin(s.angle - 1.4) * 12)
-          .stroke({ width: 2, color: 0x9df3ff, alpha: alpha * 0.7 });
+          .stroke({ width: 2 * alpha + 1, color: 0xffffff, alpha });
+        // Piercing diamond arrowhead at the tip
+        const d = 5 + 4 * alpha;
+        g.poly([
+          ex + Math.cos(s.angle) * d * 1.6,
+          ey + Math.sin(s.angle) * d * 1.6,
+          ex + Math.cos(s.angle + Math.PI / 2) * d,
+          ey + Math.sin(s.angle + Math.PI / 2) * d,
+          ex - Math.cos(s.angle) * d * 0.8,
+          ey - Math.sin(s.angle) * d * 0.8,
+          ex - Math.cos(s.angle + Math.PI / 2) * d,
+          ey - Math.sin(s.angle + Math.PI / 2) * d,
+        ]).fill({ color: 0xffffff, alpha: alpha * 0.95 });
+        // Flanking pressure shockwaves
+        g.moveTo(ex - Math.cos(s.angle + 1.35) * 16, ey - Math.sin(s.angle + 1.35) * 16)
+          .lineTo(ex, ey)
+          .lineTo(ex - Math.cos(s.angle - 1.35) * 16, ey - Math.sin(s.angle - 1.35) * 16)
+          .stroke({ width: 2.5 * alpha, color: 0x9df3ff, alpha: alpha * 0.8 });
         continue;
       }
       const finisher = s.combo === (s.weapon === 'greatsword' ? 1 : 2);
-      const reach = s.weapon === 'greatsword' ? (finisher ? 82 : 70) : finisher ? 68 : 58;
+      const reach = s.weapon === 'greatsword' ? (finisher ? 84 : 70) : finisher ? 70 : 58;
       const half = s.weapon === 'greatsword' ? (finisher ? 1.75 : 1.4) : finisher ? 1.45 : 1.0;
-      // Keep the crescent centred on the aim and expand it outward. The old
-      // sweep started behind the player, so the arc read as a tail rather than
-      // a strike toward the target.
+      // Keep the crescent centred on the aim and expand it outward.
       const spread = Math.min(1, t * 2.6);
       const from = s.angle - half * spread;
       const to = s.angle + half * spread;
-      const steps = 10;
+      const steps = 12;
       const outer: number[] = [];
       const inner: number[] = [];
+      const mid: number[] = [];
       for (let k = 0; k <= steps; k++) {
         const a = from + ((to - from) * k) / steps;
-        const thickBase = s.weapon === 'greatsword' ? 16 : 6;
-        const thickness = thickBase + 14 * Math.sin((k / steps) * Math.PI);
+        const thickBase = s.weapon === 'greatsword' ? 18 : 7;
+        const thickness = thickBase + (finisher ? 16 : 12) * Math.sin((k / steps) * Math.PI);
         outer.push(s.x + Math.cos(a) * reach, s.y + Math.sin(a) * reach);
         inner.push(
           s.x + Math.cos(a) * (reach - thickness),
           s.y + Math.sin(a) * (reach - thickness)
         );
+        mid.push(
+          s.x + Math.cos(a) * (reach - thickness * 0.45),
+          s.y + Math.sin(a) * (reach - thickness * 0.45)
+        );
       }
       const points = [...outer];
       for (let k = inner.length - 2; k >= 0; k -= 2) points.push(inner[k], inner[k + 1]);
       const color = s.weapon === 'greatsword' ? 0xffe9a8 : finisher ? 0xfff3c4 : 0xc8f7ff;
-      g.poly(points).fill({ color, alpha: 0.85 * alpha });
-      g.poly(outer, false).stroke({ width: 2, color: 0xffffff, alpha });
+      g.poly(points).fill({ color, alpha: 0.88 * alpha });
+      // Inner hot-core radiant blade spine
+      g.poly(mid, false).stroke({ width: 2.5 * alpha, color: 0xffffff, alpha: alpha * 0.9 });
+      // Outer razor contour
+      g.poly(outer, false).stroke({
+        width: s.weapon === 'greatsword' ? 2.5 : 1.8,
+        color: 0xffffff,
+        alpha,
+      });
+
+      // Greatsword finisher earthquake shockwave
+      if (s.weapon === 'greatsword' && finisher) {
+        const shockOuter: number[] = [];
+        for (let k = 0; k <= steps; k++) {
+          const a = from + ((to - from) * k) / steps;
+          shockOuter.push(
+            s.x + Math.cos(a) * (reach + 18 * t),
+            s.y + Math.sin(a) * (reach + 18 * t)
+          );
+        }
+        g.poly(shockOuter, false).stroke({
+          width: 3 * alpha,
+          color: 0xffa040,
+          alpha: alpha * 0.65,
+        });
+      }
     }
   }
 

@@ -53,6 +53,7 @@ export class Renderer {
   private zoom = 1;
   private aimX = 0;
   private aimY = 0;
+  private time = 0;
 
   async init(host: HTMLElement, onProgress?: (fraction: number) => void): Promise<void> {
     await this.app.init({
@@ -146,6 +147,7 @@ export class Renderer {
    * steps (0..1); `dt` is the real seconds since the previous frame.
    */
   render(alpha: number, dt: number): void {
+    this.time += dt;
     const scene = this.scene;
     if (scene) this.updateScene(scene, alpha, dt);
     this.app.renderer.render(this.app.stage);
@@ -193,10 +195,19 @@ export class Renderer {
     scene.actors.update(dt, alpha);
     scene.effects.update(dt, view);
 
-    // Darkness centred on the player, sized to the larger screen side.
+    // Dynamic breathing and atmospheric lighting
+    const biome = scene.world.plan.biome;
+    const baseDarkness = BIOME_ART[biome]?.darkness ?? 0.55;
+    const pulse = Math.sin(this.time * 1.8) * 0.02;
+    const flowRelief = Math.min(0.12, (scene.world.player.resonance / 10) * 0.12);
+    this.darkness.alpha = Math.max(0.15, baseDarkness + pulse - flowRelief);
+
+    // Darkness centred on the player, expanding on dash
+    const isDashing = scene.world.player.action === 'dash';
+    const flare = isDashing ? 1.08 : 1.0;
     const px = w / 2 + (target.x - this.camX) * this.zoom;
     const py = h / 2 + (target.y - this.camY) * this.zoom;
-    const size = Math.max(w, h) * 1.9;
+    const size = Math.max(w, h) * 1.9 * flare;
     this.darkness.position.set(px, py);
     this.darkness.width = this.darkness.height = size;
 

@@ -34,13 +34,7 @@
         "texture": "enemy_scavenger",
         "width": 32,
         "height": 48,
-        "animations": [
-          "idle",
-          "walk",
-          "attack",
-          "stunned",
-          "death"
-        ]
+        "animations": ["idle", "walk", "attack", "stunned", "death"]
       },
       "lootTable": [
         {
@@ -106,13 +100,7 @@
         "texture": "enemy_guardian",
         "width": 64,
         "height": 64,
-        "animations": [
-          "idle",
-          "walk",
-          "attack",
-          "stunned",
-          "death"
-        ]
+        "animations": ["idle", "walk", "attack", "stunned", "death"]
       },
       "lootTable": [
         {
@@ -179,17 +167,9 @@
         "texture": "enemy_echo",
         "width": 32,
         "height": 48,
-        "animations": [
-          "idle",
-          "walk",
-          "attack",
-          "phase",
-          "death"
-        ]
+        "animations": ["idle", "walk", "attack", "phase", "death"]
       },
-      "abilities": [
-        "phase_shift"
-      ],
+      "abilities": ["phase_shift"],
       "lootTable": [
         {
           "item": "memory_fragment",
@@ -239,13 +219,7 @@
         "texture": "enemy_wildling",
         "width": 48,
         "height": 48,
-        "animations": [
-          "idle",
-          "walk",
-          "attack",
-          "stunned",
-          "death"
-        ]
+        "animations": ["idle", "walk", "attack", "stunned", "death"]
       },
       "lootTable": [
         {
@@ -296,19 +270,9 @@
         "texture": "enemy_spirit",
         "width": 48,
         "height": 64,
-        "animations": [
-          "idle",
-          "float",
-          "cast",
-          "stunned",
-          "death"
-        ]
+        "animations": ["idle", "float", "cast", "stunned", "death"]
       },
-      "abilities": [
-        "nature_bolt",
-        "healing_bloom",
-        "entangling_roots"
-      ],
+      "abilities": ["nature_bolt", "healing_bloom", "entangling_roots"],
       "lootTable": [
         {
           "item": "memory_fragment",
@@ -364,18 +328,9 @@
         "texture": "enemy_cave_dweller",
         "width": 40,
         "height": 48,
-        "animations": [
-          "idle",
-          "walk",
-          "attack",
-          "listen",
-          "stunned",
-          "death"
-        ]
+        "animations": ["idle", "walk", "attack", "listen", "stunned", "death"]
       },
-      "abilities": [
-        "sonic_screech"
-      ],
+      "abilities": ["sonic_screech"],
       "lootTable": [
         {
           "item": "memory_fragment",
@@ -425,20 +380,9 @@
         "texture": "enemy_crystal_golem",
         "width": 80,
         "height": 80,
-        "animations": [
-          "idle",
-          "walk",
-          "attack",
-          "reflect",
-          "stunned",
-          "death"
-        ]
+        "animations": ["idle", "walk", "attack", "reflect", "stunned", "death"]
       },
-      "abilities": [
-        "crystal_reflect",
-        "prism_beam",
-        "shard_explosion"
-      ],
+      "abilities": ["crystal_reflect", "prism_beam", "shard_explosion"],
       "lootTable": [
         {
           "item": "memory_fragment",
@@ -494,19 +438,9 @@
         "texture": "enemy_shadow",
         "width": 48,
         "height": 48,
-        "animations": [
-          "idle",
-          "phase",
-          "attack",
-          "stunned",
-          "death"
-        ]
+        "animations": ["idle", "phase", "attack", "stunned", "death"]
       },
-      "abilities": [
-        "shadow_phase",
-        "memory_drain",
-        "darkness_veil"
-      ],
+      "abilities": ["shadow_phase", "memory_drain", "darkness_veil"],
       "lootTable": [
         {
           "item": "memory_fragment",
@@ -556,20 +490,9 @@
         "texture": "enemy_crystal_guardian",
         "width": 48,
         "height": 64,
-        "animations": [
-          "idle",
-          "walk",
-          "attack",
-          "parry",
-          "stunned",
-          "death"
-        ]
+        "animations": ["idle", "walk", "attack", "parry", "stunned", "death"]
       },
-      "abilities": [
-        "crystal_parry",
-        "refracting_slash",
-        "light_burst"
-      ],
+      "abilities": ["crystal_parry", "refracting_slash", "light_burst"],
       "lootTable": [
         {
           "item": "memory_fragment",
@@ -625,20 +548,9 @@
         "texture": "enemy_prism_entity",
         "width": 48,
         "height": 48,
-        "animations": [
-          "idle",
-          "float",
-          "attack",
-          "split",
-          "stunned",
-          "death"
-        ]
+        "animations": ["idle", "float", "attack", "split", "stunned", "death"]
       },
-      "abilities": [
-        "prism_split",
-        "rainbow_beam",
-        "blinding_flash"
-      ],
+      "abilities": ["prism_split", "rainbow_beam", "blinding_flash"],
       "lootTable": [
         {
           "item": "memory_fragment",
@@ -688,21 +600,9 @@
         "texture": "enemy_void_walker",
         "width": 64,
         "height": 80,
-        "animations": [
-          "idle",
-          "walk",
-          "attack",
-          "void_step",
-          "stunned",
-          "death"
-        ]
+        "animations": ["idle", "walk", "attack", "void_step", "stunned", "death"]
       },
-      "abilities": [
-        "void_step",
-        "erasure_touch",
-        "memory_void",
-        "reality_tear"
-      ],
+      "abilities": ["void_step", "erasure_touch", "memory_void", "reality_tear"],
       "lootTable": [
         {
           "item": "memory_fragment",
@@ -764,16 +664,7 @@
         "texture": "enemy_forgotten",
         "width": 96,
         "height": 96,
-        "animations": [
-          "idle",
-          "walk",
-          "attack",
-          "special",
-          "stunned",
-          "death",
-          "phase2",
-          "phase3"
-        ]
+        "animations": ["idle", "walk", "attack", "special", "stunned", "death", "phase2", "phase3"]
       },
       "abilities": [
         "memory_surge",
@@ -811,16 +702,12 @@
       "phases": [
         {
           "healthThreshold": 0.66,
-          "newAbilities": [
-            "forgotten_army"
-          ],
+          "newAbilities": ["forgotten_army"],
           "speedMult": 1.2
         },
         {
           "healthThreshold": 0.33,
-          "newAbilities": [
-            "void_domain"
-          ],
+          "newAbilities": ["void_domain"],
           "damageMult": 1.5
         }
       ]
@@ -902,23 +789,17 @@
       "phases": [
         {
           "healthThreshold": 0.75,
-          "newAbilities": [
-            "timeline_shift"
-          ],
+          "newAbilities": ["timeline_shift"],
           "dialogue": "You seek what was lost..."
         },
         {
           "healthThreshold": 0.5,
-          "newAbilities": [
-            "reconstruction_beam"
-          ],
+          "newAbilities": ["reconstruction_beam"],
           "dialogue": "Memory is not static..."
         },
         {
           "healthThreshold": 0.25,
-          "newAbilities": [
-            "true_ending"
-          ],
+          "newAbilities": ["true_ending"],
           "dialogue": "Then create anew."
         }
       ]

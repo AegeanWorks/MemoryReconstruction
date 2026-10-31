@@ -768,6 +768,10 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
         (0.29, 0.78 - hem * 0.3),
     ]
     poly(draw, cell, cloak, fill=pal["cloak"], outline=pal["outline"], width=3)
+    # Golden embroidered hem trim along the bottom edge of the cloak.
+    line(draw, cell, [(0.29, 0.77 - hem * 0.3), (0.42, 0.79 + hem * 0.4), (0.49, 0.86 - hem),
+                      (0.55, 0.78 - hem * 0.4), (0.63, 0.85 + hem), (0.72, 0.77 + hem * 0.3)],
+         pal["gold"], 1)
     poly(draw, cell, [(0.40 + lean, 0.37 + bob), (0.55 + lean, 0.36 + bob), (0.51, 0.72), (0.43, 0.76)],
          fill=pal["cloak_light"])
     rect(draw, cell, 0.37, 0.62, 0.63, 0.66, fill=pal["gold"], outline=pal["outline"], width=1, radius=0.01)
@@ -851,6 +855,9 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
             ellipse(draw, cell, hand[0] - dx * 0.035 - 0.022, hand[1] - dy * 0.035 - 0.022,
                     hand[0] - dx * 0.035 + 0.022, hand[1] - dy * 0.035 + 0.022,
                     fill=pal["gold"], outline=pal["outline"], width=1)
+            if state in ("idle", "walk"):
+                gr = 0.012
+                ellipse(draw, cell, tip[0] - gr, tip[1] - gr, tip[0] + gr, tip[1] + gr, fill=pal["blade_core"])
             if attacking and t > 0.18:
                 size = cell * SS
                 if heavy:
