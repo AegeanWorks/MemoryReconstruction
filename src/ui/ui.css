@@ -46,12 +46,6 @@
   transform: translateX(-50%);
   display: grid;
   gap: 6px;
-  padding: 8px 14px 10px;
-  background: linear-gradient(180deg, rgba(16, 14, 28, 0.72), rgba(8, 7, 16, 0.9));
-  border: 1px solid rgba(255, 217, 138, 0.22);
-  border-radius: 10px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.65), inset 0 0 1px rgba(255, 217, 138, 0.25);
-  backdrop-filter: blur(4px);
 }
 .hud-level {
   display: flex;
@@ -95,16 +89,13 @@
   transition: width 0.6s ease-in 0.2s;
 }
 .bar.hp .bar-fill {
-  background: linear-gradient(180deg, #ff7a86 0%, #d92e44 60%, #9e1425 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 8px rgba(217, 46, 68, 0.45);
+  background: linear-gradient(180deg, #ff7a86, #d92e44);
 }
 .bar.mana .bar-fill {
-  background: linear-gradient(180deg, #b8f5ff 0%, #36b6e8 60%, #156d9c 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 8px rgba(54, 182, 232, 0.45);
+  background: linear-gradient(180deg, #9cf0ff, #2fa6d6);
 }
 .bar.xp .bar-fill {
-  background: linear-gradient(90deg, var(--gold-deep), var(--gold) 60%, #fff4c6 100%);
-  box-shadow: 0 0 6px rgba(255, 217, 138, 0.5);
+  background: linear-gradient(90deg, var(--gold-deep), var(--gold));
 }
 .hud.dim {
   opacity: 0;
@@ -274,36 +265,14 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 .boss-bar .bar {
-  position: relative;
-  height: 14px;
-  border: 1px solid rgba(255, 208, 212, 0.35);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
-}
-.boss-bar .bar::before,
-.boss-bar .bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: rgba(255, 255, 255, 0.45);
-  z-index: 2;
-  pointer-events: none;
-}
-.boss-bar .bar::before {
-  left: 33.3%;
-}
-.boss-bar .bar::after {
-  left: 66.6%;
+  height: 12px;
 }
 .boss-bar .bar-text {
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: 0.08em;
-  font-weight: 700;
 }
 .boss-bar .bar-fill {
-  background: linear-gradient(180deg, #ff7a8a 0%, #cf233c 60%, #7e0e1e 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 10px rgba(255, 106, 122, 0.5);
+  background: linear-gradient(180deg, #ff6a7a, #a3162c);
 }
 
 .hud-map {

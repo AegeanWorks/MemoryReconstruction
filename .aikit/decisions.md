@@ -553,3 +553,14 @@ or the architecture; see the header above for where each entry goes. -->
   3. Environment: Walls gain crisp alternating vertical mortar seams and wall caps gain masonry stone joints.
   4. HUD & UI: Elevate HUD vitals with dark slate plate framing, jewel gradients and gloss highlights on HP/Mana, glowing flow streak meter with fire aura, boss bar phase notches at 33% and 66%, and tarot-like upgrade cards with animated top light sheen and rarity glows.
 - **Consequences**: Visual fidelity, character readability, combat responsiveness, and dark fantasy roguelike aesthetics are significantly heightened. 168 tests (1 new), lint, typecheck, build, mechanics and all 8 gates pass.
+
+### ADR-056: Restore clean floating health bar styling and add weapon switch and enemy dissolution FX
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Player feedback preferred the older, clean floating health and vitals bar at the bottom center of the screen without the heavy dark container plate or jewel gloss shadows. In addition, weapon stance switches had no visual feedback, and enemy deaths lacked celestial dissolution FX.
+- **Decision**:
+  1. Revert `.hud-vitals`, `.bar.hp`, `.bar.mana`, `.bar.xp`, and `.boss-bar .bar` in `src/ui/ui.css` back to the clean floating bar presentation.
+  2. In `src/view/Effects.ts`, add visual flares for `weaponSwitch` events (stance-specific color ring and starburst: cyan for spear, molten amber for greatsword, gold for sword).
+  3. Enhance `enemyDied` events with ascending starburst dissolution particles and dual-tiered celestial shockwave rings for boss defeats.
+- **Consequences**: Unobstructed bottom-center HUD vitals view matching player aesthetic preference; crisp visual confirmation for stance swapping; rewarding death dissolution feedback. 168 tests, lint, typecheck, build, mechanics, and all 8 gates pass.

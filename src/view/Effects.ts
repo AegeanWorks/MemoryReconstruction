@@ -118,6 +118,13 @@ export class Effects {
             age: 0,
           });
           break;
+        case 'weaponSwitch': {
+          const color =
+            e.weapon === 'spear' ? 0x6fe7ff : e.weapon === 'greatsword' ? 0xffa040 : 0xffd98a;
+          this.ring(playerX, playerY, 52, color, 0.35);
+          this.star(playerX, playerY, color, 40, 0.3);
+          break;
+        }
         case 'dash':
           this.burst(e.x, e.y, 0x6fe7ff, 10, 60, 0.35, 5);
           this.star(e.x, e.y, 0x6fe7ff, 28, 0.22);
@@ -164,7 +171,17 @@ export class Effects {
             e.boss ? 1.2 : 0.6,
             e.boss ? 8 : 5
           );
-          if (e.boss) this.ring(e.x, e.y, 260, 0xffffff, 0.6);
+          this.star(
+            e.x,
+            e.y - 16,
+            e.boss ? 0xffd98a : 0xffffff,
+            e.boss ? 64 : 32,
+            e.boss ? 0.6 : 0.35
+          );
+          if (e.boss) {
+            this.ring(e.x, e.y, 160, this.accent, 0.45);
+            this.ring(e.x, e.y, 280, 0xffffff, 0.6);
+          }
           break;
         case 'enemySpawned':
           this.burst(e.x, e.y, this.accent, 8, 50, 0.5, 4);
