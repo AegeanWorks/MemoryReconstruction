@@ -509,3 +509,11 @@ or the architecture; see the header above for where each entry goes. -->
 - **Context**: Critical hits only dealt more damage, with no secondary reward, so they felt like a stat bump.
 - **Decision**: In `damageEnemy`, any critical hit restores 3 mana and extends the flow window by 0.5 s (capped at twice the base window). Applies to all sources.
 - **Consequences**: crits become a moment to celebrate and keep the streak alive. 161 tests (1 new), lint, typecheck, build, mechanics and all 8 gates pass.
+
+### ADR-051: The two duelist-kind enemies get distinct reads
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Crystal guardian and bone knight shared one duelist body with palette swaps.
+- **Decision**: Crystal guardian gains shoulder crystals and a glowing core; bone knight gains a ribcage and a skull helm.
+- **Consequences**: both duelist sheets regenerate with distinct reads. 161 tests, lint, typecheck, build, mechanics and all 8 gates pass.

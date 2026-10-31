@@ -134,6 +134,7 @@ ENEMY_STYLES = {
     },
     "crystalGuardian": {
         "kind": "duelist",
+        "crystal": True,
         "body": (118, 88, 190, 255),
         "light": (204, 178, 255, 255),
         "cloth": (72, 50, 122, 255),
@@ -334,6 +335,7 @@ ENEMY_STYLES = {
     },
     "boneKnight": {
         "kind": "duelist",
+        "bone": True,
         "body": (96, 94, 82, 255),
         "light": (206, 198, 170, 255),
         "cloth": (48, 54, 52, 255),
@@ -1354,6 +1356,13 @@ def _duelist(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame:
     # Cape.
     poly(draw, cell, [(cx - 0.13, 0.38), (cx - 0.28, 0.48), (cx - 0.19, 0.80), (cx - 0.06, 0.70)],
          fill=cloth, outline=Outline, width=2)
+    if style.get("crystal"):
+        for x, y, s in ((cx - 0.18, 0.30 + bob, 0.05), (cx + 0.18, 0.30 + bob, 0.05), (cx - 0.10, 0.72, 0.04)):
+            poly(draw, cell, [(x, y - s), (x + s, y), (x, y + s * 1.3), (x - s, y)], fill=accent, outline=Outline, width=1)
+    if style.get("bone"):
+        for i in range(3):
+            line(draw, cell, [(cx - 0.08, 0.40 + i * 0.09 + bob), (cx + 0.08, 0.40 + i * 0.09 + bob)], light, 1)
+        poly(draw, cell, [(cx - 0.06, 0.18 + bob), (cx + 0.06, 0.18 + bob), (cx + 0.04, 0.13 + bob), (cx - 0.04, 0.13 + bob)], fill=light, outline=Outline, width=1)
 
 
 def _keeper(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:

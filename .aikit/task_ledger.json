@@ -1,66 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "mech-crit-reward-v1",
+    "task_id": "art-duelist-silhouettes-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793441900.2243884,
-    "owner": "opencode:mech",
-    "started_by": "opencode:mech",
+    "updated_at": 1793442059.2160916,
+    "owner": "opencode:art",
+    "started_by": "opencode:art",
     "continuations": [],
-    "completed_at": 1793441903.1417403
+    "completed_at": 1793442062.1148157
   },
   "checkpoints": [
-    {
-      "task_id": "art-warden-silhouettes-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Plan: differentiate the two warden-kind enemies (cinder ember cracks, frost crystal horns)",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793440985.5097616,
-      "timestamp_str": "2026-10-31 13:03:05",
-      "agent": "opencode:art",
-      "impact_assessment": {
-        "why": "cinderWarden and frostWarden share one warden body.",
-        "benefits": "Two distinct warden reads at play scale.",
-        "risks": "contract: _warden signature and atlas keys unchanged; dependency: none; concurrency: none; state: generated PNGs only.",
-        "mitigation": "Regenerate, capture, gates."
-      }
-    },
-    {
-      "task_id": "art-warden-silhouettes-v1",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "[2/3] Implement: _warden gains cinder ember cracks and frost crystal horns.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793441061.9988124,
-      "timestamp_str": "2026-10-31 13:04:21",
-      "agent": "opencode:art"
-    },
-    {
-      "task_id": "art-warden-silhouettes-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Verify: 154 tests, lint, typecheck, build, mechanics, 8/8 gates; codebase map refreshed; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793441062.4392765,
-      "timestamp_str": "2026-10-31 13:04:22",
-      "agent": "opencode:art"
-    },
-    {
-      "task_id": "art-warden-silhouettes-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-warden-silhouettes-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793441066.6200063,
-      "timestamp_str": "2026-10-31 13:04:26",
-      "agent": "opencode:art"
-    },
     {
       "task_id": "mech-finisher-v1",
       "phase": "phase 2",
@@ -256,6 +207,55 @@
       "timestamp": 1793441903.141742,
       "timestamp_str": "2026-10-31 13:18:23",
       "agent": "opencode:mech"
+    },
+    {
+      "task_id": "art-duelist-silhouettes-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Plan: differentiate the two duelist-kind enemies (crystalGuardian crystal shards, boneKnight ribcage and skull helm)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793441994.8414931,
+      "timestamp_str": "2026-10-31 13:19:54",
+      "agent": "opencode:art",
+      "impact_assessment": {
+        "why": "crystalGuardian and boneKnight share one duelist body.",
+        "benefits": "Two distinct duelist reads at play scale.",
+        "risks": "contract: _duelist signature and atlas keys unchanged; dependency: none; concurrency: none; state: generated PNGs only.",
+        "mitigation": "Regenerate, capture, gates."
+      }
+    },
+    {
+      "task_id": "art-duelist-silhouettes-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "[2/3] Implement: _duelist gains crystal shards (crystalGuardian) and bone ribcage/skull helm (boneKnight).",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793442058.8824408,
+      "timestamp_str": "2026-10-31 13:20:58",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-duelist-silhouettes-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Verify: 161 tests, lint, typecheck, build, mechanics, 8/8 gates; codebase map refreshed; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793442059.2160916,
+      "timestamp_str": "2026-10-31 13:20:59",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-duelist-silhouettes-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-duelist-silhouettes-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793442062.1148174,
+      "timestamp_str": "2026-10-31 13:21:02",
+      "agent": "opencode:art"
     }
   ]
 }
