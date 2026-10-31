@@ -396,8 +396,31 @@ export class World implements Arena {
     if (source === 'melee' && p.stats.lifesteal > 0) {
       p.health = Math.min(p.stats.maxHealth, p.health + dealt * p.stats.lifesteal);
     }
-    if (enemy.health <= 0) this.onEnemyKilled(enemy);
-    else {
+    if (enemy.health <= 0) {
+      this.onEnemyKilled(enemy);
+      // Overkill carryover: half the excess damage spills to the nearest living
+      // enemy within range, so a killing blow is rarely wasted.
+      if (source === 'melee') {
+        const excess = amount - dealt;
+        if (excess > 0) {
+          const spill = Math.round(excess * 0.5);
+          if (spill > 0) {
+            let nearest: Enemy | undefined;
+            let best = 120;
+            for (const other of this.enemies) {
+              if (other === enemy || other.state === 'dying' || other.state === 'spawning')
+                continue;
+              const d = Math.hypot(other.x - enemy.x, other.y - enemy.y);
+              if (d < best) {
+                best = d;
+                nearest = other;
+              }
+            }
+            if (nearest) this.damageEnemy(nearest, spill, 'shockwave', false, 0);
+          }
+        }
+      }
+    } else {
       staggerEnemy(enemy);
       if (updateBossPhase(enemy)) {
         this.emit({ type: 'bossPhase', phase: enemy.phase });

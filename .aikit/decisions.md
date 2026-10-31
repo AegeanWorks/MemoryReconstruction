@@ -493,3 +493,11 @@ or the architecture; see the header above for where each entry goes. -->
 - **Context**: A hit during an enemy's telegraph did nothing to the attack, so windups could only be dodged, never punished.
 - **Decision**: `staggerEnemy` now staggers during `windup` for non-bosses, cancelling the telegraphed attack. Bosses and enemies already in `attack` still complete their attack, preserving fairness. `staggerEnemy`'s signature is unchanged.
 - **Consequences**: players gain a skill-based interrupt layer. 158 tests (2 new), lint, typecheck, build, mechanics and all 8 gates pass.
+
+### ADR-049: Melee overkill carries to a nearby enemy
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Killing blows often wasted their excess damage, making clustered fights feel unrewarding.
+- **Decision**: In `damageEnemy`, when a melee hit kills, half the excess damage spills to the nearest living enemy within 120 px. Spillover uses a non-melee source so it cannot chain or double-count the finisher. Bosses and distant enemies are unaffected.
+- **Consequences**: multi-kills feel punchier. 160 tests (2 new), lint, typecheck, build, mechanics and all 8 gates pass.

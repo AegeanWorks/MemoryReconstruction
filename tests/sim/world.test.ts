@@ -503,3 +503,37 @@ describe('interrupt', () => {
     expect(enemy.state).toBe('windup');
   });
 });
+
+describe('overkill', () => {
+  it('spills half the excess damage to a nearby enemy on a killing blow', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'combat');
+    stepFor(world, 0.5);
+    const a = world.enemies[0];
+    const b = world.enemies[1] ?? world.enemies[0];
+    // Place b close to a.
+    b.x = a.x + 30;
+    b.y = a.y;
+    b.state = 'chase';
+    a.state = 'chase';
+    const bHealthBefore = b.health;
+    // Kill a with a huge hit, generating excess.
+    world.damageEnemy(a, 99999, 'melee', false, 0);
+    // b should have taken some spillover (half of excess, capped by its health).
+    expect(b.health).toBeLessThan(bHealthBefore);
+  });
+
+  it('does not spill when there is no nearby enemy', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'combat');
+    stepFor(world, 0.5);
+    const a = world.enemies[0];
+    // Move all other enemies far away.
+    for (const e of world.enemies) if (e !== a) { e.x = 10000; e.y = 10000; }
+    a.state = 'chase';
+    const others = world.enemies.filter((e) => e !== a);
+    const healthsBefore = others.map((e) => e.health);
+    world.damageEnemy(a, 99999, 'melee', false, 0);
+    others.forEach((e, i) => expect(e.health).toBe(healthsBefore[i]));
+  });
+});
