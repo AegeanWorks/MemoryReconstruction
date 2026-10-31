@@ -359,6 +359,7 @@ ENEMY_STYLES = {
     },
     "graveHound": {
         "kind": "hound",
+        "grave": True,
         "body": (104, 100, 88, 255),
         "light": (206, 198, 170, 255),
         "cloth": (54, 56, 52, 255),
@@ -398,6 +399,7 @@ ENEMY_STYLES = {
     # Late-section enemies that used to borrow older sheets with only a tint.
     "magmaHound": {
         "kind": "hound",
+        "magma": True,
         "body": (62, 28, 20, 255),
         "light": (154, 82, 52, 255),
         "cloth": (30, 15, 12, 255),
@@ -408,6 +410,7 @@ ENEMY_STYLES = {
     },
     "cinderHound": {
         "kind": "hound",
+        "cinder": True,
         "body": (52, 34, 28, 255),
         "light": (132, 98, 74, 255),
         "cloth": (26, 18, 14, 255),
@@ -1819,6 +1822,14 @@ def _hound(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: i
     poly(draw, cell, [(cx + 0.14, 0.37 + bob), (cx + 0.12, 0.26 + bob), (cx + 0.22, 0.35 + bob)], fill=cloth, outline=Outline, width=1)
     line(draw, cell, [(cx - 0.25, 0.52 + bob), (cx - 0.42, 0.36)], body, 3)
     ellipse(draw, cell, cx - 0.03, 0.50 + bob, cx + 0.09, 0.60 + bob, outline=accent, width=1)
+    # Variant signatures.
+    if style.get("magma"):
+        for i in range(4):
+            line(draw, cell, [(cx - 0.22 + i * 0.12, 0.48 + bob), (cx - 0.16 + i * 0.12, 0.62 + bob)], accent, 2)
+        poly(draw, cell, [(cx + 0.44, 0.46 + bob), (cx + 0.52, 0.38 + bob), (cx + 0.49, 0.49 + bob)], fill=accent, outline=Outline, width=1)
+    if style.get("cinder"):
+        for i in range(3):
+            ellipse(draw, cell, cx - 0.16 + i * 0.14, 0.40 + bob - i * 0.05, cx - 0.08 + i * 0.14, 0.46 + bob - i * 0.05, fill=(70, 60, 52, 160))
 
 
 def _hierophant(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:

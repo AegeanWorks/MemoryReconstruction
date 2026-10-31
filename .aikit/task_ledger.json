@@ -1,76 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-beast-silhouettes-v1",
+    "task_id": "art-hound-silhouettes-v1",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
-    "updated_at": 1793440538.740156,
+    "active_phase": 5,
+    "status": "completed",
+    "updated_at": 1793440882.6976936,
     "owner": "opencode:art",
     "started_by": "opencode:art",
-    "continuations": []
+    "continuations": [],
+    "completed_at": 1793440885.239571
   },
   "checkpoints": [
-    {
-      "task_id": "art-hero-scarf-v2",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "[2/3] Reworked the hero scarf generator into a tapered two-tail ribbon with state paths, a lit top edge, an under-tail, a soft glow and a shoulder clasp; added hem sway and breathing bob, regenerated all ten player sheets, and updated Graphics and ADR-039",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793429401.4872954,
-      "timestamp_str": "2026-10-31 09:50:01",
-      "agent": "opencode:scarf"
-    },
-    {
-      "task_id": "art-hero-scarf-v2",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Phase 4 green: 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; all ten player sheets regenerated and only the player PNGs changed; idle, walk, attack, spear and greatsword reviewed at 10x and a fresh ruins run shows the two-tail scarf with zero console errors. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793429565.6716037,
-      "timestamp_str": "2026-10-31 09:52:45",
-      "agent": "opencode:scarf"
-    },
-    {
-      "task_id": "art-hero-scarf-v2",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'art-hero-scarf-v2' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793429595.6861322,
-      "timestamp_str": "2026-10-31 09:53:15",
-      "agent": "opencode:scarf"
-    },
-    {
-      "task_id": "art-early-mobs-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Plan: give the six hunched early enemies dedicated bodies - scavenger sack and claw, bombardier bandolier and fuse, low cave crawler, beaked plague caster, chitin hive guard and skeletal archer - then regenerate and verify each in play",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793431108.8776493,
-      "timestamp_str": "2026-10-31 10:18:28",
-      "agent": "opencode:earlymobs",
-      "impact_assessment": {
-        "why": "Scavenger, bombardier, cave dweller, plague caster, hive guard and catacomb archer all borrow the same hunched blob body with palette and eye swaps, so the first four sections repeat one silhouette.",
-        "benefits": "Each early enemy gets a distinct read at gameplay scale: sack and hook, bomb bandolier and fuse hood, low wide crawler, beaked plague doctor, plated insect guard and ribbed archer with bow.",
-        "risks": "contract: none; dependency: none; concurrency: none; state: none; art: deterministic enemy sheets only, frame sizes and atlas keys stay the same.",
-        "mitigation": "Regenerate only the affected sheets, inspect idle and attack rows at 3x, spawn each enemy in a live room, and rerun tests, build and all eight gates."
-      }
-    },
-    {
-      "task_id": "art-early-mobs-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Phase 4 green: 154 tests, lint, typecheck, build, mechanics and all 8 gates pass; six enemy sheets regenerated and only those PNGs changed; all six spawned together in a live ruins room and reviewed in the full 4x4 sheets with zero console errors. checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793433895.6807036,
-      "timestamp_str": "2026-10-31 11:04:55",
-      "agent": "opencode:earlymobs"
-    },
     {
       "task_id": "art-early-mobs-v1",
       "phase": "completed",
@@ -254,6 +195,65 @@
       "status": "in_progress",
       "timestamp": 1793440538.740156,
       "timestamp_str": "2026-10-31 12:55:38",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-beast-silhouettes-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-beast-silhouettes-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793440547.6363363,
+      "timestamp_str": "2026-10-31 12:55:47",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-hound-silhouettes-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Plan: differentiate the three hound-kind enemies (grave skeletal hound, magma hound with glowing cracks, cinder hound with ash wisps)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793440785.2151034,
+      "timestamp_str": "2026-10-31 12:59:45",
+      "agent": "opencode:art",
+      "impact_assessment": {
+        "why": "graveHound, magmaHound and cinderHound share one hound body.",
+        "benefits": "Three distinct hound silhouettes at play scale.",
+        "risks": "contract: _hound signature and atlas keys unchanged; dependency: none; concurrency: none; state: generated PNGs only.",
+        "mitigation": "Regenerate, capture, gates."
+      }
+    },
+    {
+      "task_id": "art-hound-silhouettes-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "[2/3] Implement: _hound gains magma crack lines and flame, cinder ash wisps; grave keeps skeletal base.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793440882.4035068,
+      "timestamp_str": "2026-10-31 13:01:22",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-hound-silhouettes-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Verify: 154 tests, lint, typecheck, build, mechanics, 8/8 gates; codebase map refreshed; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793440882.6976936,
+      "timestamp_str": "2026-10-31 13:01:22",
+      "agent": "opencode:art"
+    },
+    {
+      "task_id": "art-hound-silhouettes-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'art-hound-silhouettes-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793440885.2395725,
+      "timestamp_str": "2026-10-31 13:01:25",
       "agent": "opencode:art"
     }
   ]

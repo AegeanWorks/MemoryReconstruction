@@ -461,3 +461,11 @@ or the architecture; see the header above for where each entry goes. -->
   3. **Wildling**: retains the original quadruped silhouette.
   4. **Guards**: legs and antlers are skipped for the slug; antlers only for the wildling.
 - **Consequences**: all three beast-kind sheets regenerate with distinct bodies. 154 tests, lint, typecheck, build, mechanics and all 8 gates pass.
+
+### ADR-045: The three hound-kind enemies get distinct silhouettes
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Grave hound, magma hound and cinder hound shared one hound body with palette swaps.
+- **Decision**: Magma hound gains glowing crack lines and a flame on the snout; cinder hound gains rising ash wisps; grave hound keeps the skeletal base.
+- **Consequences**: all three hound-kind sheets regenerate with distinct reads. 154 tests, lint, typecheck, build, mechanics and all 8 gates pass.
