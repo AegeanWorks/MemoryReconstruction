@@ -3,7 +3,13 @@
  * a time on top of the HUD.
  */
 import { CORE_MEMORIES, FLOOR_PLANS, MEMORY_FRAGMENTS, biomeInfo } from '../sim/content';
-import { EQUIPMENT_SLOTS, equipmentDef } from '../sim/equipment';
+import {
+  EQUIPMENT_SLOTS,
+  INVENTORY_SLOTS,
+  equipmentDef,
+  relicSellShards,
+  type EquipmentSlot,
+} from '../sim/equipment';
 import { NPCS, QUESTS, questProgress, questsForNpc, type QuestSnapshot } from '../sim/quests';
 import {
   ASPECTS,
@@ -19,6 +25,7 @@ import {
   nextRestorationCost,
   reforgeCost,
   relicRank,
+  relicSellEchoes,
   restorationLevel,
   restoredLevels,
   sectionNumber,
@@ -698,7 +705,43 @@ export function reforgeScreen(opts: {
   );
 }
 
-/** Pick a checkpoint to start a new expedition from. */
+/** Where a vault relic ends up when the next expedition builds its kit. */
+type CarryState = 'worn' | 'bag' | 'home';
+const CARRY_LABELS: Readonly<Record<CarryState, string>> = {
+  worn: 'Worn',
+  bag: 'In bag',
+  home: 'Stays home',
+};
+
+/** Mirrors createExpedition: worn slots first, then bag space, then the rest. */
+function vaultCarryPlan(meta: Meta): Map<string, CarryState> {
+  const vault = meta.vault ?? [];
+  const attuned = meta.attunedRelic;
+  const ordered =
+    attuned && vault.includes(attuned) ? [attuned, ...vault.filter((id) => id !== attuned)] : vault;
+  const worn = new Set<EquipmentSlot>();
+  const plan = new Map<string, CarryState>();
+  let bagged = 0;
+  for (const defId of ordered) {
+    try {
+      const def = equipmentDef(defId);
+      if (!worn.has(def.slot)) {
+        worn.add(def.slot);
+        plan.set(defId, 'worn');
+      } else if (bagged < INVENTORY_SLOTS) {
+        bagged++;
+        plan.set(defId, 'bag');
+      } else {
+        plan.set(defId, 'home');
+      }
+    } catch {
+      plan.set(defId, 'home');
+    }
+  }
+  return plan;
+}
+
+/** Pick a checkpoint to start a new expedition from, and sell off spare relics. */
 export function expeditionScreen(opts: {
   meta: Meta;
   saved?: { depth: number; health: number; maxHealth: number };
@@ -706,6 +749,7 @@ export function expeditionScreen(opts: {
   onContinue?: () => void;
   onRest?: () => void;
   onStart: (depth: number) => void;
+  onSellRelic: (defId: string) => void;
   onBack: () => void;
 }): HTMLElement {
   const rows = checkpointDepths().map((depth) => {
@@ -734,6 +778,58 @@ export function expeditionScreen(opts: {
   });
   const saved = opts.saved;
   const resting = !!saved && opts.meta.echoes >= opts.restCost;
+  const carry = vaultCarryPlan(opts.meta);
+  const relicRows = opts.meta.vault
+    .map((defId) => {
+      try {
+        return { defId, def: equipmentDef(defId) };
+      } catch {
+        return null;
+      }
+    })
+    .filter((row): row is { defId: string; def: ReturnType<typeof equipmentDef> } => row !== null)
+    .map(({ defId, def }) => {
+      const state = carry.get(defId) ?? 'home';
+      const price = relicSellEchoes(opts.meta, defId);
+      let sellArmed = false;
+      const sell = button(
+        `Sell · ${price ?? 0} echoes`,
+        () => {
+          if (price === undefined) return;
+          if (!sellArmed) {
+            sellArmed = true;
+            sell.textContent = 'Confirm sale';
+            sell.classList.add('danger');
+            window.setTimeout(() => {
+              if (!sell.isConnected) return;
+              sellArmed = false;
+              sell.textContent = `Sell · ${price} echoes`;
+              sell.classList.remove('danger');
+            }, 2600);
+            return;
+          }
+          opts.onSellRelic(defId);
+        },
+        'btn small'
+      );
+      return h(
+        'div',
+        { class: `gear-row ${def.rarity}${state === 'home' ? ' not-attuned' : ''}` },
+        h('span', { class: 'gear-slot' }, def.slot),
+        h(
+          'div',
+          { class: 'gear-copy' },
+          h('div', { class: 'gear-name' }, def.name),
+          h('div', { class: 'gear-desc' }, def.description)
+        ),
+        h(
+          'div',
+          { class: 'gear-actions' },
+          h('span', { class: `carry-chip ${state}` }, CARRY_LABELS[state]),
+          price !== undefined ? sell : null
+        )
+      );
+    });
   return h(
     'div',
     { class: 'screen hub' },
@@ -765,10 +861,23 @@ export function expeditionScreen(opts: {
         )
       : null,
     h('div', { class: 'panel checkpoint-list' }, ...rows),
+    relicRows.length > 0
+      ? h(
+          'div',
+          { class: 'panel vault-sell' },
+          h('div', { class: 'gear-title' }, `Vault relics · ${relicRows.length}`),
+          ...relicRows,
+          h(
+            'div',
+            { class: 'place-note' },
+            `Worn relics travel first, then up to ${INVENTORY_SLOTS} bag slots. The rest stay home — sell spares for echoes.`
+          )
+        )
+      : null,
     h(
       'div',
       { class: 'meta-line' },
-      'Half of the shards still in hand are banked as echoes when an expedition ends.'
+      `Echoes in hand · ${opts.meta.echoes}. Half of the shards you carry home are banked as echoes when an expedition ends.`
     ),
     h('div', { class: 'menu' }, button('Back', opts.onBack))
   );
@@ -861,12 +970,12 @@ export function sanctuaryMenuScreen(opts: {
   );
 }
 
-/** Relics carried and worn, with click-to-equip rows, live stats and safe discard. */
+/** Relics carried and worn, with click-to-equip rows, live stats and safe selling. */
 export function inventoryScreen(
   world: World,
   onClose: () => void,
   onChanged: (message?: string) => void,
-  status = 'Click a carried relic to equip it.'
+  status = 'Click a carried relic to equip it, or sell what you will not wear.'
 ): HTMLElement {
   const p = world.player;
   const s = p.stats;
@@ -889,8 +998,12 @@ export function inventoryScreen(
         ? button(
             'Unequip',
             () => {
-              world.unequip(slot);
-              onChanged(`${def.name} returned to the bag.`);
+              const returned = world.unequip(slot);
+              onChanged(
+                returned
+                  ? `${def.name} returned to the bag.`
+                  : 'The bag is full. Sell or equip a carried relic first.'
+              );
             },
             'btn small'
           )
@@ -909,27 +1022,33 @@ export function inventoryScreen(
           : `Equipped ${def.name}.`
       );
     };
-    let discardArmed = false;
-    const discard = button(
-      'Discard',
+    const price = relicSellShards(def);
+    let sellArmed = false;
+    const sell = button(
+      `Sell · ${price}`,
       () => {
-        if (!discardArmed) {
-          discardArmed = true;
-          discard.textContent = 'Confirm discard';
-          discard.classList.add('danger');
+        if (!sellArmed) {
+          sellArmed = true;
+          sell.textContent = 'Confirm sale';
+          sell.classList.add('danger');
           window.setTimeout(() => {
-            if (!discard.isConnected) return;
-            discardArmed = false;
-            discard.textContent = 'Discard';
-            discard.classList.remove('danger');
+            if (!sell.isConnected) return;
+            sellArmed = false;
+            sell.textContent = `Sell · ${price}`;
+            sell.classList.remove('danger');
           }, 2600);
           return;
         }
-        world.discardItem(item.uid);
-        onChanged(`Discarded ${def.name}.`);
+        const gained = world.sellItem(item.uid);
+        onChanged(
+          gained === undefined
+            ? 'That relic is no longer carried.'
+            : `Sold ${def.name} for ${gained} shards.`
+        );
       },
       'btn small'
     );
+    sell.title = `Sell for ${price} shards`;
     const row = h(
       'div',
       {
@@ -954,7 +1073,7 @@ export function inventoryScreen(
         'div',
         { class: 'gear-actions' },
         button(worn ? 'Swap' : 'Equip', equip, 'btn small primary'),
-        discard
+        sell
       )
     );
     row.addEventListener('click', (event) => {
@@ -969,6 +1088,22 @@ export function inventoryScreen(
     });
     return row;
   });
+  const emptyRows = Array.from(
+    { length: Math.max(0, INVENTORY_SLOTS - p.inventory.length) },
+    (_, index) =>
+      h(
+        'div',
+        { class: 'gear-row empty' },
+        h('span', { class: 'gear-slot' }, `${p.inventory.length + index + 1}`),
+        h(
+          'div',
+          { class: 'gear-copy' },
+          h('div', { class: 'gear-name' }, 'Empty slot'),
+          h('div', { class: 'gear-desc' }, 'Relics picked up fill the next open slot.')
+        )
+      )
+  );
+  const bagFull = p.inventory.length >= INVENTORY_SLOTS;
   return h(
     'div',
     { class: 'screen' },
@@ -988,8 +1123,16 @@ export function inventoryScreen(
       ),
       h('div', { class: 'gear-title' }, 'Worn'),
       ...slotRows,
-      h('div', { class: 'gear-title' }, `Carried · ${p.inventory.length}`),
-      ...(bagRows.length > 0 ? bagRows : [h('div', { class: 'meta-line' }, 'No spare relics')]),
+      h('div', { class: 'gear-title' }, `Carried · ${p.inventory.length}/${INVENTORY_SLOTS}`),
+      ...bagRows,
+      ...emptyRows,
+      bagFull && bagRows.length > 0
+        ? h(
+            'div',
+            { class: 'gear-note' },
+            'The bag is full — relics found now are sold for shards.'
+          )
+        : null,
       h('div', { class: 'gear-title' }, 'Supplies'),
       h(
         'div',

@@ -23,7 +23,13 @@ import {
   type SanctuaryBuilding,
 } from './sanctuary';
 import { createEnemy, killEnemy, staggerEnemy, updateBossPhase, updateEnemy } from './enemies';
-import { equipmentDef, rollEquipment, type EquipmentItem } from './equipment';
+import {
+  equipmentDef,
+  INVENTORY_SLOTS,
+  relicSellShards,
+  rollEquipment,
+  type EquipmentItem,
+} from './equipment';
 import { NPCS } from './quests';
 import type {
   Blast,
@@ -945,6 +951,7 @@ export class World implements Arena {
     const p = this.player;
     const item = p.equipment[slot];
     if (!item) return false;
+    if (p.inventory.length >= INVENTORY_SLOTS) return false;
     p.equipment[slot] = null;
     p.inventory.push(item);
     refreshStats(p);
@@ -957,6 +964,17 @@ export class World implements Arena {
     if (index < 0) return false;
     p.inventory.splice(index, 1);
     return true;
+  }
+
+  /** Sells a carried relic for shards; returns the price, or undefined when not carried. */
+  sellItem(uid: number): number | undefined {
+    const p = this.player;
+    const index = p.inventory.findIndex((item) => item.uid === uid);
+    if (index < 0) return undefined;
+    const [item] = p.inventory.splice(index, 1);
+    const price = relicSellShards(equipmentDef(item.defId));
+    p.shards += price;
+    return price;
   }
 
   private dropEquipment(x: number, y: number): void {
@@ -1382,13 +1400,17 @@ export class World implements Arena {
         if (!relic) return false;
         const def = equipmentDef(relic.defId);
         const slot = def.slot;
-        p.inventory.push(relic);
         let auto = false;
+        let sold: number | undefined;
         if (!p.equipment[slot]) {
           p.equipment[slot] = relic;
-          p.inventory.splice(p.inventory.indexOf(relic), 1);
           refreshStats(p);
           auto = true;
+        } else if (p.inventory.length < INVENTORY_SLOTS) {
+          p.inventory.push(relic);
+        } else {
+          sold = relicSellShards(def);
+          p.shards += sold;
         }
         this.emit({
           type: 'equipment',
@@ -1396,6 +1418,7 @@ export class World implements Arena {
           rarity: def.rarity,
           slot,
           auto,
+          sold,
         });
         break;
       }

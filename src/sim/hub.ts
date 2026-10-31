@@ -8,7 +8,7 @@
  * are permanent starting bonuses.
  */
 import { FLOOR_PLANS } from './content';
-import { equipmentDef } from './equipment';
+import { equipmentDef, INVENTORY_SLOTS, type EquipmentDef } from './equipment';
 import { refreshStats } from './player';
 import { Rng } from './rng';
 import { createRun, type RunState } from './run';
@@ -230,6 +230,51 @@ export function attuneRelic(
   return { ...progress, attunedRelic: defId };
 }
 
+/** Echoes a vault relic fetches at the Set Out screen, by rarity plus reforge. */
+export const RELIC_SELL_ECHOES: Readonly<Record<EquipmentDef['rarity'], number>> = {
+  common: 10,
+  rare: 20,
+  epic: 35,
+};
+const REFORGE_SELL_BONUS = 5;
+
+/** Echoes a vault relic would fetch, or undefined when it is not in the vault. */
+export function relicSellEchoes(progress: SanctuaryProgress, defId: string): number | undefined {
+  if (!(progress.vault ?? []).includes(defId)) return undefined;
+  let def: EquipmentDef;
+  try {
+    def = equipmentDef(defId);
+  } catch {
+    return undefined;
+  }
+  return RELIC_SELL_ECHOES[def.rarity] + relicRank(progress, defId) * REFORGE_SELL_BONUS;
+}
+
+/**
+ * Sells one vault relic for echoes before an expedition. The relic leaves the
+ * vault, its reforge rank is refunded as part of the price, and attunement is
+ * cleared so the Reliquary never points at a relic the player no longer owns.
+ */
+export function sellRelic(
+  progress: SanctuaryProgress,
+  defId: string
+): SanctuaryProgress | undefined {
+  const price = relicSellEchoes(progress, defId);
+  const vault = progress.vault ?? [];
+  const index = vault.indexOf(defId);
+  if (price === undefined || index < 0) return undefined;
+  const remaining = [...vault.slice(0, index), ...vault.slice(index + 1)];
+  const ranks = { ...(progress.relicRanks ?? {}) };
+  delete ranks[defId];
+  return {
+    ...progress,
+    echoes: progress.echoes + price,
+    vault: remaining,
+    relicRanks: ranks,
+    attunedRelic: progress.attunedRelic === defId ? null : (progress.attunedRelic ?? null),
+  };
+}
+
 /** Sections that can be started directly: every third one, plus the last. */
 export function checkpointDepths(): number[] {
   const last = FLOOR_PLANS.length - 1;
@@ -322,8 +367,9 @@ export function createExpedition(
     p.upgrades[id] = (p.upgrades[id] ?? 0) + 1;
   }
 
-  // Quest rewards live in a permanent vault; each expedition starts with them,
-  // with the attuned relic equipped before the rest so its slot is reserved.
+  // Quest rewards live in a permanent vault; each expedition takes as many as
+  // the worn slots and bag hold, with the attuned relic equipped before the
+  // rest so its slot is reserved. Overflow relics wait at home in the vault.
   const vault = progress.vault ?? [];
   const attuned = progress.attunedRelic;
   const ordered =
@@ -331,6 +377,7 @@ export function createExpedition(
   for (const defId of ordered) {
     try {
       const def = equipmentDef(defId);
+      if (p.equipment[def.slot] && p.inventory.length >= INVENTORY_SLOTS) continue;
       const item = { uid: p.nextEquipmentId++, defId, rank: relicRank(progress, defId) };
       if (!p.equipment[def.slot]) p.equipment[def.slot] = item;
       else p.inventory.push(item);

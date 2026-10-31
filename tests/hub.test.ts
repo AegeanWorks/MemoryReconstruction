@@ -21,12 +21,15 @@ import {
   reforgeCost,
   reforgeRelic,
   relicRank,
+  relicSellEchoes,
   restCost,
   restorationLevel,
   restoredLevels,
   sectionNumber,
+  sellRelic,
   type SanctuaryProgress,
 } from '../src/sim/hub';
+import { EQUIPMENT_SLOTS, INVENTORY_SLOTS } from '../src/sim/equipment';
 import { applyChoice, createRun, restoreRun } from '../src/sim/run';
 
 function progress(overrides: Partial<SanctuaryProgress> = {}): SanctuaryProgress {
@@ -271,5 +274,50 @@ describe('rest price', () => {
     expect(restCost(15)).toBe(40);
     expect(restCost(-4)).toBe(10);
     expect(restCost(3.9)).toBe(16);
+  });
+});
+
+describe('Relic selling and the bag limit', () => {
+  it('sells vault relics for echoes, clearing rank and attunement, and refuses spares not owned', () => {
+    expect(sellRelic(progress(), 'echo_dagger')).toBeUndefined();
+    const owner = progress({
+      vault: ['echo_dagger', 'sun_core'],
+      attunedRelic: 'sun_core',
+      relicRanks: { echo_dagger: 2 },
+      echoes: 5,
+    });
+    expect(relicSellEchoes(owner, 'echo_dagger')).toBe(20 + 2 * 5);
+    const sold = sellRelic(owner, 'echo_dagger')!;
+    expect(sold.echoes).toBe(35);
+    expect(sold.vault).toEqual(['sun_core']);
+    expect(sold.relicRanks).not.toHaveProperty('echo_dagger');
+    expect(sold.attunedRelic).toBe('sun_core');
+    const attunedSold = sellRelic(sold, 'sun_core')!;
+    expect(attunedSold.attunedRelic).toBeNull();
+    expect(attunedSold.vault).toEqual([]);
+    expect(attunedSold.echoes).toBe(35 + 35);
+  });
+
+  it('carries only what the bag holds, leaving the rest in the vault', () => {
+    const vault = [
+      'rusted_edge',
+      'echo_dagger',
+      'choir_staff',
+      'void_cleaver',
+      'scavenger_vest',
+      'crystal_mail',
+      'void_shroud',
+      'mire_talisman',
+      'ember_charm',
+      'tide_lens',
+    ];
+    const run = createExpedition(21, [], 0, progress({ vault }));
+    expect(EQUIPMENT_SLOTS.every((slot) => run.player.equipment[slot] !== null)).toBe(true);
+    expect(run.player.inventory).toHaveLength(INVENTORY_SLOTS);
+    const carried = new Set<string>([
+      ...EQUIPMENT_SLOTS.map((slot) => run.player.equipment[slot]!.defId),
+      ...run.player.inventory.map((item) => item.defId),
+    ]);
+    expect(carried.has('tide_lens')).toBe(false);
   });
 });

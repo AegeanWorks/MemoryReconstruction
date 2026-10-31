@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { roomCentrePx } from '../../src/sim/dungeon';
 import { FINAL_DEPTH, FLOOR_PLANS } from '../../src/sim/content';
-import { NO_INPUT, type InputFrame } from '../../src/sim/entities';
+import { NO_INPUT, type InputFrame, type Pickup } from '../../src/sim/entities';
+import { equipmentDef, INVENTORY_SLOTS, relicSellShards } from '../../src/sim/equipment';
 import type { SimEvent } from '../../src/sim/events';
 import { createRun, restoreRun, xpForLevel } from '../../src/sim/run';
 import { TILE_SIZE } from '../../src/sim/tiles';
@@ -516,6 +517,69 @@ describe('interrupt', () => {
     enemy.stateTime = 0.5;
     world.damageEnemy(enemy, 5, 'melee', false, 0);
     expect(enemy.state).toBe('windup');
+  });
+});
+
+describe('relic bag', () => {
+  function dropRelicAt(world: World, defId: string): void {
+    const pickup: Pickup = {
+      id: 9900 + world.pickups.length,
+      kind: 'equipment',
+      x: world.player.x,
+      y: world.player.y,
+      amount: 1,
+      equipment: { uid: 9500 + world.pickups.length, defId },
+      age: 1,
+      vx: 0,
+      vy: 0,
+    };
+    world.pickups.push(pickup);
+  }
+
+  it('auto-equips a picked-up relic into an empty slot without using bag space', () => {
+    const world = newWorld();
+    const p = world.player;
+    dropRelicAt(world, 'rusted_edge');
+    stepFor(world, 0.1);
+    expect(p.equipment.weapon?.defId).toBe('rusted_edge');
+    expect(p.inventory).toHaveLength(0);
+  });
+
+  it('fills the bag up to the slot limit and sells overflow for shards', () => {
+    const world = newWorld();
+    const p = world.player;
+    p.equipment.weapon = { uid: 9001, defId: 'rusted_edge' };
+    for (let i = 0; i < INVENTORY_SLOTS; i++) p.inventory.push({ uid: 9100 + i, defId: 'ember_charm' });
+    const shards = p.shards;
+    dropRelicAt(world, 'echo_dagger');
+    const events = stepFor(world, 0.1);
+    expect(p.inventory).toHaveLength(INVENTORY_SLOTS);
+    expect(p.shards).toBe(shards + relicSellShards(equipmentDef('echo_dagger')));
+    expect(events.some((e) => e.type === 'equipment' && e.sold !== undefined)).toBe(true);
+  });
+
+  it('blocks unequipping into a full bag and resumes once space frees', () => {
+    const world = newWorld();
+    const p = world.player;
+    p.equipment.weapon = { uid: 9001, defId: 'rusted_edge' };
+    for (let i = 0; i < INVENTORY_SLOTS; i++) p.inventory.push({ uid: 9100 + i, defId: 'ember_charm' });
+    expect(world.unequip('weapon')).toBe(false);
+    expect(p.equipment.weapon?.defId).toBe('rusted_edge');
+    expect(world.sellItem(9100)).toBeDefined();
+    expect(world.unequip('weapon')).toBe(true);
+    expect(p.equipment.weapon).toBeNull();
+  });
+
+  it('sells a carried relic for shards and removes it', () => {
+    const world = newWorld();
+    const p = world.player;
+    p.inventory.push({ uid: 9201, defId: 'void_cleaver' });
+    const price = relicSellShards(equipmentDef('void_cleaver'));
+    const shards = p.shards;
+    expect(world.sellItem(9201)).toBe(price);
+    expect(p.shards).toBe(shards + price);
+    expect(p.inventory).toHaveLength(0);
+    expect(world.sellItem(9201)).toBeUndefined();
   });
 });
 

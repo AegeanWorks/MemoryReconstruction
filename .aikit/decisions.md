@@ -533,3 +533,11 @@ or the architecture; see the header above for where each entry goes. -->
 - **Context**: Guardian, crystal golem and forgotten shared one construct body.
 - **Decision**: Guardian gains a crest on the helm; crystal golem keeps its crystals; forgotten keeps its broken cracks.
 - **Consequences**: all three construct sheets regenerate with distinct reads. 161 tests, lint, typecheck, build, mechanics and all 8 gates pass.
+
+### ADR-054: The relic bag has slots, a hard limit and two selling routes
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: The carried bag was unbounded, held unlimited relics with no limit read, discarded relics paid nothing, and a large vault overflowed every run with gear the player never chose to carry.
+- **Decision**: `INVENTORY_SLOTS = 6` caps the carried bag. An expedition carries the attuned relic first, then vault order, into worn slots then bag slots; overflow stays in the vault. A full bag auto-sells relic pickups for shards (8 / 14 / 24 by rarity) via the `equipment` event's optional `sold` field. Unequipping into a full bag is refused. The bag's Discard becomes a confirmed Sell for the same shard price, and the Set Out screen sells vault relics for echoes (10 / 20 / 35 by rarity, +5 per reforge rank), clearing rank and attunement. Both sells arm for 2.6 s before confirming.
+- **Consequences**: bag space is a real choice, vault excess is visible and trimable, and old saves over the cap stay playable and self-heal by selling. 167 tests (8 new), lint, typecheck, build, mechanics and all gates pass.

@@ -29,6 +29,8 @@ export interface EquipmentItem {
 export type EquipmentSlots = Record<EquipmentSlot, EquipmentItem | null>;
 
 export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'trinket'];
+/** Carried (unequipped) relics the bag holds before pickups start selling. */
+export const INVENTORY_SLOTS = 6;
 /** Each reforge rank multiplies a relic's numeric mods by this fraction. */
 export const REFORGE_STEP = 0.12;
 export const REFORGE_MAX = 3;
@@ -118,4 +120,9 @@ export function equipmentScore(item: EquipmentItem): number {
   let score = rarityRank(def.rarity) * 10 + (item.rank ?? 0) * 4;
   for (const value of Object.values(def.mods)) if (typeof value === 'number') score += value;
   return score;
+}
+
+/** Shards a carried relic fetches when sold mid-expedition. */
+export function relicSellShards(def: EquipmentDef): number {
+  return def.rarity === 'epic' ? 24 : def.rarity === 'rare' ? 14 : 8;
 }

@@ -1,66 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "art-construct-silhouettes-v1",
+    "task_id": "mech-relic-bag-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793442290.067251,
-    "owner": "opencode:art",
-    "started_by": "opencode:art",
+    "updated_at": 1793457100.9662473,
+    "owner": "antigravity",
+    "started_by": "antigravity",
     "continuations": [],
-    "completed_at": 1793442293.8304784
+    "completed_at": 1793457113.1621225
   },
   "checkpoints": [
-    {
-      "task_id": "mech-overkill-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Plan: melee overkill carryover - when a hit kills an enemy, half the excess damage spills to the nearest living enemy within 120px.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793441511.2771714,
-      "timestamp_str": "2026-10-31 13:11:51",
-      "agent": "opencode:mech",
-      "impact_assessment": {
-        "why": "Killing blows often waste damage; spillover rewards grouping enemies and creates satisfying chain clears.",
-        "benefits": "More dopamine on multi-kills, rewards aggressive positioning.",
-        "risks": "contract: damageEnemy signature unchanged, spillover internal and single-hop (no infinite chains); dependency: none; concurrency: none; state: sim only.",
-        "mitigation": "Unit test spillover behaviour; existing tests pass; gates."
-      }
-    },
-    {
-      "task_id": "mech-overkill-v1",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "[2/3] Implement: overkill carryover in damageEnemy spills half excess damage to nearest living enemy within 120px (single hop, melee only).",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793441544.6165814,
-      "timestamp_str": "2026-10-31 13:12:24",
-      "agent": "opencode:mech"
-    },
-    {
-      "task_id": "mech-overkill-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Verify: 160 tests (2 new), lint, typecheck, build, mechanics, 8/8 gates; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793441544.945232,
-      "timestamp_str": "2026-10-31 13:12:24",
-      "agent": "opencode:mech"
-    },
-    {
-      "task_id": "mech-overkill-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'mech-overkill-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793441548.415515,
-      "timestamp_str": "2026-10-31 13:12:28",
-      "agent": "opencode:mech"
-    },
     {
       "task_id": "mech-crit-reward-v1",
       "phase": "phase 2",
@@ -256,6 +207,55 @@
       "timestamp": 1793442293.8304799,
       "timestamp_str": "2026-10-31 13:24:53",
       "agent": "opencode:art"
+    },
+    {
+      "task_id": "mech-relic-bag-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Plan: cap relic bag to 6 slots, auto-sell on full bag, and add echo/shard selling routes",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793457080.4079306,
+      "timestamp_str": "2026-10-31 17:31:20",
+      "agent": "antigravity",
+      "impact_assessment": {
+        "why": "Bag was unbounded and excess vault relics cluttered runs",
+        "benefits": "Tactical inventory management and clear selling mechanics",
+        "risks": "contract: equipment events carry sold; dependency: none; concurrency: none; state: save format backward compatible",
+        "mitigation": "Unit tests for selling and bag capacity; all gates pass"
+      }
+    },
+    {
+      "task_id": "mech-relic-bag-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "[2/3] Implement: INVENTORY_SLOTS = 6, auto-sell on full bag, confirmed selling in bag and Set Out screen",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793457088.8520315,
+      "timestamp_str": "2026-10-31 17:31:28",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "mech-relic-bag-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Verify: 167 tests (8 new), lint, typecheck, build, mechanics, 8/8 gates; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793457100.9662473,
+      "timestamp_str": "2026-10-31 17:31:40",
+      "agent": "antigravity"
+    },
+    {
+      "task_id": "mech-relic-bag-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'mech-relic-bag-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793457113.162125,
+      "timestamp_str": "2026-10-31 17:31:53",
+      "agent": "antigravity"
     }
   ]
 }

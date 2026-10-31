@@ -19,6 +19,7 @@ import {
   purchaseOffering,
   purchaseRestoration,
   sectionNumber,
+  sellRelic,
 } from '../sim/hub';
 import { NPCS, questProgress, questsForNpc, questSnapshot } from '../sim/quests';
 import { createRun, type RunState } from '../sim/run';
@@ -393,35 +394,52 @@ export class App {
   private showExpedition(): void {
     this.state = 'hub';
     this.input.releaseAll();
-    const saved = this.store.loadRun();
-    const restPrice = saved ? restCost(saved.depth) : 0;
-    this.screens.show(
-      expeditionScreen({
-        meta: this.meta,
-        saved: saved
-          ? {
-              depth: saved.depth,
-              health: saved.player.health,
-              maxHealth: saved.player.stats.maxHealth,
-            }
-          : undefined,
-        restCost: restPrice,
-        onContinue: () =>
-          this.click(() => {
-            const run = this.store.loadRun();
-            if (run) this.startRun(run);
-          }),
-        onRest: () =>
-          this.click(() => {
-            // Rest is for the expedition in progress: heal it and go back in,
-            // never drop the player into a fresh-run screen that discards it.
-            const run = this.restSavedRun(restPrice);
-            if (run) this.startRun(run);
-          }),
-        onStart: (depth) => this.click(() => this.startExpedition(depth)),
-        onBack: () => this.click(() => this.closeHubPanel()),
-      })
-    );
+    const render = (): void => {
+      const saved = this.store.loadRun();
+      const restPrice = saved ? restCost(saved.depth) : 0;
+      this.screens.show(
+        expeditionScreen({
+          meta: this.meta,
+          saved: saved
+            ? {
+                depth: saved.depth,
+                health: saved.player.health,
+                maxHealth: saved.player.stats.maxHealth,
+              }
+            : undefined,
+          restCost: restPrice,
+          onContinue: () =>
+            this.click(() => {
+              const run = this.store.loadRun();
+              if (run) this.startRun(run);
+            }),
+          onRest: () =>
+            this.click(() => {
+              // Rest is for the expedition in progress: heal it and go back in,
+              // never drop the player into a fresh-run screen that discards it.
+              const run = this.restSavedRun(restPrice);
+              if (run) this.startRun(run);
+            }),
+          onStart: (depth) => this.click(() => this.startExpedition(depth)),
+          onSellRelic: (defId) => {
+            const next = sellRelic(this.meta, defId);
+            if (!next) return;
+            this.sound.click();
+            this.meta = {
+              ...this.meta,
+              echoes: next.echoes,
+              vault: [...(next.vault ?? [])],
+              relicRanks: next.relicRanks ?? {},
+              attunedRelic: next.attunedRelic ?? null,
+            };
+            this.store.saveMeta(this.meta);
+            render();
+          },
+          onBack: () => this.click(() => this.closeHubPanel()),
+        })
+      );
+    };
+    render();
   }
 
   private questSnapshotNow() {
@@ -778,7 +796,7 @@ export class App {
       if (inSanctuary) this.closeHubPanel();
       else this.resume();
     };
-    let status = 'Click a carried relic to equip it.';
+    let status = 'Click a carried relic to equip it, or sell what you will not wear.';
     const render = (): void => {
       this.screens.show(
         inventoryScreen(

@@ -49,6 +49,8 @@ export type SimEvent =
       rarity: 'common' | 'rare' | 'epic';
       slot: 'weapon' | 'armor' | 'trinket';
       auto: boolean;
+      /** Shards gained instead of carrying the relic because the bag was full. */
+      sold?: number;
     }
   | {
       type: 'hazardBurst';

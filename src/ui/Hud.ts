@@ -195,7 +195,12 @@ export class Hud {
       if (e.type === 'objectiveComplete') this.toast(`Floor restored · +${e.shards} shards`);
       if (e.type === 'flawlessRoom') this.toast(`Flawless · +${e.shards} shards`);
       if (e.type === 'equipment')
-        this.toast(`${e.rarity} ${e.slot} · ${e.name}${e.auto ? ' equipped' : ''}`);
+        this.toast(
+          e.sold !== undefined
+            ? `Bag full · ${e.name} sold · +${e.sold} shards`
+            : `${e.rarity} ${e.slot} · ${e.name}${e.auto ? ' equipped' : ''}`,
+          e.sold !== undefined
+        );
     }
   }
 
