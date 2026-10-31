@@ -70,9 +70,9 @@ The atlas is bundled at build time, while the images are served from the
   their south and a dark cap above it, which gives the 3/4 top-down depth.
   Floors beside walls receive ambient-occlusion overlays.
 - **Actors** use the atlas sheets: the player's idle/walk/attack/dash strips
-  (flipped by aim) and each enemy's idle/attack/death rows. Several generated
-  enemy walk rows have blank odd frames, so walking reuses the idle row with a
-  bob. Living enemy frames carry a soft top-left **rim light** derived from the
+  (flipped by aim) and each enemy's idle/walk/attack/death rows. Enemy walk rows
+  carry a small side-to-side body sway, and the view adds a vertical bob on top
+  of it. Living enemy frames carry a soft top-left **rim light** derived from the
   alpha edge, so silhouettes separate from dark tiles.
 - **Backdrop** is a `TilingSprite` of the biome's `backgrounds` texture at 55%
   alpha behind the tile chunks, so the void between rooms carries atmosphere

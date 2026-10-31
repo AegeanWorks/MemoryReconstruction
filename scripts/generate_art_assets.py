@@ -872,7 +872,9 @@ def _enemy_common(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, f
     if row == 3:
         bob += (frame + 1) / 4 * 0.16
     lunge = 0.05 if row == 2 and t > 0.35 else 0.0
-    step = math.sin(t * math.tau) if row == 1 else 0.0
+    # A full unit of step would shift the body off the cell on odd walk
+    # frames; the sway is deliberately small and layered on the runtime bob.
+    step = math.sin(t * math.tau) * 0.05 if row == 1 else 0.0
     ellipse(draw, cell, 0.24, 0.86, 0.76, 0.95, fill=Shadow)
     return bob, step + lunge
 

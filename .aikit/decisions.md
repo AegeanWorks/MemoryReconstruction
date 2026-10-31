@@ -413,3 +413,14 @@ or the architecture; see the header above for where each entry goes. -->
   6. **Catacomb Archer**: a skeletal ribcage, skull, ragged cloak, back quiver and a drawn bow with a nocked arrow.
   7. **Wiring**: `ENEMY_STYLES` points those six ids at the new body kinds, and `ENEMY_DRAW` registers the functions. Frame sizes and atlas keys are unchanged.
 - **Consequences**: the early roster now reads as six different creatures in the first four sections. Only the six affected enemy PNGs regenerate; a live room with all six spawned shows every silhouette with zero console errors.
+
+### ADR-041: Enemy walk rows carry a real sway instead of an idle replay
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Every enemy walk sheet had blank odd frames. `_enemy_common` returned a full plus-or-minus one unit walk step as the body's horizontal offset, so at t = 0.25 and 0.75 the body moved to x = 1.5 or -0.5 and left the cell. `loadEnemy` worked around the broken rows by replaying idle frames at double speed while the view added a bob, so moving enemies never had a walk pose.
+- **Decision**:
+  1. **Clamped sway**: `_enemy_common` now scales the row-1 step to 0.05, keeping every walk frame on canvas while giving the body a small side-to-side sway. Attack and death offsets are unchanged.
+  2. **Real walk row**: `loadEnemy` reads the walk row at its atlas frame rate instead of reusing idle frames; the view's vertical bob remains on top.
+  3. **Sheets and docs**: every enemy sheet regenerates, and Graphics describes the walk row plus the view bob.
+- **Consequences**: all 41 walk rows have four populated frames and moving enemies sway instead of only bobbing. Idle, attack and death rows are unchanged. A live room with all six new early mobs chasing the player shows the walk rows with zero console errors.
