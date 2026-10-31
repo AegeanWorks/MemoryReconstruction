@@ -72,6 +72,24 @@ describe('World', () => {
     expect(world.grid.isSolid(door.x, door.y)).toBe(false);
   });
 
+  it('announces subsequent waves with shockwave and notice in multi-wave rooms', () => {
+    const world = newWorld(42, 4);
+    const room = world.floor.rooms.find((r) => r.kind === 'combat' && r.w * r.h >= 180)!;
+    world.player.x = (room.x + room.w / 2) * 32;
+    world.player.y = (room.y + room.h / 2) * 32;
+    stepFor(world, 0.1);
+    expect(world.rooms[room.id].phase).toBe('active');
+    expect(world.rooms[room.id].totalWaves).toBeGreaterThanOrEqual(2);
+    stepFor(world, 1.2);
+    for (const e of [...world.enemies]) world.damageEnemy(e, 99999, 'melee', false, 0);
+    clearChoices(world);
+    const waveTransitionEvents = stepFor(world, 0.2);
+    expect(waveTransitionEvents.some((e) => e.type === 'shockwave')).toBe(true);
+    expect(
+      waveTransitionEvents.some((e) => e.type === 'notice' && e.text.startsWith('Wave 2 of'))
+    ).toBe(true);
+  });
+
   it('lands a swing on an enemy in front and misses one behind', () => {
     const world = newWorld();
     teleportToRoom(world, 'start');

@@ -114,7 +114,7 @@ export function generateFloor(seed: number, depth: number, options: FloorOptions
 
   const startRoom = 0;
   const bossRoom = options.bossOnly ? 0 : kinds.indexOf('boss');
-  decorate(rng, grid);
+  decorate(rng, grid, rooms);
 
   return { seed, depth, grid, rooms, startRoom, bossRoom };
 }
@@ -300,31 +300,40 @@ function cellCentre(cell: Cell): Cell {
 
 /**
  * Span [start, start+size) inside the cell that still covers the centre band.
- * A full span takes the whole cell minus its margins (boss arenas).
+ * A full span takes the whole cell minus its margins (boss arenas and grand halls).
+ * Regular rooms are given generous bounds so chambers feel open and expansive.
  */
 function span(
   rng: Rng,
   origin: number,
   cellSize: number,
   centre: number,
-  full: boolean
+  grand: boolean
 ): [number, number] {
   const lo = origin + CELL_MARGIN;
   const hi = origin + cellSize - CELL_MARGIN; // exclusive
-  const start = full ? lo : rng.int(lo, centre - CORE_HALF - 1);
-  const end = full ? hi : rng.int(centre + CORE_HALF + 2, hi);
+  if (grand) return [lo, hi - lo];
+  const maxStart = Math.min(lo + 3, centre - CORE_HALF - 1);
+  const minEnd = Math.max(hi - 3, centre + CORE_HALF + 2);
+  const start = rng.int(lo, maxStart);
+  const end = rng.int(minEnd, hi);
   return [start, end - start];
 }
 
 function placeRoom(rng: Rng, cell: Cell, id: number, kind: RoomKind, distance: number): Room {
   const centre = cellCentre(cell);
-  const full = kind === 'boss' || kind === 'arena';
-  const [x, w] = span(rng, 1 + cell.x * CELL_W, CELL_W, centre.x, full);
-  const [y, h] = span(rng, 1 + cell.y * CELL_H, CELL_H, centre.y, full);
-  const shape: RoomShape =
-    kind === 'boss' || kind === 'arena'
-      ? 'octagon'
-      : rng.pick(['rect', 'rect', 'rounded', 'octagon', 'cave'] as const);
+  // Boss and arena rooms are always grand; ~45% of combat rooms and ~40% of library rooms
+  // are also crafted as grand chambers.
+  const isGrand =
+    kind === 'boss' ||
+    kind === 'arena' ||
+    (kind === 'combat' && rng.chance(0.45)) ||
+    (kind === 'library' && rng.chance(0.4));
+  const [x, w] = span(rng, 1 + cell.x * CELL_W, CELL_W, centre.x, isGrand);
+  const [y, h] = span(rng, 1 + cell.y * CELL_H, CELL_H, centre.y, isGrand);
+  const shape: RoomShape = isGrand
+    ? rng.pick(['octagon', 'rounded', 'rect'] as const)
+    : rng.pick(['rect', 'rect', 'rounded', 'octagon', 'cave'] as const);
   return { id, cellX: cell.x, cellY: cell.y, x, y, w, h, kind, shape, doors: [], distance };
 }
 
@@ -625,14 +634,41 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
   }
 }
 
-function decorate(rng: Rng, grid: TileGrid): void {
+function decorate(rng: Rng, grid: TileGrid, rooms: Room[]): void {
   for (let i = 0; i < grid.tiles.length; i++) {
     if ((grid.tiles[i] as Tile) !== Tile.Floor) continue;
     const roll = rng.next();
     if (roll < 0.05) grid.deco[i] = Deco.Crack;
     else if (roll < 0.08) grid.deco[i] = Deco.Rubble;
     else if (roll < 0.12) grid.deco[i] = Deco.Moss;
-    else if (roll < 0.125) grid.deco[i] = Deco.Glyph;
+    else if (roll < 0.13) grid.deco[i] = Deco.Glyph;
+  }
+  // Grand chambers and arenas receive runic warding rings around their center
+  for (const r of rooms) {
+    if (r.w * r.h >= 180 || r.kind === 'boss' || r.kind === 'arena') {
+      const centre = cellCentre({ x: r.cellX, y: r.cellY });
+      const offsets = [
+        [-2, 0],
+        [2, 0],
+        [0, -2],
+        [0, 2],
+        [-3, -2],
+        [3, -2],
+        [-3, 2],
+        [3, 2],
+      ];
+      for (const [dx, dy] of offsets) {
+        const tx = centre.x + dx;
+        const ty = centre.y + dy;
+        if (
+          grid.inBounds(tx, ty) &&
+          grid.get(tx, ty) === Tile.Floor &&
+          (grid.deco[grid.index(tx, ty)] as Deco) === Deco.None
+        ) {
+          if (rng.chance(0.75)) grid.deco[grid.index(tx, ty)] = Deco.Glyph;
+        }
+      }
+    }
   }
 }
 

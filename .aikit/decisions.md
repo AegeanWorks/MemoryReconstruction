@@ -602,3 +602,15 @@ or the architecture; see the header above for where each entry goes. -->
   4. In `src/ui/ui.css`, add hover elevation (`translateY(-2px)`), inset edge highlight, and rich golden button glow to `.btn` and `.btn.primary`.
   5. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
 - **Consequences**: Tactile combat numbers, immersive peril signaling, mystic portal presence, and tactile UI controls unified across the game. 168 tests, lint, typecheck, build, mechanics, and all 8 AIKit gates pass cleanly.
+
+### ADR-060: Procedural grand chambers, floor ward glyphs, and multi-wave encounter progression
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Dungeon rooms were previously restricted to narrow random spans that often collapsed into cramped 7x7 closets, and combat encounters spawned only a single wave regardless of chamber size or dungeon depth. Combat lacked grand arenas and dynamic multi-wave escalation.
+- **Decision**:
+  1. In `src/sim/dungeon.ts`, upgrade `span` to give regular rooms generous bounds (width 12-18 tiles, height 8-12 tiles) and generate grand chambers spanning the full 18x12 cell footprint (216 tiles) for boss/arena rooms, ~45% of combat rooms, and ~40% of libraries.
+  2. In `src/sim/dungeon.ts`, update `decorate` to ornament grand chambers and arenas with sacred runic glyph rings (`Deco.Glyph`) surrounding their centers.
+  3. In `src/sim/world.ts`, scale room waves with chamber area and depth (up to 4-5 waves in deep grand halls), track `totalWaves` in `RoomState`, and emit shockwaves, camera rumble, and wave notices (`Wave X of Y`) on wave transitions.
+  4. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
+- **Consequences**: Expansive combat environments, dramatic multi-wave escalation, and luminescent floor ward aesthetics while preserving 100% reachability clearance across all floor seeds. 170 tests, lint, typecheck, build, mechanics, and all 8 gates pass.

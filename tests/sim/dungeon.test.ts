@@ -109,4 +109,20 @@ describe('dungeon generation', () => {
     expect(roomAt(floor, c.x, c.y)?.id).toBe(boss.id);
     expect(roomAt(floor, 0, 0)).toBeUndefined();
   });
+
+  it('generates grand chambers with generous area and center runic glyphs', () => {
+    let grandCount = 0;
+    let foundGlyph = false;
+    for (const seed of SEEDS) {
+      const floor = generateFloor(seed, 3, { roomCount: 10 });
+      for (const room of floor.rooms) {
+        if (room.w * room.h >= 180) grandCount++;
+      }
+      for (let i = 0; i < floor.grid.deco.length; i++) {
+        if (floor.grid.deco[i] === 4) foundGlyph = true;
+      }
+    }
+    expect(grandCount).toBeGreaterThan(10);
+    expect(foundGlyph).toBe(true);
+  });
 });

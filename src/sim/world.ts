@@ -64,6 +64,8 @@ export type RoomPhase = 'dormant' | 'active' | 'cleared';
 export interface RoomState {
   phase: RoomPhase;
   wavesLeft: number;
+  /** Total waves planned for this room encounter. */
+  totalWaves?: number;
   /** Seconds until the next wave (or the boss) appears while active. */
   spawnDelay: number;
   /** A room that has already sprung its surprise ambush. */
@@ -710,8 +712,19 @@ export class World implements Arena {
       }
       const alive = this.enemies.some((e) => e.roomId === id && e.state !== 'dying');
       if (alive) return;
-      if (state.wavesLeft > 0) state.spawnDelay = 0.6;
-      else this.clearRoom(r);
+      if (state.wavesLeft > 0) {
+        state.spawnDelay = 0.65;
+        const c = roomCentrePx(r);
+        this.emit({ type: 'shockwave', x: c.x, y: c.y, radius: 110 });
+        this.emit({ type: 'shake', strength: 5 });
+        const waveNum = (state.totalWaves ?? 2) - state.wavesLeft + 1;
+        this.emit({
+          type: 'notice',
+          text: `Wave ${waveNum} of ${state.totalWaves ?? 2}`,
+        });
+      } else {
+        this.clearRoom(r);
+      }
     });
   }
 
@@ -735,6 +748,7 @@ export class World implements Arena {
     this.emit({ type: 'roomLocked', roomId: room.id });
     if (room.kind === 'boss' || room.kind === 'arena') {
       state.wavesLeft = 1;
+      state.totalWaves = 1;
       state.spawnDelay = 1.0;
       const boss = room.kind === 'boss' ? this.plan.boss : arenaBossFor(this.run.depth);
       this.emit({ type: 'bossIntro', name: enemyDef(boss).name });
@@ -743,11 +757,24 @@ export class World implements Arena {
     } else {
       const area = room.w * room.h;
       const depth = this.run.depth;
-      state.wavesLeft = depth >= 1 && area >= 150 ? 2 : 1;
-      if (depth >= 3 && area >= 220) state.wavesLeft = 3;
-      // Later sections keep the pressure up with an extra wave in big rooms.
-      if (depth >= 6 && area >= 200) state.wavesLeft = 3;
-      if (depth >= 7 && area >= 260) state.wavesLeft = 4;
+      // Multi-wave encounters scale with chamber area and expedition depth:
+      // Smaller chambers (< 140): 1 wave.
+      // Medium chambers (140-199): 1 wave on depth 0, 2 waves on depth >= 1.
+      // Large chambers (200-239): 2 waves on depth 0-2, 3 waves on depth >= 3.
+      // Grand halls (>= 240): 2 waves on depth 0, 3 waves on depth 1-5, 4 waves on depth >= 6.
+      let waves = 1;
+      if (area >= 140 && depth >= 1) waves = 2;
+      if (area >= 180) {
+        waves = depth >= 3 ? 3 : 2;
+      }
+      if (area >= 210 && depth >= 4) {
+        waves = depth >= 6 ? 4 : 3;
+      }
+      if (area >= 240) {
+        waves = depth >= 7 ? 4 : depth >= 1 ? 3 : 2;
+      }
+      state.wavesLeft = waves;
+      state.totalWaves = waves;
       state.spawnDelay = 0.35;
     }
   }
@@ -803,6 +830,7 @@ export class World implements Arena {
     if (!state.ambushed && room.kind === 'combat' && this.run.depth >= 1 && this.rng.chance(0.12)) {
       state.ambushed = true;
       state.wavesLeft = 1;
+      state.totalWaves = (state.totalWaves ?? 1) + 1;
       state.spawnDelay = 0.6;
       for (let i = 0; i < 3; i++) {
         const spot = this.spawnPoint(room);
