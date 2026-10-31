@@ -386,3 +386,15 @@ or the architecture; see the header above for where each entry goes. -->
   3. **Runtime**: `Effects` takes the biome profile from `Renderer.showFloor`, keeps a fixed recycle pool of 32-48 motes, spawns falling layers above the view and rising layers below it, and fades each mote in and out. The field is presentation only and never touches the simulation.
   4. **Verification**: `tests/atmosphere.test.ts` checks that every biome has a profile, that every layer uses a known texture, motion and blend mode, and that colours, ranges and counts stay inside the presentation budget. A Playwright sweep of all sixteen sections confirmed the expected mote counts, textures and motions in every biome with zero console errors.
 - **Consequences**: ash and foundry now carry rising embers, frost falls as snow, bloom drops petals with pollen, mire mixes fireflies with spores and leaves, abyss rises in bubbles, and the remaining biomes have quieter dust, drift or grit. The title backdrop and the Sanctuary inherit the same system. The particle field stays under fifty pooled sprites; typecheck, lint, build and 154 tests pass.
+
+### ADR-039: The Memory Walker's scarf is a tapered two-tail ribbon
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: The hero is on screen for the whole run, but the scarf was a four-point zigzag that read as a static cyan checkmark in every idle and walk frame. The only idle motion was a sub-pixel body bob, so the most visible character had almost no cloth movement.
+- **Decision**:
+  1. **Two tails**: `player_scarf` now returns a long main tail and a shorter under-tail, with state-specific paths and a per-frame wave; attack and dash stream the tails backward instead of reusing the idle shape.
+  2. **Tapered band**: `scarf_ribbon` turns a mostly horizontal centerline into a tapered band with vertical width offsets. Perpendicular offsets self-intersect on the wavy centerline and the 64 px downsample collapsed the fill into a smear.
+  3. **Cloth treatment**: the main tail is a mid-tone cloth with a lit cyan top edge, the under-tail sits below it so the fork reads at play scale, and a low-alpha glow keeps the ribbon visible in dark rooms. A gold clasp joins it at the shoulder.
+  4. **Hem motion**: the cloak hem sways with the walk cycle and breathes with the idle bob, and the idle bob rises from 0.008 to 0.011.
+- **Consequences**: the player's silhouette now carries a readable forked scarf and a moving hem in all ten player sheets. Regeneration stays deterministic and changes only `assets/sprites/player/*.png`; atlas keys and frame sizes are unchanged. Verified at 10x across idle, walk, attack and dash and in a fresh ruins run with zero console errors.

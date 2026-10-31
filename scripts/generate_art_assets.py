@@ -650,13 +650,55 @@ def mix(a: tuple[int, ...], b: tuple[int, ...], t: float) -> tuple[int, ...]:
 # ---------------------------------------------------------------------------
 
 
-def player_scarf(state: str, t: float, bob: float) -> list[tuple[float, float]]:
-    sway = math.sin(t * math.tau) * 0.025
+def player_scarf(
+    state: str, t: float, bob: float
+) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
+    """Two trailing cloth tails that read as a scarf, not a checkmark.
+
+    The main tail is longer than the old four-point zigzag and the short tail
+    sits below it, so the silhouette keeps a forked ribbon at gameplay scale.
+    """
+    wave = math.sin(t * math.tau) * 0.012
     if state == "dash":
-        return [(0.42, 0.41), (0.24, 0.44), (0.09, 0.49), (0.0, 0.45)]
-    if state == "attack":
-        return [(0.43, 0.41), (0.31, 0.48 + sway), (0.20, 0.55), (0.12, 0.52 + sway)]
-    return [(0.43, 0.41 + bob), (0.31, 0.47 + sway), (0.21, 0.53 - sway), (0.13, 0.49)]
+        main = [(0.44, 0.405 + bob), (0.35, 0.43), (0.25, 0.45 + wave * 0.4),
+                (0.14, 0.46), (0.04, 0.455 + wave * 0.5)]
+        short = [(0.44, 0.435 + bob), (0.36, 0.47), (0.28, 0.49 + wave * 0.4),
+                 (0.21, 0.485)]
+    elif state == "attack":
+        main = [(0.44, 0.405 + bob), (0.36, 0.435 + wave * 0.6), (0.27, 0.465 - wave * 0.3),
+                (0.17, 0.49 + wave * 0.4), (0.08, 0.49)]
+        short = [(0.44, 0.44 + bob), (0.37, 0.48), (0.30, 0.51 + wave * 0.4),
+                 (0.24, 0.52)]
+    elif state == "walk":
+        step = math.sin(t * math.tau + 0.6) * 0.01
+        main = [(0.44, 0.40 + bob), (0.36, 0.44 + step), (0.28, 0.48 - step),
+                (0.20, 0.51 + step), (0.12, 0.53)]
+        short = [(0.44, 0.44 + bob), (0.37, 0.49 - step), (0.31, 0.53 + step),
+                 (0.26, 0.55)]
+    else:
+        main = [(0.44, 0.40 + bob), (0.36, 0.44 + wave * 0.5), (0.28, 0.48 - wave * 0.3),
+                (0.20, 0.51 + wave * 0.4), (0.12, 0.53)]
+        short = [(0.44, 0.44 + bob), (0.37, 0.49), (0.31, 0.53 + wave * 0.3),
+                 (0.26, 0.55)]
+    return main, short
+
+
+def scarf_ribbon(points: list[tuple[float, float]], start_width: float,
+                 end_width: float) -> list[tuple[float, float]]:
+    """Builds a tapered band from a mostly horizontal centerline.
+
+    The tails always run leftward, so a vertical width offset keeps the polygon
+    simple; perpendicular offsets self-intersect on the wavy centerline and the
+    polygon fill then collapses into a thin smear at 64px.
+    """
+    top: list[tuple[float, float]] = []
+    bottom: list[tuple[float, float]] = []
+    last = len(points) - 1
+    for i, (x, y) in enumerate(points):
+        width = start_width + (end_width - start_width) * (i / last)
+        top.append((x, y - width))
+        bottom.append((x, y + width))
+    return top + list(reversed(bottom))
 
 
 def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> Image.Image:
@@ -666,21 +708,31 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
     pal = PLAYER
     t = frame / frames
     cycle = math.sin(t * math.tau)
-    bob = cycle * 0.008 if state in ("idle", "attack") else abs(cycle) * 0.012
+    if state == "idle":
+        bob = cycle * 0.011
+    elif state == "attack":
+        bob = cycle * 0.008
+    else:
+        bob = abs(cycle) * 0.012
     lean = 0.035 if state == "dash" else 0.0
     step = math.sin(t * math.tau) if state == "walk" else 0.0
+    hem = math.sin(t * math.tau + 0.7) * (0.016 if state == "walk" else 0.007)
+    main_scarf, short_scarf = player_scarf(state, t, bob)
 
     def paint_glow(g: ImageDraw.ImageDraw) -> None:
-        line(g, cell, player_scarf(state, t, bob), pal["scarf"], 5)
+        line(g, cell, main_scarf, rgba(pal["scarf"][:3], 60), 3)
         ellipse(g, cell, 0.465, 0.39 + bob, 0.535, 0.46 + bob, fill=pal["eye"])
         ellipse(g, cell, 0.50, 0.28 + bob, 0.55, 0.33 + bob, fill=pal["eye"])
 
     ellipse(draw, cell, 0.25, 0.84, 0.74, 0.93, fill=Shadow)
     glow(img, paint_glow, 3.0)
 
-    # Scarf tail behind the body.
-    line(draw, cell, player_scarf(state, t, bob), pal["scarf_dark"], 4)
-    line(draw, cell, player_scarf(state, t, bob), pal["scarf"], 2)
+    # Scarf tails behind the body: mid-tone cloth with a lit top edge.
+    cloth = mix(pal["scarf_dark"], pal["scarf"], 0.45)
+    for tail, widths in ((short_scarf, (0.022, 0.007)), (main_scarf, (0.034, 0.010))):
+        points = scarf_ribbon(tail, *widths)
+        poly(draw, cell, points, fill=cloth)
+        line(draw, cell, points[: len(tail)], pal["scarf"], 1)
 
     # Legs and boots.
     left_x = 0.43 + step * 0.025
@@ -696,12 +748,12 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
     cloak = [
         (0.37 + lean, 0.35 + bob),
         (0.63 + lean, 0.35 + bob),
-        (0.72, 0.78),
-        (0.63, 0.86),
-        (0.55, 0.79),
-        (0.49, 0.87),
-        (0.42, 0.80),
-        (0.29, 0.78),
+        (0.72, 0.78 + hem * 0.3),
+        (0.63, 0.86 + hem),
+        (0.55, 0.79 - hem * 0.4),
+        (0.49, 0.87 - hem),
+        (0.42, 0.80 + hem * 0.4),
+        (0.29, 0.78 - hem * 0.3),
     ]
     poly(draw, cell, cloak, fill=pal["cloak"], outline=pal["outline"], width=3)
     poly(draw, cell, [(0.40 + lean, 0.37 + bob), (0.55 + lean, 0.36 + bob), (0.51, 0.72), (0.43, 0.76)],
@@ -709,6 +761,10 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
     rect(draw, cell, 0.37, 0.62, 0.63, 0.66, fill=pal["gold"], outline=pal["outline"], width=1, radius=0.01)
     # Memory core.
     poly(draw, cell, [(0.51, 0.46), (0.55, 0.50), (0.51, 0.55), (0.47, 0.50)], fill=pal["scarf_light"], outline=pal["outline"], width=1)
+    # Gold scarf clasp at the left shoulder.
+    ellipse(draw, cell, 0.408, 0.392 + bob, 0.452, 0.432 + bob,
+            fill=pal["gold"], outline=pal["outline"], width=1)
+    ellipse(draw, cell, 0.423, 0.405 + bob, 0.437, 0.419 + bob, fill=pal["scarf_light"])
 
     # Arms.
     if state == "attack":

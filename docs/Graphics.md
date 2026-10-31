@@ -96,7 +96,7 @@ The atlas is bundled at build time, while the images are served from the
 
 | Asset | Silhouette | Motion |
 |---|---|---|
-| Memory Walker | hood, shadowed face with glowing eyes, scarf, shard blade | bob, walk, slash arc, dash streaks |
+| Memory Walker | hood, shadowed face with glowing eyes, forked two-tail scarf, shard blade | bob, scarf sway, hem sway, walk, slash arc, dash streaks |
 | Scavenger | hunched rags, bone mask, claws | lope, lunge |
 | Guardian | blocky stone, cyan core | heavy march, slam |
 | Memory Echo | floating tatters, two eyes | drift, pulse |
