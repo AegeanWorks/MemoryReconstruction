@@ -517,3 +517,11 @@ or the architecture; see the header above for where each entry goes. -->
 - **Context**: Crystal guardian and bone knight shared one duelist body with palette swaps.
 - **Decision**: Crystal guardian gains shoulder crystals and a glowing core; bone knight gains a ribcage and a skull helm.
 - **Consequences**: both duelist sheets regenerate with distinct reads. 161 tests, lint, typecheck, build, mechanics and all 8 gates pass.
+
+### ADR-052: The two oracle-kind enemies get distinct reads
+
+- **Date**: 2026-10-31
+- **Status**: Accepted
+- **Context**: Tide caller and frost oracle shared one oracle body with palette swaps.
+- **Decision**: Tide caller gains water lines; frost oracle gains ice crystals on the hood.
+- **Consequences**: both oracle sheets regenerate with distinct reads. 161 tests, lint, typecheck, build, mechanics and all 8 gates pass.

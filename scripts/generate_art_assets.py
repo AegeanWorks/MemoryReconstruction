@@ -425,6 +425,7 @@ ENEMY_STYLES = {
     },
     "tideCaller": {
         "kind": "oracle",
+        "tide": True,
         "body": (30, 64, 78, 255),
         "light": (108, 180, 196, 255),
         "cloth": (17, 37, 46, 255),
@@ -434,6 +435,7 @@ ENEMY_STYLES = {
     },
     "frostOracle": {
         "kind": "oracle",
+        "frost": True,
         "body": (44, 62, 80, 255),
         "light": (152, 190, 214, 255),
         "cloth": (25, 37, 50, 255),
@@ -1692,6 +1694,14 @@ def _oracle(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: 
     for i in range(3):
         my = 0.86 - ((t * 0.5 + i * 0.33) % 1) * 0.22
         ellipse(draw, cell, cx - 0.20 + i * 0.16, my, cx - 0.185 + i * 0.16, my + 0.015, fill=accent)
+    if style.get("frost"):
+        for i in range(3):
+            x = cx - 0.22 + i * 0.22
+            y = 0.20 + (i % 2) * 0.06
+            poly(draw, cell, [(x, y - 0.04), (x + 0.03, y), (x, y + 0.05), (x - 0.03, y)], fill=accent, outline=Outline, width=1)
+    if style.get("tide"):
+        for i in range(2):
+            line(draw, cell, [(cx - 0.26, 0.46 + i * 0.06 + bob), (cx - 0.14, 0.44 + i * 0.06 + bob)], accent, 2)
 
 
 def _herald(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
