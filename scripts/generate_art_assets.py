@@ -66,6 +66,7 @@ ENEMY_STYLES = {
     },
     "guardian": {
         "kind": "construct",
+        "guardian": True,
         "body": (74, 74, 88, 255),
         "light": (122, 122, 140, 255),
         "cloth": (96, 82, 62, 255),
@@ -959,6 +960,9 @@ def _construct(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, fram
     if style.get("broken"):
         line(draw, cell, [(0.38, 0.43), (0.30, 0.51)], dark, 3)
         line(draw, cell, [(0.62, 0.49), (0.70, 0.57)], dark, 3)
+    if style.get("guardian"):
+        # Crest on the helm.
+        poly(draw, cell, [(0.40, top + 0.02), (0.50, top - 0.06), (0.60, top + 0.02)], fill=accent, outline=Outline, width=2)
 
 
 def _hunched(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> None:
