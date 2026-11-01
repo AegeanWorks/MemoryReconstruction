@@ -11,9 +11,12 @@ import {
   rollEquipment,
 } from '../../src/sim/equipment';
 import { computeStats } from '../../src/sim/upgrades';
+import { enemyDef } from '../../src/sim/content';
+import { dashStrikeRange } from '../../src/sim/enemies';
 import { Rng } from '../../src/sim/rng';
+import { TILE_SIZE, Tile } from '../../src/sim/tiles';
 import { questProgress, questSnapshot, QUESTS } from '../../src/sim/quests';
-import { restoredLevels } from '../../src/sim/hub';
+import { restoredLevels, createExpedition } from '../../src/sim/hub';
 
 const DT = 1 / 60;
 
@@ -21,6 +24,11 @@ function world(depth = 0, seed = 7): World {
   const run = createRun(seed, []);
   run.depth = depth;
   return new World(run);
+}
+
+/** A world as the player actually meets it: from the matching checkpoint. */
+function checkpointWorld(depth: number, seed = 7): World {
+  return new World(createExpedition(seed, [], depth, { echoes: 0, restorations: {}, checkpoint: 0 }));
 }
 
 describe('equipment', () => {
@@ -100,6 +108,9 @@ describe('hazards and the sanctuary', () => {
     const w = world(3);
     expect(w.hazards.length).toBeGreaterThan(0);
     expect(w.hazards.some((h) => h.kind === 'barrel')).toBe(true);
+    expect(
+      w.hazards.some((h) => h.kind === 'crate' || h.kind === 'crystal' || h.kind === 'urn')
+    ).toBe(true);
   });
 
   it('a sprung trap hurts the player and can be disarmed', () => {
@@ -128,6 +139,129 @@ describe('hazards and the sanctuary', () => {
     w.hitHazards(barrel.x, barrel.y, 10, 999);
     expect(w.hazards).not.toContain(barrel);
     expect(enemy.health).toBeLessThan(before);
+  });
+
+  it('a disarmed room keeps its breakables intact', () => {
+    const w = world(3);
+    const barrel = w.hazards.find((h) => h.kind === 'barrel')!;
+    w.disableHazards(barrel.roomId);
+    expect(barrel.disabled).toBe(false);
+    w.hitHazards(barrel.x, barrel.y, 10, 999);
+    expect(w.hazards).not.toContain(barrel);
+  });
+
+  it('breaks a crate into stored shards without hurting the player', () => {
+    const w = world(3);
+    const crate = w.hazards.find((h) => h.kind === 'crate')!;
+    w.player.x = crate.x;
+    w.player.y = crate.y;
+    const health = w.player.health;
+    const pickups = w.pickups.length;
+    w.hitHazards(crate.x, crate.y, 10, 999);
+    expect(w.hazards).not.toContain(crate);
+    expect(w.pickups.length).toBeGreaterThan(pickups);
+    expect(w.player.health).toBe(health);
+  });
+
+  it('reports a landed blow on a prop that survives the hit', () => {
+    const w = world(3);
+    const crate = w.hazards.find((h) => h.kind === 'crate')!;
+    w.hitHazards(crate.x, crate.y, 10, 1);
+    const events = w.step(NO_INPUT, 0);
+    expect(w.hazards).toContain(crate);
+    expect(crate.hitFlash).toBeGreaterThan(0);
+    expect(events.some((e) => e.type === 'hazardHit' && e.kind === 'crate')).toBe(true);
+    for (let i = 0; i < 20; i++) w.step(NO_INPUT, DT);
+    expect(crate.hitFlash).toBe(0);
+  });
+
+  it('lights nearby breakables when a barrel detonates', () => {
+    const w = world(3);
+    const barrel = w.hazards.find((h) => h.kind === 'barrel')!;
+    const crate = w.hazards.find((h) => h.kind === 'crate')!;
+    crate.x = barrel.x + 30;
+    crate.y = barrel.y;
+    w.player.x = barrel.x + 480;
+    w.player.y = barrel.y;
+    w.hitHazards(barrel.x, barrel.y, 10, 999);
+    expect(w.hazards).not.toContain(barrel);
+    expect(w.hazards).toContain(crate);
+    expect(crate.ignite).toBeGreaterThan(0);
+    for (let i = 0; i < 40; i++) w.step(NO_INPUT, DT);
+    expect(w.hazards).not.toContain(crate);
+  });
+
+  it('a bomb blast lights a crate but never a floor trap', () => {
+    const w = world(2);
+    const crate = w.hazards.find((h) => h.kind === 'crate')!;
+    const trap = w.hazards.find((h) => h.kind === 'spike' || h.kind === 'flame')!;
+    trap.x = crate.x + 12;
+    trap.y = crate.y;
+    w.player.x = crate.x + 480;
+    w.player.y = crate.y;
+    w.spawnBomb(crate.x - 24, crate.y, 0, 0, 'player', 1, 0.01);
+    for (let i = 0; i < 40; i++) w.step(NO_INPUT, DT);
+    expect(w.hazards).not.toContain(crate);
+    expect(w.hazards).toContain(trap);
+    expect(trap.ignite).toBeUndefined();
+  });
+
+  it('shatters a crystal into a memory flare that sears enemies only', () => {
+    const w = world(3);
+    const crystal = w.hazards.find((h) => h.kind === 'crystal')!;
+    const enemy = w.spawnEnemy('scavenger', crystal.x + 20, crystal.y, -1);
+    enemy.state = 'chase';
+    w.player.x = crystal.x;
+    w.player.y = crystal.y;
+    const health = w.player.health;
+    const before = enemy.health;
+    w.hitHazards(crystal.x, crystal.y, 10, 999);
+    expect(w.hazards).not.toContain(crystal);
+    expect(enemy.health).toBeLessThan(before);
+    expect(w.player.health).toBe(health);
+  });
+
+  it('cracks a neighbouring breakable when a crystal shatters', () => {
+    const w = world(3);
+    const crystal = w.hazards.find((h) => h.kind === 'crystal')!;
+    const crate = w.hazards.find((h) => h.kind === 'crate')!;
+    crate.x = crystal.x + 30;
+    crate.y = crystal.y;
+    w.hitHazards(crystal.x, crystal.y, 10, 999);
+    expect(w.hazards).not.toContain(crate);
+  });
+
+  it('spills a shard or a draught from a broken urn', () => {
+    const w = world(3);
+    const urn = w.hazards.find((h) => h.kind === 'urn')!;
+    const pickups = w.pickups.length;
+    w.hitHazards(urn.x, urn.y, 10, 999);
+    expect(w.hazards).not.toContain(urn);
+    expect(w.pickups.length).toBeGreaterThan(pickups);
+  });
+
+  it('leaves traps and floor dangers unbreakable', () => {
+    const w = world(2);
+    const trap = w.hazards.find((h) => h.kind === 'spike' || h.kind === 'flame')!;
+    expect(w.hitHazards(trap.x, trap.y, 10, 999)).toBe(0);
+    expect(w.hazards).toContain(trap);
+  });
+
+  it('moves loot out of solid tiles before it drops', () => {
+    const w = world(2, 4);
+    const grid = w.grid;
+    let wall: { x: number; y: number } | undefined;
+    for (let ty = 0; ty < grid.height && !wall; ty++) {
+      for (let tx = 0; tx < grid.width; tx++) {
+        if (grid.get(tx, ty) === Tile.Wall) {
+          wall = { x: tx, y: ty };
+          break;
+        }
+      }
+    }
+    expect(wall).toBeDefined();
+    const at = w.safeDropPosition((wall!.x + 0.5) * TILE_SIZE, (wall!.y + 0.5) * TILE_SIZE);
+    expect(grid.isSolidAtPixel(at.x, at.y)).toBe(false);
   });
 
   it('turns a mimic chest into an ambush', () => {
@@ -335,5 +469,173 @@ describe('boss attacks and quests', () => {
     expect(questProgress(fragments, snapshot)).toBe(3);
     expect(questProgress(kills, snapshot)).toBe(60);
     expect(restoredLevels(progress)).toBe(4);
+  });
+});
+
+describe('duellists', () => {
+  it('gives the duelist behaviour its own archetype', () => {
+    expect(enemyDef('rime_duelist').archetype).toBe('duelist');
+    expect(enemyDef('lost_self').archetype).toBe('duelist');
+  });
+
+  it('opens with a player-style attack at sword range', () => {
+    const w = world(9);
+    const duelist = w.spawnEnemy('rime_duelist', w.player.x + 60, w.player.y, -1);
+    duelist.state = 'chase';
+    duelist.cooldown = 0;
+    for (let i = 0; i < 30 && duelist.state === 'chase'; i++) w.step(NO_INPUT, DT);
+    expect(duelist.state).toBe('windup');
+    expect(['combo', 'dashStrike', 'bolt']).toContain(duelist.attack);
+  });
+
+  it('chains three sword arcs that each land in front', () => {
+    const w = world(9);
+    const p = w.player;
+    const duelist = w.spawnEnemy('rime_duelist', p.x + 40, p.y, -1);
+    duelist.state = 'windup';
+    duelist.attack = 'combo';
+    duelist.stateTime = 0;
+    duelist.dirX = -1;
+    duelist.dirY = 0;
+    p.invulnerable = 0;
+    const before = p.health;
+    const slashes: number[] = [];
+    for (let i = 0; i < 45; i++)
+      for (const event of w.step(NO_INPUT, DT))
+        if (event.type === 'enemySlash') slashes.push(event.combo);
+    expect(slashes).toEqual([0, 1, 2]);
+    expect(p.health).toBeLessThan(before);
+  });
+
+  it('cannot touch a player standing behind the chain', () => {
+    const w = world(9);
+    const p = w.player;
+    const duelist = w.spawnEnemy('rime_duelist', p.x + 70, p.y, -1);
+    duelist.state = 'windup';
+    duelist.attack = 'combo';
+    duelist.stateTime = 0;
+    duelist.dirX = 1;
+    duelist.dirY = 0;
+    p.x = duelist.x - 170;
+    p.invulnerable = 0;
+    const before = p.health;
+    for (let i = 0; i < 45; i++) w.step(NO_INPUT, DT);
+    expect(p.health).toBe(before);
+  });
+
+  it('cannot one-combo a player who arrives at its section', () => {
+    const w = checkpointWorld(9);
+    const p = w.player;
+    const duelist = w.spawnEnemy('rime_duelist', p.x + 40, p.y, -1);
+    duelist.state = 'windup';
+    duelist.attack = 'combo';
+    duelist.stateTime = 0;
+    duelist.dirX = -1;
+    duelist.dirY = 0;
+    p.invulnerable = 0;
+    for (let i = 0; i < 45; i++) w.step(NO_INPUT, DT);
+    expect(p.health).toBeGreaterThan(p.stats.maxHealth * 0.25);
+  });
+
+  it('fires a thin bolt of its own', () => {
+    const w = world(9);
+    const duelist = w.spawnEnemy('rime_duelist', w.player.x + 240, w.player.y, -1);
+    duelist.state = 'windup';
+    duelist.attack = 'bolt';
+    duelist.stateTime = 0;
+    duelist.dirX = -1;
+    duelist.dirY = 0;
+    w.step(NO_INPUT, DT);
+    expect(w.projectiles.some((shot) => shot.owner === 'enemy')).toBe(true);
+  });
+
+  it('closes the gap with a dash strike', () => {
+    const w = world(9);
+    const p = w.player;
+    const duelist = w.spawnEnemy('rime_duelist', p.x + 170, p.y, -1);
+    duelist.state = 'windup';
+    duelist.attack = 'dashStrike';
+    duelist.stateTime = 0;
+    duelist.dirX = -1;
+    duelist.dirY = 0;
+    const startX = duelist.x;
+    for (let i = 0; i < 20; i++) w.step(NO_INPUT, DT);
+    expect(duelist.x).toBeLessThan(startX - 40);
+  });
+
+  it('dashes about as far as its warning lane shows', () => {
+    const w = world(9);
+    const p = w.player;
+    const room = w.floor.rooms.reduce((a, b) => (b.w * b.h > a.w * a.h ? b : a));
+    p.x = (room.x + room.w / 2) * TILE_SIZE;
+    p.y = (room.y + room.h / 2) * TILE_SIZE;
+    const duelist = w.spawnEnemy('rime_duelist', p.x + 40, p.y, room.id);
+    const expected = dashStrikeRange(duelist.def);
+    // Dash down the clearest lane so a wall does not cut the run short.
+    const lanes = [
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 },
+    ];
+    const clearance = (dir: { x: number; y: number }): number => {
+      for (let d = 0; d <= expected + 40; d += 4) {
+        const scan = { x: duelist.x + dir.x * d, y: duelist.y + dir.y * d };
+        if (w.grid.isSolidAtPixel(scan.x, scan.y)) return d;
+      }
+      return expected + 40;
+    };
+    const lane = lanes.reduce((a, b) => (clearance(b) > clearance(a) ? b : a));
+    const start = { x: duelist.x, y: duelist.y };
+    duelist.state = 'windup';
+    duelist.attack = 'dashStrike';
+    duelist.stateTime = 0;
+    duelist.dirX = lane.x;
+    duelist.dirY = lane.y;
+    for (let i = 0; i < 20; i++) w.step(NO_INPUT, DT);
+    const travelled = Math.hypot(duelist.x - start.x, duelist.y - start.y);
+    expect(travelled).toBeGreaterThan(expected * 0.6);
+    expect(travelled).toBeLessThan(expected * 1.25);
+  });
+});
+
+describe('the mirror of self', () => {
+  it('opens its pattern with a player-style swing', () => {
+    const w = world(15);
+    const boss = w.spawnEnemy('mirror_self', w.player.x + 120, w.player.y, -1, true);
+    boss.state = 'chase';
+    boss.cooldown = 0;
+    w.step(NO_INPUT, DT);
+    expect(boss.state).toBe('windup');
+    expect(['combo', 'dashStrike', 'bolt']).toContain(boss.attack);
+  });
+
+  it('grows stronger as the player levels', () => {
+    const w = world(15);
+    const low = w.spawnEnemy('mirror_self', w.player.x + 40, w.player.y, -1, true);
+    w.player.level = 20;
+    const high = w.spawnEnemy('mirror_self', w.player.x + 60, w.player.y, -1, true);
+    expect(high.def.damage).toBeGreaterThan(low.def.damage);
+  });
+
+  it('cannot one-combo a player who reaches its trial', () => {
+    const w = checkpointWorld(15);
+    const p = w.player;
+    const boss = w.spawnEnemy('mirror_self', p.x + 56, p.y, -1, true);
+    boss.state = 'windup';
+    boss.attack = 'combo';
+    boss.stateTime = 0;
+    boss.dirX = -1;
+    boss.dirY = 0;
+    p.invulnerable = 0;
+    for (let i = 0; i < 45; i++) w.step(NO_INPUT, DT);
+    expect(p.health).toBeGreaterThan(p.stats.maxHealth * 0.25);
+  });
+
+  it('wears the player sheet in the mirror trial', () => {
+    const w = world(15);
+    expect(w.plan.boss).toBe('mirror_self');
+    expect(w.plan.bossOnly).toBe(true);
+    expect(enemyDef('mirror_self', true).sprite).toBe('mirror');
   });
 });

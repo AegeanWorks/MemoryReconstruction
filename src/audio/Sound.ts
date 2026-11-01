@@ -101,8 +101,13 @@ export class Sound {
         case 'enemyWindup':
           this.tone(260, 420, 0.25, 'triangle', 0.06, 'windup');
           break;
+        case 'enemySlash':
+          this.whoosh(e.combo === 2 ? 0.11 : 0.08, 1150, 0.16);
+          break;
         case 'enemyAttack':
           if (e.attack === 'slam') this.thump(60, 0.5, 'slam');
+          else if (e.attack === 'combo' || e.attack === 'dashStrike') this.whoosh(0.1, 1000, 0.2);
+          else if (e.attack === 'bolt') this.tone(880, 480, 0.1, 'sine', 0.06, 'shot');
           else if (e.attack === 'ring' || e.attack === 'spread' || e.attack === 'shot')
             this.tone(700, 300, 0.15, 'sine', 0.08, 'shot');
           break;
@@ -152,7 +157,18 @@ export class Sound {
           );
           break;
         case 'hazardBurst':
-          this.tone(e.kind === 'poison' ? 220 : 140, 70, 0.18, 'square', 0.08);
+          if (e.kind === 'crystal') this.chord([1046, 1319, 1568], 0.22, 0.07);
+          else if (e.kind === 'crate' || e.kind === 'urn') this.tone(190, 70, 0.12, 'square', 0.07);
+          else this.tone(e.kind === 'poison' ? 220 : 140, 70, 0.18, 'square', 0.08);
+          break;
+        case 'hazardHit':
+          this.tone(
+            e.kind === 'crystal' ? 780 : 150,
+            e.kind === 'crystal' ? 620 : 110,
+            0.05,
+            'triangle',
+            0.05
+          );
           break;
         case 'blast':
           this.tone(120, 50, 0.3, 'sawtooth', 0.14);

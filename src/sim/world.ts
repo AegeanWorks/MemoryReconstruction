@@ -66,6 +66,8 @@ export interface RoomState {
   wavesLeft: number;
   /** Total waves planned for this room encounter. */
   totalWaves?: number;
+  /** When true, wave announcements omit the remaining wave count for suspense. */
+  hideWaveCount?: boolean;
   /** Seconds until the next wave (or the boss) appears while active. */
   spawnDelay: number;
   /** A room that has already sprung its surprise ambush. */
@@ -84,6 +86,9 @@ const GRAZE_SHOT = 18;
 /** Variable-ratio shard rolls: jackpot below this, rich below the second. */
 const SURGE_JACKPOT = 0.06;
 const SURGE_RICH = 0.24;
+
+const isBreakable = (kind: HazardKind): boolean =>
+  kind === 'barrel' || kind === 'crate' || kind === 'crystal' || kind === 'urn';
 
 /** Progress of the optional full-clear objective on this floor. */
 export interface FloorObjectives {
@@ -487,6 +492,10 @@ export class World implements Arena {
     const scale = { health: 1 + 0.22 * depth, damage: 1 + 0.08 * depth };
     const elite = !asBoss && depth > 0 && this.rng.chance(0.06 + 0.03 * depth);
     const enemy = createEnemy(this.nextId++, enemyDef(defId, asBoss), x, y, roomId, scale, elite);
+    // The mirror fights with your numbers: it has watched you grow. The cap
+    // keeps a three-swing combo from deleting a fresh checkpoint player.
+    if (defId === 'mirror_self')
+      enemy.def.damage = Math.round(enemy.def.damage * Math.min(1.4, 1 + this.player.level * 0.03));
     this.enemies.push(enemy);
     this.emit({ type: 'enemySpawned', id: enemy.id, x, y });
     return enemy;
@@ -562,7 +571,7 @@ export class World implements Arena {
       interior: true,
     });
   }
-  /** Scatters traps and barrels through combat rooms, plus levers to disarm them. */
+  /** Scatters traps and breakables through combat rooms, plus levers to disarm them. */
   private placeHazards(): void {
     if (this.plan.bossOnly) return;
     for (const room of this.floor.rooms) {
@@ -570,6 +579,14 @@ export class World implements Arena {
       const count = 1 + (this.run.depth >= 4 ? 1 : 0) + this.rng.int(0, 1);
       const kinds: HazardKind[] = ['spike', 'flame', 'poison', 'rockfall', 'barrel'];
       for (let i = 0; i < count; i++) this.spawnHazard(room, this.rng.pick(kinds));
+
+      // Scatter breakable environment items (crates, crystals, urns, barrels)
+      const breakableCount = this.rng.int(2, 4);
+      const breakables: HazardKind[] = ['crate', 'crystal', 'urn', 'barrel'];
+      for (let i = 0; i < breakableCount; i++) {
+        this.spawnHazard(room, this.rng.pick(breakables));
+      }
+
       if (this.rng.chance(0.45)) {
         const c = roomCentrePx(room);
         this.addInteractable('lever', c.x - 52, c.y + 44, 0, { roomId: room.id });
@@ -586,20 +603,42 @@ export class World implements Arena {
       const y = (ty + 0.5) * TILE_SIZE;
       if (this.hazards.some((h) => Math.hypot(h.x - x, h.y - y) < 46)) continue;
       if (Math.hypot(x - this.player.x, y - this.player.y) < 60) continue;
-      const barrel = kind === 'barrel';
+      const breakable = isBreakable(kind);
+      const radius =
+        kind === 'barrel'
+          ? 16
+          : kind === 'crystal'
+            ? 15
+            : kind === 'crate'
+              ? 14
+              : kind === 'urn'
+                ? 12
+                : kind === 'poison'
+                  ? 38
+                  : 44;
+      const hp =
+        kind === 'barrel'
+          ? 14
+          : kind === 'crystal'
+            ? 12
+            : kind === 'crate'
+              ? 10
+              : kind === 'urn'
+                ? 8
+                : 0;
       this.hazards.push({
         id: this.nextId++,
         kind,
         x,
         y,
-        radius: barrel ? 16 : kind === 'poison' ? 38 : 44,
+        radius,
         roomId: room.id,
         phase: 'idle',
         timer: this.rng.range(0.4, 2.4),
         period: kind === 'spike' ? 2.6 : kind === 'flame' ? 3.4 : 0.8,
-        damage: Math.round(8 + this.run.depth * 1.4),
-        hp: barrel ? 14 : 0,
-        maxHp: barrel ? 14 : 0,
+        damage: breakable ? 0 : Math.round(8 + this.run.depth * 1.4),
+        hp,
+        maxHp: hp,
         disabled: false,
       });
       return;
@@ -718,9 +757,12 @@ export class World implements Arena {
         this.emit({ type: 'shockwave', x: c.x, y: c.y, radius: 110 });
         this.emit({ type: 'shake', strength: 5 });
         const waveNum = (state.totalWaves ?? 2) - state.wavesLeft + 1;
+        const text = state.hideWaveCount
+          ? `Wave ${waveNum}`
+          : `Wave ${waveNum} of ${state.totalWaves ?? 2}`;
         this.emit({
           type: 'notice',
-          text: `Wave ${waveNum} of ${state.totalWaves ?? 2}`,
+          text,
         });
       } else {
         this.clearRoom(r);
@@ -773,8 +815,15 @@ export class World implements Arena {
       if (area >= 240) {
         waves = depth >= 7 ? 4 : depth >= 1 ? 3 : 2;
       }
+      // Rooms can have up to 10 waves; chance drops with each wave increase
+      let extraChance = 0.52;
+      while (waves < 10 && this.rng.chance(extraChance)) {
+        waves++;
+        extraChance *= 0.62;
+      }
       state.wavesLeft = waves;
       state.totalWaves = waves;
+      state.hideWaveCount = this.rng.chance(0.42);
       state.spawnDelay = 0.35;
     }
   }
@@ -799,6 +848,10 @@ export class World implements Arena {
         enemy.health = enemy.maxHealth;
         if (room.kind === 'arena') enemy.elite = true;
       }
+      if (boss === 'mirror_self') {
+        this.emit({ type: 'notice', text: 'It moves the way you move.' });
+        this.emit({ type: 'shake', strength: 5 });
+      }
       return;
     }
     // Wave size grows with the section, so late rooms are crowded rather than
@@ -807,14 +860,22 @@ export class World implements Arena {
     for (let i = 0; i < count; i++) {
       let spot: { x: number; y: number } | undefined;
       // In rooms with gates, enemies emerge through the iron portcullises into the chamber
-      if (room.gates && room.gates.length > 0 && this.rng.chance(0.65)) {
-        const gate = this.rng.pick(room.gates);
-        spot = { x: gate.spawnX, y: gate.spawnY };
-      } else {
-        spot = this.spawnPoint(room);
-      }
+      if (room.gates && room.gates.length > 0 && this.rng.chance(0.65)) spot = this.gateSpawn(room);
+      if (!spot) spot = this.spawnPoint(room);
       if (spot) this.spawnEnemy(this.rng.pick(this.plan.roster), spot.x, spot.y, room.id);
     }
+  }
+
+  /**
+   * A gate mouth the player is not standing next to. Gates are fixed points, so
+   * without this check a wave could materialise on top of a player camping one.
+   */
+  private gateSpawn(room: Room): { x: number; y: number } | undefined {
+    const p = this.player;
+    const open = room.gates?.filter((g) => Math.hypot(g.spawnX - p.x, g.spawnY - p.y) >= 140);
+    if (!open || open.length === 0) return undefined;
+    const gate = this.rng.pick(open);
+    return { x: gate.spawnX, y: gate.spawnY };
   }
 
   /** A random open spot in the room, kept away from the player. */
@@ -948,23 +1009,25 @@ export class World implements Arena {
     const base = enemy.isBoss ? 30 : this.rng.int(1, 3) + (enemy.elite ? 5 : 0);
     const surge = this.rollSurge();
     const shards = Math.round(base * flow * surge.factor);
-    this.dropShards(enemy.x, enemy.y, shards);
+    const dropPos = this.safeDropPosition(enemy.x, enemy.y);
+    this.dropShards(dropPos.x, dropPos.y, shards);
     if (surge.kind) {
       run.stats.surges++;
       // Only a jackpot is worth a potion; a rich vein is just extra shards.
-      if (surge.kind === 'jackpot') this.dropPickup('potion', enemy.x, enemy.y - 20, 1);
+      if (surge.kind === 'jackpot') this.dropPickup('potion', dropPos.x, dropPos.y - 20, 1);
       this.emit({
         type: 'lootSurge',
-        x: enemy.x,
-        y: enemy.y,
+        x: dropPos.x,
+        y: dropPos.y,
         kind: surge.kind,
         amount: shards,
       });
     }
-    if (!enemy.isBoss && this.rng.chance(0.07)) this.dropPickup('health', enemy.x, enemy.y, 12);
-    if (!enemy.isBoss && this.rng.chance(0.025)) this.dropPickup('potion', enemy.x, enemy.y, 1);
+    if (!enemy.isBoss && this.rng.chance(0.07)) this.dropPickup('health', dropPos.x, dropPos.y, 12);
+    if (!enemy.isBoss && this.rng.chance(0.025)) this.dropPickup('potion', dropPos.x, dropPos.y, 1);
     // Bosses always leave a relic; elites sometimes do.
-    if (enemy.isBoss || (enemy.elite && this.rng.chance(0.4))) this.dropEquipment(enemy.x, enemy.y);
+    if (enemy.isBoss || (enemy.elite && this.rng.chance(0.4)))
+      this.dropEquipment(dropPos.x, dropPos.y);
   }
 
   /** Equips a carried relic, swapping out whatever was in its slot. */
@@ -1010,6 +1073,32 @@ export class World implements Arena {
     const price = relicSellShards(equipmentDef(item.defId));
     p.shards += price;
     return price;
+  }
+
+  /**
+   * Ensures dropped loot never falls inside gates or solid walls where the player cannot reach it.
+   */
+  safeDropPosition(x: number, y: number): { x: number; y: number } {
+    const tx = Math.floor(x / TILE_SIZE);
+    const ty = Math.floor(y / TILE_SIZE);
+    if (this.grid.inBounds(tx, ty) && !this.grid.isSolid(tx, ty, 'player')) {
+      return { x, y };
+    }
+    for (let r = 1; r <= 4; r++) {
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          const nx = tx + dx;
+          const ny = ty + dy;
+          if (this.grid.inBounds(nx, ny) && !this.grid.isSolid(nx, ny, 'player')) {
+            return {
+              x: (nx + 0.5) * TILE_SIZE,
+              y: (ny + 0.5) * TILE_SIZE,
+            };
+          }
+        }
+      }
+    }
+    return { x, y };
   }
 
   private dropEquipment(x: number, y: number): void {
@@ -1152,7 +1241,17 @@ export class World implements Arena {
   private updateHazards(dt: number): void {
     const p = this.player;
     for (const h of [...this.hazards]) {
-      if (h.disabled || h.kind === 'barrel') continue;
+      if (h.hitFlash !== undefined) h.hitFlash = Math.max(0, h.hitFlash - dt);
+      // A primed prop cooks off a beat after the blast that lit it, so a
+      // cluster detonates as a visible chain rather than one instant.
+      if (h.ignite !== undefined && !h.disabled) {
+        h.ignite -= dt;
+        if (h.ignite <= 0) {
+          this.damageHazard(h, h.maxHp + h.hp);
+          continue;
+        }
+      }
+      if (h.disabled || isBreakable(h.kind)) continue;
       if (h.kind === 'trap') {
         h.timer -= dt;
         if (h.timer > 0) continue;
@@ -1296,13 +1395,14 @@ export class World implements Arena {
     for (const other of this.bombs)
       if (Math.hypot(other.x - b.x, other.y - b.y) <= b.radius * 1.2)
         other.fuse = Math.min(other.fuse, 0.06);
+    this.igniteBreakables(b.x, b.y, b.radius * 0.9);
   }
 
-  /** Player attacks break barrels; traps are not destructible. */
+  /** Player attacks break barrels, crates, urns and crystals; traps are not destructible. */
   hitHazards(x: number, y: number, radius: number, damage: number): number {
     let hits = 0;
     for (const h of [...this.hazards]) {
-      if (h.kind !== 'barrel' || h.disabled) continue;
+      if (!isBreakable(h.kind) || h.disabled) continue;
       if (Math.hypot(h.x - x, h.y - y) > radius + h.radius) continue;
       this.damageHazard(h, damage);
       hits++;
@@ -1311,21 +1411,84 @@ export class World implements Arena {
   }
 
   private damageHazard(h: Hazard, amount: number): void {
-    if (h.kind !== 'barrel' || h.disabled) return;
+    if (!isBreakable(h.kind) || h.disabled) return;
     h.hp -= amount;
-    if (h.hp > 0) return;
+    if (h.hp > 0) {
+      h.hitFlash = 0.18;
+      this.emit({ type: 'hazardHit', kind: h.kind, x: h.x, y: h.y });
+      return;
+    }
     const index = this.hazards.indexOf(h);
     if (index >= 0) this.hazards.splice(index, 1);
-    this.emit({ type: 'hazardBurst', kind: 'barrel', x: h.x, y: h.y, radius: 96 });
+    const at = this.safeDropPosition(h.x, h.y);
+    if (h.kind === 'barrel') this.breakBarrel(h, at);
+    else if (h.kind === 'crystal') this.breakCrystal(h, at);
+    else if (h.kind === 'urn') this.breakUrn(h, at);
+    else this.breakCrate(h, at);
+  }
+
+  /** A blast lights nearby breakables; each gets a short fuse, so chains cascade. */
+  private igniteBreakables(x: number, y: number, radius: number, except?: Hazard): void {
+    for (const other of this.hazards) {
+      if (other === except || other.disabled || !isBreakable(other.kind)) continue;
+      if (other.ignite !== undefined) continue;
+      const dist = Math.hypot(other.x - x, other.y - y);
+      if (dist > radius + other.radius) continue;
+      other.ignite = 0.16 + dist / 420;
+      other.hitFlash = 0.18;
+      this.emit({ type: 'hazardHit', kind: other.kind, x: other.x, y: other.y });
+    }
+  }
+
+  /** A barrel detonates and hurts everyone, the player included. */
+  private breakBarrel(h: Hazard, at: { x: number; y: number }): void {
+    const radius = 96;
+    this.emit({ type: 'hazardBurst', kind: 'barrel', x: h.x, y: h.y, radius });
     this.emit({ type: 'shake', strength: 7 });
     for (const e of this.enemies)
-      if (e.state !== 'dying' && Math.hypot(e.x - h.x, e.y - h.y) <= 96 + e.radius)
+      if (e.state !== 'dying' && Math.hypot(e.x - h.x, e.y - h.y) <= radius + e.radius)
         this.damageEnemy(e, 50, 'hazard', false, 220);
     const p = this.player;
-    if (Math.hypot(p.x - h.x, p.y - h.y) <= 96 + p.radius) this.damagePlayer(20, h.x, h.y, 260);
-    this.dropShards(h.x, h.y, 4 + this.run.depth);
-    if (this.rng.chance(0.4)) this.dropPickup('bomb', h.x + 18, h.y, 1);
-    if (this.rng.chance(0.35)) this.dropPickup('trap', h.x - 18, h.y, 1);
+    if (Math.hypot(p.x - h.x, p.y - h.y) <= radius + p.radius) this.damagePlayer(20, h.x, h.y, 260);
+    this.igniteBreakables(h.x, h.y, radius, h);
+    this.dropShards(at.x, at.y, 4 + this.run.depth);
+    if (this.rng.chance(0.4)) this.dropPickup('bomb', at.x + 18, at.y, 1);
+    if (this.rng.chance(0.35)) this.dropPickup('trap', at.x - 18, at.y, 1);
+  }
+
+  /** A crate spills stored shards and sometimes a tool. */
+  private breakCrate(h: Hazard, at: { x: number; y: number }): void {
+    this.emit({ type: 'hazardBurst', kind: 'crate', x: h.x, y: h.y, radius: 54 });
+    this.emit({ type: 'shake', strength: 2 });
+    this.dropShards(at.x, at.y, 2 + Math.round(this.run.depth * 0.6) + this.rng.int(0, 1));
+    if (this.rng.chance(0.3)) this.dropPickup('bomb', at.x + 16, at.y, 1);
+    else if (this.rng.chance(0.2)) this.dropPickup('trap', at.x - 16, at.y, 1);
+  }
+
+  /** A crystal shatters into a memory flare that sears nearby enemies but never the player. */
+  private breakCrystal(h: Hazard, at: { x: number; y: number }): void {
+    const radius = 86;
+    this.emit({ type: 'hazardBurst', kind: 'crystal', x: h.x, y: h.y, radius });
+    this.emit({ type: 'shake', strength: 3 });
+    for (const e of this.enemies)
+      if (e.state !== 'dying' && Math.hypot(e.x - h.x, e.y - h.y) <= radius + e.radius)
+        this.damageEnemy(e, 24 + this.run.depth * 2, 'hazard', false, 120);
+    // The flare cracks adjacent clay, crystal and wood, so clusters chain apart.
+    for (const other of [...this.hazards]) {
+      if (!isBreakable(other.kind) || other.kind === 'barrel' || other.disabled) continue;
+      if (Math.hypot(other.x - h.x, other.y - h.y) <= radius + other.radius)
+        this.damageHazard(other, 12);
+    }
+    this.dropShards(at.x, at.y, 3 + Math.round(this.run.depth * 0.75));
+    if (this.rng.chance(0.22)) this.dropPickup('potion', at.x, at.y, 1);
+  }
+
+  /** An urn hides a small healing draught or a few shards. */
+  private breakUrn(h: Hazard, at: { x: number; y: number }): void {
+    this.emit({ type: 'hazardBurst', kind: 'urn', x: h.x, y: h.y, radius: 46 });
+    this.dropShards(at.x, at.y, 1 + this.rng.int(0, 2));
+    if (this.rng.chance(0.25)) this.dropPickup('health', at.x, at.y, 10 + this.run.depth);
+    if (this.rng.chance(0.15)) this.dropPickup('potion', at.x, at.y, 1);
   }
   private updateBlasts(dt: number): void {
     const p = this.player;
@@ -1361,10 +1524,10 @@ export class World implements Arena {
     }
   }
 
-  /** A lever disables every trap in its room. */
+  /** A lever disables every trap in its room; breakables keep their contents. */
   disableHazards(roomId?: number): void {
     for (const h of this.hazards)
-      if (roomId === undefined || h.roomId === roomId) h.disabled = true;
+      if (!isBreakable(h.kind) && (roomId === undefined || h.roomId === roomId)) h.disabled = true;
   }
 
   private updatePickups(dt: number): void {

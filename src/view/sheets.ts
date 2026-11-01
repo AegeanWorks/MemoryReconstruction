@@ -3,6 +3,7 @@
  */
 import { Assets, Rectangle, Texture } from 'pixi.js';
 import atlas from '@data/sprite_atlas.json';
+import type { WeaponId } from '../sim/weapons';
 
 export interface Animation {
   frames: Texture[];
@@ -208,6 +209,36 @@ export async function loadSprites(onProgress?: (fraction: number) => void): Prom
     loadMap(data.backgrounds),
   ]);
   return { player, enemies, props, ui, backgrounds };
+}
+
+/**
+ * The mirror copy uses the player's own strips, so the boss visibly wields the
+ * stance the player is holding right now.
+ */
+export function mirrorSheet(player: ActorSheet, weapon: WeaponId): ActorSheet {
+  const stance =
+    weapon === 'spear'
+      ? {
+          idle: player.idleSpear ?? player.idle,
+          walk: player.walkSpear ?? player.walk,
+          attack: player.attackSpear ?? player.attack,
+        }
+      : weapon === 'greatsword'
+        ? {
+            idle: player.idleGreatsword ?? player.idle,
+            walk: player.walkGreatsword ?? player.walk,
+            attack: player.attackGreatsword ?? player.attack,
+          }
+        : { idle: player.idle, walk: player.walk, attack: player.attack };
+  return {
+    idle: stance.idle,
+    walk: stance.walk,
+    attack: stance.attack,
+    death: player.death,
+    originX: player.originX,
+    originY: player.originY,
+    frameHeight: player.frameHeight,
+  };
 }
 
 /** Every image path the atlas references, for asset checks. */

@@ -522,8 +522,10 @@ function placeEnemyGates(rng: Rng, grid: TileGrid, rooms: Room[]): void {
           validDirs.push({
             dir,
             gateTiles: span.map((tx) => ({ x: tx, y: ty })),
+            // Spawn one tile inside the gate: an enemy never materialises
+            // inside the portcullis itself, where its own shots would die.
             spawnX: (midX + 0.5) * TILE_SIZE,
-            spawnY: (ty + 0.5) * TILE_SIZE,
+            spawnY: (inY + 0.5) * TILE_SIZE,
           });
         }
       } else {
@@ -546,7 +548,8 @@ function placeEnemyGates(rng: Rng, grid: TileGrid, rooms: Room[]): void {
           validDirs.push({
             dir,
             gateTiles: span.map((ty) => ({ x: tx, y: ty })),
-            spawnX: (tx + 0.5) * TILE_SIZE,
+            // Spawn one tile inside the gate, off the portcullis itself.
+            spawnX: (inX + 0.5) * TILE_SIZE,
             spawnY: (midY + 0.5) * TILE_SIZE,
           });
         }

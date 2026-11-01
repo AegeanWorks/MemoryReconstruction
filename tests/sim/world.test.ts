@@ -80,6 +80,7 @@ describe('World', () => {
     stepFor(world, 0.1);
     expect(world.rooms[room.id].phase).toBe('active');
     expect(world.rooms[room.id].totalWaves).toBeGreaterThanOrEqual(2);
+    world.rooms[room.id].hideWaveCount = false;
     stepFor(world, 1.2);
     for (const e of [...world.enemies]) world.damageEnemy(e, 99999, 'melee', false, 0);
     clearChoices(world);
@@ -88,6 +89,61 @@ describe('World', () => {
     expect(
       waveTransitionEvents.some((e) => e.type === 'notice' && e.text.startsWith('Wave 2 of'))
     ).toBe(true);
+  });
+
+  it('omits the wave total when a room keeps its mystery', () => {
+    const world = newWorld(42, 4);
+    const room = world.floor.rooms.find((r) => r.kind === 'combat' && r.w * r.h >= 180)!;
+    world.player.x = (room.x + room.w / 2) * 32;
+    world.player.y = (room.y + room.h / 2) * 32;
+    stepFor(world, 0.1);
+    world.rooms[room.id].hideWaveCount = true;
+    stepFor(world, 1.2);
+    for (const e of [...world.enemies]) world.damageEnemy(e, 99999, 'melee', false, 0);
+    clearChoices(world);
+    const events = stepFor(world, 0.2);
+    expect(events.some((e) => e.type === 'notice' && e.text === 'Wave 2')).toBe(true);
+    expect(events.some((e) => e.type === 'notice' && e.text.includes(' of '))).toBe(false);
+  });
+
+  it('can roll deep wave chains but never past ten', () => {
+    const totals: number[] = [];
+    for (let seed = 0; seed < 60; seed++) {
+      const world = newWorld(seed, 6);
+      const room = world.floor.rooms.find((r) => r.kind === 'combat');
+      if (!room) continue;
+      world.player.x = (room.x + room.w / 2) * 32;
+      world.player.y = (room.y + room.h / 2) * 32;
+      stepFor(world, 0.1);
+      const total = world.rooms[room.id].totalWaves ?? 0;
+      expect(total).toBeLessThanOrEqual(10);
+      totals.push(total);
+    }
+    expect(Math.max(...totals)).toBeGreaterThan(4);
+  });
+
+  it('never lands a wave on a player camping a gate', () => {
+    let found: { world: World; roomId: number; gate: { spawnX: number; spawnY: number } } | undefined;
+    for (let seed = 0; seed < 40 && !found; seed++) {
+      const world = newWorld(seed, 3);
+      const room = world.floor.rooms.find((r) => r.kind === 'combat' && r.gates?.length);
+      if (room?.gates?.length) found = { world, roomId: room.id, gate: room.gates[0] };
+    }
+    expect(found).toBeDefined();
+    const { world, roomId, gate } = found!;
+    const room = world.floor.rooms[roomId];
+    // Clear the chamber from its middle, then camp the gate mouth.
+    world.player.x = (room.x + room.w / 2) * TILE_SIZE;
+    world.player.y = (room.y + room.h / 2) * TILE_SIZE;
+    stepFor(world, 0.1);
+    expect(world.rooms[roomId].phase).toBe('active');
+    world.player.x = gate.spawnX;
+    world.player.y = gate.spawnY;
+    const events = stepFor(world, 1.2);
+    const spawns = events.filter((e) => e.type === 'enemySpawned');
+    expect(spawns.length).toBeGreaterThan(0);
+    for (const spawn of spawns)
+      expect(Math.hypot(spawn.x - gate.spawnX, spawn.y - gate.spawnY)).toBeGreaterThanOrEqual(140);
   });
 
   it('lands a swing on an enemy in front and misses one behind', () => {

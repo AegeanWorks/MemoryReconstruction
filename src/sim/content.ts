@@ -25,7 +25,7 @@ export type BiomeId =
   | 'sanctuary';
 
 /** How an enemy fights; several data behaviours share one archetype. */
-export type Archetype = 'melee' | 'skirmisher' | 'caster' | 'brute' | 'boss';
+export type Archetype = 'melee' | 'skirmisher' | 'caster' | 'brute' | 'duelist' | 'boss';
 
 export interface BiomeInfo {
   id: BiomeId;
@@ -108,7 +108,7 @@ const ARCHETYPES: Record<string, Archetype> = {
   ranged_support: 'caster',
   splitter: 'caster',
   tank: 'brute',
-  duelist: 'brute',
+  duelist: 'duelist',
   storm_caller: 'caster',
   sweeper: 'caster',
   wall_warden: 'caster',
@@ -168,6 +168,9 @@ const SPRITE_KEYS: Record<string, string> = {
   void_herald: 'voidCantor',
   hive_slinger: 'hiveDrone',
   mire_lurker: 'bogLeech',
+  // Both the duelist and the trial boss wear the player's own sheet.
+  lost_self: 'mirror',
+  mirror_self: 'mirror',
 };
 
 /**
@@ -191,6 +194,8 @@ const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
     void_herald: 0xc0b0ff,
     hive_slinger: 0xffd090,
     mire_lurker: 0x9fd0a0,
+    lost_self: 0x9fd8ff,
+    mirror_self: 0xbfeaff,
   }).map(([id, color]) => [id, pastel(color)])
 );
 
@@ -281,7 +286,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 8,
     biome: 'void',
-    roster: ['void_walker', 'prism_entity', 'shadow', 'void_cantor', 'void_herald'],
+    roster: ['void_walker', 'prism_entity', 'shadow', 'void_cantor', 'void_herald', 'lost_self'],
     boss: 'forgotten',
     roomCount: 11,
     finale: false,
@@ -345,8 +350,19 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   },
   {
     depth: 15,
+    biome: 'void',
+    roster: [],
+    boss: 'mirror_self',
+    roomCount: 1,
+    finale: false,
+    layout: 'grid',
+    bossOnly: true,
+    trialName: 'Echo Trial: The Mirror of Self',
+  },
+  {
+    depth: 16,
     biome: 'sanctuary',
-    roster: ['void_walker', 'memory_echo', 'prism_entity', 'void_herald'],
+    roster: ['void_walker', 'memory_echo', 'prism_entity', 'void_herald', 'lost_self'],
     boss: 'keeper',
     roomCount: 5,
     finale: true,
@@ -414,9 +430,14 @@ export function floorPlan(depth: number): FloorPlan {
 
 export const FINAL_DEPTH = FLOOR_PLANS.length - 1;
 
-/** The echo guardian that waits in a mid-floor arena: another section's boss. */
+/**
+ * The echo guardian that waits in a mid-floor arena: another section's boss.
+ * The Keeper and the Mirror of Self are reserved for their own finales.
+ */
 export function arenaBossFor(depth: number): string {
-  const pool = FLOOR_PLANS.filter((plan, index) => plan.boss !== 'keeper' && index !== depth);
+  const pool = FLOOR_PLANS.filter(
+    (plan, index) => plan.boss !== 'keeper' && plan.boss !== 'mirror_self' && index !== depth
+  );
   return pool[(depth * 5 + 3) % pool.length].boss;
 }
 

@@ -7,12 +7,13 @@
  * smooth on displays faster than the 60 Hz simulation.
  */
 import { AnimatedSprite, Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
-import type { Enemy, Interactable, Pickup, Projectile } from '../sim/entities';
-import { slamRadius } from '../sim/enemies';
+import type { Enemy, Hazard, Interactable, Pickup, Projectile } from '../sim/entities';
+import { dashStrikeRange, slamRadius } from '../sim/enemies';
+import type { WeaponId } from '../sim/weapons';
 import type { World } from '../sim/world';
 import { fxTextures } from './fxArt';
 import { BIOME_ART, hex } from './palette';
-import type { ActorSheet, Animation, SpriteLibrary } from './sheets';
+import { mirrorSheet, type ActorSheet, type Animation, type SpriteLibrary } from './sheets';
 
 interface ActorSprite {
   root: Container;
@@ -130,6 +131,10 @@ export class ActorView {
   private readonly labels: Array<{ text: Text; x: number; y: number }> = [];
   private labelsEnabled = true;
   private time = 0;
+  /** The player's own strips, cut for the stance the mirror should copy. */
+  private mirrorCache: { weapon: WeaponId; sheet: ActorSheet } | undefined;
+  /** Per-mob copies, frozen to the stance each hollow self spawned with. */
+  private readonly mobSheets = new Map<number, ActorSheet>();
 
   constructor(
     private readonly sprites: SpriteLibrary,
@@ -206,14 +211,18 @@ export class ActorView {
     return s;
   }
 
-  update(dt: number, alpha: number): void {
+  /**
+   * @param view world-space camera rect; hazards outside it are skipped, since
+   * only a handful of props can be on screen and the rest cost tessellation.
+   */
+  update(dt: number, alpha: number, view?: { x: number; y: number; w: number; h: number }): void {
     this.time += dt;
     this.bossAuras.clear();
     this.telegraphs.clear();
     this.hazardsG.clear();
     this.bars.clear();
     this.updateAfterimages(dt);
-    this.drawHazards();
+    this.drawHazards(view);
     this.drawBlasts();
     this.drawBombs();
     this.updateLabels();
@@ -335,7 +344,7 @@ export class ActorView {
       alive.add(e.id);
       let actor = this.enemies.get(e.id);
       if (!actor) {
-        const sheet = this.sprites.enemies[e.def.sprite] ?? this.sprites.enemies.scavenger;
+        const sheet = this.enemySheet(e);
         actor = makeActor(sheet, e.def.displayHeight * (e.elite ? 1.15 : 1));
         if (e.def.tint !== undefined) actor.body.tint = e.def.tint;
         if (e.elite) actor.root.addChildAt(this.glow(0xffc84a, e.radius * 5, 0.35), 0);
@@ -349,11 +358,33 @@ export class ActorView {
       actor.root.destroy({ children: true });
       this.enemies.delete(id);
       this.previous.delete(id);
+      this.mobSheets.delete(id);
     }
   }
 
+  /** Sprites per enemy; the mirror copy is cut from the player's live stance. */
+  private enemySheet(e: Enemy): ActorSheet {
+    if (e.def.sprite !== 'mirror')
+      return this.sprites.enemies[e.def.sprite] ?? this.sprites.enemies.scavenger;
+    const weapon = this.world.player.weapon;
+    // A hollow self keeps the stance it copied when it appeared, so switching
+    // weapons mid-fight does not pop its animation frames.
+    if (!e.isBoss) {
+      let sheet = this.mobSheets.get(e.id);
+      if (!sheet) {
+        sheet = mirrorSheet(this.sprites.player, weapon);
+        this.mobSheets.set(e.id, sheet);
+      }
+      return sheet;
+    }
+    // The Waking Mirror follows the live stance: that is its whole trick.
+    if (this.mirrorCache?.weapon !== weapon)
+      this.mirrorCache = { weapon, sheet: mirrorSheet(this.sprites.player, weapon) };
+    return this.mirrorCache.sheet;
+  }
+
   private drawEnemy(e: Enemy, a: ActorSprite, _dt: number, alpha: number): void {
-    const sheet = this.sprites.enemies[e.def.sprite] ?? this.sprites.enemies.scavenger;
+    const sheet = this.enemySheet(e);
     const pos = this.lerp(e.id, e.x, e.y, alpha);
     a.root.position.set(pos.x, pos.y);
     a.root.zIndex = pos.y;
@@ -373,7 +404,11 @@ export class ActorView {
     // Windup: crouch and tremble; spawning: grow in; attack: lunging stretch.
     const windup = e.state === 'windup';
     const attacking = e.state === 'attack';
-    const lunge = attacking ? Math.sin(Math.min(1, 1 - e.stateTime / 0.28) * Math.PI) * 0.14 : 0;
+    // A forward pop over the first 0.28 s of the active phase. Clamped, so a
+    // long attack (sweep, beam) never reverse-stretches halfway through.
+    const lunge = attacking
+      ? Math.sin(Math.max(0, Math.min(1, 1 - e.stateTime / 0.28)) * Math.PI) * 0.14
+      : 0;
     const tremble = windup ? Math.sin(this.time * 60) * 1.2 : 0;
     const grow = e.state === 'spawning' ? Math.max(0.1, 1 - e.stateTime / 0.7) : 1;
     a.body.scale.set(
@@ -388,7 +423,7 @@ export class ActorView {
     const deathProgress = e.state === 'dying' ? Math.max(0, 1 - e.stateTime / 0.5) : 0;
     a.body.x = tremble;
     a.body.y = -deathProgress * 8;
-    a.body.tint = e.state === 'dying' ? 0xc8c0dc : 0xffffff;
+    a.body.tint = e.state === 'dying' ? 0xc8c0dc : (e.def.tint ?? 0xffffff);
     a.flash.scale.copyFrom(a.body.scale);
     a.flash.x = a.body.x;
     a.flash.y = a.body.y;
@@ -420,7 +455,19 @@ export class ActorView {
     const speed = phase === 3 ? 3.4 : phase === 2 ? 2.2 : 1.2;
     const angle = this.time * speed;
     const radius = e.radius * 2.2;
-    const color = phase === 3 ? 0xff3b3b : phase === 2 ? 0xff7a3a : 0xb86cff;
+    // The mirror keeps the player's cyan until it starts to lose its shape.
+    const mirror = e.def.id === 'mirror_self';
+    const color = mirror
+      ? phase === 3
+        ? 0xff5aa8
+        : phase === 2
+          ? 0x9e8cff
+          : 0x6fe7ff
+      : phase === 3
+        ? 0xff3b3b
+        : phase === 2
+          ? 0xff7a3a
+          : 0xb86cff;
     const alpha = (phase === 3 ? 0.65 : phase === 2 ? 0.45 : 0.3) + 0.1 * Math.sin(this.time * 6);
 
     // Outer and inner concentric runic bands
@@ -478,11 +525,20 @@ export class ActorView {
     }
   }
 
-  /** Traps, poison pools and barrels, under the actors. */
-  private drawHazards(): void {
+  /** Traps, poison pools and breakables, under the actors. */
+  private drawHazards(view?: { x: number; y: number; w: number; h: number }): void {
     const g = this.hazardsG;
     const t = this.time;
+    const margin = 96;
     for (const h of this.world.hazards) {
+      if (
+        view &&
+        (h.x < view.x - margin ||
+          h.x > view.x + view.w + margin ||
+          h.y < view.y - margin ||
+          h.y > view.y + view.h + margin)
+      )
+        continue;
       if (h.disabled) {
         g.circle(h.x, h.y, h.radius * 0.5).stroke({ width: 1, color: 0x555566, alpha: 0.4 });
         continue;
@@ -502,11 +558,33 @@ export class ActorView {
         }
         continue;
       }
+      // A blast has lit this prop: a fast hot pulse reads as a burning fuse.
+      if (h.ignite !== undefined && h.ignite > 0) {
+        const fuse = Math.min(1, 1 - h.ignite / 0.42);
+        g.circle(h.x, h.y, h.radius + 5 + fuse * 4).stroke({
+          width: 2,
+          color: 0xffb060,
+          alpha: 0.55 + 0.35 * Math.sin(t * 34 + h.id),
+        });
+        g.circle(h.x, h.y - h.radius * 0.4, 3 + fuse * 3).fill({
+          color: 0xfff0b0,
+          alpha: 0.5 + 0.4 * Math.sin(t * 26 + h.id),
+        });
+      }
       if (h.kind === 'barrel') {
-        g.ellipse(h.x, h.y, 15, 12).fill({ color: 0x8a5a2a, alpha: 0.95 });
-        g.ellipse(h.x, h.y, 15, 12).stroke({ width: 2, color: 0xffb060, alpha: 0.5 });
-        if (h.hp < h.maxHp)
-          g.circle(h.x, h.y, 22).stroke({ width: 2, color: 0xff6a4a, alpha: 0.7 });
+        this.drawBarrel(g, h, t);
+        continue;
+      }
+      if (h.kind === 'crate') {
+        this.drawCrate(g, h);
+        continue;
+      }
+      if (h.kind === 'urn') {
+        this.drawUrn(g, h);
+        continue;
+      }
+      if (h.kind === 'crystal') {
+        this.drawCrystal(g, h, t);
         continue;
       }
       const warning = h.phase === 'warning';
@@ -563,6 +641,141 @@ export class ActorView {
             .lineTo(h.x, h.y)
             .stroke({ width: 3, color: 0xffa060, alpha: 0.5 });
       }
+    }
+  }
+
+  /** A staved barrel with iron hoops, a dark open head and a faint rim pulse. */
+  private drawBarrel(g: Graphics, h: Hazard, t: number): void {
+    const { x, y } = this.shaken(h);
+    g.ellipse(x, y + 11, 14, 5).fill({ color: 0x000000, alpha: 0.35 });
+    g.ellipse(x, y, 14, 12).fill({ color: 0x8a5a2a });
+    g.ellipse(x, y, 14, 12).stroke({ width: 1.5, color: 0x4a2e16 });
+    for (let i = -2; i <= 2; i++) {
+      const sx = x + i * 5.4;
+      g.moveTo(sx, y - 9)
+        .lineTo(sx, y + 9)
+        .stroke({ width: 1, color: 0x5e3d1e, alpha: 0.55 });
+    }
+    g.ellipse(x, y - 5, 14, 4).stroke({ width: 2.5, color: 0x6a5a48, alpha: 0.95 });
+    g.ellipse(x, y + 5, 14, 4).stroke({ width: 2.5, color: 0x52443a, alpha: 0.95 });
+    g.ellipse(x, y - 7, 9, 4).fill({ color: 0x33200f });
+    g.ellipse(x, y - 7, 9, 4).stroke({
+      width: 1,
+      color: 0xffc080,
+      alpha: 0.35 + 0.12 * Math.sin(t * 4 + h.id),
+    });
+    g.arc(x - 4, y - 3, 8, Math.PI * 1.05, Math.PI * 1.45).stroke({
+      width: 1.5,
+      color: 0xd8a060,
+      alpha: 0.4,
+    });
+    this.drawBreakDamage(g, h, 0xffa040, x, y);
+  }
+
+  /** A banded supply crate: plank seams, iron corners and a stamped memory mark. */
+  private drawCrate(g: Graphics, h: Hazard): void {
+    const { x, y } = this.shaken(h);
+    g.ellipse(x, y + 12, 15, 5).fill({ color: 0x000000, alpha: 0.35 });
+    g.rect(x - 13, y - 11, 26, 22).fill({ color: 0x8a6236 });
+    g.rect(x - 13, y - 11, 26, 22).stroke({ width: 1.5, color: 0x452a12 });
+    for (const sy of [-4, 3]) {
+      g.moveTo(x - 12, y + sy)
+        .lineTo(x + 12, y + sy)
+        .stroke({ width: 1, color: 0x5e3f20, alpha: 0.8 });
+    }
+    g.rect(x - 13, y - 11, 26, 3).fill({ color: 0xb98a52, alpha: 0.8 });
+    g.moveTo(x - 10, y + 8)
+      .lineTo(x + 10, y - 8)
+      .stroke({ width: 2.5, color: 0x6c4a28, alpha: 0.9 });
+    for (const [ox, oy] of [
+      [-13, -11],
+      [7, -11],
+      [-13, 5],
+      [7, 5],
+    ]) {
+      g.rect(x + ox, y + oy, 6, 6).fill({ color: 0x7a7a86 });
+      g.rect(x + ox, y + oy, 6, 6).stroke({ width: 1, color: 0x3a3a44 });
+    }
+    g.poly([x, y - 3, x + 4, y + 1, x, y + 5, x - 4, y + 1]).stroke({
+      width: 1,
+      color: 0xffd98a,
+      alpha: 0.5,
+    });
+    this.drawBreakDamage(g, h, 0xffb060, x, y);
+  }
+
+  /** A terracotta urn with a gilded band and a lipful of old dust. */
+  private drawUrn(g: Graphics, h: Hazard): void {
+    const { x, y } = this.shaken(h);
+    g.ellipse(x, y + 13, 11, 4).fill({ color: 0x000000, alpha: 0.35 });
+    g.ellipse(x, y + 2, 11, 13).fill({ color: 0xb06a48 });
+    g.ellipse(x, y + 2, 11, 13).stroke({ width: 1.5, color: 0x5e3320 });
+    g.rect(x - 4, y - 13, 8, 8).fill({ color: 0xa05e40 });
+    g.ellipse(x, y - 13, 7, 3).fill({ color: 0x7a4028 });
+    g.ellipse(x, y - 13, 7, 3).stroke({ width: 1, color: 0xd89a70, alpha: 0.7 });
+    g.ellipse(x, y - 2, 11, 3.5).stroke({ width: 2, color: 0xffd98a, alpha: 0.75 });
+    g.circle(x - 10, y - 4, 3).stroke({ width: 1.5, color: 0x8a4a32 });
+    g.circle(x + 10, y - 4, 3).stroke({ width: 1.5, color: 0x8a4a32 });
+    g.circle(x - 4, y, 3).fill({ color: 0xe8b090, alpha: 0.28 });
+    this.drawBreakDamage(g, h, 0xffc890, x, y);
+  }
+
+  /** A memory crystal cluster: violet facets, a lit core and orbiting motes. */
+  private drawCrystal(g: Graphics, h: Hazard, t: number): void {
+    const { x, y } = this.shaken(h);
+    const pulse = 0.5 + 0.5 * Math.sin(t * 2.4 + h.id);
+    g.ellipse(x, y + 11, 15, 5).fill({ color: 0x000000, alpha: 0.32 });
+    g.circle(x, y + 9, 15).fill({ color: 0xb89cff, alpha: 0.08 + pulse * 0.06 });
+    g.poly([x - 13, y + 3, x - 7, y - 10, x - 4, y + 8]).fill({ color: 0x5a44a0 });
+    g.poly([x + 14, y + 5, x + 9, y - 6, x + 5, y + 8]).fill({ color: 0x6a52b0 });
+    g.poly([x, y - 24, x + 7, y - 8, x + 4, y + 10, x - 5, y + 8, x - 7, y - 6]).fill({
+      color: 0x7a5ec8,
+    });
+    g.poly([x, y - 24, x + 7, y - 8, x + 1, y - 1]).fill({ color: 0xd8c8ff, alpha: 0.9 });
+    g.poly([x, y - 24, x + 7, y - 8, x + 4, y + 10, x - 5, y + 8, x - 7, y - 6]).stroke({
+      width: 1,
+      color: 0xe8dcff,
+      alpha: 0.75,
+    });
+    g.circle(x, y - 4, 4 + pulse * 2).fill({ color: 0xfff0ff, alpha: 0.3 + pulse * 0.2 });
+    for (let i = 0; i < 3; i++) {
+      const a = t * 0.7 + (i / 3) * Math.PI * 2;
+      g.circle(x + Math.cos(a) * 16, y - 6 + Math.sin(a) * 9, 1.6).fill({
+        color: 0xd8c8ff,
+        alpha: 0.35 + pulse * 0.35,
+      });
+    }
+    this.drawBreakDamage(g, h, 0xb89cff, x, y);
+  }
+
+  /** A struck prop jitters briefly; the offset rides on the hazard's hit timer. */
+  private shaken(h: Hazard): { x: number; y: number } {
+    if (!h.hitFlash) return { x: h.x, y: h.y };
+    const amp = h.hitFlash * 30;
+    return {
+      x: h.x + Math.sin(this.time * 110 + h.id) * amp,
+      y: h.y + Math.cos(this.time * 90 + h.id * 1.7) * amp * 0.4,
+    };
+  }
+
+  /** Cracks and a hot rim show a breakable has taken a hit. */
+  private drawBreakDamage(g: Graphics, h: Hazard, accent: number, x: number, y: number): void {
+    if (h.hp >= h.maxHp) return;
+    const wear = 1 - h.hp / h.maxHp;
+    g.arc(x, y, h.radius + 5, -Math.PI * 0.85, Math.PI * 0.15).stroke({
+      width: 1.5,
+      color: accent,
+      alpha: 0.3 + wear * 0.5,
+    });
+    const base = (h.id * 2.399) % (Math.PI * 2);
+    for (let i = 0; i < 3; i++) {
+      const a = base + i * 2.1;
+      const inner = h.radius * 0.15;
+      const outer = h.radius * (0.55 + wear * 0.3);
+      g.moveTo(x + Math.cos(a) * inner, y + Math.sin(a) * inner)
+        .lineTo(x + Math.cos(a + 0.3) * outer, y + Math.sin(a + 0.3) * outer)
+        .lineTo(x + Math.cos(a - 0.15) * outer * 0.8, y + Math.sin(a - 0.15) * outer * 0.8)
+        .stroke({ width: 1, color: 0x1a1008, alpha: 0.45 + wear * 0.35 });
     }
   }
 
@@ -630,6 +843,44 @@ export class ActorView {
         });
         break;
       }
+      case 'combo': {
+        // A player-style three-hit chain: the full arc plus its three lanes.
+        const reach = e.def.attackRange + 18 + 12;
+        g.moveTo(x, y)
+          .arc(x, y, reach, angle - 1, angle + 1)
+          .lineTo(x, y)
+          .fill({ color: TELEGRAPH_COLOR, alpha: urgency * 0.38 });
+        for (let i = 0; i < 3; i++) {
+          const a = angle + (i - 1) * 0.4;
+          g.moveTo(x + Math.cos(a - 0.9) * reach, y + Math.sin(a - 0.9) * reach)
+            .arc(x, y, reach, a - 0.9, a + 0.9)
+            .stroke({ width: 1.5, color: 0xffb0c8, alpha: urgency * (0.45 + i * 0.15) });
+        }
+        break;
+      }
+      case 'dashStrike': {
+        // A committed closing lane: leave it sideways, not backward. The lane
+        // matches the real travel distance so it never over-promises danger.
+        const length = dashStrikeRange(e.def);
+        const w = e.radius * 1.1;
+        const nx = -e.dirY * w;
+        const ny = e.dirX * w;
+        const ex = x + e.dirX * length;
+        const ey = y + e.dirY * length;
+        g.poly([x + nx, y + ny, ex + nx, ey + ny, ex - nx, ey - ny, x - nx, y - ny]).fill({
+          color: TELEGRAPH_COLOR,
+          alpha: urgency * 0.34,
+        });
+        for (let i = 1; i <= 3; i++) {
+          const px = x + e.dirX * (length / 3) * i;
+          const py = y + e.dirY * (length / 3) * i;
+          g.moveTo(px - nx * 0.7, py - ny * 0.7)
+            .lineTo(px + e.dirX * 7, py + e.dirY * 7)
+            .lineTo(px + nx * 0.7, py + ny * 0.7)
+            .stroke({ width: 2, color: 0xffd0e0, alpha: urgency * 0.85 });
+        }
+        break;
+      }
       case 'slam': {
         const r = slamRadius(e);
         g.circle(x, y, r).fill({ color: TELEGRAPH_COLOR, alpha: urgency * 0.35 });
@@ -660,12 +911,17 @@ export class ActorView {
       }
       case 'shot':
       case 'spread':
-      case 'volley': {
+      case 'volley':
+      case 'bolt': {
         const offsets = e.attack === 'spread' ? [-0.32, 0, 0.32] : [0];
         for (const o of offsets) {
           g.moveTo(x, y)
             .lineTo(x + Math.cos(angle + o) * 260, y + Math.sin(angle + o) * 260)
-            .stroke({ width: 2, color: TELEGRAPH_COLOR, alpha: urgency * 0.8 });
+            .stroke({
+              width: e.attack === 'bolt' ? 1.5 : 2,
+              color: TELEGRAPH_COLOR,
+              alpha: urgency * 0.8,
+            });
         }
         break;
       }

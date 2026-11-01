@@ -140,6 +140,15 @@ describe('dungeon generation', () => {
             for (const t of gate.tiles) {
               expect(floor.grid.get(t.x, t.y)).toBe(Tile.Gate);
             }
+            // The wave spawn point sits just inside the gate, on open floor,
+            // so an enemy never materialises inside the portcullis itself.
+            const sx = Math.floor(gate.spawnX / TILE_SIZE);
+            const sy = Math.floor(gate.spawnY / TILE_SIZE);
+            expect(floor.grid.get(sx, sy)).toBe(Tile.Floor);
+            expect(floor.grid.isSolidAtPixel(gate.spawnX, gate.spawnY, 'enemy')).toBe(false);
+            expect(
+              gate.tiles.some((t) => Math.abs(t.x - sx) + Math.abs(t.y - sy) === 1)
+            ).toBe(true);
           }
         }
       }

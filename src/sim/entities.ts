@@ -97,7 +97,10 @@ export type AttackKind =
   | 'fan'
   | 'sweep'
   | 'wall'
-  | 'pillars';
+  | 'pillars'
+  | 'combo'
+  | 'dashStrike'
+  | 'bolt';
 
 export interface Enemy {
   id: number;
@@ -245,7 +248,8 @@ export interface Interactable {
   mimic?: boolean;
 }
 
-export type HazardKind = 'spike' | 'flame' | 'poison' | 'rockfall' | 'barrel' | 'trap';
+export type HazardKind =
+  'spike' | 'flame' | 'poison' | 'rockfall' | 'barrel' | 'trap' | 'crate' | 'crystal' | 'urn';
 export type HazardPhase = 'idle' | 'warning' | 'active';
 
 /** A passive floor danger or a destructible barrel. */
@@ -264,6 +268,10 @@ export interface Hazard {
   hp: number;
   maxHp: number;
   disabled: boolean;
+  /** Seconds of hit shake left on a breakable, set when a blow lands but it holds. */
+  hitFlash?: number;
+  /** Seconds until a nearby blast sets this breakable off; set by other explosions. */
+  ignite?: number;
   /**
    * Player-placed traps do not fire while their owner is still standing on
    * them; they arm once the player steps clear, then treat everyone equally.

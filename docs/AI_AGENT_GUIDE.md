@@ -33,8 +33,11 @@ needs a new stat, add the stat to `PlayerStats` and `BASE_STATS`, then read it
 in `player.ts` or `world.ts`.
 
 **Change a boss.** Edit its pattern list in `BOSS_PATTERNS` (`src/sim/enemies.ts`).
-Attack kinds are `strike, lunge, slam, shot, spread, ring, charge, volley, summon, beam, mortar, mines, spiral, blink, bomb, quake, hook`.
-`ActorView.drawTelegraph` draws each kind's warning.
+Attack kinds are `strike, lunge, slam, shot, spread, ring, charge, volley, summon, beam, mortar, mines, spiral, blink, bomb, quake, hook, fan, sweep, wall, pillars, combo, dashStrike, bolt`.
+`combo`, `dashStrike` and `bolt` are the player-style duellist moves; `ActorView.drawTelegraph` draws each kind's warning.
+The mirror trial boss (`mirror_self`) is special: its `SPRITE_KEYS` entry is `mirror`, and
+`ActorView.enemySheet` cuts the player's own strips for the stance the player currently holds,
+so the copy always mirrors the player's weapon.
 
 **Add or retheme a biome.** Add the biome to `biomes.json`, give it a render
 palette in `src/view/palette.ts`, an obstacle prop in `LevelView.ts`

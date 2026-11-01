@@ -32,6 +32,9 @@ const WINDUP: Record<AttackKind, number> = {
   sweep: 0.9,
   wall: 0.65,
   pillars: 0.7,
+  combo: 0.46,
+  dashStrike: 0.45,
+  bolt: 0.3,
 };
 
 /** Seconds the attack phase lasts. */
@@ -58,7 +61,21 @@ const ACTIVE: Record<AttackKind, number> = {
   sweep: 0.7,
   wall: 0.15,
   pillars: 0.15,
+  /** A three-swing player-style chain. */
+  combo: 0.62,
+  dashStrike: 0.22,
+  bolt: 0.1,
 };
+
+/** Closing speed of a dash strike; the view uses it to draw an honest lane. */
+export function dashStrikeSpeed(def: EnemyDef): number {
+  return def.speed * 3.6 + 140;
+}
+
+/** How far a dash strike actually travels before its attack phase ends. */
+export function dashStrikeRange(def: EnemyDef): number {
+  return Math.round(dashStrikeSpeed(def) * ACTIVE.dashStrike);
+}
 
 const BOSS_PATTERNS: Record<string, AttackKind[]> = {
   guardian: ['slam', 'charge', 'spread', 'beam'],
@@ -77,6 +94,7 @@ const BOSS_PATTERNS: Record<string, AttackKind[]> = {
   choir_hierophant: ['beam', 'spiral', 'swarm', 'hook'],
   hollow_behemoth: ['quake', 'charge', 'mines', 'mortar'],
   keeper: ['ring', 'beam', 'bomb', 'quake', 'blink', 'summon'],
+  mirror_self: ['combo', 'dashStrike', 'bolt', 'ring', 'combo', 'dashStrike'],
 };
 
 /** Boss phase tuning: cooldown factor, ring bullets, bullet speed. */
@@ -142,6 +160,8 @@ function defaultAttack(def: EnemyDef): AttackKind {
   switch (def.archetype) {
     case 'skirmisher':
       return 'lunge';
+    case 'duelist':
+      return 'combo';
     case 'caster':
       return def.behavior === 'splitter' ? 'spread' : 'shot';
     case 'brute':
@@ -287,6 +307,34 @@ function chase(arena: Arena, enemy: Enemy, dt: number): void {
       }
       break;
     }
+    case 'duelist': {
+      // The mirror discipline: hold sword range, circle, then swing, stab or dash.
+      const preferred = 96;
+      if (arena.rng.chance(dt * 0.6)) enemy.strafe *= -1;
+      const radial = dist < preferred - 30 ? -1 : dist > preferred + 34 ? 1 : 0;
+      if (!sight) step(arena, enemy, toward.x, toward.y, def.speed, dt);
+      else
+        step(
+          arena,
+          enemy,
+          nx * radial - ny * enemy.strafe * 0.6,
+          ny * radial + nx * enemy.strafe * 0.6,
+          def.speed,
+          dt
+        );
+      if (enemy.cooldown <= 0 && sight) {
+        const kind: AttackKind =
+          dist > 200
+            ? arena.rng.chance(0.55)
+              ? 'bolt'
+              : 'dashStrike'
+            : dist > 118
+              ? 'dashStrike'
+              : 'combo';
+        beginWindup(arena, enemy, kind);
+      }
+      break;
+    }
     case 'boss': {
       if (dist > 140) step(arena, enemy, toward.x, toward.y, def.speed, dt);
       if (enemy.cooldown <= 0) {
@@ -336,7 +384,8 @@ function windup(arena: Arena, enemy: Enemy): void {
     enemy.attack === 'spread' ||
     enemy.attack === 'volley' ||
     enemy.attack === 'beam' ||
-    enemy.attack === 'mortar';
+    enemy.attack === 'mortar' ||
+    enemy.attack === 'bolt';
   if (tracks && enemy.stateTime > 0.15) {
     const angle = angleBetween(enemy.x, enemy.y, arena.player.x, arena.player.y);
     enemy.dirX = Math.cos(angle);
@@ -534,9 +583,15 @@ function launch(arena: Arena, enemy: Enemy): void {
       // The beam damage is resolved frame by frame in attack().
       arena.emit({ type: 'shake', strength: 4 });
       break;
+    case 'bolt':
+      // The player's own bolt: one fast, thin shot with a short tell.
+      shoot(arena, enemy, angle, 430, Math.round(def.damage * 0.6));
+      break;
     case 'lunge':
     case 'charge':
     case 'volley':
+    case 'combo':
+    case 'dashStrike':
       // Continuous attacks resolve over the attack phase.
       break;
   }
@@ -591,8 +646,13 @@ function summon(arena: Arena, boss: Enemy): void {
 function attack(arena: Arena, enemy: Enemy, dt: number): void {
   const p = arena.player;
   const def = enemy.def;
-  if (enemy.attack === 'lunge' || enemy.attack === 'charge') {
-    const speed = enemy.attack === 'charge' ? 520 : def.speed * 4 + 120;
+  if (enemy.attack === 'lunge' || enemy.attack === 'charge' || enemy.attack === 'dashStrike') {
+    const speed =
+      enemy.attack === 'charge'
+        ? 520
+        : enemy.attack === 'dashStrike'
+          ? dashStrikeSpeed(def)
+          : def.speed * 4 + 120;
     const hitWall = moveAndCollide(
       arena.grid,
       enemy,
@@ -604,15 +664,61 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
       !enemy.attackLanded &&
       circlesTouch(enemy.x, enemy.y, enemy.radius + 4, p.x, p.y, p.radius)
     ) {
-      arena.damagePlayer(def.damage, enemy.x, enemy.y, enemy.attack === 'charge' ? 420 : 260);
+      arena.damagePlayer(
+        def.damage,
+        enemy.x,
+        enemy.y,
+        enemy.attack === 'charge' ? 420 : enemy.attack === 'dashStrike' ? 300 : 260
+      );
       enemy.attackLanded = true;
+      if (enemy.attack === 'dashStrike')
+        arena.emit({
+          type: 'enemySlash',
+          x: enemy.x,
+          y: enemy.y,
+          angle: Math.atan2(enemy.dirY, enemy.dirX),
+          combo: 2,
+          weapon: 'sword',
+        });
     }
-    if (hitWall && enemy.attack === 'charge') {
-      // Slamming into a wall leaves a boss open for a moment.
-      arena.emit({ type: 'shake', strength: 7 });
+    if (hitWall && (enemy.attack === 'charge' || enemy.attack === 'dashStrike')) {
+      // Slamming into a wall leaves the attacker open for a moment.
+      arena.emit({ type: 'shake', strength: enemy.attack === 'charge' ? 7 : 4 });
       enemy.stateTime = 0;
-      finishAttack(arena, enemy, 1.1);
+      finishAttack(arena, enemy, enemy.attack === 'charge' ? 1.1 : 0.7);
       return;
+    }
+  } else if (enemy.attack === 'combo') {
+    // Three player-style swings, each with its own step and arc.
+    const hits = 3;
+    const before = Math.floor(((ACTIVE.combo - enemy.stateTime - dt) / ACTIVE.combo) * hits);
+    const after = Math.floor(((ACTIVE.combo - enemy.stateTime) / ACTIVE.combo) * hits);
+    if (after > before && after <= hits) {
+      const step = Math.min(hits - 1, after - 1);
+      const offset = step === 0 ? -0.4 : step === 1 ? 0.4 : 0;
+      const swing = Math.atan2(enemy.dirY, enemy.dirX) + offset;
+      enemy.dirX = Math.cos(swing);
+      enemy.dirY = Math.sin(swing);
+      const reach = def.attackRange + 18;
+      // A copy hits lighter than the player it copies: three clean swings are
+      // punishing, but never a one-combo kill against a fresh checkpoint.
+      const multiplier = step === 2 ? 0.75 : 0.4;
+      if (inArc(enemy.x, enemy.y, swing, reach, 1, p.x, p.y, p.radius))
+        arena.damagePlayer(
+          Math.round(def.damage * multiplier),
+          enemy.x,
+          enemy.y,
+          step === 2 ? 260 : 110
+        );
+      moveAndCollide(arena.grid, enemy, Math.cos(swing) * 14, Math.sin(swing) * 14, 'enemy');
+      arena.emit({
+        type: 'enemySlash',
+        x: enemy.x,
+        y: enemy.y,
+        angle: swing,
+        combo: step,
+        weapon: 'sword',
+      });
     }
   } else if (enemy.attack === 'sweep') {
     // A rotating beam: one clean hit per sweep, telegraphed by the full arc.

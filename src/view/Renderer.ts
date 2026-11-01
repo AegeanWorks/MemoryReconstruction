@@ -192,7 +192,7 @@ export class Renderer {
     const viewH = h / this.zoom;
     const view = { x: this.camX - viewW / 2, y: this.camY - viewH / 2, w: viewW, h: viewH };
     scene.level.update(dt, view.x - 64, view.y - 64, view.w + 128, view.h + 128);
-    scene.actors.update(dt, alpha);
+    scene.actors.update(dt, alpha, view);
     scene.effects.update(dt, view);
 
     // Dynamic breathing and atmospheric lighting

@@ -4,6 +4,7 @@ import {
   FLOOR_PLANS,
   MEMORY_FRAGMENTS,
   allEnemyIds,
+  arenaBossFor,
   biomeInfo,
   enemyDef,
   fragmentsForFloor,
@@ -22,16 +23,21 @@ describe('content', () => {
   it('maps every enemy to a sprite in the atlas', () => {
     const keys = Object.keys(spriteAtlas.enemies); // aikit:allow-secret
     for (const plan of FLOOR_PLANS)
-      for (const id of [...plan.roster, plan.boss]) expect(keys).toContain(enemyDef(id).sprite);
+      for (const id of [...plan.roster, plan.boss]) {
+        const sprite = enemyDef(id).sprite;
+        // The mirror copy wears the player's own sheet, cut at runtime.
+        if (sprite === 'mirror') continue;
+        expect(keys).toContain(sprite);
+      }
   });
 
   it('makes bosses tougher than their data record', () => {
     expect(enemyDef('guardian', true).maxHealth).toBeGreaterThan(enemyDef('guardian').maxHealth);
   });
 
-  it('grows the expedition to sixteen sections including echo trials', () => {
-    expect(FLOOR_PLANS).toHaveLength(16);
-    expect(FLOOR_PLANS[15].finale).toBe(true);
+  it('grows the expedition to seventeen sections including echo trials', () => {
+    expect(FLOOR_PLANS).toHaveLength(17);
+    expect(FLOOR_PLANS[16].finale).toBe(true);
     expect(FLOOR_PLANS[14].roomCount).toBeGreaterThan(FLOOR_PLANS[0].roomCount);
     expect(new Set(FLOOR_PLANS.map((plan) => plan.biome)).size).toBeGreaterThanOrEqual(14);
     expect(FLOOR_PLANS[4].biome).toBe('ash');
@@ -40,11 +46,32 @@ describe('content', () => {
     expect(FLOOR_PLANS[11].biome).toBe('mire');
     expect(FLOOR_PLANS[13].biome).toBe('hive');
     expect(FLOOR_PLANS[14].biome).toBe('catacomb');
-    expect(FLOOR_PLANS.filter((plan) => plan.bossOnly)).toHaveLength(2);
+    expect(FLOOR_PLANS.filter((plan) => plan.bossOnly)).toHaveLength(3);
     expect(FLOOR_PLANS.filter((plan) => plan.bossOnly).map((plan) => plan.boss)).toEqual([
       'choir_hierophant',
       'hollow_behemoth',
+      'mirror_self',
     ]);
+  });
+
+  it('adds a mirror trial where the player fights their own copy', () => {
+    const trial = FLOOR_PLANS.find((plan) => plan.boss === 'mirror_self')!;
+    expect(trial.bossOnly).toBe(true);
+    expect(trial.trialName).toContain('Mirror');
+    expect(trial.roster).toEqual([]);
+    expect(enemyDef('mirror_self', true).archetype).toBe('boss');
+    expect(enemyDef('mirror_self', true).sprite).toBe('mirror');
+    expect(enemyDef('lost_self').behavior).toBe('duelist');
+    expect(enemyDef('lost_self').archetype).toBe('duelist');
+  });
+
+  it('keeps the mirror out of mid-floor arenas', () => {
+    for (let depth = 0; depth < FLOOR_PLANS.length; depth++) {
+      const boss = arenaBossFor(depth);
+      expect(boss).not.toBe('mirror_self');
+      expect(boss).not.toBe('keeper');
+      expect(boss).not.toBe(FLOOR_PLANS[depth].boss);
+    }
   });
 
   it('uses more than one map layout', () => {

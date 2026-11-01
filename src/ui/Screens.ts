@@ -1606,7 +1606,7 @@ export function controlsScreen(onBack: () => void): HTMLElement {
       'div',
       { class: 'meta-line' },
       [
-        'Red shapes warn of an attack, and floor traps warn before they spring — dash through the edge for a Graze, or pull the lever to disarm a room. Barrels and bombs explode when struck, and your own trap does not care whose feet find it. Three stances trade reach, width and speed; bosses leave relics. In the Sanctuary, structures rebuild with echoes, NPCs give tasks, the Training Yard sets your stance, the Meditation Stone grants a boon, and the Notice Board lists quests. Upgrade cards: 1 / 2 / 3 selects, the same number or Enter confirms, R rerolls.',
+        'Red shapes warn of an attack, and floor traps warn before they spring — dash through the edge for a Graze, or pull the lever to disarm a room. Barrels and bombs explode when struck, crates and urns spill shards, and a shattered memory crystal sears nearby echoes. A blast lights nearby breakables, so clusters cook off in a chain. Your own trap does not care whose feet find it. Three stances trade reach, width and speed; bosses leave relics. Hollow selves and rime duellists fight like you: three-swing combos, closing dashes and thin bolts. The Mirror of Self waits at the end of the road, wearing your stance. In the Sanctuary, structures rebuild with echoes, NPCs give tasks, the Training Yard sets your stance, the Meditation Stone grants a boon, and the Notice Board lists quests. Upgrade cards: 1 / 2 / 3 selects, the same number or Enter confirms, R rerolls.',
       ].join('')
     ),
     h('div', { class: 'menu' }, button('Back', onBack))
@@ -1629,7 +1629,7 @@ export function mapScreen(world: World, onClose: () => void): HTMLElement {
     h(
       'div',
       { class: 'meta-line map-legend' },
-      'White: you  ·  Violet: explored or library  ·  Gold: treasure  ·  Cyan: memory well  ·  Red: guardian  ·  Orange: arena'
+      'White: you  ·  Violet: explored or library  ·  Gold: treasure  ·  Cyan: memory well  ·  Red: guardian  ·  Orange: arena  ·  Crimson hatch: iron gate'
     ),
     h('div', { class: 'menu' }, button('Close', onClose))
   );

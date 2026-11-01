@@ -2,7 +2,7 @@
  * Events a world step emits. The view turns them into effects, the audio
  * layer into sounds and the UI into messages; the sim never depends on them.
  */
-import type { AttackKind, InteractableKind, PickupKind } from './entities';
+import type { AttackKind, HazardKind, InteractableKind, PickupKind } from './entities';
 
 export type SimEvent =
   | {
@@ -14,6 +14,15 @@ export type SimEvent =
       weapon: 'sword' | 'spear' | 'greatsword';
     }
   | { type: 'weaponSwitch'; weapon: 'sword' | 'spear' | 'greatsword' }
+  | {
+      /** A duellist swinging a player-style weapon arc. */
+      type: 'enemySlash';
+      x: number;
+      y: number;
+      angle: number;
+      combo: number;
+      weapon: 'sword' | 'spear' | 'greatsword';
+    }
   | { type: 'bombThrown'; x: number; y: number; owner: 'player' | 'enemy' }
   | {
       type: 'weaponArt';
@@ -54,11 +63,12 @@ export type SimEvent =
     }
   | {
       type: 'hazardBurst';
-      kind: 'spike' | 'flame' | 'poison' | 'rockfall' | 'barrel' | 'trap';
+      kind: HazardKind;
       x: number;
       y: number;
       radius: number;
     }
+  | { type: 'hazardHit'; kind: HazardKind; x: number; y: number }
   | { type: 'sanctuary'; kind: 'structure' | 'npc' | 'gate'; id: string }
   | { type: 'buildingExit'; id: string }
   | { type: 'blast'; x: number; y: number; radius: number }

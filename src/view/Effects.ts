@@ -4,6 +4,7 @@
  * short-lived, and nothing here feeds back into the simulation.
  */
 import { Container, Graphics, Sprite, Text } from 'pixi.js';
+import type { HazardKind } from '../sim/entities';
 import type { SimEvent } from '../sim/events';
 import { atmosphereFor, type AtmosphereLayer, type AtmosphereProfile } from './atmosphere';
 import { fxTextures } from './fxArt';
@@ -16,6 +17,8 @@ interface Particle {
   maxLife: number;
   drag: number;
   grow: number;
+  /** Downward acceleration in px/s², used by solid debris. */
+  gravity: number;
 }
 
 interface Slash {
@@ -24,6 +27,8 @@ interface Slash {
   angle: number;
   combo: number;
   weapon: 'sword' | 'spear' | 'greatsword';
+  /** A hostile swing, drawn in a spectral rose instead of the player's cyan. */
+  hostile?: boolean;
   age: number;
 }
 
@@ -72,6 +77,22 @@ interface ViewRect {
 
 const MAX_PARTICLES = 500;
 const SLASH_LIFE = 0.16;
+
+/** Burst tint per hazard, shared by the ring, the sparks and the label. */
+const HAZARD_BURST: Record<
+  HazardKind,
+  { color: number; sparks: number; debris: number; label?: string }
+> = {
+  spike: { color: 0xe0e0ff, sparks: 14, debris: 0 },
+  flame: { color: 0xff8a5a, sparks: 14, debris: 0 },
+  poison: { color: 0x9ef06a, sparks: 6, debris: 0 },
+  rockfall: { color: 0xff8a5a, sparks: 14, debris: 6 },
+  barrel: { color: 0xffa040, sparks: 14, debris: 14, label: 'BOOM' },
+  trap: { color: 0xff8a5a, sparks: 14, debris: 0 },
+  crate: { color: 0xd8a05a, sparks: 10, debris: 16 },
+  crystal: { color: 0xb89cff, sparks: 20, debris: 18, label: 'SHATTER' },
+  urn: { color: 0xd88a6a, sparks: 8, debris: 14 },
+};
 /** Distance outside the view where a mote is recycled to the far edge. */
 const MOTE_MARGIN = 48;
 
@@ -162,8 +183,21 @@ export class Effects {
         case 'shockwave':
           this.ring(e.x, e.y, e.radius, 0x6fe7ff, 0.3);
           break;
+        case 'enemySlash':
+          this.slashes.push({
+            x: e.x,
+            y: e.y,
+            angle: e.angle,
+            combo: e.combo,
+            weapon: e.weapon,
+            hostile: true,
+            age: 0,
+          });
+          break;
         case 'enemyAttack':
           if (e.attack === 'slam') this.ring(e.x, e.y, 120, 0xff6a3a, 0.35);
+          else if (e.attack === 'dashStrike') this.burst(e.x, e.y, 0xff8aa8, 8, 120, 0.22, 3);
+          else if (e.attack === 'combo') this.burst(e.x, e.y, 0xffb0c8, 5, 80, 0.18, 2);
           break;
         case 'enemyDied':
           this.burst(
@@ -256,19 +290,16 @@ export class Effects {
           );
           break;
         case 'hazardBurst': {
-          const color =
-            e.kind === 'poison'
-              ? 0x9ef06a
-              : e.kind === 'barrel'
-                ? 0xffa040
-                : e.kind === 'spike'
-                  ? 0xe0e0ff
-                  : 0xff8a5a;
-          this.ring(e.x, e.y, e.radius, color, 0.35);
-          this.burst(e.x, e.y, color, e.kind === 'poison' ? 6 : 14, 140, 0.35, 4);
-          if (e.kind === 'barrel') this.number(e.x, e.y - 18, 'BOOM', color, 18);
+          const burst = HAZARD_BURST[e.kind];
+          this.ring(e.x, e.y, e.radius, burst.color, 0.35);
+          this.burst(e.x, e.y, burst.color, burst.sparks, 140, 0.35, 4);
+          if (burst.debris > 0) this.debris(e.x, e.y, burst.color, burst.debris);
+          if (burst.label) this.number(e.x, e.y - 18, burst.label, burst.color, 16);
           break;
         }
+        case 'hazardHit':
+          this.burst(e.x, e.y, HAZARD_BURST[e.kind].color, 4, 70, 0.2, 2);
+          break;
         case 'blast':
           this.ring(e.x, e.y, e.radius, 0xffa060, 0.4);
           this.burst(e.x, e.y, 0xffb070, 12, 160, 0.32, 4);
@@ -376,19 +407,21 @@ export class Effects {
     vx: number,
     vy: number,
     life: number,
-    drag = 4
+    drag = 4,
+    gravity = 0,
+    blend: 'add' | 'normal' = 'add'
   ): void {
     if (this.particles.length >= MAX_PARTICLES) return;
     const sprite = this.free.pop() ?? new Sprite(fxTextures().spark);
     sprite.anchor.set(0.5);
-    sprite.blendMode = 'add';
+    sprite.blendMode = blend;
     sprite.tint = color;
     sprite.position.set(x, y);
     sprite.width = sprite.height = size;
     sprite.alpha = 1;
     sprite.visible = true;
     if (!sprite.parent) this.layer.addChild(sprite);
-    this.particles.push({ sprite, vx, vy, life, maxLife: life, drag, grow: 0 });
+    this.particles.push({ sprite, vx, vy, life, maxLife: life, drag, grow: 0, gravity });
   }
 
   private burst(
@@ -411,6 +444,26 @@ export class Effects {
         Math.cos(a) * s,
         Math.sin(a) * s,
         life * (0.6 + this.random() * 0.6)
+      );
+    }
+  }
+
+  /** Solid chips that arc and fall, so a broken prop leaves matter, not light. */
+  private debris(x: number, y: number, color: number, count: number): void {
+    for (let i = 0; i < count; i++) {
+      const a = this.random() * Math.PI * 2;
+      const s = 60 + this.random() * 170;
+      this.spawn(
+        x,
+        y,
+        i % 3 === 0 ? 0x2a2018 : color,
+        2 + this.random() * 4,
+        Math.cos(a) * s,
+        Math.sin(a) * s - 90,
+        0.45 + this.random() * 0.5,
+        1.4,
+        720,
+        'normal'
       );
     }
   }
@@ -513,6 +566,7 @@ export class Effects {
       const decay = Math.exp(-p.drag * dt);
       p.vx *= decay;
       p.vy *= decay;
+      p.vy += p.gravity * dt;
       p.sprite.x += p.vx * dt;
       p.sprite.y += p.vy * dt;
       p.sprite.alpha = p.life / p.maxLife;
@@ -589,7 +643,17 @@ export class Effects {
       }
       const points = [...outer];
       for (let k = inner.length - 2; k >= 0; k -= 2) points.push(inner[k], inner[k + 1]);
-      const color = s.weapon === 'greatsword' ? 0xffe9a8 : finisher ? 0xfff3c4 : 0xc8f7ff;
+      const color = s.hostile
+        ? s.weapon === 'greatsword'
+          ? 0xffb0d0
+          : finisher
+            ? 0xff9ec8
+            : 0xd8b0ff
+        : s.weapon === 'greatsword'
+          ? 0xffe9a8
+          : finisher
+            ? 0xfff3c4
+            : 0xc8f7ff;
       g.poly(points).fill({ color, alpha: 0.88 * alpha });
       // Inner hot-core radiant blade spine
       g.poly(mid, false).stroke({ width: 2.5 * alpha, color: 0xffffff, alpha: alpha * 0.9 });

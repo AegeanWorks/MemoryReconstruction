@@ -2519,6 +2519,100 @@
           "max": 6
         }
       ]
+    },
+    {
+      "id": "lost_self",
+      "name": "Hollow Self",
+      "description": "A memory that learned your stance and never put the blade down.",
+      "type": "lost_self",
+      "biome": "void",
+      "stats": {
+        "health": 260,
+        "maxHealth": 260,
+        "damage": 36,
+        "speed": 128,
+        "armor": 70,
+        "resistance": 20,
+        "knockbackResistance": 30,
+        "xpValue": 170,
+        "memoryValue": 20
+      },
+      "ai": {
+        "behavior": "duelist",
+        "aggroRange": 340,
+        "attackRange": 70,
+        "attackCooldown": 1.5,
+        "patrolRadius": 200
+      },
+      "hitbox": {
+        "width": 30,
+        "height": 46,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "sprites/player/idle.png",
+        "width": 44,
+        "height": 44
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.9,
+          "min": 3,
+          "max": 7
+        }
+      ]
+    },
+    {
+      "id": "mirror_self",
+      "name": "The Waking Mirror",
+      "description": "It wears your face, holds your stance, and remembers every swing you have made.",
+      "type": "mirror_self",
+      "biome": "void",
+      "stats": {
+        "health": 620,
+        "maxHealth": 620,
+        "damage": 34,
+        "speed": 132,
+        "armor": 80,
+        "resistance": 25,
+        "knockbackResistance": 45,
+        "xpValue": 600,
+        "memoryValue": 80
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 420,
+        "attackRange": 74,
+        "attackCooldown": 1.25,
+        "patrolRadius": 220
+      },
+      "hitbox": {
+        "width": 34,
+        "height": 52,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "sprites/player/idle.png",
+        "width": 44,
+        "height": 44
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item": "fragment_shard",
+          "chance": 1,
+          "min": 8,
+          "max": 16
+        }
+      ]
     }
   ],
   "eliteModifiers": [
