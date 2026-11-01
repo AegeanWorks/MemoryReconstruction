@@ -1,7 +1,7 @@
 # Memory Reconstruction
 
 <!-- aegean:media:start -->
-<p align="center"><img src="assets/social-preview.png" alt="MemoryReconstruction social preview" width="100%"></p>
+<p align="center"><img src="assets/social-preview.svg" alt="MemoryReconstruction social preview" width="100%"></p>
 <p align="center"><a href="LICENSE"><img src="https://img.shields.io/badge/license-AGL--1.1-7048e8" alt="License"></a> <a href="https://github.com/AegeanWorks/AIKit"><img src="https://img.shields.io/badge/AIKit-integrated-6f42c1" alt="AIKit Integrated"></a></p>
 <!-- aegean:media:end -->
 
