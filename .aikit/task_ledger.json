@@ -2,53 +2,16 @@
   "version": 1,
   "active_task": {
     "task_id": "audit-recent-pushes-v1",
-    "last_phase": "implementation",
-    "active_phase": 3,
-    "status": "in_progress",
-    "updated_at": 1793521451.3441868,
+    "last_phase": "verification",
+    "active_phase": 5,
+    "status": "completed",
+    "updated_at": 1793522080.0660944,
     "owner": "kilo:memory",
     "started_by": "kilo:memory",
-    "continuations": []
+    "continuations": [],
+    "completed_at": 1793522080.1936502
   },
   "checkpoints": [
-    {
-      "task_id": "chain-ignition-and-debris-v1",
-      "phase": "implementation",
-      "phase_num": 3,
-      "description": "[3/6] Duellist AI: combo, dashStrike and bolt kinds, duellist archetype, hostile slash effects, telegraphs and audio; rime duellists and the new hollow self use it",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793492435.2488654,
-      "timestamp_str": "2026-11-01 03:20:35",
-      "agent": "kilo:memory"
-    },
-    {
-      "task_id": "chain-ignition-and-debris-v1",
-      "phase": "implementation",
-      "phase_num": 3,
-      "description": "[4/6] Mirror of Self: boss data, trial episode at depth 15 with the keeper moved to 16, player-sheet mirror sheet that follows the live stance, level-scaled damage, cyan boss aura",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793492447.3385167,
-      "timestamp_str": "2026-11-01 03:20:47",
-      "agent": "kilo:memory"
-    },
-    {
-      "task_id": "chain-ignition-and-debris-v1",
-      "phase": "verification",
-      "phase_num": 4,
-      "description": "[5/6] checklists: passed; 194 tests, mechanics, lint, typecheck, build and 8/8 gates pass; headless probes confirm the mirror switches to spear strips, emits three hostile slashes, and ignition/debris change 20k-30k pixels",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793492447.4753208,
-      "timestamp_str": "2026-11-01 03:20:47",
-      "agent": "kilo:memory",
-      "handoff": {
-        "state": "all gates green",
-        "next": "docs and completion",
-        "evidence": "aikit check 8/8, Playwright probes for mirror stance, combo slashes and chain ignition"
-      }
-    },
     {
       "task_id": "chain-ignition-and-debris-v1",
       "phase": "implementation",
@@ -269,6 +232,43 @@
       "status": "in_progress",
       "timestamp": 1793521451.3441868,
       "timestamp_str": "2026-11-01 11:24:11",
+      "agent": "kilo:memory"
+    },
+    {
+      "task_id": "audit-recent-pushes-v1",
+      "phase": "implementation",
+      "phase_num": 3,
+      "description": "[3/4] UI task app: minimap gate hatch dims to 0.32 once a room is cleared while active rooms blink; verified in the running app, checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793521982.2730255,
+      "timestamp_str": "2026-11-01 11:33:02",
+      "agent": "kilo:memory"
+    },
+    {
+      "task_id": "audit-recent-pushes-v1",
+      "phase": "verification",
+      "phase_num": 4,
+      "description": "[4/4] checklists: passed; 203 tests, 8/8 gates, strict delivery ready; pushed 2b6e53d..048a1ab to origin/main",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793522080.0660944,
+      "timestamp_str": "2026-11-01 11:34:40",
+      "agent": "kilo:memory",
+      "handoff": {
+        "state": "pushed and clean",
+        "next": "none, task closing",
+        "evidence": "git push 2b6e53d..048a1ab, aikit check --strict 8/8"
+      }
+    },
+    {
+      "task_id": "audit-recent-pushes-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'audit-recent-pushes-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793522080.1936522,
+      "timestamp_str": "2026-11-01 11:34:40",
       "agent": "kilo:memory"
     }
   ]
