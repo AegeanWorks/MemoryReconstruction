@@ -1286,6 +1286,45 @@
 .sanctuary-prompt.hidden {
   display: none;
 }
+.dialogue-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.dialogue-avatar {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: radial-gradient(circle, rgba(56, 44, 82, 0.95), rgba(16, 12, 28, 0.98));
+  box-shadow: 0 0 16px rgba(255, 217, 138, 0.28), 0 4px 12px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dialogue-portrait {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  transform: translateY(3px);
+}
+.dialogue-titles {
+  text-align: left;
+}
+.dialogue-titles .subtitle {
+  margin: 0;
+  text-align: left;
+}
+.dialogue-titles .title {
+  margin: 2px 0 0 0;
+  text-align: left;
+}
 .dialogue-panel {
   width: min(560px, 92vw);
   display: grid;

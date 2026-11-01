@@ -363,8 +363,16 @@ export class Effects {
           );
           break;
         case 'blink':
-          this.ring(e.x, e.y, 50, 0xbfa0ff, 0.4);
-          this.ring(e.toX, e.toY, 50, 0xbfa0ff, 0.4);
+          // Departure: void implosion & collapsing sparks
+          this.ring(e.x, e.y, 48, 0xbfa0ff, 0.35);
+          this.star(e.x, e.y, 0x8a5aff, 32, 0.25);
+          this.burst(e.x, e.y, 0xb89cff, 8, 70, 0.28, 3);
+          // Arrival: dimensional shockwave & outward rift burst
+          this.ring(e.toX, e.toY, 68, 0xbfa0ff, 0.38);
+          this.ring(e.toX, e.toY, 34, 0x9df3ff, 0.25);
+          this.star(e.toX, e.toY, 0xffffff, 44, 0.3);
+          this.burst(e.toX, e.toY, 0x9df3ff, 14, 110, 0.32, 4);
+          this.shake = Math.min(18, Math.max(this.shake, 3.5));
           break;
         case 'hook':
           this.ring(e.toX, e.toY, 46, 0x9df3ff, 0.35);

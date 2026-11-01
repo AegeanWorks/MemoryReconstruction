@@ -9,6 +9,7 @@
 import { AnimatedSprite, Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
 import type { Enemy, Hazard, Interactable, Pickup, Projectile } from '../sim/entities';
 import { dashStrikeRange, slamRadius } from '../sim/enemies';
+import { equipmentDef } from '../sim/equipment';
 import type { WeaponId } from '../sim/weapons';
 import { TILE_SIZE } from '../sim/tiles';
 import type { World } from '../sim/world';
@@ -1053,13 +1054,45 @@ export class ActorView {
         }
         break;
       }
-      case 'blink':
-        g.circle(x + e.dirX * 58, y + e.dirY * 58, 86).stroke({
+      case 'blink': {
+        // 1. Collapsing void singularity at the caster's origin
+        const collapseR = Math.max(4, e.radius * 1.8 * Math.max(0.1, e.stateTime / 0.8));
+        g.circle(x, y, collapseR).stroke({
           width: 2,
           color: 0xbfa0ff,
-          alpha: urgency,
+          alpha: urgency * 0.9,
         });
+        g.circle(x, y, collapseR * 0.5).fill({
+          color: 0x8a5aff,
+          alpha: urgency * 0.4,
+        });
+
+        // 2. Incoming strike danger zone centered on the target player
+        const p = this.world.player;
+        const strikeR = 86;
+        g.circle(p.x, p.y, strikeR).fill({
+          color: 0x7a3aff,
+          alpha: urgency * 0.18,
+        });
+        g.circle(p.x, p.y, strikeR).stroke({
+          width: 2,
+          color: 0xbfa0ff,
+          alpha: urgency * 0.85,
+        });
+        const lockR = strikeR * (0.3 + 0.7 * Math.min(1, 1 - e.stateTime / 0.8));
+        g.circle(p.x, p.y, lockR).stroke({
+          width: 1.5,
+          color: 0x9df3ff,
+          alpha: urgency * 0.9,
+        });
+        for (let i = 0; i < 4; i++) {
+          const a = (i * Math.PI) / 2 + this.time * 2;
+          g.moveTo(p.x + Math.cos(a) * (strikeR - 6), p.y + Math.sin(a) * (strikeR - 6))
+            .lineTo(p.x + Math.cos(a) * (strikeR + 6), p.y + Math.sin(a) * (strikeR + 6))
+            .stroke({ width: 2, color: 0xffe6ff, alpha: urgency });
+        }
         break;
+      }
       case 'bomb':
         g.circle(x, y, 26).stroke({ width: 2, color: 0xffa060, alpha: urgency });
         break;
@@ -1210,30 +1243,29 @@ export class ActorView {
       this.ground,
       (item: Pickup) => {
         const root = new Container();
-        const color =
-          item.kind === 'shard'
-            ? 0xb89cff
-            : item.kind === 'fragment'
-              ? 0xffd98a
-              : item.kind === 'bomb'
-                ? 0xffa060
-                : item.kind === 'trap'
-                  ? 0xffe08a
-                  : 0xff5a6a;
-        root.addChild(
-          this.glow(
-            color,
-            item.kind === 'fragment' ? 120 : 40,
-            item.kind === 'fragment' ? 0.6 : 0.45
-          )
-        );
-        if (item.kind === 'bomb' || item.kind === 'trap') {
+        let color: number;
+        if (item.kind === 'shard') color = 0xb89cff;
+        else if (item.kind === 'fragment') color = 0xffd98a;
+        else if (item.kind === 'bomb') color = 0xffa060;
+        else if (item.kind === 'trap') color = 0xffe08a;
+        else if (item.kind === 'equipment') {
+          const rarity = item.equipment ? equipmentDef(item.equipment.defId).rarity : 'common';
+          color = rarity === 'epic' ? 0xd86cff : rarity === 'rare' ? 0x45caff : 0xffd060;
+        } else {
+          color = 0xff5a6a;
+        }
+
+        const glowSize = item.kind === 'fragment' ? 120 : item.kind === 'equipment' ? 76 : 40;
+        const glowAlpha = item.kind === 'fragment' ? 0.6 : item.kind === 'equipment' ? 0.55 : 0.45;
+        root.addChild(this.glow(color, glowSize, glowAlpha));
+
+        if (item.kind === 'bomb' || item.kind === 'trap' || item.kind === 'equipment') {
           const g = new Graphics();
           if (item.kind === 'bomb') {
             g.circle(0, 0, 8).fill({ color: 0x241f2e });
             g.circle(0, 0, 8).stroke({ width: 2, color });
             g.circle(4, -8, 2).fill({ color: 0xffd98a });
-          } else {
+          } else if (item.kind === 'trap') {
             g.circle(0, 0, 9).stroke({ width: 2, color });
             for (let i = 0; i < 6; i++) {
               const a = (i / 6) * Math.PI * 2;
@@ -1241,6 +1273,15 @@ export class ActorView {
                 .lineTo(Math.cos(a) * 9, Math.sin(a) * 9)
                 .stroke({ width: 1.5, color });
             }
+          } else {
+            // Equipment relic: faceted jewel emblem on an ornate bezel
+            const rarity = item.equipment ? equipmentDef(item.equipment.defId).rarity : 'common';
+            const rim = rarity === 'epic' ? 0xffc8ff : rarity === 'rare' ? 0xbbf3ff : 0xffebb8;
+            g.poly([0, -12, 9, 0, 0, 12, -9, 0]).fill({ color: 0x161022 });
+            g.poly([0, -12, 9, 0, 0, 12, -9, 0]).stroke({ width: 1.6, color: rim });
+            g.poly([0, -8, 6, 0, 0, 8, -6, 0]).fill({ color });
+            g.poly([0, -8, 6, 0, 0, 0]).fill({ color: 0xffffff, alpha: 0.65 });
+            g.circle(0, 0, 1.8).fill({ color: 0xffffff });
           }
           root.addChild(g);
         } else {
@@ -1271,22 +1312,26 @@ export class ActorView {
         const bob =
           item.kind === 'fragment'
             ? Math.sin(this.time * 3 + item.id) * 4
-            : item.kind === 'shard'
-              ? Math.sin(this.time * 3.6 + item.id) * 2.5
-              : item.kind === 'potion'
-                ? Math.sin(this.time * 2.8 + item.id) * 2.2
-                : Math.sin(this.time * 2.2 + item.id) * 1.2;
+            : item.kind === 'equipment'
+              ? Math.sin(this.time * 2.6 + item.id) * 3.5
+              : item.kind === 'shard'
+                ? Math.sin(this.time * 3.6 + item.id) * 2.5
+                : item.kind === 'potion'
+                  ? Math.sin(this.time * 2.8 + item.id) * 2.2
+                  : Math.sin(this.time * 2.2 + item.id) * 1.2;
         root.position.set(item.x, item.y + bob);
-        if (item.kind === 'shard') {
+        if (item.kind === 'shard' || item.kind === 'equipment') {
           root.rotation = Math.sin(this.time * 2.2 + item.id) * 0.12;
         }
         if (root.children[0]) {
           const pulse =
             item.kind === 'fragment'
               ? 0.45 + 0.25 * Math.sin(this.time * 4 + item.id)
-              : item.kind === 'shard'
-                ? 0.38 + 0.18 * Math.sin(this.time * 4.5 + item.id)
-                : 0.35 + 0.15 * Math.sin(this.time * 3 + item.id);
+              : item.kind === 'equipment'
+                ? 0.42 + 0.22 * Math.sin(this.time * 3.8 + item.id)
+                : item.kind === 'shard'
+                  ? 0.38 + 0.18 * Math.sin(this.time * 4.5 + item.id)
+                  : 0.35 + 0.15 * Math.sin(this.time * 3 + item.id);
           root.children[0].alpha = pulse;
         }
       }
@@ -1328,6 +1373,7 @@ export class ActorView {
           if (
             it.kind === 'fountain' ||
             it.kind === 'shrine' ||
+            it.kind === 'chest' ||
             (it.kind === 'structure' && it.structureId === 'wellspring')
           ) {
             root.addChild(new Graphics());
@@ -1373,6 +1419,25 @@ export class ActorView {
             // Spent chests and wells go dark.
             root.children[1].alpha = it.used ? 0 : 0.3 + 0.12 * Math.sin(this.time * 2.5);
             root.children[2].alpha = it.used ? 0.55 : 1;
+          }
+          if (it.kind === 'chest') {
+            const fx = root.children[3] as Graphics | undefined;
+            if (fx && fx instanceof Graphics) {
+              fx.clear();
+              if (it.used) {
+                const pulse = 0.5 + 0.5 * Math.sin(this.time * 3 + it.id);
+                fx.rect(-14, -54, 28, 30).fill({ color: 0xffd98a, alpha: 0.12 + 0.08 * pulse });
+                for (let i = 0; i < 3; i++) {
+                  const progress = (this.time * 0.8 + i * 0.33 + (it.id % 5) * 0.2) % 1;
+                  const py = -24 - progress * 32;
+                  const px = Math.sin(this.time * 4 + i * 2) * 8;
+                  fx.circle(px, py, 1.2).fill({ color: 0xffffff, alpha: (1 - progress) * 0.8 });
+                }
+              } else {
+                const gleam = 0.4 + 0.4 * Math.sin(this.time * 3.5 + it.id);
+                fx.circle(0, -18, 2.5).fill({ color: 0xfff0b0, alpha: gleam });
+              }
+            }
           }
           if (
             it.kind === 'fountain' ||

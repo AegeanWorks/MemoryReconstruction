@@ -332,6 +332,15 @@ export class LevelView {
                   color: 0xa8a2b8,
                 });
               }
+            } else {
+              const tipX = gate.direction === 'west' ? px + T : px;
+              const baseX = gate.direction === 'west' ? px + T - 4 : px + 4;
+              for (let i = 0; i < 4; i++) {
+                const oy = 4 + i * 8;
+                g.poly([baseX, py + oy - 1.5, baseX, py + oy + 2.5, tipX, py + oy + 0.5]).fill({
+                  color: 0xa8a2b8,
+                });
+              }
             }
             // 5. Ominous void threshold ember glow
             const glow = 0.28 + 0.14 * Math.sin(this.time * 3 + t.x * 2.1 + t.y);

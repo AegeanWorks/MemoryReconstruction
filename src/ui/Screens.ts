@@ -910,11 +910,30 @@ export function dialogueScreen(opts: {
   const npc = NPCS[opts.npcId] ?? { name: 'A quiet resident', role: '', greeting: '...' };
   const quest = questsForNpc(opts.npcId);
   const ready = quest ? opts.progress >= quest.target : false;
+  const portraitUrl = assetUrl(`sprites/props/npc_${opts.npcId}.png`);
   return h(
     'div',
     { class: 'screen hub' },
-    h('div', { class: 'subtitle' }, npc.role),
-    h('div', { class: 'title small' }, npc.name),
+    h(
+      'div',
+      { class: 'dialogue-header' },
+      h(
+        'div',
+        { class: 'dialogue-avatar' },
+        h('img', {
+          src: portraitUrl,
+          alt: npc.name,
+          class: 'dialogue-portrait',
+          draggable: 'false',
+        })
+      ),
+      h(
+        'div',
+        { class: 'dialogue-titles' },
+        h('div', { class: 'subtitle' }, npc.role),
+        h('div', { class: 'title small' }, npc.name)
+      )
+    ),
     h('div', { class: 'panel dialogue-panel' }, h('p', { class: 'dialogue-line' }, npc.greeting)),
     quest
       ? h(

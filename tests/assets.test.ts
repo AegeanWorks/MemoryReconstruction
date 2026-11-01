@@ -1,6 +1,7 @@
 import { existsSync } from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
+import { NPCS } from '../src/sim/quests';
 import { atlasImagePaths } from '../src/view/sheets';
 import { shade } from '../src/view/tileArt';
 
@@ -22,6 +23,14 @@ describe('assets', () => {
     ]) {
       expect(
         existsSync(path.resolve(__dirname, `../assets/sprites/ui/${icon}.png`))
+      ).toBe(true);
+    }
+  });
+
+  it('has every NPC dialogue portrait prop sprite', () => {
+    for (const npcId of Object.keys(NPCS)) {
+      expect(
+        existsSync(path.resolve(__dirname, `../assets/sprites/props/npc_${npcId}.png`))
       ).toBe(true);
     }
   });
