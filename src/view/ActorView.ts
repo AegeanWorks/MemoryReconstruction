@@ -10,6 +10,7 @@ import { AnimatedSprite, Container, Graphics, Sprite, Text, type Texture } from 
 import type { Enemy, Hazard, Interactable, Pickup, Projectile } from '../sim/entities';
 import { dashStrikeRange, slamRadius } from '../sim/enemies';
 import type { WeaponId } from '../sim/weapons';
+import { TILE_SIZE } from '../sim/tiles';
 import type { World } from '../sim/world';
 import { fxTextures } from './fxArt';
 import { BIOME_ART, hex } from './palette';
@@ -223,6 +224,7 @@ export class ActorView {
     this.bars.clear();
     this.updateAfterimages(dt);
     this.drawHazards(view);
+    this.drawGateWarnings();
     this.drawBlasts();
     this.drawBombs();
     this.updateLabels();
@@ -522,6 +524,29 @@ export class ActorView {
         color: 0xffd98a,
         alpha: pulse * 1.3,
       });
+    }
+  }
+
+  /**
+   * Iron gates of a room that still owes waves pulse crimson, so the player can
+   * read where reinforcements will pour in and hold the right angle.
+   */
+  private drawGateWarnings(): void {
+    const g = this.telegraphs;
+    const t = this.time;
+    for (const room of this.world.floor.rooms) {
+      if (!room.gates || room.gates.length === 0) continue;
+      const state = this.world.rooms[room.id];
+      if (!state || state.phase !== 'active' || state.wavesLeft <= 0) continue;
+      const pulse = 0.3 + 0.28 * Math.sin(t * 5.5 + room.id);
+      for (const gate of room.gates)
+        for (const tile of gate.tiles) {
+          g.rect(tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE).stroke({
+            width: 2,
+            color: 0xff5a3a,
+            alpha: pulse,
+          });
+        }
     }
   }
 
