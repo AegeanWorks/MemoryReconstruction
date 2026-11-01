@@ -25,7 +25,8 @@ export type BiomeId =
   | 'sanctuary';
 
 /** How an enemy fights; several data behaviours share one archetype. */
-export type Archetype = 'melee' | 'skirmisher' | 'caster' | 'brute' | 'duelist' | 'boss';
+export type Archetype =
+  'melee' | 'skirmisher' | 'caster' | 'brute' | 'duelist' | 'boss' | 'teleporter';
 
 export interface BiomeInfo {
   id: BiomeId;
@@ -114,6 +115,8 @@ const ARCHETYPES: Record<string, Archetype> = {
   wall_warden: 'caster',
   pillar_warden: 'caster',
   bombardier: 'caster',
+  phase_stalker: 'teleporter',
+  teleport: 'teleporter',
   boss: 'boss',
   final_boss: 'boss',
 };
@@ -168,6 +171,10 @@ const SPRITE_KEYS: Record<string, string> = {
   void_herald: 'voidCantor',
   hive_slinger: 'hiveDrone',
   mire_lurker: 'bogLeech',
+  phase_stalker: 'crystalGuardian',
+  void_stalker: 'voidWalker',
+  dread_champion: 'boneKnight',
+  ruin_warlord: 'guardian',
   // Both the duelist and the trial boss wear the player's own sheet.
   lost_self: 'mirror',
   mirror_self: 'mirror',
@@ -194,6 +201,10 @@ const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
     void_herald: 0xc0b0ff,
     hive_slinger: 0xffd090,
     mire_lurker: 0x9fd0a0,
+    phase_stalker: 0xc4b5ff,
+    void_stalker: 0xa8c0ff,
+    dread_champion: 0xffdf80,
+    ruin_warlord: 0xff8a7a,
     lost_self: 0x9fd8ff,
     mirror_self: 0xbfeaff,
   }).map(([id, color]) => [id, pastel(color)])
@@ -361,8 +372,35 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   },
   {
     depth: 16,
+    biome: 'ruins',
+    roster: ['bone_knight', 'phase_stalker', 'scavenger', 'void_stalker'],
+    boss: 'dread_champion',
+    roomCount: 12,
+    finale: false,
+    layout: 'diamond',
+    trialName: 'Echo Arena: The Sunken Colosseum',
+  },
+  {
+    depth: 17,
+    biome: 'ash',
+    roster: ['cinder_hound', 'magma_hound', 'phase_stalker', 'ash_herald'],
+    boss: 'ruin_warlord',
+    roomCount: 13,
+    finale: false,
+    layout: 'terrace',
+    trialName: 'The Obsidian Ramparts',
+  },
+  {
+    depth: 18,
     biome: 'sanctuary',
-    roster: ['void_walker', 'memory_echo', 'prism_entity', 'void_herald', 'lost_self'],
+    roster: [
+      'void_walker',
+      'memory_echo',
+      'prism_entity',
+      'void_herald',
+      'lost_self',
+      'void_stalker',
+    ],
     boss: 'keeper',
     roomCount: 5,
     finale: true,

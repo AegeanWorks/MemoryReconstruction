@@ -2463,12 +2463,46 @@ def prop_image(kind: str) -> Image.Image:
             blur=6.0,
         )
     elif kind == "memory_fountain":
-        ellipse(draw, cell, 0.16, 0.62, 0.84, 0.86, fill=dark, outline=Outline, width=2)
-        ellipse(draw, cell, 0.22, 0.64, 0.78, 0.78, fill=light)
-        rect(draw, cell, 0.32, 0.70, 0.68, 0.94, fill=dark, outline=Outline, width=2)
-        line(draw, cell, [(0.50, 0.66), (0.50, 0.30)], accent, 3)
-        for i in range(4):
-            ellipse(draw, cell, 0.38 + i * 0.06, 0.28 - i * 0.02, 0.44 + i * 0.06, 0.34 - i * 0.02, fill=accent)
+        # A sacred stone well of memory: stepped ashlar plinth, heavy coping stones,
+        # twin timber uprights with an arched gabled canopy, hanging bronze bucket rope,
+        # and a shimmering deep crystalline water basin.
+        wood = (78, 56, 38)
+        wood_dark = (48, 32, 22)
+        iron = (52, 50, 64)
+        # Stepped circular masonry plinth
+        ellipse(draw, cell, 0.12, 0.74, 0.88, 0.96, fill=dark, outline=Outline, width=2)
+        ellipse(draw, cell, 0.16, 0.64, 0.84, 0.88, fill=mix(dark, light, 0.35), outline=Outline, width=2)
+        # Deep interior shadow / well cavity
+        ellipse(draw, cell, 0.24, 0.58, 0.76, 0.76, fill=(12, 16, 26), outline=Outline, width=2)
+        # Crystalline well water surface
+        ellipse(draw, cell, 0.28, 0.61, 0.72, 0.73, fill=accent)
+        ellipse(draw, cell, 0.33, 0.63, 0.67, 0.71, fill=(210, 248, 255))
+        # Radial stone masonry coping blocks around the rim
+        for a_deg in (0, 36, 72, 108, 144, 180, 216, 252, 288, 324):
+            rad = math.radians(a_deg)
+            cos_a, sin_a = math.cos(rad), math.sin(rad)
+            p0 = (0.50 + cos_a * 0.26, 0.72 + sin_a * 0.10)
+            p1 = (0.50 + cos_a * 0.34, 0.72 + sin_a * 0.13)
+            line(draw, cell, [p0, p1], Outline, 1)
+        # Twin carved timber uprights
+        rect(draw, cell, 0.20, 0.24, 0.26, 0.72, fill=wood, outline=Outline, width=2)
+        rect(draw, cell, 0.74, 0.24, 0.80, 0.72, fill=wood, outline=Outline, width=2)
+        # Iron reinforcement strapping on posts
+        for y_band in (0.34, 0.52):
+            rect(draw, cell, 0.19, y_band, 0.27, y_band + 0.03, fill=iron)
+            rect(draw, cell, 0.73, y_band, 0.81, y_band + 0.03, fill=iron)
+        # Crossbeam and winding spindle axle
+        rect(draw, cell, 0.18, 0.22, 0.82, 0.28, fill=wood_dark, outline=Outline, width=2)
+        # Gabled tiled timber roof hood
+        poly(draw, cell, [(0.14, 0.24), (0.50, 0.08), (0.86, 0.24), (0.82, 0.27), (0.50, 0.13), (0.18, 0.27)],
+             fill=mix(wood, light, 0.25), outline=Outline, width=2)
+        # Spindle drum and hanging hemp rope
+        rect(draw, cell, 0.42, 0.26, 0.58, 0.32, fill=(160, 134, 96), outline=Outline, width=1)
+        line(draw, cell, [(0.50, 0.30), (0.50, 0.60)], (190, 165, 120), 2)
+        # Iron suspension loop and bucket rim
+        rect(draw, cell, 0.47, 0.58, 0.53, 0.64, fill=iron, outline=Outline, width=1)
+        # Glowing memory rune on the stone facade
+        poly(draw, cell, [(0.50, 0.79), (0.52, 0.83), (0.50, 0.87), (0.48, 0.83)], fill=accent)
     elif kind == "statue":
         # A weathered memorial: stepped plinth, robed guardian with a bowed
         # hood, a sword planted point-down, and moss in the cracks.

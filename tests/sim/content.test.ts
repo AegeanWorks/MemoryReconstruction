@@ -35,9 +35,9 @@ describe('content', () => {
     expect(enemyDef('guardian', true).maxHealth).toBeGreaterThan(enemyDef('guardian').maxHealth);
   });
 
-  it('grows the expedition to seventeen sections including echo trials', () => {
-    expect(FLOOR_PLANS).toHaveLength(17);
-    expect(FLOOR_PLANS[16].finale).toBe(true);
+  it('grows the expedition to nineteen sections including echo trials and colosseum', () => {
+    expect(FLOOR_PLANS).toHaveLength(19);
+    expect(FLOOR_PLANS[18].finale).toBe(true);
     expect(FLOOR_PLANS[14].roomCount).toBeGreaterThan(FLOOR_PLANS[0].roomCount);
     expect(new Set(FLOOR_PLANS.map((plan) => plan.biome)).size).toBeGreaterThanOrEqual(14);
     expect(FLOOR_PLANS[4].biome).toBe('ash');
@@ -46,12 +46,21 @@ describe('content', () => {
     expect(FLOOR_PLANS[11].biome).toBe('mire');
     expect(FLOOR_PLANS[13].biome).toBe('hive');
     expect(FLOOR_PLANS[14].biome).toBe('catacomb');
+    expect(FLOOR_PLANS[16].boss).toBe('dread_champion');
+    expect(FLOOR_PLANS[17].boss).toBe('ruin_warlord');
     expect(FLOOR_PLANS.filter((plan) => plan.bossOnly)).toHaveLength(3);
     expect(FLOOR_PLANS.filter((plan) => plan.bossOnly).map((plan) => plan.boss)).toEqual([
       'choir_hierophant',
       'hollow_behemoth',
       'mirror_self',
     ]);
+  });
+
+  it('defines melee attacking bosses and teleporting phase stalkers', () => {
+    expect(enemyDef('dread_champion', true).archetype).toBe('boss');
+    expect(enemyDef('ruin_warlord', true).archetype).toBe('boss');
+    expect(enemyDef('phase_stalker').archetype).toBe('teleporter');
+    expect(enemyDef('void_stalker').archetype).toBe('teleporter');
   });
 
   it('adds a mirror trial where the player fights their own copy', () => {

@@ -515,8 +515,7 @@ export class World implements Arena {
       }
       if (room.kind === 'shrine')
         this.addInteractable('shrine', c.x, c.y, 25 + 15 * this.run.depth);
-      if (room.kind === 'start' && this.rng.chance(0.7))
-        this.addInteractable('fountain', c.x + 72, c.y + 24, 0);
+      if (room.kind === 'start') this.addInteractable('fountain', c.x, c.y, 0);
       if (room.kind === 'library') {
         this.addInteractable('archive', c.x, c.y, 0);
         this.decor.push(
@@ -582,9 +581,10 @@ export class World implements Arena {
     for (const room of this.floor.rooms) {
       if (room.kind !== 'combat' && room.kind !== 'boss') continue;
       // The lever goes in first so props can keep their distance from it.
+      // Levers are mounted on walls away from doorways and gates.
       if (this.rng.chance(0.45)) {
-        const c = roomCentrePx(room);
-        this.addInteractable('lever', c.x - 52, c.y + 44, 0, { roomId: room.id });
+        const spot = this.findWallLeverSpot(room);
+        if (spot) this.addInteractable('lever', spot.x, spot.y, 0, { roomId: room.id });
       }
       const count = 1 + (this.run.depth >= 4 ? 1 : 0) + this.rng.int(0, 1);
       const kinds: HazardKind[] = ['spike', 'flame', 'poison', 'rockfall', 'barrel'];
@@ -597,6 +597,66 @@ export class World implements Arena {
         this.spawnHazard(room, this.rng.pick(breakables));
       }
     }
+  }
+
+  private findWallLeverSpot(room: Room): { x: number; y: number } | undefined {
+    const margin = 2;
+    const candidates: Array<{ x: number; y: number }> = [];
+    // North wall
+    for (let tx = room.x + margin; tx <= room.x + room.w - margin - 1; tx++) {
+      const ty = room.y;
+      if (this.grid.isSolid(tx, ty - 1) && !this.grid.isSolid(tx, ty)) {
+        const px = (tx + 0.5) * TILE_SIZE;
+        const py = ty * TILE_SIZE + 14;
+        if (this.isAwayFromDoorsAndGates(room, px, py)) candidates.push({ x: px, y: py });
+      }
+    }
+    // South wall
+    for (let tx = room.x + margin; tx <= room.x + room.w - margin - 1; tx++) {
+      const ty = room.y + room.h - 1;
+      if (this.grid.isSolid(tx, ty + 1) && !this.grid.isSolid(tx, ty)) {
+        const px = (tx + 0.5) * TILE_SIZE;
+        const py = (ty + 1) * TILE_SIZE - 14;
+        if (this.isAwayFromDoorsAndGates(room, px, py)) candidates.push({ x: px, y: py });
+      }
+    }
+    // West wall
+    for (let ty = room.y + margin; ty <= room.y + room.h - margin - 1; ty++) {
+      const tx = room.x;
+      if (this.grid.isSolid(tx - 1, ty) && !this.grid.isSolid(tx, ty)) {
+        const px = tx * TILE_SIZE + 14;
+        const py = (ty + 0.5) * TILE_SIZE;
+        if (this.isAwayFromDoorsAndGates(room, px, py)) candidates.push({ x: px, y: py });
+      }
+    }
+    // East wall
+    for (let ty = room.y + margin; ty <= room.y + room.h - margin - 1; ty++) {
+      const tx = room.x + room.w - 1;
+      if (this.grid.isSolid(tx + 1, ty) && !this.grid.isSolid(tx, ty)) {
+        const px = (tx + 1) * TILE_SIZE - 14;
+        const py = (ty + 0.5) * TILE_SIZE;
+        if (this.isAwayFromDoorsAndGates(room, px, py)) candidates.push({ x: px, y: py });
+      }
+    }
+    return candidates.length > 0 ? this.rng.pick(candidates) : undefined;
+  }
+
+  private isAwayFromDoorsAndGates(room: Room, px: number, py: number): boolean {
+    for (const d of room.doors) {
+      for (const t of d.tiles) {
+        if (Math.hypot(px - (t.x + 0.5) * TILE_SIZE, py - (t.y + 0.5) * TILE_SIZE) < 64)
+          return false;
+      }
+    }
+    if (room.gates) {
+      for (const g of room.gates) {
+        for (const t of g.tiles) {
+          if (Math.hypot(px - (t.x + 0.5) * TILE_SIZE, py - (t.y + 0.5) * TILE_SIZE) < 64)
+            return false;
+        }
+      }
+    }
+    return true;
   }
 
   private spawnHazard(room: Room, kind: HazardKind): void {
@@ -866,10 +926,19 @@ export class World implements Arena {
     const count = 3 + Math.floor(this.run.depth * 0.85) + this.rng.int(0, 2);
     for (let i = 0; i < count; i++) {
       let spot: { x: number; y: number } | undefined;
-      // In rooms with gates, enemies emerge through the iron portcullises into the chamber
-      if (room.gates && room.gates.length > 0 && this.rng.chance(0.65)) spot = this.gateSpawn(room);
+      const enemyDefId = this.rng.pick(this.plan.roster);
+      // Enemies can teleport into the chamber directly with a void rift
+      const isTeleportSpawn = this.rng.chance(0.38);
+      if (!isTeleportSpawn && room.gates && room.gates.length > 0 && this.rng.chance(0.65)) {
+        spot = this.gateSpawn(room);
+      }
       if (!spot) spot = this.spawnPoint(room);
-      if (spot) this.spawnEnemy(this.rng.pick(this.plan.roster), spot.x, spot.y, room.id);
+      if (spot) {
+        const enemy = this.spawnEnemy(enemyDefId, spot.x, spot.y, room.id);
+        if (isTeleportSpawn || enemy.def.archetype === 'teleporter') {
+          this.emit({ type: 'blink', x: spot.x, y: spot.y - 20, toX: spot.x, toY: spot.y });
+        }
+      }
     }
   }
 

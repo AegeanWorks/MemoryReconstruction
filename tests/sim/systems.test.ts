@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { NO_INPUT } from '../../src/sim/entities';
-import { generateFloor } from '../../src/sim/dungeon';
+import { generateFloor, roomCentrePx } from '../../src/sim/dungeon';
 import { createRun } from '../../src/sim/run';
 import { World } from '../../src/sim/world';
 import {
@@ -747,5 +747,64 @@ describe('the mirror of self', () => {
       for (const event of w.step(NO_INPUT, DT))
         if (event.type === 'enemySlash') seen.add(event.weapon);
     expect([...seen]).toEqual(['sword']);
+  });
+
+  it('melee bosses swing heavy greatswords with shockwaves', () => {
+    for (const bossId of ['dread_champion', 'ruin_warlord']) {
+      const w = world(16);
+      const p = w.player;
+      p.invulnerable = 9999;
+      const boss = w.spawnEnemy(bossId, p.x + 40, p.y, -1, true);
+      boss.state = 'windup';
+      boss.attack = 'combo';
+      boss.stateTime = 0;
+      boss.dirX = -1;
+      boss.dirY = 0;
+      const seen = new Set<string>();
+      for (let i = 0; i < 45; i++)
+        for (const event of w.step(NO_INPUT, DT))
+          if (event.type === 'enemySlash') seen.add(event.weapon);
+      expect([...seen]).toEqual(['greatsword']);
+    }
+  });
+
+  it('phase stalkers use teleporter archetype to blink and strike', () => {
+    const w = world(15);
+    const p = w.player;
+    p.invulnerable = 9999;
+    const stalker = w.spawnEnemy('phase_stalker', p.x + 120, p.y, -1);
+    expect(stalker.def.archetype).toBe('teleporter');
+    stalker.state = 'chase';
+    stalker.cooldown = 0;
+    let blinked = false;
+    for (let i = 0; i < 60; i++) {
+      for (const event of w.step(NO_INPUT, DT)) {
+        if (event.type === 'blink') blinked = true;
+      }
+      if (blinked) break;
+    }
+    expect(blinked).toBe(true);
+  });
+
+  it('centers the start room fountain and mounts levers on walls', () => {
+    const w = world(0);
+    const start = w.floor.rooms[w.floor.startRoom];
+    const fountain = w.interactables.find((it) => it.kind === 'fountain');
+    expect(fountain).toBeDefined();
+    const centre = roomCentrePx(start);
+    expect(fountain!.x).toBe(centre.x);
+    expect(fountain!.y).toBe(centre.y);
+
+    const lever = w.interactables.find((it) => it.kind === 'lever');
+    if (lever) {
+      const tx = Math.floor(lever.x / 32);
+      const ty = Math.floor(lever.y / 32);
+      const touchingWall =
+        w.grid.isSolid(tx - 1, ty) ||
+        w.grid.isSolid(tx + 1, ty) ||
+        w.grid.isSolid(tx, ty - 1) ||
+        w.grid.isSolid(tx, ty + 1);
+      expect(touchingWall).toBe(true);
+    }
   });
 });

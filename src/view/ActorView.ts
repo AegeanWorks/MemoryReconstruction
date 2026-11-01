@@ -712,11 +712,16 @@ export class ActorView {
       color: 0xffc080,
       alpha: 0.35 + 0.12 * Math.sin(t * 4 + h.id),
     });
-    g.arc(x - 4, y - 3, 8, Math.PI * 1.05, Math.PI * 1.45).stroke({
-      width: 1.5,
-      color: 0xd8a060,
-      alpha: 0.4,
-    });
+    const a0 = Math.PI * 1.05;
+    const a1 = Math.PI * 1.45;
+    const r = 8;
+    g.moveTo(x - 4 + Math.cos(a0) * r, y - 3 + Math.sin(a0) * r)
+      .arc(x - 4, y - 3, r, a0, a1)
+      .stroke({
+        width: 1.5,
+        color: 0xd8a060,
+        alpha: 0.4,
+      });
     this.drawBreakDamage(g, h, 0xffa040, x, y);
   }
 
@@ -816,11 +821,16 @@ export class ActorView {
   private drawBreakDamage(g: Graphics, h: Hazard, accent: number, x: number, y: number): void {
     if (h.hp >= h.maxHp) return;
     const wear = 1 - h.hp / h.maxHp;
-    g.arc(x, y, h.radius + 5, -Math.PI * 0.85, Math.PI * 0.15).stroke({
-      width: 1.5,
-      color: accent,
-      alpha: 0.3 + wear * 0.5,
-    });
+    const da0 = -Math.PI * 0.85;
+    const da1 = Math.PI * 0.15;
+    const dr = h.radius + 5;
+    g.moveTo(x + Math.cos(da0) * dr, y + Math.sin(da0) * dr)
+      .arc(x, y, dr, da0, da1)
+      .stroke({
+        width: 1.5,
+        color: accent,
+        alpha: 0.3 + wear * 0.5,
+      });
     const base = (h.id * 2.399) % (Math.PI * 2);
     for (let i = 0; i < 3; i++) {
       const a = base + i * 2.1;
@@ -1315,6 +1325,13 @@ export class ActorView {
             s.width = s.height = look.size;
             root.addChild(s);
           }
+          if (
+            it.kind === 'fountain' ||
+            it.kind === 'shrine' ||
+            (it.kind === 'structure' && it.structureId === 'wellspring')
+          ) {
+            root.addChild(new Graphics());
+          }
         }
         if (it.label) {
           const label = new Text({
@@ -1346,9 +1363,56 @@ export class ActorView {
             root.children[2].alpha = 0.3 + 0.15 * Math.sin(this.time * 2.2);
           }
         } else {
-          // Spent chests and wells go dark.
-          root.children[1].alpha = it.used ? 0 : 0.3 + 0.12 * Math.sin(this.time * 2.5);
-          root.children[2].alpha = it.used ? 0.55 : 1;
+          if (it.kind === 'lever') {
+            const s = root.children[2] as Sprite | undefined;
+            if (s) s.scale.x = it.used ? -Math.abs(s.scale.x) : Math.abs(s.scale.x);
+            if (root.children[1]) {
+              root.children[1].alpha = it.used ? 0.06 : 0.35 + 0.15 * Math.sin(this.time * 3);
+            }
+          } else {
+            // Spent chests and wells go dark.
+            root.children[1].alpha = it.used ? 0 : 0.3 + 0.12 * Math.sin(this.time * 2.5);
+            root.children[2].alpha = it.used ? 0.55 : 1;
+          }
+          if (
+            it.kind === 'fountain' ||
+            it.kind === 'shrine' ||
+            (it.kind === 'structure' && it.structureId === 'wellspring')
+          ) {
+            const water = root.children[3] as Graphics | undefined;
+            if (water && water instanceof Graphics) {
+              water.clear();
+              const wy = -18;
+              const rx = 18;
+              const ry = 8;
+              const waterColor = it.kind === 'shrine' ? 0x1d3e4d : 0x1b587a;
+              const waterRim = it.kind === 'shrine' ? 0x6fe7ff : 0x9df3ff;
+              const baseAlpha = it.used ? 0.4 : 0.85;
+              water.ellipse(0, wy, rx, ry).fill({ color: waterColor, alpha: baseAlpha });
+              if (!it.used) {
+                for (let i = 0; i < 3; i++) {
+                  const progress = (this.time * 0.9 + i * 0.33) % 1;
+                  const rippleRx = 3 + (rx - 4) * progress;
+                  const rippleRy = 1.5 + (ry - 2) * progress;
+                  const ripAlpha = (1 - progress) * 0.7;
+                  water.ellipse(0, wy, rippleRx, rippleRy).stroke({
+                    width: 1.2,
+                    color: waterRim,
+                    alpha: ripAlpha,
+                  });
+                }
+                for (let i = 0; i < 3; i++) {
+                  const a = this.time * 2 + i * 2.1;
+                  const gx = Math.cos(a) * (rx * 0.5);
+                  const gy = wy + Math.sin(a) * (ry * 0.5);
+                  water.circle(gx, gy, 1.2).fill({
+                    color: 0xffffff,
+                    alpha: 0.65 + 0.35 * Math.sin(this.time * 6 + i),
+                  });
+                }
+              }
+            }
+          }
         }
       }
     );

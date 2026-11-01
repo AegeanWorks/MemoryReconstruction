@@ -93,6 +93,8 @@ const BOSS_PATTERNS: Record<string, AttackKind[]> = {
   bone_tyrant: ['quake', 'hook', 'bomb', 'charge'],
   choir_hierophant: ['beam', 'spiral', 'swarm', 'hook'],
   hollow_behemoth: ['quake', 'charge', 'mines', 'mortar'],
+  dread_champion: ['combo', 'dashStrike', 'slam', 'sweep', 'charge', 'combo'],
+  ruin_warlord: ['sweep', 'charge', 'combo', 'slam', 'dashStrike', 'quake'],
   keeper: ['ring', 'beam', 'bomb', 'quake', 'blink', 'summon'],
   mirror_self: ['combo', 'dashStrike', 'bolt', 'ring', 'combo', 'dashStrike'],
 };
@@ -335,8 +337,35 @@ function chase(arena: Arena, enemy: Enemy, dt: number): void {
       }
       break;
     }
+    case 'teleporter': {
+      // Phased stalker: lurk at mid-range, then blink behind player and strike!
+      const preferred = 135;
+      if (arena.rng.chance(dt * 0.5)) enemy.strafe *= -1;
+      const radial = dist < preferred - 30 ? -1 : dist > preferred + 40 ? 1 : 0;
+      if (!sight) step(arena, enemy, toward.x, toward.y, def.speed, dt);
+      else
+        step(
+          arena,
+          enemy,
+          nx * radial - ny * enemy.strafe * 0.7,
+          ny * radial + nx * enemy.strafe * 0.7,
+          def.speed,
+          dt
+        );
+      if (enemy.cooldown <= 0 && sight) {
+        if (dist > 75) {
+          beginWindup(arena, enemy, 'blink');
+        } else {
+          beginWindup(arena, enemy, arena.rng.chance(0.65) ? 'combo' : 'strike');
+        }
+      }
+      break;
+    }
     case 'boss': {
-      if (dist > 140) step(arena, enemy, toward.x, toward.y, def.speed, dt);
+      const isMeleeBoss = def.id === 'dread_champion' || def.id === 'ruin_warlord';
+      const targetDist = isMeleeBoss ? 55 : 140;
+      if (dist > targetDist)
+        step(arena, enemy, toward.x, toward.y, def.speed * (isMeleeBoss ? 1.25 : 1), dt);
       if (enemy.cooldown <= 0) {
         const pattern = BOSS_PATTERNS[def.id] ?? BOSS_PATTERNS.keeper;
         const kind = pattern[enemy.patternIndex % pattern.length];
@@ -360,11 +389,13 @@ function chase(arena: Arena, enemy: Enemy, dt: number): void {
 }
 
 /**
- * The Waking Mirror swings whatever the player is holding; every other duellist
- * fights with a plain sword.
+ * The Waking Mirror swings whatever the player is holding; dread champion and
+ * ruin warlord swing heavy greatswords; other duellists fight with a sword.
  */
 function slashWeapon(arena: Arena, enemy: Enemy): 'sword' | 'spear' | 'greatsword' {
-  return enemy.def.id === 'mirror_self' ? arena.player.weapon : 'sword';
+  if (enemy.def.id === 'mirror_self') return arena.player.weapon;
+  if (enemy.def.id === 'dread_champion' || enemy.def.id === 'ruin_warlord') return 'greatsword';
+  return 'sword';
 }
 
 function summonCount(arena: Arena, boss: Enemy): number {

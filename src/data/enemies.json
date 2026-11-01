@@ -2613,6 +2613,198 @@
           "max": 16
         }
       ]
+    },
+    {
+      "id": "phase_stalker",
+      "name": "Phase Stalker",
+      "description": "An elusive shadow stalker that slips between spatial fractures, blinking into your blind spot to strike.",
+      "type": "phase_stalker",
+      "biome": "void",
+      "stats": {
+        "health": 70,
+        "maxHealth": 70,
+        "damage": 16,
+        "speed": 165,
+        "armor": 10,
+        "resistance": 15,
+        "knockbackResistance": 15,
+        "xpValue": 75,
+        "memoryValue": 12
+      },
+      "ai": {
+        "behavior": "phase_stalker",
+        "aggroRange": 320,
+        "attackRange": 55,
+        "attackCooldown": 1.8,
+        "patrolRadius": 160
+      },
+      "hitbox": {
+        "width": 24,
+        "height": 36,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_crystal_guardian",
+        "width": 44,
+        "height": 48,
+        "animations": ["idle", "walk", "attack", "stunned", "death"]
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.8,
+          "min": 2,
+          "max": 5
+        }
+      ]
+    },
+    {
+      "id": "void_stalker",
+      "name": "Void Stalker",
+      "description": "A wraith that blinks through spatial rifts, ambushing from behind with ethereal blade cuts.",
+      "type": "void_stalker",
+      "biome": "void",
+      "stats": {
+        "health": 85,
+        "maxHealth": 85,
+        "damage": 20,
+        "speed": 175,
+        "armor": 15,
+        "resistance": 20,
+        "knockbackResistance": 20,
+        "xpValue": 90,
+        "memoryValue": 16
+      },
+      "ai": {
+        "behavior": "phase_stalker",
+        "aggroRange": 340,
+        "attackRange": 55,
+        "attackCooldown": 1.6,
+        "patrolRadius": 180
+      },
+      "hitbox": {
+        "width": 26,
+        "height": 38,
+        "offsetX": 0,
+        "offsetY": -8
+      },
+      "sprite": {
+        "texture": "enemy_void_walker",
+        "width": 44,
+        "height": 48,
+        "animations": ["idle", "walk", "attack", "stunned", "death"]
+      },
+      "lootTable": [
+        {
+          "item": "fragment_shard",
+          "chance": 0.85,
+          "min": 3,
+          "max": 6
+        }
+      ]
+    },
+    {
+      "id": "dread_champion",
+      "name": "Dread Champion",
+      "description": "A towering colosseum champion wielding dual greatswords. Closes in aggressively with combos, lunging dash strikes, and ground slams.",
+      "type": "dread_champion",
+      "biome": "ruins",
+      "stats": {
+        "health": 380,
+        "maxHealth": 380,
+        "damage": 32,
+        "speed": 135,
+        "armor": 60,
+        "resistance": 30,
+        "knockbackResistance": 80,
+        "xpValue": 550,
+        "memoryValue": 75
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 420,
+        "attackRange": 65,
+        "attackCooldown": 1.2,
+        "patrolRadius": 200
+      },
+      "hitbox": {
+        "width": 48,
+        "height": 60,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_bone_knight",
+        "width": 64,
+        "height": 64,
+        "animations": ["idle", "walk", "attack", "stunned", "death"]
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item": "fragment_shard",
+          "chance": 1,
+          "min": 10,
+          "max": 20
+        }
+      ]
+    },
+    {
+      "id": "ruin_warlord",
+      "name": "Ruin Warlord",
+      "description": "An ancient warlord clad in obsidian spiked armor, commanding close-quarters melee combat with sweeping cleaves and earth ruptures.",
+      "type": "ruin_warlord",
+      "biome": "ash",
+      "stats": {
+        "health": 440,
+        "maxHealth": 440,
+        "damage": 36,
+        "speed": 130,
+        "armor": 70,
+        "resistance": 35,
+        "knockbackResistance": 85,
+        "xpValue": 650,
+        "memoryValue": 85
+      },
+      "ai": {
+        "behavior": "boss",
+        "aggroRange": 440,
+        "attackRange": 70,
+        "attackCooldown": 1.25,
+        "patrolRadius": 220
+      },
+      "hitbox": {
+        "width": 52,
+        "height": 64,
+        "offsetX": 0,
+        "offsetY": -10
+      },
+      "sprite": {
+        "texture": "enemy_guardian",
+        "width": 64,
+        "height": 64,
+        "animations": ["idle", "walk", "attack", "stunned", "death"]
+      },
+      "lootTable": [
+        {
+          "item": "memory_fragment",
+          "chance": 1,
+          "min": 1,
+          "max": 2
+        },
+        {
+          "item": "fragment_shard",
+          "chance": 1,
+          "min": 12,
+          "max": 24
+        }
+      ]
     }
   ],
   "eliteModifiers": [
