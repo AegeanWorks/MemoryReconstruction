@@ -1,4 +1,4 @@
-﻿# Decisions
+# Decisions
 
 Why this project is built the way it is, oldest first. One entry per decision that changes a
 contract, a dependency, a data format or the architecture; IDs are consecutive and never reused.
@@ -721,3 +721,16 @@ or the architecture; see the header above for where each entry goes. -->
   2. `spawnHazard` keeps props at least 44 px from every interactable, and `addInteractable` clears any prop that would sit within 44 px of a newly placed interactable, covering the boss portal created at room clear. Levers are now placed before the room's props so the spacing rule sees them.
   3. `enemySlash` carries the weapon that made it: the mirror boss reports `arena.player.weapon` so the view draws the spear lance, greatsword crescent or sword arc the copy is actually holding; ordinary duellists stay on sword. Hostile spear lances and greatsword shockwaves now use the rose palette instead of the player's cyan and orange.
 - **Consequences**: A swing reads honestly against props as well as enemies, loot props can no longer seal a chest or portal, and the mirror's silhouette, animation and slash language all follow the stance it steals. Three new tests cover the swing arc, prop/interactable spacing across seeds and stance-matched slash events. 203 tests, lint, typecheck, build, mechanics and 8/8 gates pass.
+
+### ADR-069: Weapon model sprites, stance UI integration, stance-aligned visuals, and gate drop safety
+
+- **Date**: 2026-11-01
+- **Status**: Accepted
+- **Context**: The user requested analyzing and improving models, sprites, animations, characters and UI, specifically highlighting weapon models, visual cohesion across stances, and fixing a critical issue where items dropped at new door/gate walls could not be collected. The health bar (`.hud-vitals`, `.bar.*`) remains strictly untouched per rule.
+- **Decision**:
+  1. Generate three high-detail weapon model badges in `scripts/generate_art_assets.py` (`weapon_sword.png`, `weapon_spear.png`, `weapon_greatsword.png`) at 64x64 on gold-etched dark medallions, depicting the Remembrance Arming Sword with swept quillons and memory core gem, the Astral Winged Spear with diamond leaf blade and cyan ribbon, and the Colossus Zweihänder with parrying flukes and molten amber runic fissures.
+  2. Register the weapon models in `sprite_atlas.json` under `ui` and verify them in `tests/assets.test.ts`.
+  3. In `src/ui/Screens.ts` and `src/ui/ui.css`, upgrade the Training Yard cards with the weapon model previews, combo cadence, and stance art labels (`Whirlwind Crescent`, `Piercing Spiral`, `Ground Fissure`). In the Relics / Inventory screen, add an "Active Weapon & Stance" card displaying the wielded weapon badge, hotkey, and blurb.
+  4. In `src/view/ActorView.ts` and `src/view/Effects.ts`, enhance stance visual feedback: tint the player's ambient light by the wielded stance (cyan for spear, amber for greatsword), add piercing star glints to spear thrust tips, add lunar apex glints to sword finishers, and enhance breakable props (corner rivets on crates, neck filigree on urns, inner refraction cores on crystals, staved hoop studs on barrels).
+  5. Harden loot drop positioning and collection: `World.safeDropPosition` now enforces a 16 px safety margin away from solid walls and gates, and when called on gate or wall tiles, searches for the floor tile with the most open walkable neighbors inside the room. `dropEquipment` now routes through `safeDropPosition`. Jackpot potion drops safely offset away from walls instead of blindly subtracting 20 from y. `updatePickups` nudges any trapped pickup out to safe floor and widens collection reach and magnetic vacuum capture to 32 px so pickups near walls or door gates can always be collected.
+- **Consequences**: Weapons are visually represented across both the UI and in-game stance lighting, breakables gain tactile material detail, and items dropped near gate portcullises or room boundaries are reliably reachable. 205 tests pass, lint, typecheck, build, mechanics, and all gates pass. The health bar (`.hud-vitals`, `.bar.*`) remains strictly unmodified.

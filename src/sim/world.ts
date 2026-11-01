@@ -1021,7 +1021,13 @@ export class World implements Arena {
     if (surge.kind) {
       run.stats.surges++;
       // Only a jackpot is worth a potion; a rich vein is just extra shards.
-      if (surge.kind === 'jackpot') this.dropPickup('potion', dropPos.x, dropPos.y - 20, 1);
+      if (surge.kind === 'jackpot') {
+        const potionPos = this.safeDropPosition(
+          dropPos.x,
+          dropPos.y + (this.grid.isSolidAtPixel(dropPos.x, dropPos.y - 20, 'player') ? 20 : -20)
+        );
+        this.dropPickup('potion', potionPos.x, potionPos.y, 1);
+      }
       this.emit({
         type: 'lootSurge',
         x: dropPos.x,
@@ -1088,40 +1094,66 @@ export class World implements Arena {
   safeDropPosition(x: number, y: number): { x: number; y: number } {
     const tx = Math.floor(x / TILE_SIZE);
     const ty = Math.floor(y / TILE_SIZE);
+    // If the point is on an open floor tile not solid to the player,
+    // ensure it is also pushed inwards away from any adjacent solid tiles (walls, gates).
     if (this.grid.inBounds(tx, ty) && !this.grid.isSolid(tx, ty, 'player')) {
-      return { x, y };
+      let px = x;
+      let py = y;
+      const margin = 16;
+      if (this.grid.isSolid(tx - 1, ty, 'player')) px = Math.max(px, tx * TILE_SIZE + margin);
+      if (this.grid.isSolid(tx + 1, ty, 'player')) px = Math.min(px, (tx + 1) * TILE_SIZE - margin);
+      if (this.grid.isSolid(tx, ty - 1, 'player')) py = Math.max(py, ty * TILE_SIZE + margin);
+      if (this.grid.isSolid(tx, ty + 1, 'player')) py = Math.min(py, (ty + 1) * TILE_SIZE - margin);
+      return { x: px, y: py };
     }
-    for (let r = 1; r <= 4; r++) {
+    // Otherwise (e.g. enemy died on a Gate tile or outside room), find the nearest
+    // accessible player-walkable tile that has open space around it.
+    let best: { x: number; y: number } | undefined;
+    let bestDist = Infinity;
+    let bestOpenNeighbors = -1;
+    for (let r = 1; r <= 5; r++) {
       for (let dy = -r; dy <= r; dy++) {
         for (let dx = -r; dx <= r; dx++) {
           const nx = tx + dx;
           const ny = ty + dy;
           if (this.grid.inBounds(nx, ny) && !this.grid.isSolid(nx, ny, 'player')) {
-            return {
-              x: (nx + 0.5) * TILE_SIZE,
-              y: (ny + 0.5) * TILE_SIZE,
-            };
+            const distSq = dx * dx + dy * dy;
+            let open = 0;
+            if (!this.grid.isSolid(nx - 1, ny, 'player')) open++;
+            if (!this.grid.isSolid(nx + 1, ny, 'player')) open++;
+            if (!this.grid.isSolid(nx, ny - 1, 'player')) open++;
+            if (!this.grid.isSolid(nx, ny + 1, 'player')) open++;
+            if (open > bestOpenNeighbors || (open === bestOpenNeighbors && distSq < bestDist)) {
+              bestOpenNeighbors = open;
+              bestDist = distSq;
+              best = {
+                x: (nx + 0.5) * TILE_SIZE,
+                y: (ny + 0.5) * TILE_SIZE,
+              };
+            }
           }
         }
       }
+      if (best && bestOpenNeighbors >= 2) break;
     }
-    return { x, y };
+    return best ?? { x, y };
   }
 
   private dropEquipment(x: number, y: number): void {
+    const at = this.safeDropPosition(x, y);
     const p = this.player;
     const def = rollEquipment(this.rng, this.run.depth);
     const item: EquipmentItem = { uid: p.nextEquipmentId++, defId: def.id };
     this.pickups.push({
       id: this.nextId++,
       kind: 'equipment',
-      x,
-      y,
+      x: at.x,
+      y: at.y,
       amount: 1,
       equipment: item,
       age: 0,
-      vx: this.rng.range(-40, 40),
-      vy: this.rng.range(-40, 40),
+      vx: this.rng.range(-30, 30),
+      vy: this.rng.range(-30, 30),
     });
   }
 
@@ -1552,6 +1584,12 @@ export class World implements Arena {
     for (let i = this.pickups.length - 1; i >= 0; i--) {
       const item = this.pickups[i];
       item.age += dt;
+      // Nudge out any pickup trapped inside a solid tile
+      if (this.grid.isSolidAtPixel(item.x, item.y, 'player')) {
+        const safe = this.safeDropPosition(item.x, item.y);
+        item.x = safe.x;
+        item.y = safe.y;
+      }
       const dist = Math.hypot(p.x - item.x, p.y - item.y);
       const homing =
         item.age > 0.35 &&
@@ -1570,8 +1608,11 @@ export class World implements Arena {
       moveAndCollide(this.grid, body, item.vx * dt, item.vy * dt);
       item.x = body.x;
       item.y = body.y;
-      if (item.age > 0.2 && dist < p.radius + 10 && p.action !== 'dead' && this.collect(item))
-        this.pickups.splice(i, 1);
+      const canCollect =
+        item.age > 0.2 &&
+        p.action !== 'dead' &&
+        (dist < p.radius + 18 || (homing && dist < p.stats.pickupRadius * 0.75 && item.age > 0.45));
+      if (canCollect && this.collect(item)) this.pickups.splice(i, 1);
     }
   }
 

@@ -256,11 +256,13 @@ export class ActorView {
     a.root.position.set(pos.x, pos.y);
     a.root.zIndex = pos.y;
 
-    // Lantern light flares during dash or flow surge
+    // Lantern light flares during dash or flow surge, subtly tinted by the wielded stance
     const surge = p.action === 'dash' ? 1.25 : 1 + Math.min(0.25, (p.resonance / 10) * 0.25);
     this.playerLight.position.set(pos.x, pos.y);
     this.playerLight.width = this.playerLight.height = 260 * surge;
     this.playerLight.alpha = 0.16 * surge;
+    this.playerLight.tint =
+      p.weapon === 'spear' ? 0xa8f6ff : p.weapon === 'greatsword' ? 0xffdfb0 : 0xffffff;
 
     const attackAnim =
       p.weapon === 'spear'
@@ -683,6 +685,10 @@ export class ActorView {
     }
     g.ellipse(x, y - 5, 14, 4).stroke({ width: 2.5, color: 0x6a5a48, alpha: 0.95 });
     g.ellipse(x, y + 5, 14, 4).stroke({ width: 2.5, color: 0x52443a, alpha: 0.95 });
+    for (const bx of [-8, 0, 8]) {
+      g.circle(x + bx, y - 5, 0.9).fill({ color: 0x221a14 });
+      g.circle(x + bx, y + 5, 0.9).fill({ color: 0x221a14 });
+    }
     g.ellipse(x, y - 7, 9, 4).fill({ color: 0x33200f });
     g.ellipse(x, y - 7, 9, 4).stroke({
       width: 1,
@@ -720,6 +726,7 @@ export class ActorView {
     ]) {
       g.rect(x + ox, y + oy, 6, 6).fill({ color: 0x7a7a86 });
       g.rect(x + ox, y + oy, 6, 6).stroke({ width: 1, color: 0x3a3a44 });
+      g.circle(x + ox + 3, y + oy + 3, 1).fill({ color: 0xc8c8d2 });
     }
     g.poly([x, y - 3, x + 4, y + 1, x, y + 5, x - 4, y + 1]).stroke({
       width: 1,
@@ -739,6 +746,7 @@ export class ActorView {
     g.ellipse(x, y - 13, 7, 3).fill({ color: 0x7a4028 });
     g.ellipse(x, y - 13, 7, 3).stroke({ width: 1, color: 0xd89a70, alpha: 0.7 });
     g.ellipse(x, y - 2, 11, 3.5).stroke({ width: 2, color: 0xffd98a, alpha: 0.75 });
+    g.ellipse(x, y - 6, 8, 2.5).stroke({ width: 1, color: 0xffe6a8, alpha: 0.6 });
     g.circle(x - 10, y - 4, 3).stroke({ width: 1.5, color: 0x8a4a32 });
     g.circle(x + 10, y - 4, 3).stroke({ width: 1.5, color: 0x8a4a32 });
     g.circle(x - 4, y, 3).fill({ color: 0xe8b090, alpha: 0.28 });
@@ -757,6 +765,10 @@ export class ActorView {
       color: 0x7a5ec8,
     });
     g.poly([x, y - 24, x + 7, y - 8, x + 1, y - 1]).fill({ color: 0xd8c8ff, alpha: 0.9 });
+    g.poly([x, y - 16, x + 3, y - 6, x, y + 2, x - 3, y - 6]).fill({
+      color: 0xffffff,
+      alpha: 0.45 + pulse * 0.35,
+    });
     g.poly([x, y - 24, x + 7, y - 8, x + 4, y + 10, x - 5, y + 8, x - 7, y - 6]).stroke({
       width: 1,
       color: 0xe8dcff,

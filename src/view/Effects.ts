@@ -144,6 +144,7 @@ export class Effects {
             e.weapon === 'spear' ? 0x6fe7ff : e.weapon === 'greatsword' ? 0xffa040 : 0xffd98a;
           this.ring(playerX, playerY, 52, color, 0.35);
           this.star(playerX, playerY, color, 40, 0.3);
+          this.burst(playerX, playerY, color, 8, 80, 0.28, 4);
           break;
         }
         case 'dash':
@@ -617,6 +618,14 @@ export class Effects {
           .lineTo(ex, ey)
           .lineTo(ex - Math.cos(s.angle - 1.35) * 16, ey - Math.sin(s.angle - 1.35) * 16)
           .stroke({ width: 2.5 * alpha, color: wave, alpha: alpha * 0.8 });
+        // Piercing star glint at the spear thrust tip
+        const starR = (5 + 5 * (1 - t)) * alpha;
+        g.moveTo(ex - starR, ey)
+          .lineTo(ex + starR, ey)
+          .stroke({ width: 1.5 * alpha, color: 0xffffff, alpha });
+        g.moveTo(ex, ey - starR)
+          .lineTo(ex, ey + starR)
+          .stroke({ width: 1.5 * alpha, color: 0xffffff, alpha });
         continue;
       }
       const finisher = s.combo === (s.weapon === 'greatsword' ? 1 : 2);
@@ -681,6 +690,17 @@ export class Effects {
           width: 3 * alpha,
           color: s.hostile ? 0xff8ab8 : 0xffa040,
           alpha: alpha * 0.65,
+        });
+      }
+
+      // Sword finisher lunar crescent glint at swing apex
+      if (s.weapon === 'sword' && finisher) {
+        const apexX = s.x + Math.cos(s.angle) * (reach + 2);
+        const apexY = s.y + Math.sin(s.angle) * (reach + 2);
+        g.circle(apexX, apexY, 3.5 * alpha).fill({ color: 0xffffff, alpha: alpha * 0.85 });
+        g.circle(apexX, apexY, 7 * alpha).fill({
+          color: s.hostile ? 0xffc0dc : 0x6fe7ff,
+          alpha: alpha * 0.35,
         });
       }
     }

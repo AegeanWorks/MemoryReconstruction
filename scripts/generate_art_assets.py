@@ -3060,6 +3060,9 @@ def ui_image(kind: str) -> Image.Image:
         "stamina": ((226, 190, 92), (255, 244, 194)),
         "memory_fragment": ((150, 120, 255), (228, 214, 255)),
         "fragment_shard": ((112, 231, 255), (216, 252, 255)),
+        "weapon_sword": ((52, 82, 140), (111, 231, 255)),
+        "weapon_spear": ((42, 148, 178), (170, 250, 255)),
+        "weapon_greatsword": ((160, 90, 40), (255, 217, 138)),
     }[kind]
     dark, light = accent
     ellipse(draw, cell, 0.08, 0.08, 0.92, 0.92, fill=(16, 16, 30, 235), outline=(255, 217, 138, 255), width=3)
@@ -3074,6 +3077,88 @@ def ui_image(kind: str) -> Image.Image:
     elif kind == "stamina":
         poly(draw, cell, [(0.62, 0.18), (0.36, 0.52), (0.50, 0.52), (0.38, 0.84), (0.68, 0.45), (0.54, 0.45)],
              fill=dark, outline=Outline, width=2)
+    elif kind == "weapon_sword":
+        # Remembrance Arming Sword: elegant diagonal blade, curved golden quillons & memory core gem
+        h_x, h_y = 0.32, 0.68
+        t_x, t_y = 0.72, 0.28
+        dx, dy = t_x - h_x, t_y - h_y
+        dist = math.hypot(dx, dy)
+        ux, uy = dx / dist, dy / dist
+        nx, ny = -uy, ux
+        poly(draw, cell, [
+            (h_x + nx * 0.05, h_y + ny * 0.05),
+            (t_x - ux * 0.06 + nx * 0.03, t_y - uy * 0.06 + ny * 0.03),
+            (t_x, t_y),
+            (t_x - ux * 0.06 - nx * 0.03, t_y - uy * 0.06 - ny * 0.03),
+            (h_x - nx * 0.05, h_y - ny * 0.05),
+        ], fill=(205, 238, 255), outline=Outline, width=2)
+        line(draw, cell, [(h_x, h_y), (t_x - ux * 0.04, t_y - uy * 0.04)], (255, 255, 255), 2)
+        line(draw, cell, [
+            (h_x + nx * 0.16 + ux * 0.03, h_y + ny * 0.16 + uy * 0.03),
+            (h_x, h_y),
+            (h_x - nx * 0.16 + ux * 0.03, h_y - ny * 0.16 + uy * 0.03)
+        ], (255, 217, 138), 3)
+        p_x, p_y = h_x - ux * 0.12, h_y - uy * 0.12
+        line(draw, cell, [(h_x, h_y), (p_x, p_y)], (42, 38, 54), 3)
+        ellipse(draw, cell, p_x - 0.04, p_y - 0.04, p_x + 0.04, p_y + 0.04, fill=(255, 217, 138), outline=Outline, width=1)
+        ellipse(draw, cell, h_x - 0.025, h_y - 0.025, h_x + 0.025, h_y + 0.025, fill=(111, 231, 255))
+    elif kind == "weapon_spear":
+        # Astral Winged Spear: long haft, winged lugs, leaf spearhead and fluttering silk tassel
+        h_x, h_y = 0.26, 0.74
+        t_x, t_y = 0.76, 0.24
+        dx, dy = t_x - h_x, t_y - h_y
+        dist = math.hypot(dx, dy)
+        ux, uy = dx / dist, dy / dist
+        nx, ny = -uy, ux
+        b_x, b_y = t_x - ux * 0.26, t_y - uy * 0.26
+        line(draw, cell, [(h_x, h_y), (b_x, b_y)], (40, 32, 28), 4)
+        line(draw, cell, [(h_x, h_y), (b_x, b_y)], (140, 110, 80), 2)
+        ellipse(draw, cell, h_x - 0.03, h_y - 0.03, h_x + 0.03, h_y + 0.03, fill=(255, 217, 138), outline=Outline, width=1)
+        poly(draw, cell, [
+            (b_x + nx * 0.06, b_y + ny * 0.06),
+            (b_x + nx * 0.11 + ux * 0.08, b_y + ny * 0.11 + uy * 0.08),
+            (t_x, t_y),
+            (b_x - nx * 0.11 + ux * 0.08, b_y - ny * 0.11 + uy * 0.08),
+            (b_x - nx * 0.06, b_y - ny * 0.06),
+        ], fill=(205, 238, 255), outline=Outline, width=2)
+        line(draw, cell, [(b_x, b_y), (t_x, t_y)], (255, 255, 255), 2)
+        line(draw, cell, [
+            (b_x + nx * 0.10, b_y + ny * 0.10),
+            (b_x - nx * 0.10, b_y - ny * 0.10)
+        ], (255, 217, 138), 3)
+        tas_1 = (b_x - nx * 0.07 - ux * 0.06, b_y - ny * 0.07 - uy * 0.06)
+        tas_2 = (b_x - nx * 0.14 - ux * 0.04, b_y - ny * 0.14 - uy * 0.04)
+        line(draw, cell, [(b_x, b_y), tas_1, tas_2], (111, 231, 255), 2)
+    elif kind == "weapon_greatsword":
+        # Colossus Zweihänder: broad fluked blade, molten amber runic fissures, brass crossguard
+        h_x, h_y = 0.30, 0.70
+        t_x, t_y = 0.74, 0.26
+        dx, dy = t_x - h_x, t_y - h_y
+        dist = math.hypot(dx, dy)
+        ux, uy = dx / dist, dy / dist
+        nx, ny = -uy, ux
+        poly(draw, cell, [
+            (h_x + nx * 0.09, h_y + ny * 0.09),
+            (t_x - ux * 0.07 + nx * 0.06, t_y - uy * 0.07 + ny * 0.06),
+            (t_x, t_y),
+            (t_x - ux * 0.07 - nx * 0.06, t_y - uy * 0.07 - ny * 0.06),
+            (h_x - nx * 0.09, h_y - ny * 0.09),
+        ], fill=(195, 225, 245), outline=Outline, width=2)
+        fluke_m = (h_x + ux * 0.16, h_y + uy * 0.16)
+        line(draw, cell, [
+            (fluke_m[0] + nx * 0.15 + ux * 0.03, fluke_m[1] + ny * 0.15 + uy * 0.03),
+            fluke_m,
+            (fluke_m[0] - nx * 0.15 + ux * 0.03, fluke_m[1] - ny * 0.15 + uy * 0.03)
+        ], (255, 217, 138), 3)
+        line(draw, cell, [(h_x, h_y), (t_x - ux * 0.05, t_y - uy * 0.05)], (255, 170, 60), 3)
+        line(draw, cell, [(h_x, h_y), (t_x - ux * 0.05, t_y - uy * 0.05)], (255, 235, 160), 1)
+        line(draw, cell, [
+            (h_x + nx * 0.20, h_y + ny * 0.20),
+            (h_x - nx * 0.20, h_y - ny * 0.20)
+        ], (255, 217, 138), 4)
+        p_x, p_y = h_x - ux * 0.14, h_y - uy * 0.14
+        line(draw, cell, [(h_x, h_y), (p_x, p_y)], (32, 30, 44), 4)
+        ellipse(draw, cell, p_x - 0.05, p_y - 0.05, p_x + 0.05, p_y + 0.05, fill=(255, 217, 138), outline=Outline, width=1)
     else:
         poly(draw, cell, [(0.50, 0.16), (0.74, 0.46), (0.50, 0.84), (0.26, 0.46)], fill=dark, outline=Outline, width=2)
         poly(draw, cell, [(0.50, 0.26), (0.63, 0.46), (0.50, 0.70), (0.37, 0.46)], fill=light)
@@ -3286,7 +3371,10 @@ def build() -> None:
         print(f"props/{prop}.png")
 
     # UI icons.
-    ui = ["health", "mana", "stamina", "memory_fragment", "fragment_shard"]
+    ui = [
+        "health", "mana", "stamina", "memory_fragment", "fragment_shard",
+        "weapon_sword", "weapon_spear", "weapon_greatsword",
+    ]
     ui_meta = {}
     for icon in ui:
         path = SPRITES / "ui" / f"{icon}.png"

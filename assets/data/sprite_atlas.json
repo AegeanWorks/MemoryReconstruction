@@ -1858,7 +1858,10 @@
     "mana": "sprites/ui/mana.png",
     "stamina": "sprites/ui/stamina.png",
     "memory_fragment": "sprites/ui/memory_fragment.png",
-    "fragment_shard": "sprites/ui/fragment_shard.png"
+    "fragment_shard": "sprites/ui/fragment_shard.png",
+    "weapon_sword": "sprites/ui/weapon_sword.png",
+    "weapon_spear": "sprites/ui/weapon_spear.png",
+    "weapon_greatsword": "sprites/ui/weapon_greatsword.png"
   },
   "particles": {
     "spark": "sprites/particles/spark.png",

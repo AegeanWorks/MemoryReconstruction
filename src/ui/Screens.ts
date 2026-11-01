@@ -35,7 +35,7 @@ import {
 import { resonanceMultiplier, type RunState, type UpgradeChoice } from '../sim/run';
 import { SANCTUARY_BUILDINGS, SANCTUARY_STATIONS } from '../sim/sanctuary';
 import { upgradeDef } from '../sim/upgrades';
-import { WEAPONS } from '../sim/weapons';
+import { WEAPONS, weaponDef } from '../sim/weapons';
 import type { World } from '../sim/world';
 import type { Meta, Settings } from '../save/SaveStore';
 import { assetUrl, button, h } from './dom';
@@ -1121,6 +1121,41 @@ export function inventoryScreen(
         statChip('Crit', `${Math.round(s.critChance * 100)}%`),
         statChip('Lifesteal', `${Math.round(s.lifesteal * 100)}%`)
       ),
+      h('div', { class: 'gear-title' }, 'Active Weapon & Stance'),
+      h(
+        'div',
+        { class: 'gear-row weapon-stance-row' },
+        h('img', {
+          class: 'gear-weapon-icon',
+          src: assetUrl(`sprites/ui/weapon_${p.weapon}.png`),
+          alt: weaponDef(p.weapon).name,
+        }),
+        h(
+          'div',
+          { class: 'gear-copy' },
+          h(
+            'div',
+            { class: 'gear-name' },
+            `${weaponDef(p.weapon).name} `,
+            h(
+              'span',
+              { class: 'gear-slot' },
+              `[${p.weapon === 'sword' ? '1' : p.weapon === 'spear' ? '2' : '3'}]`
+            )
+          ),
+          h('div', { class: 'gear-desc' }, weaponDef(p.weapon).blurb)
+        ),
+        h(
+          'div',
+          { class: 'gear-weapon-stats' },
+          h(
+            'span',
+            { class: 'gear-stat' },
+            h('b', {}, `${weaponDef(p.weapon).steps.length}-hit`),
+            ' combo'
+          )
+        )
+      ),
       h('div', { class: 'gear-title' }, 'Worn'),
       ...slotRows,
       h('div', { class: 'gear-title' }, `Carried · ${p.inventory.length}/${INVENTORY_SLOTS}`),
@@ -1160,17 +1195,38 @@ export function trainingScreen(
       'btn small'
     );
     pick.disabled = active;
+    const artName =
+      weapon.id === 'spear'
+        ? 'Piercing Spiral'
+        : weapon.id === 'greatsword'
+          ? 'Ground Fissure'
+          : 'Whirlwind Crescent';
     return h(
       'div',
-      { class: `restoration${active ? ' lit' : ''}` },
+      { class: `restoration weapon-card${active ? ' lit' : ''}` },
       h(
         'div',
-        { class: 'rest-head' },
-        h('span', { class: 'rest-name' }, weapon.name),
-        h('span', { class: 'rest-level' }, active ? 'current' : 'stance')
+        { class: 'weapon-card-header' },
+        h('img', {
+          class: 'weapon-preview-icon',
+          src: assetUrl(`sprites/ui/weapon_${weapon.id}.png`),
+          alt: weapon.name,
+        }),
+        h(
+          'div',
+          { class: 'weapon-card-title' },
+          h('div', { class: 'rest-name' }, weapon.name),
+          h('span', { class: 'rest-level' }, active ? 'current' : 'stance')
+        )
       ),
       h('p', { class: 'rest-desc' }, weapon.blurb),
-      h('p', { class: 'rest-lore' }, `${weapon.steps.length}-hit combo · ${weapon.style} swing`),
+      h(
+        'div',
+        { class: 'weapon-card-pills' },
+        h('span', { class: 'weapon-pill' }, h('b', {}, `${weapon.steps.length}-hit`), ' combo'),
+        h('span', { class: 'weapon-pill' }, h('b', {}, `${weapon.style}`), ' swing'),
+        h('span', { class: 'weapon-pill' }, h('b', {}, `Art:`), ` ${artName}`)
+      ),
       pick
     );
   });

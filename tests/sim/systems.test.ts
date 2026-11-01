@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { NO_INPUT } from '../../src/sim/entities';
 import { generateFloor } from '../../src/sim/dungeon';
 import { createRun } from '../../src/sim/run';
@@ -287,6 +287,53 @@ describe('hazards and the sanctuary', () => {
     expect(wall).toBeDefined();
     const at = w.safeDropPosition((wall!.x + 0.5) * TILE_SIZE, (wall!.y + 0.5) * TILE_SIZE);
     expect(grid.isSolidAtPixel(at.x, at.y)).toBe(false);
+  });
+
+  it('pushes safe drop positions away from gate and wall boundaries', () => {
+    let gateWorld: World | undefined;
+    let gateTile: { x: number; y: number } | undefined;
+    for (let seed = 1; seed < 40 && !gateTile; seed++) {
+      const candidate = world(0, seed);
+      for (let ty = 0; ty < candidate.grid.height && !gateTile; ty++) {
+        for (let tx = 0; tx < candidate.grid.width && !gateTile; tx++) {
+          if (candidate.grid.get(tx, ty) === Tile.Gate) {
+            gateTile = { x: tx, y: ty };
+            gateWorld = candidate;
+          }
+        }
+      }
+    }
+    expect(gateWorld).toBeDefined();
+    expect(gateTile).toBeDefined();
+    const w = gateWorld!;
+    const at = w.safeDropPosition((gateTile!.x + 0.5) * TILE_SIZE, (gateTile!.y + 0.5) * TILE_SIZE);
+    expect(w.grid.isSolidAtPixel(at.x, at.y, 'player')).toBe(false);
+    expect(w.grid.get(Math.floor(at.x / TILE_SIZE), Math.floor(at.y / TILE_SIZE))).toBe(Tile.Floor);
+  });
+
+  it('recovers pickups dropped or nudged into walls', () => {
+    const w = world(0);
+    let wall: { x: number; y: number } | undefined;
+    for (let ty = 0; ty < w.grid.height && !wall; ty++) {
+      for (let tx = 0; tx < w.grid.width && !wall; tx++) {
+        if (w.grid.get(tx, ty) === Tile.Wall) wall = { x: tx, y: ty };
+      }
+    }
+    expect(wall).toBeDefined();
+    w.pickups.push({
+      id: 9999,
+      kind: 'shard',
+      x: (wall!.x + 0.5) * TILE_SIZE,
+      y: (wall!.y + 0.5) * TILE_SIZE,
+      amount: 5,
+      age: 0,
+      vx: 0,
+      vy: 0,
+    });
+    w.step(NO_INPUT, DT);
+    const p = w.pickups.find((it) => it.id === 9999);
+    expect(p).toBeDefined();
+    expect(w.grid.isSolidAtPixel(p!.x, p!.y, 'player')).toBe(false);
   });
 
   it('turns a mimic chest into an ambush', () => {

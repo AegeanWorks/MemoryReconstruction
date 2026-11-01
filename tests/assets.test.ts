@@ -10,6 +10,11 @@ describe('assets', () => {
       (p) => !existsSync(path.resolve(__dirname, '../assets', p))
     );
     expect(missing).toEqual([]);
+    for (const weapon of ['weapon_sword', 'weapon_spear', 'weapon_greatsword']) {
+      expect(
+        existsSync(path.resolve(__dirname, `../assets/sprites/ui/${weapon}.png`))
+      ).toBe(true);
+    }
   });
 
   it('shades colours to hex that can be shaded again', () => {
