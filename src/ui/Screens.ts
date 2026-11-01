@@ -1401,6 +1401,25 @@ const SOURCE_TITLES: Record<UpgradeChoice['source'], string> = {
   shrine: 'The Well Answers',
 };
 
+function upgradeEmblem(id: string): string {
+  if (
+    id.includes('health') ||
+    id === 'vitality' ||
+    id === 'armor' ||
+    id === 'lifesteal' ||
+    id === 'potion_capacity'
+  )
+    return 'sprites/ui/health.png';
+  if (id.includes('mana') || id.includes('bolt') || id === 'channel' || id === 'flow')
+    return 'sprites/ui/mana.png';
+  if (id.includes('dash') || id === 'swift') return 'sprites/ui/stamina.png';
+  if (id === 'shockwave' || id === 'surge') return 'sprites/ui/weapon_greatsword.png';
+  if (id === 'bolt_pierce' || id === 'dash_strike') return 'sprites/ui/weapon_spear.png';
+  if (id === 'magnet') return 'sprites/ui/fragment_shard.png';
+  if (id === 'edge' || id === 'haste' || id === 'precision') return 'sprites/ui/weapon_sword.png';
+  return 'sprites/ui/memory_fragment.png';
+}
+
 export function choiceScreen(
   choice: UpgradeChoice,
   taken: Record<string, number>,
@@ -1410,11 +1429,17 @@ export function choiceScreen(
   const cards = choice.options.map((id, i) => {
     const def = upgradeDef(id);
     const count = taken[id] ?? 0;
+    const emblem = upgradeEmblem(id);
     return h(
       'button',
       { class: `card ${def.rarity}`, type: 'button' },
       h('div', { class: 'num' }, `${i + 1}`),
       h('div', { class: 'rarity' }, def.rarity),
+      h(
+        'div',
+        { class: 'card-emblem' },
+        h('img', { src: assetUrl(emblem), alt: def.name, class: 'card-emblem-icon' })
+      ),
       h('div', { class: 'name' }, def.name),
       h('div', { class: 'desc' }, def.description),
       h(

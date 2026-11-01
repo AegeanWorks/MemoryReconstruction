@@ -303,7 +303,9 @@ export class ActorView {
         ghost.anchor.copyFrom(a.body.anchor);
         ghost.position.set(pos.x, pos.y);
         ghost.scale.copyFrom(a.body.scale);
-        ghost.tint = 0x6fe7ff;
+        const stanceGhost =
+          p.weapon === 'spear' ? 0xa8f6ff : p.weapon === 'greatsword' ? 0xffb04a : 0x6fe7ff;
+        ghost.tint = stanceGhost;
         ghost.blendMode = 'add';
         ghost.alpha = 0.55;
         ghost.zIndex = pos.y - 1;
@@ -408,16 +410,21 @@ export class ActorView {
     // Windup: crouch and tremble; spawning: grow in; attack: lunging stretch.
     const windup = e.state === 'windup';
     const attacking = e.state === 'attack';
+    const staggered = e.state === 'stagger';
     // A forward pop over the first 0.28 s of the active phase. Clamped, so a
     // long attack (sweep, beam) never reverse-stretches halfway through.
     const lunge = attacking
       ? Math.sin(Math.max(0, Math.min(1, 1 - e.stateTime / 0.28)) * Math.PI) * 0.14
       : 0;
-    const tremble = windup ? Math.sin(this.time * 60) * 1.2 : 0;
+    const tremble = windup
+      ? Math.sin(this.time * 60) * 1.2
+      : staggered
+        ? Math.sin(this.time * 40) * 1.5
+        : 0;
     const grow = e.state === 'spawning' ? Math.max(0.1, 1 - e.stateTime / 0.7) : 1;
     a.body.scale.set(
-      a.baseScale * facing * grow * (windup ? 1.08 : 1 + lunge * 0.5),
-      a.baseScale * grow * (1 + bob) * (windup ? 0.92 : 1 - lunge * 0.2)
+      a.baseScale * facing * grow * (windup ? 1.08 : staggered ? 0.94 : 1 + lunge * 0.5),
+      a.baseScale * grow * (1 + bob) * (windup ? 0.92 : staggered ? 1.06 : 1 - lunge * 0.2)
     );
     // Kinetic knockback recoil tilt away from the impact vector
     const knockSpeed = Math.abs(e.knockX) + Math.abs(e.knockY);
@@ -433,11 +440,21 @@ export class ActorView {
     a.flash.y = a.body.y;
     a.flash.textures = a.body.textures;
     a.flash.currentFrame = a.body.currentFrame;
-    a.flash.tint = windup ? 0xff6a3a : 0xffffff;
-    a.flash.alpha = e.flash > 0 ? 0.9 : windup ? 0.25 + 0.25 * Math.sin(this.time * 30) : 0;
+    a.flash.tint = windup ? 0xff6a3a : staggered ? 0xffdf80 : 0xffffff;
+    a.flash.alpha =
+      e.flash > 0 ? 0.9 : windup ? 0.25 + 0.25 * Math.sin(this.time * 30) : staggered ? 0.35 : 0;
     a.body.alpha =
       e.state === 'spawning' ? grow : e.state === 'dying' ? Math.max(0, e.stateTime / 0.5) : 1;
     a.shadow.alpha = a.body.alpha;
+
+    if (staggered) {
+      for (let i = 0; i < 3; i++) {
+        const aOrbit = this.time * 5 + (i / 3) * Math.PI * 2;
+        const ox = pos.x + Math.cos(aOrbit) * (e.radius * 0.9);
+        const oy = pos.y - e.def.displayHeight * 0.9 + Math.sin(aOrbit) * (e.radius * 0.35);
+        this.telegraphs.circle(ox, oy, 1.8).fill({ color: 0xffe680, alpha: 0.9 });
+      }
+    }
 
     if (e.isBoss && e.state !== 'dying') this.drawBossAura(e, pos.x, pos.y);
     if (e.elite && e.state !== 'dying') {

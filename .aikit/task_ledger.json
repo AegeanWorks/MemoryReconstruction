@@ -1,54 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "weapon-models-visual-cohesion-v1",
+    "task_id": "visual-cohesion-choice-cards-combat-v1",
     "last_phase": "verification",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793526540.6533527,
+    "updated_at": 1793534385.389714,
     "owner": "unidentified",
     "started_by": "unidentified",
     "continuations": [],
-    "completed_at": 1793526544.4958718
+    "completed_at": 1793534389.1250656
   },
   "checkpoints": [
-    {
-      "task_id": "review-duellist-mirror-fixes-v1",
-      "phase": "implementation",
-      "phase_num": 3,
-      "description": "[2/3] Fixes: hazard props cull to the camera rect (0.66 -> 0.012 ms on a 49-prop floor), mirror reserved out of the arena guardian pool with a per-depth test",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793494408.6010778,
-      "timestamp_str": "2026-11-01 03:53:28",
-      "agent": "kilo:memory"
-    },
-    {
-      "task_id": "review-duellist-mirror-fixes-v1",
-      "phase": "verification",
-      "phase_num": 4,
-      "description": "[3/3] checklists: passed; 195 tests, lint, typecheck, build, mechanics and 8/8 gates pass; probes confirm duellist open-ground behaviour, mirror combo/bolt landings, and props still render on screen after the cull",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793494417.159582,
-      "timestamp_str": "2026-11-01 03:53:37",
-      "agent": "kilo:memory",
-      "handoff": {
-        "state": "fixes applied, nothing committed",
-        "next": "close the task and report the review to the user",
-        "evidence": "aikit check 8/8 and Playwright perf/visual probes"
-      }
-    },
-    {
-      "task_id": "review-duellist-mirror-fixes-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'review-duellist-mirror-fixes-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793494417.3088229,
-      "timestamp_str": "2026-11-01 03:53:37",
-      "agent": "kilo:memory"
-    },
     {
       "task_id": "duellist-balance-polish-v1",
       "phase": "planning",
@@ -275,6 +238,47 @@
       "status": "completed",
       "timestamp": 1793526544.495873,
       "timestamp_str": "2026-11-01 12:49:04",
+      "agent": "unidentified"
+    },
+    {
+      "task_id": "visual-cohesion-choice-cards-combat-v1",
+      "phase": "planning",
+      "phase_num": 2,
+      "description": "[1/5] Plan choice card emblem art, stance dash afterimages, enemy stagger animations, and death dissolution",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793534102.7609925,
+      "timestamp_str": "2026-11-01 14:55:02",
+      "agent": "unidentified",
+      "impact_assessment": {
+        "why": "Elevate game art style, animations, card iconography, and combat feedback as requested by user.",
+        "benefits": "Tactile card emblems in upgrade choice screen, stance-matched dash trails, enemy stagger feedback, and ethereal death dissolution.",
+        "risks": "contract: none, sim and view contracts preserved; dependency: none, uses existing PIL and PixiJS; concurrency: none, single-threaded render loop; state: none, purely additive presentation layer",
+        "mitigation": "Automated Vitest tests, typecheck, lint, and strict 8/8 AIKit gates before commit."
+      },
+      "handoff": {
+        "next": "implement choice card emblems in Screens.ts and ui.css"
+      }
+    },
+    {
+      "task_id": "visual-cohesion-choice-cards-combat-v1",
+      "phase": "verification",
+      "phase_num": 4,
+      "description": "[5/5] Verify 205 tests, 8/8 gates, choice card emblems, and stagger visuals; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793534385.389714,
+      "timestamp_str": "2026-11-01 14:59:45",
+      "agent": "unidentified"
+    },
+    {
+      "task_id": "visual-cohesion-choice-cards-combat-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'visual-cohesion-choice-cards-combat-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793534389.1250677,
+      "timestamp_str": "2026-11-01 14:59:49",
       "agent": "unidentified"
     }
   ]

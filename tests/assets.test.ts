@@ -10,9 +10,18 @@ describe('assets', () => {
       (p) => !existsSync(path.resolve(__dirname, '../assets', p))
     );
     expect(missing).toEqual([]);
-    for (const weapon of ['weapon_sword', 'weapon_spear', 'weapon_greatsword']) {
+    for (const icon of [
+      'health',
+      'mana',
+      'stamina',
+      'memory_fragment',
+      'fragment_shard',
+      'weapon_sword',
+      'weapon_spear',
+      'weapon_greatsword',
+    ]) {
       expect(
-        existsSync(path.resolve(__dirname, `../assets/sprites/ui/${weapon}.png`))
+        existsSync(path.resolve(__dirname, `../assets/sprites/ui/${icon}.png`))
       ).toBe(true);
     }
   });

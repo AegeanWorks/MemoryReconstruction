@@ -614,6 +614,36 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
+.card-emblem {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.35) 75%);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  margin: 2px 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover .card-emblem {
+  transform: scale(1.1);
+}
+.card.rare .card-emblem {
+  border-color: rgba(111, 231, 255, 0.45);
+  box-shadow: 0 4px 14px rgba(111, 231, 255, 0.25), inset 0 0 10px rgba(111, 231, 255, 0.18);
+}
+.card.epic .card-emblem {
+  border-color: rgba(255, 217, 138, 0.55);
+  box-shadow: 0 4px 14px rgba(255, 217, 138, 0.35), inset 0 0 12px rgba(255, 217, 138, 0.22);
+}
+.card-emblem-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
 .card .name {
   font-family: var(--serif);
   font-size: 20px;

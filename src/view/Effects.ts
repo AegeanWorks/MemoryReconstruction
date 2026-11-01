@@ -171,8 +171,9 @@ export class Effects {
               e.crit ? 14 : 7
             );
             if (e.crit) {
-              this.star(e.x, e.y, 0xffd34a, 40, 0.35);
+              this.star(e.x, e.y, 0xffd34a, 42, 0.35);
               this.ring(e.x, e.y, 38, 0xffd98a, 0.3);
+              this.burst(e.x, e.y, 0xffe070, 8, 120, 0.28, 4);
             }
             this.number(e.x, e.y, `${e.amount}`, e.crit ? 0xffd34a : 0xffffff, e.crit ? 22 : 16);
           } else {
@@ -217,6 +218,7 @@ export class Effects {
             e.boss ? 64 : 32,
             e.boss ? 0.6 : 0.35
           );
+          this.ring(e.x, e.y - 12, e.boss ? 90 : 36, this.accent, 0.45);
           if (e.boss) {
             this.ring(e.x, e.y, 160, this.accent, 0.45);
             this.ring(e.x, e.y, 280, 0xffffff, 0.6);
