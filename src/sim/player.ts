@@ -385,8 +385,8 @@ function resolveSwing(arena: Arena): void {
     arena.damageEnemy(enemy, hit.amount, 'melee', hit.crit, step.knockback);
     landed++;
   }
-  // Swings also break destructible barrels in front of the player.
-  arena.hitHazards(p.x, p.y, step.reach, p.stats.meleeDamage * step.damage);
+  // Swings also break destructible props in the arc they carve, not behind the player.
+  arena.hitHazards(p.x, p.y, step.reach, p.stats.meleeDamage * step.damage, p.aim, step.halfArc);
   const finisher = p.combo === weapon.steps.length - 1;
   if (finisher && (p.stats.shockwave || weapon.finisherShockwave)) {
     const cx = p.x + Math.cos(p.aim) * 30;

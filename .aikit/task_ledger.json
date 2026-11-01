@@ -1,45 +1,16 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "review-push-gate-fixes-v1",
-    "last_phase": "verification",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1793498327.1459148,
+    "task_id": "audit-recent-pushes-v1",
+    "last_phase": "implementation",
+    "active_phase": 3,
+    "status": "in_progress",
+    "updated_at": 1793521451.3441868,
     "owner": "kilo:memory",
     "started_by": "kilo:memory",
-    "continuations": [],
-    "completed_at": 1793498327.2923038
+    "continuations": []
   },
   "checkpoints": [
-    {
-      "task_id": "chain-ignition-and-debris-v1",
-      "phase": "planning",
-      "phase_num": 2,
-      "description": "[1/6] Re-plan: chain ignition + debris, player-style duellist AI (combo, dash-strike, bolt), new lost-self enemy, and the Mirror of Self boss episode where the player fights a copy of themselves",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793489541.5434527,
-      "timestamp_str": "2026-11-01 02:32:21",
-      "agent": "kilo:memory",
-      "impact_assessment": {
-        "why": "User asked for player-like attacking enemies plus another boss and an episode against the player's own copy; the in-flight chain-ignition work stays as the first milestone",
-        "benefits": "Duellists that read like the player, a mirror boss that wields the player's own stance and sheet, and a new endgame trial episode",
-        "risks": "contract: AttackKind and Archetype widen, FloorPlan count 16 -> 17 shifts late depths; dependency: none; concurrency: none; state: saves keyed by depth shift by one for sections after 15",
-        "mitigation": "Keep the mirror trial boss-only at depth 15, push keeper to 16, update content tests and ADR, run 8 gates and headless pixel probes"
-      }
-    },
-    {
-      "task_id": "chain-ignition-and-debris-v1",
-      "phase": "implementation",
-      "phase_num": 3,
-      "description": "[2/6] Chain ignition and debris: blasts prime nearby breakables with a short fuse, primed props pulse hot, and breaks shed gravity debris; tests for barrel and bomb chains",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793492435.10023,
-      "timestamp_str": "2026-11-01 03:20:35",
-      "agent": "kilo:memory"
-    },
     {
       "task_id": "chain-ignition-and-debris-v1",
       "phase": "implementation",
@@ -270,6 +241,34 @@
       "status": "completed",
       "timestamp": 1793498327.2923057,
       "timestamp_str": "2026-11-01 04:58:47",
+      "agent": "kilo:memory"
+    },
+    {
+      "task_id": "audit-recent-pushes-v1",
+      "phase": "planning",
+      "phase_num": 2,
+      "description": "[1/4] Plan: audit the last five pushes, fix arc-restricted prop breaks, prop/interactable spacing, and stance-matched mirror slashes, then verify and push",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793521233.7404919,
+      "timestamp_str": "2026-11-01 11:20:33",
+      "agent": "kilo:memory",
+      "impact_assessment": {
+        "why": "The user asked for an audit of recent work with fixes and a push",
+        "benefits": "Swings stop breaking props behind the player, loot props stop burying interactables, and the mirror's slash art matches the stance it copies",
+        "risks": "contract: Arena.hitHazards widens with optional angle/halfArc; dependency: none; concurrency: none; state: none",
+        "mitigation": "Targeted tests for the swing arc, prop spacing and stance slashes plus the eight gates"
+      }
+    },
+    {
+      "task_id": "audit-recent-pushes-v1",
+      "phase": "implementation",
+      "phase_num": 3,
+      "description": "[2/4] Fixes: swing-arc prop breaks, prop/interactable spacing with portal cleanup, mirror slashes follow the player stance; 203 tests green; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793521451.3441868,
+      "timestamp_str": "2026-11-01 11:24:11",
       "agent": "kilo:memory"
     }
   ]

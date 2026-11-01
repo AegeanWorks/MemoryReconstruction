@@ -3,7 +3,7 @@
  * step and returns the events that happened; nothing here touches the DOM or
  * the renderer, so tests and bots can drive a World headlessly.
  */
-import { circlesTouch, type Arena, type DamageSource } from './combat';
+import { circlesTouch, inArc, type Arena, type DamageSource } from './combat';
 import {
   arenaBossFor,
   enemyDef,
@@ -545,6 +545,11 @@ export class World implements Arena {
       ...extra,
     };
     this.interactables.push(item);
+    // A later interactable (the boss portal, for one) must not sit under a prop.
+    for (let i = this.hazards.length - 1; i >= 0; i--) {
+      const h = this.hazards[i];
+      if (Math.hypot(h.x - x, h.y - y) < 44) this.hazards.splice(i, 1);
+    }
     return item;
   }
 
@@ -576,6 +581,11 @@ export class World implements Arena {
     if (this.plan.bossOnly) return;
     for (const room of this.floor.rooms) {
       if (room.kind !== 'combat' && room.kind !== 'boss') continue;
+      // The lever goes in first so props can keep their distance from it.
+      if (this.rng.chance(0.45)) {
+        const c = roomCentrePx(room);
+        this.addInteractable('lever', c.x - 52, c.y + 44, 0, { roomId: room.id });
+      }
       const count = 1 + (this.run.depth >= 4 ? 1 : 0) + this.rng.int(0, 1);
       const kinds: HazardKind[] = ['spike', 'flame', 'poison', 'rockfall', 'barrel'];
       for (let i = 0; i < count; i++) this.spawnHazard(room, this.rng.pick(kinds));
@@ -585,11 +595,6 @@ export class World implements Arena {
       const breakables: HazardKind[] = ['crate', 'crystal', 'urn', 'barrel'];
       for (let i = 0; i < breakableCount; i++) {
         this.spawnHazard(room, this.rng.pick(breakables));
-      }
-
-      if (this.rng.chance(0.45)) {
-        const c = roomCentrePx(room);
-        this.addInteractable('lever', c.x - 52, c.y + 44, 0, { roomId: room.id });
       }
     }
   }
@@ -602,6 +607,8 @@ export class World implements Arena {
       const x = (tx + 0.5) * TILE_SIZE;
       const y = (ty + 0.5) * TILE_SIZE;
       if (this.hazards.some((h) => Math.hypot(h.x - x, h.y - y) < 46)) continue;
+      // Props must not bury a chest, fountain, lever, merchant or archive.
+      if (this.interactables.some((i) => Math.hypot(i.x - x, i.y - y) < 44)) continue;
       if (Math.hypot(x - this.player.x, y - this.player.y) < 60) continue;
       const breakable = isBreakable(kind);
       const radius =
@@ -1399,11 +1406,21 @@ export class World implements Arena {
   }
 
   /** Player attacks break barrels, crates, urns and crystals; traps are not destructible. */
-  hitHazards(x: number, y: number, radius: number, damage: number): number {
+  hitHazards(
+    x: number,
+    y: number,
+    radius: number,
+    damage: number,
+    angle?: number,
+    halfArc?: number
+  ): number {
     let hits = 0;
     for (const h of [...this.hazards]) {
       if (!isBreakable(h.kind) || h.disabled) continue;
-      if (Math.hypot(h.x - x, h.y - y) > radius + h.radius) continue;
+      // A swing only breaks what it faces; a dash or a radial art passes no arc.
+      if (angle !== undefined && halfArc !== undefined) {
+        if (!inArc(x, y, angle, radius, halfArc, h.x, h.y, h.radius)) continue;
+      } else if (Math.hypot(h.x - x, h.y - y) > radius + h.radius) continue;
       this.damageHazard(h, damage);
       hits++;
     }

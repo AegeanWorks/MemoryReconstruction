@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import { NO_INPUT } from '../../src/sim/entities';
 import { generateFloor } from '../../src/sim/dungeon';
 import { createRun } from '../../src/sim/run';
@@ -204,6 +204,31 @@ describe('hazards and the sanctuary', () => {
     expect(w.hazards).not.toContain(crate);
     expect(w.hazards).toContain(trap);
     expect(trap.ignite).toBeUndefined();
+  });
+
+  it('breaks only the props inside the swing arc', () => {
+    const w = world(3);
+    const p = w.player;
+    const front = w.hazards.find((h) => h.kind === 'crate')!;
+    const behind = w.hazards.find((h) => h.kind === 'urn' || h.kind === 'crystal')!;
+    front.x = p.x + 40;
+    front.y = p.y;
+    behind.x = p.x - 40;
+    behind.y = p.y;
+    p.aim = 0;
+    const input = { ...NO_INPUT, attack: true, aimX: p.x + 100, aimY: p.y };
+    for (let i = 0; i < 30; i++) w.step(input, DT);
+    expect(w.hazards).not.toContain(front);
+    expect(w.hazards).toContain(behind);
+  });
+
+  it('never buries an interactable under a prop', () => {
+    for (const seed of [1, 2, 3, 42, 1337]) {
+      const w = world(2, seed);
+      for (const h of w.hazards)
+        for (const i of w.interactables)
+          expect(Math.hypot(h.x - i.x, h.y - i.y)).toBeGreaterThanOrEqual(43.9);
+    }
   });
 
   it('shatters a crystal into a memory flare that sears enemies only', () => {
@@ -637,5 +662,43 @@ describe('the mirror of self', () => {
     expect(w.plan.boss).toBe('mirror_self');
     expect(w.plan.bossOnly).toBe(true);
     expect(enemyDef('mirror_self', true).sprite).toBe('mirror');
+  });
+
+  it('swings whichever stance the player holds', () => {
+    for (const weapon of ['sword', 'spear', 'greatsword'] as const) {
+      const w = world(15);
+      const p = w.player;
+      p.weapon = weapon;
+      p.invulnerable = 9999;
+      const boss = w.spawnEnemy('mirror_self', p.x + 50, p.y, -1, true);
+      boss.state = 'windup';
+      boss.attack = 'combo';
+      boss.stateTime = 0;
+      boss.dirX = -1;
+      boss.dirY = 0;
+      const seen = new Set<string>();
+      for (let i = 0; i < 45; i++)
+        for (const event of w.step(NO_INPUT, DT))
+          if (event.type === 'enemySlash') seen.add(event.weapon);
+      expect([...seen]).toEqual([weapon]);
+    }
+  });
+
+  it('keeps ordinary duellists on a plain sword', () => {
+    const w = world(9);
+    const p = w.player;
+    p.weapon = 'greatsword';
+    p.invulnerable = 9999;
+    const duelist = w.spawnEnemy('rime_duelist', p.x + 40, p.y, -1);
+    duelist.state = 'windup';
+    duelist.attack = 'combo';
+    duelist.stateTime = 0;
+    duelist.dirX = -1;
+    duelist.dirY = 0;
+    const seen = new Set<string>();
+    for (let i = 0; i < 45; i++)
+      for (const event of w.step(NO_INPUT, DT))
+        if (event.type === 'enemySlash') seen.add(event.weapon);
+    expect([...seen]).toEqual(['sword']);
   });
 });

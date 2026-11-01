@@ -36,8 +36,18 @@ export interface Arena {
   hitstop(seconds: number): void;
   /** Rewards a near miss with mana, dash charge and a refreshed flow window. */
   graze(x: number, y: number): void;
-  /** Damages destructible barrels in a radius; returns how many broke. */
-  hitHazards(x: number, y: number, radius: number, damage: number): number;
+  /**
+   * Damages destructible props in reach; returns how many were struck. Pass an
+   * angle and half-arc to restrict it to the swing's sector.
+   */
+  hitHazards(
+    x: number,
+    y: number,
+    radius: number,
+    damage: number,
+    angle?: number,
+    halfArc?: number
+  ): number;
   /** Queues a delayed ground explosion. */
   spawnBlast(x: number, y: number, radius: number, delay: number, damage: number): void;
   /** Drops an armed proximity mine. */

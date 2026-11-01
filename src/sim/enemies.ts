@@ -359,6 +359,14 @@ function chase(arena: Arena, enemy: Enemy, dt: number): void {
   }
 }
 
+/**
+ * The Waking Mirror swings whatever the player is holding; every other duellist
+ * fights with a plain sword.
+ */
+function slashWeapon(arena: Arena, enemy: Enemy): 'sword' | 'spear' | 'greatsword' {
+  return enemy.def.id === 'mirror_self' ? arena.player.weapon : 'sword';
+}
+
 function summonCount(arena: Arena, boss: Enemy): number {
   return arena.enemies.filter((e) => !e.isBoss && e.roomId === boss.roomId && e.state !== 'dying')
     .length;
@@ -678,7 +686,7 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
           y: enemy.y,
           angle: Math.atan2(enemy.dirY, enemy.dirX),
           combo: 2,
-          weapon: 'sword',
+          weapon: slashWeapon(arena, enemy),
         });
     }
     if (hitWall && (enemy.attack === 'charge' || enemy.attack === 'dashStrike')) {
@@ -717,7 +725,7 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
         y: enemy.y,
         angle: swing,
         combo: step,
-        weapon: 'sword',
+        weapon: slashWeapon(arena, enemy),
       });
     }
   } else if (enemy.attack === 'sweep') {

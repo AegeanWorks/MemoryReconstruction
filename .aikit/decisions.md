@@ -710,3 +710,14 @@ or the architecture; see the header above for where each entry goes. -->
   3. The lunge progress is clamped to `[0, 1]`, so a long attack pops forward once instead of reverse-stretching halfway through.
   4. The map legend names the crimson gate hatch.
 - **Consequences**: Gate waves read as enemies stepping through iron into the chamber, defensively camped gates stay fair, and long boss attacks read cleanly. Two new tests cover the gate spawn tile and the camping case. 199 tests, lint, typecheck, build, mechanics and 8/8 gates pass. Floor layouts shift once relative to earlier builds because gate placement consumes generator RNG before furnishing; runs regenerate deterministically from their seed.
+
+### ADR-068: Swing arcs on props, prop spacing around interactables, and stance-matched mirror slashes
+
+- **Date**: 2026-11-01
+- **Status**: Accepted
+- **Context**: An audit of the last five commits found three defects. (1) `resolveSwing` passed only a radius to `hitHazards`, so a sword or spear swing shattered every prop within reach, including barrels directly behind the player, even though the swing's damage arc excludes them. (2) Breakable props were scattered without regard to interactables placed earlier in construction, so a crate could sit on a chest, lever, fountain or merchant, and the boss portal added at room clear could be buried under a prop placed at the room centre. (3) The Waking Mirror copied the player's sprite strips and stance but always drew a plain sword's slash geometry, so a spear or greatsword copy swung the wrong weapon shape and colour.
+- **Decision**:
+  1. `Arena.hitHazards` gains optional `angle` and `halfArc`; `resolveSwing` passes the stance's aim and arc, so only props inside the swing sector break. Dashes, weapon arts and explosions keep their radial behaviour by omitting the arc.
+  2. `spawnHazard` keeps props at least 44 px from every interactable, and `addInteractable` clears any prop that would sit within 44 px of a newly placed interactable, covering the boss portal created at room clear. Levers are now placed before the room's props so the spacing rule sees them.
+  3. `enemySlash` carries the weapon that made it: the mirror boss reports `arena.player.weapon` so the view draws the spear lance, greatsword crescent or sword arc the copy is actually holding; ordinary duellists stay on sword. Hostile spear lances and greatsword shockwaves now use the rose palette instead of the player's cyan and orange.
+- **Consequences**: A swing reads honestly against props as well as enemies, loot props can no longer seal a chest or portal, and the mirror's silhouette, animation and slash language all follow the stance it steals. Three new tests cover the swing arc, prop/interactable spacing across seeds and stance-matched slash events. 203 tests, lint, typecheck, build, mechanics and 8/8 gates pass.

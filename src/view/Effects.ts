@@ -587,13 +587,16 @@ export class Effects {
       const alpha = 1 - t;
       // Spear: a fast forward thrust line with diamond tip and vortex pressure waves.
       if (s.weapon === 'spear') {
+        // A hostile thrust reads in the same rose family as its sword arcs.
+        const lance = s.hostile ? 0xffc0dc : 0xd8f6ff;
+        const wave = s.hostile ? 0xff9ecf : 0x9df3ff;
         const tip = 30 + 78 * Math.min(1, t * 2.6);
         const ex = s.x + Math.cos(s.angle) * tip;
         const ey = s.y + Math.sin(s.angle) * tip;
         // Central piercing lance
         g.moveTo(s.x + Math.cos(s.angle) * 10, s.y + Math.sin(s.angle) * 10)
           .lineTo(ex, ey)
-          .stroke({ width: 7 * alpha + 1, color: 0xd8f6ff, alpha });
+          .stroke({ width: 7 * alpha + 1, color: lance, alpha });
         g.moveTo(s.x + Math.cos(s.angle) * 12, s.y + Math.sin(s.angle) * 12)
           .lineTo(ex, ey)
           .stroke({ width: 2 * alpha + 1, color: 0xffffff, alpha });
@@ -613,7 +616,7 @@ export class Effects {
         g.moveTo(ex - Math.cos(s.angle + 1.35) * 16, ey - Math.sin(s.angle + 1.35) * 16)
           .lineTo(ex, ey)
           .lineTo(ex - Math.cos(s.angle - 1.35) * 16, ey - Math.sin(s.angle - 1.35) * 16)
-          .stroke({ width: 2.5 * alpha, color: 0x9df3ff, alpha: alpha * 0.8 });
+          .stroke({ width: 2.5 * alpha, color: wave, alpha: alpha * 0.8 });
         continue;
       }
       const finisher = s.combo === (s.weapon === 'greatsword' ? 1 : 2);
@@ -676,7 +679,7 @@ export class Effects {
         }
         g.poly(shockOuter, false).stroke({
           width: 3 * alpha,
-          color: 0xffa040,
+          color: s.hostile ? 0xff8ab8 : 0xffa040,
           alpha: alpha * 0.65,
         });
       }
