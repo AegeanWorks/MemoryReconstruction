@@ -73,7 +73,9 @@ export class LevelView {
   readonly props: Sprite[] = [];
   private readonly chunks: Chunk[] = [];
   private readonly doors = new Graphics();
+  private readonly torchGfx = new Graphics();
   private readonly glyphs: Sprite[] = [];
+  private readonly torches: Array<{ x: number; y: number; tint: number; seed: number }> = [];
   private readonly accent: number;
   private readonly biome: BiomeId;
   private time = 0;
@@ -90,7 +92,7 @@ export class LevelView {
     if (backdrop) this.addBackdrop(backdrop);
     this.build(biome);
     if (dressRooms) this.addDressing(biome);
-    this.root.addChild(this.doors);
+    this.root.addChild(this.torchGfx, this.doors);
   }
 
   /**
@@ -210,8 +212,32 @@ export class LevelView {
       return true;
     }
     if (tile === Tile.Wall) {
-      if (isFace(tx, ty)) put(tex.wallFace[variantAt(tx, ty, tex.wallFace.length)]);
-      else put(isFace(tx, ty + 1) ? tex.wallCapLip : tex.wallCap);
+      if (isFace(tx, ty)) {
+        put(tex.wallFace[variantAt(tx, ty, tex.wallFace.length)]);
+        if (
+          isFace(tx - 1, ty) &&
+          isFace(tx + 1, ty) &&
+          grid.get(tx, ty + 1) !== Tile.Door &&
+          tx % 5 === 2
+        ) {
+          const tint =
+            this.biome === 'crystal' || this.biome === 'frost'
+              ? 0x6fe7ff
+              : this.biome === 'void' || this.biome === 'abyss'
+                ? 0xb86cff
+                : this.biome === 'bloom' || this.biome === 'forest' || this.biome === 'sanctuary'
+                  ? 0xffd98a
+                  : 0xff8a2a;
+          this.torches.push({
+            x: tx * T + T * 0.5,
+            y: ty * T + T * 0.45,
+            tint,
+            seed: (tx * 17 + ty * 31) % 100,
+          });
+        }
+      } else {
+        put(isFace(tx, ty + 1) ? tex.wallCapLip : tex.wallCap);
+      }
       return true;
     }
     // Void directly above a wall face gets a cap, so outer walls have height.
@@ -270,6 +296,67 @@ export class LevelView {
       this.glyphs[i].alpha = 0.18 + 0.12 * Math.sin(this.time * 1.7 + i * 1.3);
     }
     this.drawDoors();
+    this.drawTorches(viewX, viewY, viewW, viewH);
+  }
+
+  /** Flickering wall torches and sconces with warm radial ambient light. */
+  private drawTorches(viewX: number, viewY: number, viewW: number, viewH: number): void {
+    const g = this.torchGfx;
+    g.clear();
+    const margin = 48;
+    const t = this.time;
+    for (const torch of this.torches) {
+      if (
+        torch.x < viewX - margin ||
+        torch.x > viewX + viewW + margin ||
+        torch.y < viewY - margin ||
+        torch.y > viewY + viewH + margin
+      ) {
+        continue;
+      }
+      const flicker =
+        0.82 + 0.18 * Math.sin(t * 8 + torch.seed * 3.7) * Math.cos(t * 13 + torch.seed);
+      const px = torch.x;
+      const py = torch.y;
+
+      // 1. Ambient warm radial light cast onto the wall and floor
+      g.circle(px, py + 8, 38).fill({
+        color: torch.tint,
+        alpha: 0.12 * flicker,
+      });
+
+      // 2. Iron wall bracket / sconce mount
+      g.rect(px - 2, py + 5, 4, 6).fill({ color: 0x222028 });
+      g.rect(px - 1, py + 5, 2, 6).fill({ color: 0x4a4655 });
+      g.rect(px - 4, py + 3, 8, 2.5).fill({ color: 0x33303a });
+
+      // 3. Torch wooden stick / holder
+      g.rect(px - 1.5, py - 3, 3, 7).fill({ color: 0x6e4825 });
+
+      // 4. Glowing ember core
+      const flameH = 6 * flicker;
+      g.poly([
+        px - 3,
+        py - 1,
+        px + 3,
+        py - 1,
+        px + 1.5,
+        py - flameH * 0.7,
+        px,
+        py - flameH - 2,
+        px - 1.5,
+        py - flameH * 0.7,
+      ]).fill({
+        color: torch.tint,
+        alpha: 0.88,
+      });
+
+      // 5. Hot inner white flame tip
+      g.poly([px - 1.5, py - 2, px + 1.5, py - 2, px, py - flameH * 0.6]).fill({
+        color: 0xffffff,
+        alpha: 0.95 * flicker,
+      });
+    }
   }
 
   private drawDoors(): void {

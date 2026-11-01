@@ -120,6 +120,7 @@ export class ActorView {
   private readonly telegraphs = new Graphics();
   private readonly hazardsG = new Graphics();
   private readonly bars = new Graphics();
+  private readonly reticleG = new Graphics();
   private readonly afterimages: Array<{ sprite: Sprite; age: number; life: number }> = [];
   private dashGhostTimer = 0;
   private readonly player: ActorSprite;
@@ -151,7 +152,7 @@ export class ActorView {
     this.addDecor();
     this.playerLight = this.glow(PLAYER_COLOR, 260, 0.16);
     this.ground.addChild(this.playerLight);
-    this.overlay.addChild(this.bars);
+    this.overlay.addChild(this.bars, this.reticleG);
     this.capture();
   }
 
@@ -225,6 +226,7 @@ export class ActorView {
     this.telegraphs.clear();
     this.hazardsG.clear();
     this.bars.clear();
+    this.reticleG.clear();
     this.updateAfterimages(dt);
     this.drawHazards(view);
     this.drawGateWarnings();
@@ -354,6 +356,84 @@ export class ActorView {
             ? 0.7
             : 1;
     this.drawPlayerAura(p, pos.x, pos.y);
+    this.drawAimReticle(p, pos.x, pos.y);
+  }
+
+  /** Subtle, atmospheric weapon stance aim reticle in world space. */
+  private drawAimReticle(p: Player, x: number, y: number): void {
+    if (p.action === 'dead') return;
+    const g = this.reticleG;
+    const swinging = p.action === 'attack';
+    const dashing = p.action === 'dash';
+    const baseAlpha = swinging ? 0.2 : dashing ? 0.15 : 0.45 + 0.15 * Math.sin(this.time * 5);
+    const aim = p.aim;
+    const dist = p.weapon === 'spear' ? 48 : p.weapon === 'greatsword' ? 44 : 40;
+    const rx = x + Math.cos(aim) * dist;
+    const ry = y + Math.sin(aim) * dist;
+
+    if (p.weapon === 'spear') {
+      const color = 0xa8f6ff;
+      // Forward piercing chevron
+      const tipX = x + Math.cos(aim) * (dist + 6);
+      const tipY = y + Math.sin(aim) * (dist + 6);
+      const leftX = x + Math.cos(aim - 0.24) * (dist - 4);
+      const leftY = y + Math.sin(aim - 0.24) * (dist - 4);
+      const rightX = x + Math.cos(aim + 0.24) * (dist - 4);
+      const rightY = y + Math.sin(aim + 0.24) * (dist - 4);
+      g.moveTo(leftX, leftY).lineTo(tipX, tipY).lineTo(rightX, rightY).stroke({
+        width: 1.8,
+        color,
+        alpha: baseAlpha,
+      });
+      // Needle tip glint
+      g.circle(tipX, tipY, 1.5).fill({ color: 0xffffff, alpha: baseAlpha * 1.2 });
+    } else if (p.weapon === 'greatsword') {
+      const color = 0xffdfb0;
+      // Wide heavyweight swing sector arc
+      const halfArc = 0.55;
+      const steps = 8;
+      const pts: number[] = [];
+      for (let i = 0; i <= steps; i++) {
+        const a = aim - halfArc + (halfArc * 2 * i) / steps;
+        pts.push(x + Math.cos(a) * dist, y + Math.sin(a) * dist);
+      }
+      g.poly(pts, false).stroke({ width: 2.2, color, alpha: baseAlpha });
+      // Central apex pip
+      g.circle(rx, ry, 2).fill({ color: 0xffffff, alpha: baseAlpha });
+    } else {
+      // Sword: balanced twin curved brackets and diamond center pip
+      const color = 0x6fe7ff;
+      const halfArc = 0.38;
+      const gap = 0.08;
+      // Left bracket
+      const leftPts: number[] = [];
+      for (let i = 0; i <= 4; i++) {
+        const a = aim - halfArc + ((halfArc - gap) * i) / 4;
+        leftPts.push(x + Math.cos(a) * dist, y + Math.sin(a) * dist);
+      }
+      g.poly(leftPts, false).stroke({ width: 1.6, color, alpha: baseAlpha });
+      // Right bracket
+      const rightPts: number[] = [];
+      for (let i = 0; i <= 4; i++) {
+        const a = aim + gap + ((halfArc - gap) * i) / 4;
+        rightPts.push(x + Math.cos(a) * dist, y + Math.sin(a) * dist);
+      }
+      g.poly(rightPts, false).stroke({ width: 1.6, color, alpha: baseAlpha });
+      // Diamond center pip
+      g.poly([rx, ry - 2.5, rx + 2.5, ry, rx, ry + 2.5, rx - 2.5, ry]).fill({
+        color: 0xffffff,
+        alpha: baseAlpha * 1.1,
+      });
+    }
+
+    // Overdrive resonant motes circling the reticle
+    if (p.resonance >= 10) {
+      const moteA = this.time * 6;
+      g.circle(rx + Math.cos(moteA) * 6, ry + Math.sin(moteA) * 6, 1.5).fill({
+        color: 0xffd98a,
+        alpha: baseAlpha * 1.3,
+      });
+    }
   }
 
   /** Flow Overdrive radiant aura and orbiting motes when player is at max resonance. */
@@ -575,17 +655,43 @@ export class ActorView {
       .stroke({ width: 1.2, color: 0xffffff, alpha: pulse });
   }
 
-  /** Amber ward sigil beneath elite enemies. */
+  /** Amber ward sigil and cardinal champion runes beneath elite enemies. */
   private drawEliteAura(e: Enemy, x: number, y: number): void {
     const g = this.bossAuras;
-    const pulse = 0.35 + 0.18 * Math.sin(this.time * 3.5 + e.id);
+    const pulse = 0.4 + 0.22 * Math.sin(this.time * 3.5 + e.id);
     const r = e.radius * 1.5;
+    // Outer and inner concentric rings
     g.circle(x, y, r).stroke({ width: 1.5, color: 0xffb84a, alpha: pulse });
+    g.circle(x, y, r * 0.72).stroke({ width: 1.0, color: 0xffd98a, alpha: pulse * 0.6 });
+
+    // 4 cardinal diamond spikes pointing outward
     for (let i = 0; i < 4; i++) {
-      const a = (i * Math.PI) / 2 + this.time * 0.8;
-      g.circle(x + Math.cos(a) * r, y + Math.sin(a) * r, 2.5).fill({
+      const a = (i * Math.PI) / 2 + this.time * 0.9;
+      const tipX = x + Math.cos(a) * (r + 5);
+      const tipY = y + Math.sin(a) * (r + 5);
+      const baseX = x + Math.cos(a) * (r - 2);
+      const baseY = y + Math.sin(a) * (r - 2);
+      const perpA = a + Math.PI / 2;
+      const w = 2.5;
+      g.poly([
+        tipX,
+        tipY,
+        baseX + Math.cos(perpA) * w,
+        baseY + Math.sin(perpA) * w,
+        baseX - Math.cos(perpA) * w,
+        baseY - Math.sin(perpA) * w,
+      ]).fill({
         color: 0xffd98a,
-        alpha: pulse * 1.3,
+        alpha: pulse * 1.2,
+      });
+    }
+
+    // 4 orbiting embers
+    for (let i = 0; i < 4; i++) {
+      const a = (i * Math.PI) / 2 - this.time * 1.4;
+      g.circle(x + Math.cos(a) * (r * 1.15), y + Math.sin(a) * (r * 1.15), 2.5).fill({
+        color: 0xffe6a0,
+        alpha: pulse * 1.1,
       });
     }
   }

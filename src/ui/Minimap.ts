@@ -149,10 +149,18 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
     }
   }
 
-  // Unclaimed objectives pulse so a missed chest or well is easy to find again.
+  // Unclaimed objectives pulse so a missed chest, well, archive or merchant is easy to find again.
   const pulse = 0.55 + 0.45 * Math.sin(time * 4);
   for (const item of world.interactables) {
-    if (item.used || (item.kind !== 'chest' && item.kind !== 'shrine')) continue;
+    if (
+      item.used ||
+      (item.kind !== 'chest' &&
+        item.kind !== 'shrine' &&
+        item.kind !== 'archive' &&
+        item.kind !== 'merchant' &&
+        item.kind !== 'fountain')
+    )
+      continue;
     const room = world.floor.rooms.find(
       (r) =>
         item.x >= r.x * TILE_SIZE &&
@@ -161,18 +169,38 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
         item.y <= (r.y + r.h) * TILE_SIZE
     );
     if (room && !known.has(room.id)) continue;
-    ctx.strokeStyle =
-      item.kind === 'chest' ? `rgba(255, 217, 138, ${pulse})` : `rgba(111, 231, 255, ${pulse})`;
+    const ix = ox + (item.x / TILE_SIZE) * scale;
+    const iy = oy + (item.y / TILE_SIZE) * scale;
+    const color =
+      item.kind === 'chest'
+        ? `rgba(255, 217, 138, ${pulse})`
+        : item.kind === 'shrine'
+          ? `rgba(111, 231, 255, ${pulse})`
+          : item.kind === 'archive'
+            ? `rgba(184, 164, 255, ${pulse})`
+            : item.kind === 'merchant'
+              ? 'rgba(255, 208, 96, 0.9)'
+              : 'rgba(143, 215, 255, 0.75)';
+    ctx.strokeStyle = color;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.arc(
-      ox + (item.x / TILE_SIZE) * scale,
-      oy + (item.y / TILE_SIZE) * scale,
-      Math.max(4, scale * 2) + pulse * 2,
-      0,
-      Math.PI * 2
-    );
+    ctx.arc(ix, iy, Math.max(4, scale * 2) + pulse * 2, 0, Math.PI * 2);
     ctx.stroke();
+
+    // Inner icon symbol for lore archives and shops
+    ctx.fillStyle = color;
+    if (item.kind === 'archive') {
+      ctx.beginPath();
+      ctx.moveTo(ix, iy - 2.5);
+      ctx.lineTo(ix + 2.5, iy);
+      ctx.lineTo(ix, iy + 2.5);
+      ctx.lineTo(ix - 2.5, iy);
+      ctx.fill();
+    } else if (item.kind === 'merchant') {
+      ctx.beginPath();
+      ctx.arc(ix, iy, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
   // Exit portal once open.

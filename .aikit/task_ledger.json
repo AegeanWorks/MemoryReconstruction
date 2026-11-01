@@ -1,74 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "behavioral-mechanics-polish-v1",
+    "task_id": "visual-atmosphere-polish-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793546095.87298,
+    "updated_at": 1793547212.0740685,
     "owner": "antigravity:sim",
     "started_by": "antigravity:sim",
     "continuations": [],
-    "completed_at": 1793546101.8487253
+    "completed_at": 1793547216.7677472
   },
   "checkpoints": [
-    {
-      "task_id": "audit-recent-pushes-v1",
-      "phase": "implementation",
-      "phase_num": 3,
-      "description": "[3/4] UI task app: minimap gate hatch dims to 0.32 once a room is cleared while active rooms blink; verified in the running app, checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793521982.2730255,
-      "timestamp_str": "2026-11-01 11:33:02",
-      "agent": "kilo:memory"
-    },
-    {
-      "task_id": "audit-recent-pushes-v1",
-      "phase": "verification",
-      "phase_num": 4,
-      "description": "[4/4] checklists: passed; 203 tests, 8/8 gates, strict delivery ready; pushed 2b6e53d..048a1ab to origin/main",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793522080.0660944,
-      "timestamp_str": "2026-11-01 11:34:40",
-      "agent": "kilo:memory",
-      "handoff": {
-        "state": "pushed and clean",
-        "next": "none, task closing",
-        "evidence": "git push 2b6e53d..048a1ab, aikit check --strict 8/8"
-      }
-    },
-    {
-      "task_id": "audit-recent-pushes-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'audit-recent-pushes-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793522080.1936522,
-      "timestamp_str": "2026-11-01 11:34:40",
-      "agent": "kilo:memory"
-    },
-    {
-      "task_id": "weapon-models-visual-cohesion-v1",
-      "phase": "planning",
-      "phase_num": 2,
-      "description": "[1/5] Plan weapon model assets, stance UI integration, visual effects, and gate drop safety",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793525848.3655372,
-      "timestamp_str": "2026-11-01 12:37:28",
-      "agent": "unidentified",
-      "impact_assessment": {
-        "why": "Elevate game art style, weapon models, animation feedback, UI weapon integration, and eliminate unreachable item drops at walls/doors as requested by user.",
-        "benefits": "High-fidelity weapon models in atlas and UI screens, stance-aligned combat particles and tip glints, enriched breakable props, and reliable loot collection away from gates and walls.",
-        "risks": "contract: none, sim and view contracts preserved; dependency: none, uses existing PIL and PixiJS; concurrency: none, single-threaded simulation and render loop; state: none, purely additive assets and drop positioning hardening",
-        "mitigation": "Extensive Vitest suites for safe drop positions, sprite loading, and mechanics; strict 8/8 gate validation before any commit."
-      },
-      "handoff": {
-        "next": "generate weapon model art in generate_art_assets.py and wire atlas"
-      }
-    },
     {
       "task_id": "weapon-models-visual-cohesion-v1",
       "phase": "verification",
@@ -272,6 +215,55 @@
       "status": "completed",
       "timestamp": 1793546101.8487267,
       "timestamp_str": "2026-11-01 18:15:01",
+      "agent": "antigravity:sim"
+    },
+    {
+      "task_id": "visual-atmosphere-polish-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/4] Plan: dynamic wall sconce firelight, minimap objective completeness, stance-aligned aim reticle, and elite champion runic aura",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793546864.640756,
+      "timestamp_str": "2026-11-01 18:27:44",
+      "agent": "antigravity:sim",
+      "impact_assessment": {
+        "why": "Elevate dungeon atmosphere, minimap navigation clarity, and tactile combat aiming feedback",
+        "benefits": "Atmospheric living dungeon lighting, clear minimap icons for archives/merchants/fountains, stance-aligned directional aim reticle, and crisp elite readability",
+        "risks": "contract: none; dependency: none; concurrency: none; state: view-only rendering",
+        "mitigation": "View-only layer additions, 100% test pass, zero regressions, and pre-commit gate triad"
+      }
+    },
+    {
+      "task_id": "visual-atmosphere-polish-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "Implement dynamic wall torches, minimap objective markers, stance aim reticle, and elite champion aura",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793547207.2989273,
+      "timestamp_str": "2026-11-01 18:33:27",
+      "agent": "antigravity:sim"
+    },
+    {
+      "task_id": "visual-atmosphere-polish-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "Pass all 213 vitest tests, lint, typecheck, build, mechanics, hygiene, guidelines, and secrets gates",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793547212.0740685,
+      "timestamp_str": "2026-11-01 18:33:32",
+      "agent": "antigravity:sim"
+    },
+    {
+      "task_id": "visual-atmosphere-polish-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'visual-atmosphere-polish-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793547216.7677486,
+      "timestamp_str": "2026-11-01 18:33:36",
       "agent": "antigravity:sim"
     }
   ]
