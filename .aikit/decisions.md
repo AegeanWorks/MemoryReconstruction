@@ -804,3 +804,18 @@ or the architecture; see the header above for where each entry goes. -->
   2. **Combo Finisher Apex Glints**: In `src/view/Effects.ts`, landing a combo finisher emits a brilliant starburst glint (`color = spear: 0xa8f6ff, greatsword: 0xffb04a, sword: 0x6fe7ff`) at the blade's apex offset, adding tactile arcade crunch.
   3. **Big Map & Pause Objective Synchronization**: In `src/ui/Screens.ts`, updated `objectiveSummary` to display lore archive progress (`Archive read/unread`) and updated `mapScreen` legend to explain the new minimap markers.
 - **Consequences**: Every weapon stance sounds physically distinct and punchy, finishers convey satisfying visual crunch, and map panels cleanly mirror HUD objective progress. All 213 vitest tests pass. Health bar styling (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
+
+## ADR-076: Variable-Ratio Environmental Surges, Door-Boundary Item Safety, Cleared-Room Magnetism, and Tactical Map Lever Markers
+
+- **Date**: 2026-11-01
+- **Status**: Accepted
+- **Context**: Grounded in Cyberpulse behavioral psychology literature (Skinner 1953; Schultz 1997 reward prediction error; Zeigarnik 1927 cognitive salience of incomplete goals). Breakables (barrels, crates, urns, crystals) and chests previously provided fixed drops without variable reinforcement. Furthermore, dropped loot near wall boundaries or reinforcement gates could land inside solid geometry or just out of collection range. Additionally, wall-mounted levers that disarm room traps were omitted on the minimap.
+- **Decision**:
+  1. **Variable-Ratio Reward Schedules (Skinner/Schultz RPE)**: In src/sim/world.ts, breakables and chests now roll 
+ollSurge(): standard (75%), rich 2.5x payout (20%), and prismatic jackpot 5x payout (5%), incrementing 
+un.stats.surges and triggering lootSurge audiovisual fanfare.
+  2. **Door and Wall Boundary Drop Sanitization**: In src/sim/world.ts, dropPickup now sanitizes coordinates through safeDropPosition, and reflects initial scatter velocities away from adjacent walls and gates.
+  3. **Cleared-Room Magnetism Expansion**: When a room is cleared, pickup homing range expands to 260px with 620px/s pull speed toward the player, ensuring no loot remains stranded in doorway margins. Settled pickups are also safely nudged out of solid tiles.
+  4. **Tactical Disarm Lever Map Markers**: In src/ui/Minimap.ts, unpulled wall levers are now rendered with amber/brass markers and updated in src/ui/Screens.ts map legend, fulfilling Zeigarnik effect awareness.
+- **Consequences**:
+  100% test coverage preserved (216 tests passing across 15 test suites), zero new runtime dependencies, and seamless compliance with AIKit verification gates.

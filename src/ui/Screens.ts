@@ -1730,7 +1730,7 @@ export function mapScreen(world: World, onClose: () => void): HTMLElement {
     h(
       'div',
       { class: 'meta-line map-legend' },
-      'White: you  ·  Violet: explored / archive  ·  Gold: chest / merchant  ·  Cyan: well / fountain  ·  Red: guardian  ·  Orange: arena  ·  Crimson hatch: reinforcement gate'
+      'White: you  ·  Violet: explored / archive  ·  Gold: chest / merchant  ·  Cyan: well / fountain  ·  Amber: disarm lever  ·  Red: guardian  ·  Orange: arena  ·  Crimson hatch: reinforcement gate'
     ),
     h('div', { class: 'menu' }, button('Close', onClose))
   );

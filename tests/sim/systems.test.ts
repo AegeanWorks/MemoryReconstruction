@@ -807,4 +807,67 @@ describe('the mirror of self', () => {
       expect(touchingWall).toBe(true);
     }
   });
+
+  it('dropPickup sanitizes spawn coordinates and prevents spawning inside walls or gates', () => {
+    const w = world(0);
+    // Find an impassable wall tile
+    let wall: { x: number; y: number } | undefined;
+    for (let ty = 0; ty < w.grid.height && !wall; ty++) {
+      for (let tx = 0; tx < w.grid.width && !wall; tx++) {
+        if (w.grid.get(tx, ty) === Tile.Wall) wall = { x: tx, y: ty };
+      }
+    }
+    expect(wall).toBeDefined();
+    const initialCount = w.pickups.length;
+    // Attempt to drop a pickup deep inside the wall tile
+    w['dropPickup']('shard', (wall!.x + 0.5) * TILE_SIZE, (wall!.y + 0.5) * TILE_SIZE, 5);
+    expect(w.pickups.length).toBe(initialCount + 1);
+    const dropped = w.pickups[w.pickups.length - 1];
+    // Position must be safe on an open floor tile
+    expect(w.grid.isSolidAtPixel(dropped.x, dropped.y, 'player')).toBe(false);
+  });
+
+  it('breakables roll variable-ratio surges and can emit lootSurge', () => {
+    let surgeSeen = false;
+    for (let seed = 0; seed < 40 && !surgeSeen; seed++) {
+      const w = world(0, seed);
+      const crate = w.hazards.find((h) => h.kind === 'crate' && !h.disabled);
+      if (!crate) continue;
+      const events = w['breakCrate'](crate, { x: crate.x, y: crate.y });
+      // world.breakCrate emits events to world
+      if (w.run.stats.surges > 0) {
+        surgeSeen = true;
+      }
+    }
+    // Across 40 seeds with crates, variable surge should trigger
+    expect(surgeSeen).toBe(true);
+  });
+
+  it('cleared room expands pickup homing range to pull items toward player', () => {
+    const w = world(0);
+    const start = w.floor.rooms[w.floor.startRoom];
+    // Mark room cleared
+    w.rooms[start.id].phase = 'cleared';
+    const centre = roomCentrePx(start);
+    w.player.x = centre.x;
+    w.player.y = centre.y;
+
+    // Place a shard 180px away (beyond base pickupRadius of 64, but within cleared homing range of 260)
+    w.pickups.push({
+      id: 8888,
+      kind: 'shard',
+      x: centre.x + 180,
+      y: centre.y,
+      amount: 10,
+      age: 0.5,
+      vx: 0,
+      vy: 0,
+    });
+
+    w.step(NO_INPUT, DT);
+    const shard = w.pickups.find((it) => it.id === 8888);
+    expect(shard).toBeDefined();
+    // Shard should have acquired a negative vx homing towards player at centre.x
+    expect(shard!.vx).toBeLessThan(0);
+  });
 });

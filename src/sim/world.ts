@@ -754,8 +754,21 @@ export class World implements Arena {
         source: 'chest',
         options: rollChoices(this.rng, p.upgrades, 3, 'generous'),
       });
+      const surge = this.rollSurge();
+      const baseShards = 8 + 4 * this.run.depth;
+      const shards = Math.round(baseShards * surge.factor);
       this.dropFragment(target.x + 40, target.y);
-      this.dropShards(target.x, target.y, 8 + 4 * this.run.depth);
+      this.dropShards(target.x, target.y, shards);
+      if (surge.kind) {
+        this.run.stats.surges++;
+        this.emit({
+          type: 'lootSurge',
+          x: target.x,
+          y: target.y,
+          kind: surge.kind,
+          amount: shards,
+        });
+      }
       this.dropPickup('bomb', target.x - 38, target.y + 10, 1);
       if (this.rng.chance(0.5)) this.dropPickup('trap', target.x - 46, target.y - 8, 1);
       if (this.rng.chance(0.6)) this.dropEquipment(target.x - 30, target.y);
@@ -1274,18 +1287,26 @@ export class World implements Arena {
     amount: number,
     fragmentId?: string
   ): void {
+    const pos = this.safeDropPosition(x, y);
     const angle = this.rng.range(0, Math.PI * 2);
     const speed = kind === 'fragment' ? 0 : this.rng.range(60, 170);
+    let vx = Math.cos(angle) * speed;
+    let vy = Math.sin(angle) * speed;
+    if (vx > 0 && this.grid.isSolidAtPixel(pos.x + 18, pos.y, 'player')) vx = -Math.abs(vx);
+    else if (vx < 0 && this.grid.isSolidAtPixel(pos.x - 18, pos.y, 'player')) vx = Math.abs(vx);
+    if (vy > 0 && this.grid.isSolidAtPixel(pos.x, pos.y + 18, 'player')) vy = -Math.abs(vy);
+    else if (vy < 0 && this.grid.isSolidAtPixel(pos.x, pos.y - 18, 'player')) vy = Math.abs(vy);
+
     this.pickups.push({
       id: this.nextId++,
       kind,
-      x,
-      y,
+      x: pos.x,
+      y: pos.y,
       amount,
       fragmentId,
       age: 0,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
+      vx,
+      vy,
     });
   }
 
@@ -1593,7 +1614,14 @@ export class World implements Arena {
     const p = this.player;
     if (Math.hypot(p.x - h.x, p.y - h.y) <= radius + p.radius) this.damagePlayer(20, h.x, h.y, 260);
     this.igniteBreakables(h.x, h.y, radius, h);
-    this.dropShards(at.x, at.y, 4 + this.run.depth);
+    const surge = this.rollSurge();
+    const baseShards = 4 + this.run.depth;
+    const shards = Math.round(baseShards * surge.factor);
+    this.dropShards(at.x, at.y, shards);
+    if (surge.kind) {
+      this.run.stats.surges++;
+      this.emit({ type: 'lootSurge', x: at.x, y: at.y, kind: surge.kind, amount: shards });
+    }
     if (this.rng.chance(0.4)) this.dropPickup('bomb', at.x + 18, at.y, 1);
     if (this.rng.chance(0.35)) this.dropPickup('trap', at.x - 18, at.y, 1);
   }
@@ -1602,7 +1630,14 @@ export class World implements Arena {
   private breakCrate(h: Hazard, at: { x: number; y: number }): void {
     this.emit({ type: 'hazardBurst', kind: 'crate', x: h.x, y: h.y, radius: 54 });
     this.emit({ type: 'shake', strength: 2 });
-    this.dropShards(at.x, at.y, 2 + Math.round(this.run.depth * 0.6) + this.rng.int(0, 1));
+    const surge = this.rollSurge();
+    const baseShards = 2 + Math.round(this.run.depth * 0.6) + this.rng.int(0, 1);
+    const shards = Math.round(baseShards * surge.factor);
+    this.dropShards(at.x, at.y, shards);
+    if (surge.kind) {
+      this.run.stats.surges++;
+      this.emit({ type: 'lootSurge', x: at.x, y: at.y, kind: surge.kind, amount: shards });
+    }
     if (this.rng.chance(0.3)) this.dropPickup('bomb', at.x + 16, at.y, 1);
     else if (this.rng.chance(0.2)) this.dropPickup('trap', at.x - 16, at.y, 1);
   }
@@ -1621,14 +1656,28 @@ export class World implements Arena {
       if (Math.hypot(other.x - h.x, other.y - h.y) <= radius + other.radius)
         this.damageHazard(other, 12);
     }
-    this.dropShards(at.x, at.y, 3 + Math.round(this.run.depth * 0.75));
+    const surge = this.rollSurge();
+    const baseShards = 3 + Math.round(this.run.depth * 0.75);
+    const shards = Math.round(baseShards * surge.factor);
+    this.dropShards(at.x, at.y, shards);
+    if (surge.kind) {
+      this.run.stats.surges++;
+      this.emit({ type: 'lootSurge', x: at.x, y: at.y, kind: surge.kind, amount: shards });
+    }
     if (this.rng.chance(0.22)) this.dropPickup('potion', at.x, at.y, 1);
   }
 
   /** An urn hides a small healing draught or a few shards. */
   private breakUrn(h: Hazard, at: { x: number; y: number }): void {
     this.emit({ type: 'hazardBurst', kind: 'urn', x: h.x, y: h.y, radius: 46 });
-    this.dropShards(at.x, at.y, 1 + this.rng.int(0, 2));
+    const surge = this.rollSurge();
+    const baseShards = 1 + this.rng.int(0, 2);
+    const shards = Math.round(baseShards * surge.factor);
+    this.dropShards(at.x, at.y, shards);
+    if (surge.kind) {
+      this.run.stats.surges++;
+      this.emit({ type: 'lootSurge', x: at.x, y: at.y, kind: surge.kind, amount: shards });
+    }
     if (this.rng.chance(0.25)) this.dropPickup('health', at.x, at.y, 10 + this.run.depth);
     if (this.rng.chance(0.15)) this.dropPickup('potion', at.x, at.y, 1);
   }
@@ -1674,9 +1723,13 @@ export class World implements Arena {
 
   private updatePickups(dt: number): void {
     const p = this.player;
+    const currentRoom = this.currentRoom();
+    const currentRoomCleared = currentRoom && this.rooms[currentRoom.id]?.phase === 'cleared';
+
     for (let i = this.pickups.length - 1; i >= 0; i--) {
       const item = this.pickups[i];
       item.age += dt;
+
       // Nudge out any pickup trapped inside a solid tile
       if (this.grid.isSolidAtPixel(item.x, item.y, 'player')) {
         const safe = this.safeDropPosition(item.x, item.y);
@@ -1684,12 +1737,26 @@ export class World implements Arena {
         item.y = safe.y;
       }
       const dist = Math.hypot(p.x - item.x, p.y - item.y);
-      const homing =
-        item.age > 0.35 &&
-        p.action !== 'dead' &&
-        (item.kind === 'shard' ? dist < p.stats.pickupRadius * 2.2 : dist < p.stats.pickupRadius);
+
+      // In a cleared room, magnetism expands so no items remain stranded in corners/doors
+      const inSameClearedRoom = Boolean(
+        currentRoomCleared &&
+        currentRoom &&
+        item.x >= currentRoom.x * TILE_SIZE - 8 &&
+        item.x <= (currentRoom.x + currentRoom.w) * TILE_SIZE + 8 &&
+        item.y >= currentRoom.y * TILE_SIZE - 8 &&
+        item.y <= (currentRoom.y + currentRoom.h) * TILE_SIZE + 8
+      );
+
+      const homingRange = inSameClearedRoom
+        ? Math.max(p.stats.pickupRadius * 3, 260)
+        : item.kind === 'shard'
+          ? p.stats.pickupRadius * 2.2
+          : p.stats.pickupRadius;
+
+      const homing = item.age > 0.35 && p.action !== 'dead' && dist < homingRange;
       if (homing && item.kind !== 'fragment') {
-        const pull = 520;
+        const pull = inSameClearedRoom ? 620 : 520;
         item.vx = ((p.x - item.x) / (dist || 1)) * pull;
         item.vy = ((p.y - item.y) / (dist || 1)) * pull;
       } else {
@@ -1701,10 +1768,18 @@ export class World implements Arena {
       moveAndCollide(this.grid, body, item.vx * dt, item.vy * dt);
       item.x = body.x;
       item.y = body.y;
+
+      // When settled, ensure item remains on walkable floor away from solid margins
+      if (Math.hypot(item.vx, item.vy) < 15 && this.grid.isSolidAtPixel(item.x, item.y, 'player')) {
+        const safe = this.safeDropPosition(item.x, item.y);
+        item.x = safe.x;
+        item.y = safe.y;
+      }
+
       const canCollect =
         item.age > 0.2 &&
         p.action !== 'dead' &&
-        (dist < p.radius + 18 || (homing && dist < p.stats.pickupRadius * 0.75 && item.age > 0.45));
+        (dist < p.radius + 24 || (homing && dist < p.stats.pickupRadius * 0.85 && item.age > 0.45));
       if (canCollect && this.collect(item)) this.pickups.splice(i, 1);
     }
   }

@@ -158,7 +158,8 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
         item.kind !== 'shrine' &&
         item.kind !== 'archive' &&
         item.kind !== 'merchant' &&
-        item.kind !== 'fountain')
+        item.kind !== 'fountain' &&
+        item.kind !== 'lever')
     )
       continue;
     const room = world.floor.rooms.find(
@@ -178,16 +179,18 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
           ? `rgba(111, 231, 255, ${pulse})`
           : item.kind === 'archive'
             ? `rgba(184, 164, 255, ${pulse})`
-            : item.kind === 'merchant'
-              ? 'rgba(255, 208, 96, 0.9)'
-              : 'rgba(143, 215, 255, 0.75)';
+            : item.kind === 'lever'
+              ? `rgba(255, 176, 74, ${pulse})`
+              : item.kind === 'merchant'
+                ? 'rgba(255, 208, 96, 0.9)'
+                : 'rgba(143, 215, 255, 0.75)';
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(ix, iy, Math.max(4, scale * 2) + pulse * 2, 0, Math.PI * 2);
     ctx.stroke();
 
-    // Inner icon symbol for lore archives and shops
+    // Inner icon symbol for lore archives, levers and shops
     ctx.fillStyle = color;
     if (item.kind === 'archive') {
       ctx.beginPath();
@@ -196,6 +199,11 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
       ctx.lineTo(ix, iy + 2.5);
       ctx.lineTo(ix - 2.5, iy);
       ctx.fill();
+    } else if (item.kind === 'lever') {
+      ctx.beginPath();
+      ctx.moveTo(ix - 2, iy + 2);
+      ctx.lineTo(ix + 2, iy - 2);
+      ctx.stroke();
     } else if (item.kind === 'merchant') {
       ctx.beginPath();
       ctx.arc(ix, iy, 2, 0, Math.PI * 2);

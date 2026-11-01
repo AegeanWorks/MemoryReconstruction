@@ -1,48 +1,23 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "audio-visual-finisher-polish-v1",
-    "last_phase": "phase 4",
+    "task_id": "variable-ratio-pickups-and-tactical-map-v1",
+    "last_phase": "in_progress",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793547580.520097,
-    "owner": "antigravity:sim",
-    "started_by": "antigravity:sim",
+    "updated_at": 1793548298.088288,
+    "owner": "Antigravity",
+    "started_by": "Antigravity",
     "continuations": [],
-    "completed_at": 1793547585.3094604
+    "impact_assessment": {
+      "why": "Implement variable-ratio reinforcement schedules for breakables and chests, fix pickups falling in doors/gates, and enhance tactical map",
+      "benefits": "Empirical grounding with cyberpulse literature (Skinner/Schultz RPE, Zeigarnik effect), eliminates lost drops at doors, enhances feedback",
+      "risks": "contract: no breaking changes; dependency: zero new dependencies; concurrency: single-threaded PIXI/game loop; state: pure extension to existing event/pickup/minimap systems",
+      "mitigation": "Thorough unit tests in systems.test.ts, 100% vitest suite pass, 8 AIKit gates in strict mode"
+    },
+    "completed_at": 1793548604.4174771
   },
   "checkpoints": [
-    {
-      "task_id": "visual-cohesion-choice-cards-combat-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'visual-cohesion-choice-cards-combat-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793534389.1250677,
-      "timestamp_str": "2026-11-01 14:59:49",
-      "agent": "unidentified"
-    },
-    {
-      "task_id": "well-water-levers-teleport-melee-bosses-v1",
-      "phase": "planning",
-      "phase_num": 2,
-      "description": "[1/4] Plan barrel arc fix, well water animation, centered wells, wall levers, teleport spawning, teleporting enemies, melee bosses, and new levels; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793535203.4190807,
-      "timestamp_str": "2026-11-01 15:13:23",
-      "agent": "unidentified",
-      "impact_assessment": {
-        "why": "Fix barrel rendering artifact, elevate well aesthetics with centered placement and animated water, mount levers to walls, add teleporting enemy archetype, wave teleport spawning, dedicated melee attacking bosses, and new campaign levels.",
-        "benefits": "Resolves broken barrel graphic, brings lively water ripples and proper placement to wells, mounts levers realistically on walls, adds dynamic teleport combat encounters, and expands campaign with thrilling close-quarters melee boss battles.",
-        "risks": "contract: zero breaking changes to existing enemy/room definitions; dependency: zero new external packages; concurrency: deterministic sim/view loops; state: backward-compatible floor generation.",
-        "mitigation": "Preserve existing event and sim shapes, enforce 100% test pass and strict AIKit gate checks, keep health bar styles strictly untouched."
-      },
-      "handoff": {
-        "state": "clean repo",
-        "next": "Milestone 1 barrel arc fix, centered well, water animation, wall levers"
-      }
-    },
     {
       "task_id": "well-water-levers-teleport-melee-bosses-v1",
       "phase": "verification",
@@ -259,6 +234,38 @@
       "timestamp": 1793547585.309462,
       "timestamp_str": "2026-11-01 18:39:45",
       "agent": "antigravity:sim"
+    },
+    {
+      "task_id": "variable-ratio-pickups-and-tactical-map-v1",
+      "phase": "in_progress",
+      "phase_num": 2,
+      "description": "[1/2] Plan variable-ratio surges, pickup boundaries and tactical minimap",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793548298.088288,
+      "timestamp_str": "2026-11-01 18:51:38",
+      "agent": "Antigravity",
+      "impact_assessment": {
+        "why": "Implement variable-ratio reinforcement schedules for breakables and chests, fix pickups falling in doors/gates, and enhance tactical map",
+        "benefits": "Empirical grounding with cyberpulse literature (Skinner/Schultz RPE, Zeigarnik effect), eliminates lost drops at doors, enhances feedback",
+        "risks": "contract: no breaking changes; dependency: zero new dependencies; concurrency: single-threaded PIXI/game loop; state: pure extension to existing event/pickup/minimap systems",
+        "mitigation": "Thorough unit tests in systems.test.ts, 100% vitest suite pass, 8 AIKit gates in strict mode"
+      },
+      "handoff": {
+        "state": "clean",
+        "next": "implement pickup safety and surge drops in world.ts and minimap.ts",
+        "open": "none"
+      }
+    },
+    {
+      "task_id": "variable-ratio-pickups-and-tactical-map-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'variable-ratio-pickups-and-tactical-map-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793548604.4174783,
+      "timestamp_str": "2026-11-01 18:56:44",
+      "agent": "Antigravity"
     }
   ]
 }
