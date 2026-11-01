@@ -60,7 +60,7 @@ MemoryReconstruction/
 
 ## Overview
 
-You are a **Memory Walker** setting out from the **Sanctuary** on expeditions through sixteen procedurally generated sections, from the Forgotten Ruins to the Sanctuary of Reconstruction. Each section is a set of rooms: walk into one and its doors seal until every enemy is gone. Grow stronger by picking upgrades and wearing relics, beat each section's guardian, and step through the rift it leaves behind. Defeat the Keeper on the sixteenth section to win.
+You are a **Memory Walker** setting out from the **Sanctuary** on expeditions through nineteen procedurally generated sections, from the Forgotten Ruins to the Sanctuary of Reconstruction. Each section is a set of rooms: walk into one and its doors seal until every enemy is gone. Grow stronger by picking upgrades and wearing relics, beat each section's guardian, and step through the rift it leaves behind. Defeat the Keeper on the nineteenth section to win.
 
 Death ends the expedition, but **memory fragments** you recover are kept forever, and half the shards still in hand are banked as **echoes** at the Sanctuary. Spend echoes to rebuild the Sanctuary — each restored structure is a permanent starting bonus, so the place visibly grows back as you recover its story. Every third section becomes a **checkpoint**: after falling, retry from the last checkpoint or start again from the beginning.
 
