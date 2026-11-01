@@ -82,9 +82,19 @@ export class Sound {
   handle(events: readonly SimEvent[]): void {
     for (const e of events) {
       switch (e.type) {
-        case 'swing':
-          this.whoosh(e.combo === 2 ? 0.16 : 0.1, e.combo === 2 ? 900 : 1600, 0.25);
+        case 'swing': {
+          const isFinisher =
+            e.combo === (e.weapon === 'greatsword' || e.weapon === 'spear' ? 1 : 2);
+          if (e.weapon === 'greatsword') {
+            this.whoosh(isFinisher ? 0.22 : 0.14, isFinisher ? 700 : 1100, 0.3);
+            if (isFinisher) this.thump(80, 0.25, 'swing');
+          } else if (e.weapon === 'spear') {
+            this.whoosh(isFinisher ? 0.12 : 0.08, isFinisher ? 2200 : 1800, 0.22);
+          } else {
+            this.whoosh(isFinisher ? 0.16 : 0.1, isFinisher ? 900 : 1600, 0.25);
+          }
           break;
+        }
         case 'hit':
           if (e.target === 'enemy') this.thump(e.crit ? 220 : 160, e.crit ? 0.35 : 0.22, 'hit');
           break;

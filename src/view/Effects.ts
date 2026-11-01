@@ -129,7 +129,7 @@ export class Effects {
   handle(events: readonly SimEvent[], playerX: number, playerY: number): void {
     for (const e of events) {
       switch (e.type) {
-        case 'swing':
+        case 'swing': {
           this.slashes.push({
             x: e.x,
             y: e.y,
@@ -138,7 +138,15 @@ export class Effects {
             weapon: e.weapon,
             age: 0,
           });
+          const isFinisher =
+            e.combo === (e.weapon === 'greatsword' || e.weapon === 'spear' ? 1 : 2);
+          if (isFinisher) {
+            const color =
+              e.weapon === 'spear' ? 0xa8f6ff : e.weapon === 'greatsword' ? 0xffb04a : 0x6fe7ff;
+            this.star(e.x + Math.cos(e.angle) * 16, e.y + Math.sin(e.angle) * 16, color, 24, 0.2);
+          }
           break;
+        }
         case 'weaponSwitch': {
           const color =
             e.weapon === 'spear' ? 0x6fe7ff : e.weapon === 'greatsword' ? 0xffa040 : 0xffd98a;

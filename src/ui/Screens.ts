@@ -1410,6 +1410,7 @@ function objectiveSummary(world: World): string {
   const parts = [`Rooms ${goal.roomsCleared}/${goal.roomsTotal}`];
   if (goal.chestFound) parts.push(`Chest ${goal.chestUsed ? 'opened' : 'unopened'}`);
   if (goal.wellFound) parts.push(`Well ${goal.wellUsed ? 'used' : 'unused'}`);
+  if (goal.archiveFound) parts.push(`Archive ${goal.archiveUsed ? 'read' : 'unread'}`);
   parts.push(goal.complete ? 'bonus ready' : 'full clear for a bonus');
   return parts.join('  ·  ');
 }
@@ -1729,7 +1730,7 @@ export function mapScreen(world: World, onClose: () => void): HTMLElement {
     h(
       'div',
       { class: 'meta-line map-legend' },
-      'White: you  ·  Violet: explored or library  ·  Gold: treasure  ·  Cyan: memory well  ·  Red: guardian  ·  Orange: arena  ·  Crimson hatch: iron gate'
+      'White: you  ·  Violet: explored / archive  ·  Gold: chest / merchant  ·  Cyan: well / fountain  ·  Red: guardian  ·  Orange: arena  ·  Crimson hatch: reinforcement gate'
     ),
     h('div', { class: 'menu' }, button('Close', onClose))
   );

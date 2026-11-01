@@ -1,72 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "visual-atmosphere-polish-v1",
+    "task_id": "audio-visual-finisher-polish-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793547212.0740685,
+    "updated_at": 1793547580.520097,
     "owner": "antigravity:sim",
     "started_by": "antigravity:sim",
     "continuations": [],
-    "completed_at": 1793547216.7677472
+    "completed_at": 1793547585.3094604
   },
   "checkpoints": [
-    {
-      "task_id": "weapon-models-visual-cohesion-v1",
-      "phase": "verification",
-      "phase_num": 4,
-      "description": "[5/5] Verify 205 tests, 8/8 gates, safe gate drop positioning, and weapon model assets; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793526540.6533527,
-      "timestamp_str": "2026-11-01 12:49:00",
-      "agent": "unidentified",
-      "handoff": {
-        "next": "stage files, complete task, and commit"
-      }
-    },
-    {
-      "task_id": "weapon-models-visual-cohesion-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'weapon-models-visual-cohesion-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793526544.495873,
-      "timestamp_str": "2026-11-01 12:49:04",
-      "agent": "unidentified"
-    },
-    {
-      "task_id": "visual-cohesion-choice-cards-combat-v1",
-      "phase": "planning",
-      "phase_num": 2,
-      "description": "[1/5] Plan choice card emblem art, stance dash afterimages, enemy stagger animations, and death dissolution",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793534102.7609925,
-      "timestamp_str": "2026-11-01 14:55:02",
-      "agent": "unidentified",
-      "impact_assessment": {
-        "why": "Elevate game art style, animations, card iconography, and combat feedback as requested by user.",
-        "benefits": "Tactile card emblems in upgrade choice screen, stance-matched dash trails, enemy stagger feedback, and ethereal death dissolution.",
-        "risks": "contract: none, sim and view contracts preserved; dependency: none, uses existing PIL and PixiJS; concurrency: none, single-threaded render loop; state: none, purely additive presentation layer",
-        "mitigation": "Automated Vitest tests, typecheck, lint, and strict 8/8 AIKit gates before commit."
-      },
-      "handoff": {
-        "next": "implement choice card emblems in Screens.ts and ui.css"
-      }
-    },
-    {
-      "task_id": "visual-cohesion-choice-cards-combat-v1",
-      "phase": "verification",
-      "phase_num": 4,
-      "description": "[5/5] Verify 205 tests, 8/8 gates, choice card emblems, and stagger visuals; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793534385.389714,
-      "timestamp_str": "2026-11-01 14:59:45",
-      "agent": "unidentified"
-    },
     {
       "task_id": "visual-cohesion-choice-cards-combat-v1",
       "phase": "completed",
@@ -264,6 +209,55 @@
       "status": "completed",
       "timestamp": 1793547216.7677486,
       "timestamp_str": "2026-11-01 18:33:36",
+      "agent": "antigravity:sim"
+    },
+    {
+      "task_id": "audio-visual-finisher-polish-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/4] Plan: stance-weighted swing audio, combo finisher glints, and big map objective sync",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793547569.773201,
+      "timestamp_str": "2026-11-01 18:39:29",
+      "agent": "antigravity:sim",
+      "impact_assessment": {
+        "why": "Differentiate audio feedback across weapon stances, punch up combo finishers, and synchronize map objectives",
+        "benefits": "Heavier greatsword impact, sharper spear whistle, satisfying finisher visual spark, and complete map objective clarity",
+        "risks": "contract: none; dependency: none; concurrency: none; state: view/audio presentation only",
+        "mitigation": "Presentation layer additions, 100% test pass, and pre-commit gate triad"
+      }
+    },
+    {
+      "task_id": "audio-visual-finisher-polish-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "Implement stance-weighted audio, finisher apex glint, and big map objective sync",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793547574.971115,
+      "timestamp_str": "2026-11-01 18:39:34",
+      "agent": "antigravity:sim"
+    },
+    {
+      "task_id": "audio-visual-finisher-polish-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "Pass all 213 vitest tests, lint, typecheck, build, mechanics, hygiene, guidelines, and secrets gates",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793547580.520097,
+      "timestamp_str": "2026-11-01 18:39:40",
+      "agent": "antigravity:sim"
+    },
+    {
+      "task_id": "audio-visual-finisher-polish-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'audio-visual-finisher-polish-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793547585.309462,
+      "timestamp_str": "2026-11-01 18:39:45",
       "agent": "antigravity:sim"
     }
   ]

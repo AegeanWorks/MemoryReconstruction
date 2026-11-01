@@ -793,3 +793,14 @@ or the architecture; see the header above for where each entry goes. -->
   3. **Stance-Aligned Dynamic Aim Reticle**: In `src/view/ActorView.ts`, `drawAimReticle` renders a lightweight world-space aiming cursor in `this.overlay` that adapts to the wielded stance (cyan twin balance arcs for Sword, piercing chevron with needle glint for Spear, wide bronze heavy arc for Greatsword), flaring with resonant embers in Flow Overdrive.
   4. **Elite Enemy Champion Auras**: In `src/view/ActorView.ts`, upgraded `drawEliteAura` beneath elite mobs with double concentric runic rings, 4 rotating cardinal diamond spikes, and 4 orbiting amber embers.
 - **Consequences**: Dungeon halls gain deep warmth and living firelight, player aim is crisp and stance-differentiated, elite mobs have unmistakable presence, and exploration navigation is effortless. All 213 vitest tests pass. Health bar styling (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
+
+## ADR-075: Stance-Weighted Swing Audio, Combo Finisher Glints, and Big Map Objective Synchronization
+
+- **Date**: 2026-11-01
+- **Status**: Accepted
+- **Context**: In melee combat, greatsword and spear combo finishers were playing the standard sword swing audio due to hardcoded `e.combo === 2` checks, combo finishers lacked an apex starburst spark to punctuate climax hits, and the fullscreen `mapScreen` objective line omitted lore archives.
+- **Decision**:
+  1. **Stance-Weighted Swing Audio**: In `src/audio/Sound.ts`, `case 'swing'` now correctly detects finishers for all 3 weapon stances (`combo === (weapon === 'greatsword' || weapon === 'spear' ? 1 : 2)`). Greatsword swings play low, resonant heavy whooshes (`700Hz`) with a physical bass thump (`80Hz`) on finisher; spear thrusts play sharp, aerodynamic whistles (`1800-2200Hz`); sword strikes retain fluid sweeping whooshes (`900-1600Hz`).
+  2. **Combo Finisher Apex Glints**: In `src/view/Effects.ts`, landing a combo finisher emits a brilliant starburst glint (`color = spear: 0xa8f6ff, greatsword: 0xffb04a, sword: 0x6fe7ff`) at the blade's apex offset, adding tactile arcade crunch.
+  3. **Big Map & Pause Objective Synchronization**: In `src/ui/Screens.ts`, updated `objectiveSummary` to display lore archive progress (`Archive read/unread`) and updated `mapScreen` legend to explain the new minimap markers.
+- **Consequences**: Every weapon stance sounds physically distinct and punchy, finishers convey satisfying visual crunch, and map panels cleanly mirror HUD objective progress. All 213 vitest tests pass. Health bar styling (`.hud-vitals`, `.bar.*`) remains strictly unmodified.
