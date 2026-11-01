@@ -690,3 +690,76 @@ describe('overkill', () => {
     others.forEach((e, i) => expect(e.health).toBe(healthsBefore[i]));
   });
 });
+
+describe('behavioral mechanics', () => {
+  it('triggers near-miss clutch surge on graze when in critical health', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'start');
+    const p = world.player;
+    p.health = Math.round(p.stats.maxHealth * 0.2);
+    p.dashCharges = 1;
+    p.resonanceTime = 0;
+    expect(p.clutchUsed).toBe(false);
+
+    const enemy = world.spawnEnemy('scavenger', p.x + 32, p.y, -1);
+    enemy.state = 'stagger';
+    enemy.stateTime = 99;
+    enemy.cooldown = 99;
+
+    let events: SimEvent[] = [];
+    for (let i = 0; i < 12; i++)
+      events.push(...world.step({ ...NO_INPUT, dash: true, moveX: 1 }, DT));
+
+    expect(events.some((e) => e.type === 'clutchGraze')).toBe(true);
+    expect(p.clutchUsed).toBe(true);
+    expect(p.dashCharges).toBeGreaterThan(0);
+    expect(p.resonanceTime).toBeGreaterThan(0);
+
+    // Further graze while still critical does not trigger clutchGraze again
+    events = [];
+    p.action = 'idle';
+    p.dashTime = 0;
+    p.dashCharges = 1;
+    p.dashGrazes = [];
+    enemy.x = p.x + 32;
+    for (let i = 0; i < 12; i++)
+      events.push(...world.step({ ...NO_INPUT, dash: true, moveX: 1 }, DT));
+    expect(events.some((e) => e.type === 'clutchGraze')).toBe(false);
+
+    // Healing above 30% resets clutchUsed
+    world.step({ ...NO_INPUT, potion: true }, DT);
+    expect(p.health).toBeGreaterThan(p.stats.maxHealth * 0.3);
+    expect(p.clutchUsed).toBe(false);
+  });
+
+  it('tracks archive pages in floorObjectives', () => {
+    const world = newWorld();
+    world.interactables.length = 0;
+    world.interactables.push({
+      id: 9999,
+      kind: 'archive',
+      x: world.player.x + 20,
+      y: world.player.y,
+      roomId: 0,
+      cost: 0,
+      used: false,
+    });
+    const obj = world.floorObjectives();
+    expect(obj.archiveFound).toBe(true);
+    expect(obj.archiveUsed).toBe(false);
+
+    world.step({ ...NO_INPUT, interact: true }, DT);
+    const updated = world.floorObjectives();
+    expect(updated.archiveUsed).toBe(true);
+  });
+
+  it('delivers hitstop when landing a critical strike', () => {
+    const world = newWorld();
+    teleportToRoom(world, 'start');
+    const enemy = world.spawnEnemy('scavenger', world.player.x + 20, world.player.y, -1);
+    enemy.state = 'chase';
+    world.damageEnemy(enemy, 20, 'melee', true, 0);
+    const initialHitstop = (world as unknown as { freeze: number }).freeze;
+    expect(initialHitstop).toBeGreaterThan(0);
+  });
+});

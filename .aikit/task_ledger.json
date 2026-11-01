@@ -1,71 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "graphics-ui-polish-v1",
+    "task_id": "behavioral-mechanics-polish-v1",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793543379.0412366,
-    "owner": "antigravity:ui",
-    "started_by": "antigravity:ui",
+    "updated_at": 1793546095.87298,
+    "owner": "antigravity:sim",
+    "started_by": "antigravity:sim",
     "continuations": [],
-    "completed_at": 1793543383.4687243
+    "completed_at": 1793546101.8487253
   },
   "checkpoints": [
-    {
-      "task_id": "review-push-gate-fixes-v1",
-      "phase": "verification",
-      "phase_num": 4,
-      "description": "[4/4] checklists: passed; 199 tests, 8/8 gates, strict delivery ready; pushed 5603625..eb64bdd to origin/main",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793498327.1459148,
-      "timestamp_str": "2026-11-01 04:58:47",
-      "agent": "kilo:memory",
-      "handoff": {
-        "state": "pushed and clean",
-        "next": "none, task is closing",
-        "evidence": "git push 5603625..eb64bdd, aikit check --strict 8/8"
-      }
-    },
-    {
-      "task_id": "review-push-gate-fixes-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'review-push-gate-fixes-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793498327.2923057,
-      "timestamp_str": "2026-11-01 04:58:47",
-      "agent": "kilo:memory"
-    },
-    {
-      "task_id": "audit-recent-pushes-v1",
-      "phase": "planning",
-      "phase_num": 2,
-      "description": "[1/4] Plan: audit the last five pushes, fix arc-restricted prop breaks, prop/interactable spacing, and stance-matched mirror slashes, then verify and push",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793521233.7404919,
-      "timestamp_str": "2026-11-01 11:20:33",
-      "agent": "kilo:memory",
-      "impact_assessment": {
-        "why": "The user asked for an audit of recent work with fixes and a push",
-        "benefits": "Swings stop breaking props behind the player, loot props stop burying interactables, and the mirror's slash art matches the stance it copies",
-        "risks": "contract: Arena.hitHazards widens with optional angle/halfArc; dependency: none; concurrency: none; state: none",
-        "mitigation": "Targeted tests for the swing arc, prop spacing and stance slashes plus the eight gates"
-      }
-    },
-    {
-      "task_id": "audit-recent-pushes-v1",
-      "phase": "implementation",
-      "phase_num": 3,
-      "description": "[2/4] Fixes: swing-arc prop breaks, prop/interactable spacing with portal cleanup, mirror slashes follow the player stance; 203 tests green; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793521451.3441868,
-      "timestamp_str": "2026-11-01 11:24:11",
-      "agent": "kilo:memory"
-    },
     {
       "task_id": "audit-recent-pushes-v1",
       "phase": "implementation",
@@ -278,6 +224,55 @@
       "timestamp": 1793543383.468726,
       "timestamp_str": "2026-11-01 17:29:43",
       "agent": "antigravity:ui"
+    },
+    {
+      "task_id": "behavioral-mechanics-polish-v1",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/4] Plan: implement literature-grounded mechanics from cyberpulse (near-miss clutch surge, flow overdrive aura, boss frenzy goal gradient, and archive completionist tracking)",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793545131.8766322,
+      "timestamp_str": "2026-11-01 17:58:51",
+      "agent": "antigravity:sim",
+      "impact_assessment": {
+        "why": "Integrate proven cognitive neuroscience and behavioral game design from CyberPulse literature review into Memory Reconstruction",
+        "benefits": "Adrenaline near-miss comeback moments, visual Flow mastery rewards, escalating boss tension near death, and completionist exploration clarity",
+        "risks": "contract: none; dependency: none; concurrency: none; state: backward-compatible FloorObjectives extension",
+        "mitigation": "Unit tests covering near-miss clutch and objectives, 100% test pass, and AIKit pre-commit gate triad"
+      }
+    },
+    {
+      "task_id": "behavioral-mechanics-polish-v1",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "Implement clutchGraze near-miss surge, flow overdrive aura, boss frenzy phase 4, archive objectives, and crit hitstop",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793546089.7652485,
+      "timestamp_str": "2026-11-01 18:14:49",
+      "agent": "antigravity:sim"
+    },
+    {
+      "task_id": "behavioral-mechanics-polish-v1",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "Pass all 213 vitest tests across 15 suites, lint, typecheck, build, mechanics, hygiene, guidelines, and secrets gates",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793546095.87298,
+      "timestamp_str": "2026-11-01 18:14:55",
+      "agent": "antigravity:sim"
+    },
+    {
+      "task_id": "behavioral-mechanics-polish-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'behavioral-mechanics-polish-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793546101.8487267,
+      "timestamp_str": "2026-11-01 18:15:01",
+      "agent": "antigravity:sim"
     }
   ]
 }

@@ -135,6 +135,9 @@ export class Sound {
         case 'graze':
           this.tone(1400, 2200, 0.07, 'sine', 0.05, 'graze');
           break;
+        case 'clutchGraze':
+          this.chord([880, 1109, 1319], 0.28, 0.15);
+          break;
         case 'resonance':
           if (e.count === 3 || e.count === 6 || e.count === 10)
             this.tone(440 + e.count * 40, 880 + e.count * 40, 0.12, 'triangle', 0.07);

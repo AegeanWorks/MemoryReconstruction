@@ -256,6 +256,12 @@ export class Effects {
           this.burst(e.x, e.y, 0x9df3ff, 6, 80, 0.22, 3);
           this.number(e.x, e.y - 8, 'GRAZE', 0x9df3ff, 12);
           break;
+        case 'clutchGraze':
+          this.ring(e.x, e.y, 44, 0x6fe7ff, 0.45);
+          this.star(e.x, e.y, 0xffd98a, 48, 0.4);
+          this.burst(e.x, e.y, 0xffe680, 14, 110, 0.4, 4);
+          this.number(e.x, e.y - 18, 'CLUTCH GRAZE!', 0xffd98a, 16);
+          break;
         case 'resonance':
           if (e.count === 3 || e.count === 6 || e.count === 10)
             this.ring(playerX, playerY, 60 + e.count * 4, 0x6fe7ff, 0.45);

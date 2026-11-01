@@ -64,6 +64,7 @@ export function createPlayer(x: number, y: number): Player {
     knockX: 0,
     knockY: 0,
     hurtFlash: 0,
+    clutchUsed: false,
   };
 }
 
@@ -146,6 +147,7 @@ function drinkPotion(arena: Arena): void {
   );
   p.potions--;
   p.health += healed;
+  if (p.health > p.stats.maxHealth * 0.3) p.clutchUsed = false;
   arena.emit({ type: 'potion', healed });
 }
 

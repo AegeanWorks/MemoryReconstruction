@@ -49,6 +49,7 @@ export type SimEvent =
   | { type: 'resonance'; count: number; multiplier: number }
   | { type: 'resonanceBreak'; count: number }
   | { type: 'graze'; x: number; y: number }
+  | { type: 'clutchGraze'; x: number; y: number }
   | { type: 'lootSurge'; x: number; y: number; kind: 'rich' | 'jackpot'; amount: number }
   | { type: 'objectiveComplete'; shards: number }
   | { type: 'flawlessRoom'; roomId: number; shards: number }

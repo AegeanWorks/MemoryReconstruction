@@ -69,6 +69,8 @@ export interface Player {
   knockY: number;
   /** Seconds the hurt flash shows. */
   hurtFlash: number;
+  /** Has the near-miss clutch surge been used in the current critical-health state? */
+  clutchUsed?: boolean;
 }
 
 export type EnemyState =

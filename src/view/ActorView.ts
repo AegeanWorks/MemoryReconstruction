@@ -7,7 +7,7 @@
  * smooth on displays faster than the 60 Hz simulation.
  */
 import { AnimatedSprite, Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
-import type { Enemy, Hazard, Interactable, Pickup, Projectile } from '../sim/entities';
+import type { Enemy, Hazard, Interactable, Pickup, Player, Projectile } from '../sim/entities';
 import { dashStrikeRange, slamRadius } from '../sim/enemies';
 import { equipmentDef } from '../sim/equipment';
 import type { WeaponId } from '../sim/weapons';
@@ -116,6 +116,7 @@ export class ActorView {
   readonly overlay = new Container();
 
   private readonly bossAuras = new Graphics();
+  private readonly playerAura = new Graphics();
   private readonly telegraphs = new Graphics();
   private readonly hazardsG = new Graphics();
   private readonly bars = new Graphics();
@@ -144,7 +145,7 @@ export class ActorView {
   ) {
     this.actors.sortableChildren = true;
     this.accent = hex(BIOME_ART[world.plan.biome].accent);
-    this.ground.addChild(this.bossAuras, this.telegraphs, this.hazardsG);
+    this.ground.addChild(this.bossAuras, this.playerAura, this.telegraphs, this.hazardsG);
     this.player = makeActor(sprites.player, 56);
     this.actors.addChild(this.player.root);
     this.addDecor();
@@ -220,6 +221,7 @@ export class ActorView {
   update(dt: number, alpha: number, view?: { x: number; y: number; w: number; h: number }): void {
     this.time += dt;
     this.bossAuras.clear();
+    this.playerAura.clear();
     this.telegraphs.clear();
     this.hazardsG.clear();
     this.bars.clear();
@@ -257,13 +259,21 @@ export class ActorView {
     a.root.position.set(pos.x, pos.y);
     a.root.zIndex = pos.y;
 
-    // Lantern light flares during dash or flow surge, subtly tinted by the wielded stance
-    const surge = p.action === 'dash' ? 1.25 : 1 + Math.min(0.25, (p.resonance / 10) * 0.25);
+    // Lantern light flares during dash or flow surge, subtly tinted by the wielded stance;
+    // at maximum flow (Csikszentmihalyi Overdrive), it radiates a vibrant cyan flow glow.
+    const maxFlow = p.resonance >= 10;
+    const surge =
+      p.action === 'dash' ? 1.25 : maxFlow ? 1.35 : 1 + Math.min(0.25, (p.resonance / 10) * 0.25);
     this.playerLight.position.set(pos.x, pos.y);
     this.playerLight.width = this.playerLight.height = 260 * surge;
-    this.playerLight.alpha = 0.16 * surge;
-    this.playerLight.tint =
-      p.weapon === 'spear' ? 0xa8f6ff : p.weapon === 'greatsword' ? 0xffdfb0 : 0xffffff;
+    this.playerLight.alpha = (maxFlow ? 0.24 : 0.16) * surge;
+    this.playerLight.tint = maxFlow
+      ? 0x6fe7ff
+      : p.weapon === 'spear'
+        ? 0xa8f6ff
+        : p.weapon === 'greatsword'
+          ? 0xffdfb0
+          : 0xffffff;
 
     const attackAnim =
       p.weapon === 'spear'
@@ -343,6 +353,29 @@ export class ActorView {
           : p.action === 'dash'
             ? 0.7
             : 1;
+    this.drawPlayerAura(p, pos.x, pos.y);
+  }
+
+  /** Flow Overdrive radiant aura and orbiting motes when player is at max resonance. */
+  private drawPlayerAura(p: Player, x: number, y: number): void {
+    if (p.resonance < 10 || p.action === 'dead') return;
+    const g = this.playerAura;
+    const angle = this.time * 3.5;
+    const radius = 24;
+    const alpha = 0.45 + 0.15 * Math.sin(this.time * 8);
+
+    // Radiant flow rings
+    g.circle(x, y, radius).stroke({ width: 2, color: 0x6fe7ff, alpha });
+    g.circle(x, y, radius * 1.35).stroke({ width: 1.5, color: 0xffd98a, alpha: alpha * 0.7 });
+
+    // Orbiting resonant motes
+    const count = 4;
+    for (let i = 0; i < count; i++) {
+      const a = angle + (i * Math.PI * 2) / count;
+      const mx = x + Math.cos(a) * (radius * 1.35);
+      const my = y + Math.sin(a) * (radius * 1.35);
+      g.circle(mx, my, 2.5).fill({ color: 0x6fe7ff, alpha: alpha * 0.9 });
+    }
   }
 
   private syncEnemies(dt: number, alpha: number): void {
@@ -469,35 +502,41 @@ export class ActorView {
       this.drawHealthBar(e, pos.x, pos.y);
   }
 
-  /** Rotating runic aura beneath bosses that intensifies across phase transitions. */
+  /** Rotating runic aura beneath bosses that intensifies across phase transitions into critical frenzy. */
   private drawBossAura(e: Enemy, x: number, y: number): void {
     const g = this.bossAuras;
     const hpFrac = e.maxHealth > 0 ? e.health / e.maxHealth : 1;
-    const phase = hpFrac < 0.33 ? 3 : hpFrac < 0.66 ? 2 : 1;
-    const speed = phase === 3 ? 3.4 : phase === 2 ? 2.2 : 1.2;
+    const phase = hpFrac < 0.25 ? 4 : hpFrac < 0.33 ? 3 : hpFrac < 0.66 ? 2 : 1;
+    const speed = phase === 4 ? 4.8 : phase === 3 ? 3.4 : phase === 2 ? 2.2 : 1.2;
     const angle = this.time * speed;
     const radius = e.radius * 2.2;
     // The mirror keeps the player's cyan until it starts to lose its shape.
     const mirror = e.def.id === 'mirror_self';
     const color = mirror
-      ? phase === 3
-        ? 0xff5aa8
-        : phase === 2
-          ? 0x9e8cff
-          : 0x6fe7ff
-      : phase === 3
-        ? 0xff3b3b
-        : phase === 2
-          ? 0xff7a3a
-          : 0xb86cff;
-    const alpha = (phase === 3 ? 0.65 : phase === 2 ? 0.45 : 0.3) + 0.1 * Math.sin(this.time * 6);
+      ? phase === 4
+        ? 0xff2060
+        : phase === 3
+          ? 0xff5aa8
+          : phase === 2
+            ? 0x9e8cff
+            : 0x6fe7ff
+      : phase === 4
+        ? 0xff1830
+        : phase === 3
+          ? 0xff3b3b
+          : phase === 2
+            ? 0xff7a3a
+            : 0xb86cff;
+    const alpha =
+      (phase === 4 ? 0.8 : phase === 3 ? 0.65 : phase === 2 ? 0.45 : 0.3) +
+      0.1 * Math.sin(this.time * (phase === 4 ? 10 : 6));
 
     // Outer and inner concentric runic bands
-    g.circle(x, y, radius).stroke({ width: 2, color, alpha });
+    g.circle(x, y, radius).stroke({ width: phase === 4 ? 2.5 : 2, color, alpha });
     g.circle(x, y, radius * 0.72).stroke({ width: 1.5, color, alpha: alpha * 0.7 });
 
     // Radial notches / spokes
-    const count = phase === 3 ? 12 : 8;
+    const count = phase === 4 ? 16 : phase === 3 ? 12 : 8;
     for (let i = 0; i < count; i++) {
       const a = angle + (i * Math.PI * 2) / count;
       g.moveTo(x + Math.cos(a) * (radius * 0.72), y + Math.sin(a) * (radius * 0.72))
@@ -506,11 +545,15 @@ export class ActorView {
     }
 
     // Outer orbital glyphs
-    for (let i = 0; i < 4; i++) {
-      const a = -angle * 1.5 + (i * Math.PI) / 2;
+    const glyphCount = phase === 4 ? 6 : 4;
+    for (let i = 0; i < glyphCount; i++) {
+      const a = -angle * 1.5 + (i * Math.PI * 2) / glyphCount;
       const gx = x + Math.cos(a) * (radius + 8);
       const gy = y + Math.sin(a) * (radius + 8);
-      g.circle(gx, gy, 3).fill({ color: 0xffffff, alpha: alpha * 0.9 });
+      g.circle(gx, gy, phase === 4 ? 3.5 : 3).fill({
+        color: phase === 4 ? 0xffe080 : 0xffffff,
+        alpha: alpha * 0.9,
+      });
     }
   }
 
@@ -558,12 +601,16 @@ export class ActorView {
       if (!room.gates || room.gates.length === 0) continue;
       const state = this.world.rooms[room.id];
       if (!state || state.phase !== 'active' || state.wavesLeft <= 0) continue;
-      const pulse = 0.3 + 0.28 * Math.sin(t * 5.5 + room.id);
+      const isFinalUpcoming = state.wavesLeft === 1 && (state.totalWaves ?? 1) > 1;
+      const pulse = isFinalUpcoming
+        ? 0.5 + 0.45 * Math.sin(t * 9 + room.id)
+        : 0.3 + 0.28 * Math.sin(t * 5.5 + room.id);
+      const color = isFinalUpcoming ? 0xff2020 : 0xff5a3a;
       for (const gate of room.gates)
         for (const tile of gate.tiles) {
           g.rect(tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE).stroke({
-            width: 2,
-            color: 0xff5a3a,
+            width: isFinalUpcoming ? 2.5 : 2,
+            color,
             alpha: pulse,
           });
         }

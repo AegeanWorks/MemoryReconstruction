@@ -323,6 +323,7 @@ function objectiveLine(world: World): string {
   const parts = [`Rooms ${goal.roomsCleared}/${goal.roomsTotal}`];
   if (goal.chestFound) parts.push(`Chest ${goal.chestUsed ? '✓' : '○'}`);
   if (goal.wellFound) parts.push(`Well ${goal.wellUsed ? '✓' : '○'}`);
+  if (goal.archiveFound) parts.push(`Archive ${goal.archiveUsed ? '✓' : '○'}`);
   parts.push(goal.complete ? 'Bonus ready' : 'Full clear for bonus');
   return parts.join('  ·  ');
 }

@@ -98,6 +98,8 @@ export interface FloorObjectives {
   chestUsed: boolean;
   wellFound: boolean;
   wellUsed: boolean;
+  archiveFound?: boolean;
+  archiveUsed?: boolean;
   /** Every combat room cleared and every chest opened. */
   complete: boolean;
   /** The bonus has already been paid for this floor. */
@@ -330,6 +332,17 @@ export class World implements Arena {
     p.resonanceTime = Math.max(p.resonanceTime, RESONANCE_WINDOW * 0.5);
     this.run.stats.grazes++;
     this.emit({ type: 'graze', x, y });
+
+    // Behavioral Psychology (Clark et al., 2009): Near-Miss Clutch Surge
+    // In critical peril (< 30% max HP), grazing triggers an adrenaline clutch comeback.
+    const isCritical = p.health <= p.stats.maxHealth * 0.3;
+    if (isCritical && !p.clutchUsed) {
+      p.clutchUsed = true;
+      p.dashCharges = Math.min(p.stats.dashCharges, p.dashCharges + 1.0);
+      p.resonanceTime = RESONANCE_WINDOW;
+      this.hitstop(0.06);
+      this.emit({ type: 'clutchGraze', x, y });
+    }
   }
 
   /** Optional full-clear objective, surfaced by the HUD and the map. */
@@ -340,8 +353,10 @@ export class World implements Arena {
     const cleared = rooms.filter((r) => this.rooms[r.id].phase === 'cleared').length;
     const chest = this.interactables.filter((i) => i.kind === 'chest');
     const well = this.interactables.filter((i) => i.kind === 'shrine');
+    const archive = this.interactables.filter((i) => i.kind === 'archive');
     const chestUsed = chest.length > 0 && chest.every((i) => i.used);
     const wellUsed = well.length > 0 && well.every((i) => i.used);
+    const archiveUsed = archive.length > 0 && archive.every((i) => i.used);
     return {
       roomsCleared: cleared,
       roomsTotal: rooms.length,
@@ -349,6 +364,8 @@ export class World implements Arena {
       chestUsed,
       wellFound: well.length > 0,
       wellUsed,
+      archiveFound: archive.length > 0,
+      archiveUsed,
       complete: cleared === rooms.length && (!chest.length || chestUsed),
       claimed: this.bonusClaimed,
     };
@@ -389,11 +406,12 @@ export class World implements Arena {
       const p = this.player;
       p.mana = Math.min(p.stats.maxMana, p.mana + 4);
     }
-    // Critical hit reward: a crit restores mana and lengthens the flow window.
+    // Critical hit reward: a crit restores mana, lengthens the flow window, and delivers a tactile hitstop.
     if (crit) {
       const p = this.player;
       p.mana = Math.min(p.stats.maxMana, p.mana + 3);
       p.resonanceTime = Math.min(RESONANCE_WINDOW * 2, p.resonanceTime + 0.5);
+      this.hitstop(0.05);
     }
     const dealt = Math.min(enemy.health, amount);
     enemy.health -= dealt;
@@ -414,6 +432,7 @@ export class World implements Arena {
     });
     if (source === 'melee' && p.stats.lifesteal > 0) {
       p.health = Math.min(p.stats.maxHealth, p.health + dealt * p.stats.lifesteal);
+      if (p.health > p.stats.maxHealth * 0.3) p.clutchUsed = false;
     }
     if (enemy.health <= 0) {
       this.onEnemyKilled(enemy);
@@ -751,6 +770,7 @@ export class World implements Arena {
     } else if (target.kind === 'fountain') {
       target.used = true;
       p.health = Math.min(p.stats.maxHealth, p.health + p.stats.maxHealth * 0.35);
+      if (p.health > p.stats.maxHealth * 0.3) p.clutchUsed = false;
       this.emit({ type: 'notice', text: 'The fountain still remembers clean water.' });
       this.emit({ type: 'interact', kind: 'fountain', x: target.x, y: target.y });
     } else if (target.kind === 'merchant') {
@@ -793,6 +813,7 @@ export class World implements Arena {
       p.shards -= target.cost;
       target.used = true;
       p.health = Math.min(p.stats.maxHealth, p.health + p.stats.maxHealth * 0.5);
+      if (p.health > p.stats.maxHealth * 0.3) p.clutchUsed = false;
       p.potions = p.stats.maxPotions;
       this.run.pendingChoices.push({
         source: 'shrine',
@@ -898,6 +919,9 @@ export class World implements Arena {
   private spawnWave(room: Room): void {
     const state = this.rooms[room.id];
     state.wavesLeft--;
+    if (state.wavesLeft === 0 && (state.totalWaves ?? 1) > 1) {
+      this.emit({ type: 'notice', text: 'Final wave approaching!' });
+    }
     if (room.kind === 'boss' || room.kind === 'arena') {
       const c = roomCentrePx(room);
       const boss = room.kind === 'boss' ? this.plan.boss : arenaBossFor(this.run.depth);
@@ -1700,6 +1724,7 @@ export class World implements Arena {
           break;
         }
         p.health = Math.min(p.stats.maxHealth, p.health + item.amount);
+        if (p.health > p.stats.maxHealth * 0.3) p.clutchUsed = false;
         break;
       case 'potion':
         if (p.potions >= p.stats.maxPotions) {
