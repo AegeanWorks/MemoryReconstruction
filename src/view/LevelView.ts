@@ -190,9 +190,10 @@ export class LevelView {
       container.addChild(s);
     };
     const isFace = (x: number, y: number): boolean =>
-      grid.get(x, y) === Tile.Wall && grid.isWalkable(x, y + 1);
+      grid.get(x, y) === Tile.Wall &&
+      (grid.isWalkable(x, y + 1) || grid.get(x, y + 1) === Tile.Gate);
 
-    if (tile === Tile.Floor || tile === Tile.Door) {
+    if (tile === Tile.Floor || tile === Tile.Door || tile === Tile.Gate) {
       put(tex.floor[variantAt(tx, ty, tex.floor.length)]);
       const deco = grid.deco[grid.index(tx, ty)] as Deco;
       const decoVariants = tex.deco[deco];
@@ -200,7 +201,7 @@ export class LevelView {
         put(decoVariants[variantAt(tx, ty, decoVariants.length)]);
       }
       if (deco === Deco.Glyph) this.addGlyphLight(glowLayer, tx, ty);
-      if (tile === Tile.Door) put(tex.threshold);
+      if (tile === Tile.Door || tile === Tile.Gate) put(tex.threshold);
       if (grid.get(tx, ty - 1) === Tile.Wall) put(tex.aoNorth);
       if (grid.get(tx - 1, ty) === Tile.Wall) put(tex.aoWest);
       if (grid.get(tx + 1, ty) === Tile.Wall) put(tex.aoEast);
@@ -319,10 +320,14 @@ export class LevelView {
       const px = torch.x;
       const py = torch.y;
 
-      // 1. Ambient warm radial light cast onto the wall and floor
-      g.circle(px, py + 8, 38).fill({
+      // 1. Ambient warm radial light cast onto the wall and floor (wide soft wash + bright core)
+      g.circle(px, py + 8, 64).fill({
         color: torch.tint,
-        alpha: 0.12 * flicker,
+        alpha: 0.05 * flicker,
+      });
+      g.circle(px, py + 8, 36).fill({
+        color: torch.tint,
+        alpha: 0.14 * flicker,
       });
 
       // 2. Iron wall bracket / sconce mount
@@ -356,6 +361,17 @@ export class LevelView {
         color: 0xffffff,
         alpha: 0.95 * flicker,
       });
+
+      // 6. Subtle drifting ember sparks floating upwards
+      for (let i = 0; i < 2; i++) {
+        const prog = (t * 1.5 + i * 0.5 + torch.seed * 0.17) % 1;
+        const ey = py - flameH - prog * 16;
+        const ex = px + Math.sin(t * 3.5 + i * 2.1 + torch.seed) * 2.8;
+        g.circle(ex, ey, 0.9).fill({
+          color: 0xffffff,
+          alpha: (1 - prog) * 0.75 * flicker,
+        });
+      }
     }
   }
 

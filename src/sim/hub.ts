@@ -298,9 +298,13 @@ export function sectionNumber(depth: number): number {
   return Math.max(1, Math.min(depth, FLOOR_PLANS.length - 1) + 1);
 }
 
-/** Echoes banked when an expedition ends: half the unspent shards plus bonuses. */
+/** Echoes banked when an expedition ends: half the unspent shards plus clear, mastery and victory bonuses. */
 export function echoesEarned(run: RunState, won: boolean): number {
-  return Math.floor(run.player.shards / 2) + run.stats.floorsRestored * 5 + (won ? 60 : 0);
+  const masteryBonus =
+    (run.stats.grazes ?? 0) * 1 + Math.floor((run.stats.bestResonance ?? 0) / 5) * 2;
+  return (
+    Math.floor(run.player.shards / 2) + run.stats.floorsRestored * 5 + (won ? 60 : 0) + masteryBonus
+  );
 }
 
 export function restorationLevel(progress: SanctuaryProgress, id: string): number {

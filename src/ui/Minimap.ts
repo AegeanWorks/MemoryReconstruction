@@ -93,7 +93,23 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
     }
     // A cleared combat room gets a tick, so progress is readable at a glance.
     if (room.kind === 'combat' && state.phase === 'cleared' && visited) {
-      ctx.strokeStyle = 'rgba(157, 243, 255, 0.85)';
+      const roomItems = world.interactables.filter(
+        (it) =>
+          it.x >= room.x * TILE_SIZE &&
+          it.x <= (room.x + room.w) * TILE_SIZE &&
+          it.y >= room.y * TILE_SIZE &&
+          it.y <= (room.y + room.h) * TILE_SIZE
+      );
+      const hasUnclaimed = roomItems.some(
+        (it) =>
+          !it.used &&
+          (it.kind === 'chest' ||
+            it.kind === 'shrine' ||
+            it.kind === 'archive' ||
+            it.kind === 'lever' ||
+            it.kind === 'fountain')
+      );
+      ctx.strokeStyle = hasUnclaimed ? 'rgba(157, 243, 255, 0.85)' : 'rgba(255, 217, 138, 0.95)';
       ctx.lineWidth = 1.5;
       const cx = x + rw - Math.max(5, scale);
       const cy = y + Math.max(5, scale);
@@ -103,6 +119,14 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
       ctx.lineTo(cx - s * 0.2, cy + s * 0.7);
       ctx.lineTo(cx + s, cy - s * 0.7);
       ctx.stroke();
+
+      if (hasUnclaimed) {
+        // Glowing alert pip indicating unclaimed secrets remain in this cleared room
+        ctx.fillStyle = `rgba(255, 176, 74, ${0.6 + 0.4 * Math.sin(time * 5)})`;
+        ctx.beginPath();
+        ctx.arc(cx - s * 1.5, cy, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
     // Iron enemy spawn gates: render a crimson barred hatch mark on the room perimeter
     if (room.gates && room.gates.length > 0 && visited) {

@@ -1,44 +1,23 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "variable-ratio-pickups-and-tactical-map-v1",
+    "task_id": "visual-level-gate-polish-and-flow-echoes-v1",
     "last_phase": "in_progress",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793548298.088288,
+    "updated_at": 1793549407.9979455,
     "owner": "Antigravity",
     "started_by": "Antigravity",
     "continuations": [],
     "impact_assessment": {
-      "why": "Implement variable-ratio reinforcement schedules for breakables and chests, fix pickups falling in doors/gates, and enhance tactical map",
-      "benefits": "Empirical grounding with cyberpulse literature (Skinner/Schultz RPE, Zeigarnik effect), eliminates lost drops at doors, enhances feedback",
-      "risks": "contract: no breaking changes; dependency: zero new dependencies; concurrency: single-threaded PIXI/game loop; state: pure extension to existing event/pickup/minimap systems",
-      "mitigation": "Thorough unit tests in systems.test.ts, 100% vitest suite pass, 8 AIKit gates in strict mode"
+      "why": "Elevate visual cohesion of reinforcement gates and torch illumination in LevelView, add room completion salience to Minimap, and reward flow mastery in echoes",
+      "benefits": "Visual consistency with gate threshold and wall faces, deeper dungeon atmosphere, clear exploration feedback, and competency reinforcement",
+      "risks": "contract: pure additive rendering and formula extension; dependency: zero new packages; concurrency: single-threaded PIXI renderer; state: preserves all SaveStore and run contract invariants",
+      "mitigation": "Unit test in hub.test.ts and systems.test.ts, 100% vitest suite pass, 8 AIKit verification gates in strict mode"
     },
-    "completed_at": 1793548604.4174771
+    "completed_at": 1793549583.7112617
   },
   "checkpoints": [
-    {
-      "task_id": "well-water-levers-teleport-melee-bosses-v1",
-      "phase": "verification",
-      "phase_num": 4,
-      "description": "[4/4] Verify 209 tests, barrel arc fix, well water animation, wall levers, teleporters, melee bosses, and 19 levels; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793536038.733657,
-      "timestamp_str": "2026-11-01 15:27:18",
-      "agent": "unidentified"
-    },
-    {
-      "task_id": "well-water-levers-teleport-melee-bosses-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'well-water-levers-teleport-melee-bosses-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793536043.2659745,
-      "timestamp_str": "2026-11-01 15:27:23",
-      "agent": "unidentified"
-    },
     {
       "task_id": "graphics-ui-polish-v1",
       "phase": "phase 2",
@@ -265,6 +244,38 @@
       "status": "completed",
       "timestamp": 1793548604.4174783,
       "timestamp_str": "2026-11-01 18:56:44",
+      "agent": "Antigravity"
+    },
+    {
+      "task_id": "visual-level-gate-polish-and-flow-echoes-v1",
+      "phase": "in_progress",
+      "phase_num": 2,
+      "description": "[1/2] Plan gate visual rendering, torch ambient lighting, mastered minimap rooms and flow echoes",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1793549407.9979455,
+      "timestamp_str": "2026-11-01 19:10:07",
+      "agent": "Antigravity",
+      "impact_assessment": {
+        "why": "Elevate visual cohesion of reinforcement gates and torch illumination in LevelView, add room completion salience to Minimap, and reward flow mastery in echoes",
+        "benefits": "Visual consistency with gate threshold and wall faces, deeper dungeon atmosphere, clear exploration feedback, and competency reinforcement",
+        "risks": "contract: pure additive rendering and formula extension; dependency: zero new packages; concurrency: single-threaded PIXI renderer; state: preserves all SaveStore and run contract invariants",
+        "mitigation": "Unit test in hub.test.ts and systems.test.ts, 100% vitest suite pass, 8 AIKit verification gates in strict mode"
+      },
+      "handoff": {
+        "state": "clean",
+        "next": "update LevelView.ts, Minimap.ts, hub.ts",
+        "open": "none"
+      }
+    },
+    {
+      "task_id": "visual-level-gate-polish-and-flow-echoes-v1",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'visual-level-gate-polish-and-flow-echoes-v1' completed successfully.",
+      "status": "completed",
+      "timestamp": 1793549583.711263,
+      "timestamp_str": "2026-11-01 19:13:03",
       "agent": "Antigravity"
     }
   ]

@@ -819,3 +819,16 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
   4. **Tactical Disarm Lever Map Markers**: In src/ui/Minimap.ts, unpulled wall levers are now rendered with amber/brass markers and updated in src/ui/Screens.ts map legend, fulfilling Zeigarnik effect awareness.
 - **Consequences**:
   100% test coverage preserved (216 tests passing across 15 test suites), zero new runtime dependencies, and seamless compliance with AIKit verification gates.
+
+## ADR-077: Gate Tile Architecture, Volumetric Wall Sconce Illumination, Room Mastery Minimap Salience, and Flow Echo Transmutation
+
+- **Date**: 2026-11-01
+- **Status**: Accepted
+- **Context**: Reinforcement gates (Tile.Gate) previously lacked underlying floor and threshold tiles in LevelView.ts, and walls above them failed the isWalkable face check, rendering the wall archway with a blunt wall cap. Additionally, wall sconces only emitted a single narrow radial light circle without ambient coronal wash or drifting ember particles. Furthermore, combat rooms on the minimap did not differentiate between mere monster clearance and full secret mastery (Zeigarnik Effect). Finally, Sanctuary echoes earned on run completion did not reward skilled combat mastery (clutch grazes and flow resonance).
+- **Decision**:
+  1. **Gate Tile Rendering & Wall Face Integrity**: In src/view/LevelView.ts, ddTile now draws floor and threshold textures for Tile.Gate, and isFace treats gates as open archways, giving gates seamless masonry framing.
+  2. **Multi-Tier Torch Lighting & Embers**: In src/view/LevelView.ts, sconces now cast a 64px soft ambient wash alongside the 36px core glow, plus organic floating ember sparks that drift upward.
+  3. **Room Mastery Minimap Indicators**: In src/ui/Minimap.ts, cleared combat rooms that still contain uncollected interactables show an amber alert pip; rooms with 100% secret clearance display a gilded gold completion tick.
+  4. **Flow & Graze Echo Transmutation**: In src/sim/hub.ts, echoesEarned now awards grazes * 1 + floor(bestResonance / 5) * 2 bonus echoes, directly linking in-dungeon flow channel expression to Sanctuary meta-restoration.
+- **Consequences**:
+  All 216 unit tests passing across 15 test suites, zero new dependencies, and seamless compliance with AIKit verification gates.

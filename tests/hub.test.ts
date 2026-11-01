@@ -58,13 +58,19 @@ describe('Sanctuary hub', () => {
     expect(sectionNumber(15)).toBe(16);
   });
 
-  it('banks half the remaining shards plus clear and victory bonuses', () => {
+  it('banks half the remaining shards plus clear, mastery and victory bonuses', () => {
     const run = createRun(1, []);
     run.player.shards = 100;
     expect(echoesEarned(run, false)).toBe(50);
     run.stats.floorsRestored = 2;
     expect(echoesEarned(run, false)).toBe(60);
     expect(echoesEarned(run, true)).toBe(120);
+
+    // Skilled play mastery bonuses: grazes and sustained resonance flow tiers
+    run.stats.grazes = 3;
+    run.stats.bestResonance = 10;
+    // 60 base + 3 grazes + (10/5)*2 = 67
+    expect(echoesEarned(run, false)).toBe(67);
   });
 
   it('buys restoration levels only when affordable and not maxed', () => {
