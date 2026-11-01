@@ -107,10 +107,12 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
     // Iron enemy spawn gates: render a crimson barred hatch mark on the room perimeter
     if (room.gates && room.gates.length > 0 && visited) {
       // A room that still owes waves blinks its gates, so the player knows the
-      // fight is not over and where the next wave will come from.
+      // fight is not over and where the next wave will come from. Once the room
+      // is cleared the hatch dims to a spent reminder.
       const state = world.rooms[room.id];
       const reinforcing = state?.phase === 'active' && state.wavesLeft > 0;
-      const glow = reinforcing ? 0.55 + 0.45 * Math.sin(time * 6) : 0.95;
+      const spent = state?.phase === 'cleared';
+      const glow = reinforcing ? 0.55 + 0.45 * Math.sin(time * 6) : spent ? 0.32 : 0.95;
       ctx.strokeStyle = `rgba(255, 106, 74, ${glow.toFixed(2)})`;
       ctx.lineWidth = Math.max(1.8, scale * 0.4);
       for (const gate of room.gates) {
