@@ -442,6 +442,17 @@ function windup(arena: Arena, enemy: Enemy): void {
 }
 
 /**
+ * Sweep beam and ground-zone geometry. One source of truth for the sim
+ * resolution and the view telegraphs, so a warning never understates the
+ * hazard it names: the beam fills the full arc out to SWEEP_RANGE, and each
+ * zone ring matches its blast radius exactly.
+ */
+export const SWEEP_SPAN = 1.8;
+export const SWEEP_RANGE = 520;
+export const QUAKE_RADIUS = 40;
+export const PILLARS_RADIUS = 38;
+
+/**
  * Wall-warden curtain: bolt offsets across the lane and which pair is left
  * open. One source of truth for the sim launch and the view telegraph, so
  * the warning and the curtain can never disagree about where the gap is.
@@ -588,7 +599,7 @@ function launch(arena: Arena, enemy: Enemy): void {
         arena.spawnBlast(
           enemy.x + Math.cos(angle) * 62 * i,
           enemy.y + Math.sin(angle) * 62 * i,
-          40,
+          QUAKE_RADIUS,
           0.42 + i * 0.09,
           Math.round(def.damage * 0.8)
         );
@@ -630,7 +641,7 @@ function launch(arena: Arena, enemy: Enemy): void {
         arena.spawnBlast(
           enemy.x + Math.cos(angle) * 58 * i + Math.cos(angle + Math.PI / 2) * side,
           enemy.y + Math.sin(angle) * 58 * i + Math.sin(angle + Math.PI / 2) * side,
-          38,
+          PILLARS_RADIUS,
           0.32 + i * 0.13,
           Math.round(def.damage * 0.85)
         );
@@ -779,12 +790,12 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
     }
   } else if (enemy.attack === 'sweep') {
     // A rotating beam: one clean hit per sweep, telegraphed by the full arc.
-    const span = 1.8;
+    const span = SWEEP_SPAN;
     const base = Math.atan2(enemy.dirY, enemy.dirX);
     const progress = 1 - enemy.stateTime / ACTIVE.sweep;
     const angle = base - span / 2 + progress * span;
-    const ex = enemy.x + Math.cos(angle) * 520;
-    const ey = enemy.y + Math.sin(angle) * 520;
+    const ex = enemy.x + Math.cos(angle) * SWEEP_RANGE;
+    const ey = enemy.y + Math.sin(angle) * SWEEP_RANGE;
     const width = enemy.isBoss ? 30 : 22;
     if (
       !enemy.attackLanded &&

@@ -10,7 +10,11 @@ import { AnimatedSprite, Container, Graphics, Sprite, Text, type Texture } from 
 import type { Enemy, Hazard, Interactable, Pickup, Player, Projectile } from '../sim/entities';
 import {
   dashStrikeRange,
+  PILLARS_RADIUS,
+  QUAKE_RADIUS,
   slamRadius,
+  SWEEP_RANGE,
+  SWEEP_SPAN,
   wallGapCenter,
   wallGapIndex,
   WALL_BOLT_OFFSETS,
@@ -1274,11 +1278,13 @@ export class ActorView {
       case 'quake': {
         // Four delayed eruptions in a line toward the player.
         for (let i = 1; i <= 4; i++) {
-          g.circle(x + Math.cos(angle) * 62 * i, y + Math.sin(angle) * 62 * i, 38).stroke({
-            width: 2,
-            color: 0xff8a5a,
-            alpha: urgency * (1 - i * 0.12),
-          });
+          g.circle(x + Math.cos(angle) * 62 * i, y + Math.sin(angle) * 62 * i, QUAKE_RADIUS).stroke(
+            {
+              width: 2,
+              color: 0xff8a5a,
+              alpha: urgency * (1 - i * 0.12),
+            }
+          );
         }
         break;
       }
@@ -1316,14 +1322,14 @@ export class ActorView {
           g.circle(
             x + Math.cos(angle) * 58 * i + Math.cos(angle + Math.PI / 2) * side,
             y + Math.sin(angle) * 58 * i + Math.sin(angle + Math.PI / 2) * side,
-            36
+            PILLARS_RADIUS
           ).stroke({ width: 2, color: 0xff9a5a, alpha: urgency * (1 - i * 0.1) });
         }
         break;
       }
       case 'sweep': {
-        const span = 1.8;
-        const radius = 220;
+        const span = SWEEP_SPAN;
+        const radius = SWEEP_RANGE;
         g.moveTo(x, y)
           .arc(x, y, radius, angle - span / 2, angle + span / 2)
           .lineTo(x, y)
@@ -1338,16 +1344,16 @@ export class ActorView {
 
   /** The live rotating beam while a sweep resolves. */
   private drawSweepBeam(e: Enemy, x: number, y: number): void {
-    const span = 1.8;
+    const span = SWEEP_SPAN;
     const base = Math.atan2(e.dirY, e.dirX);
     const progress = 1 - e.stateTime / 0.7;
     const angle = base - span / 2 + progress * span;
     const g = this.telegraphs;
     g.moveTo(x, y)
-      .lineTo(x + Math.cos(angle) * 520, y + Math.sin(angle) * 520)
+      .lineTo(x + Math.cos(angle) * SWEEP_RANGE, y + Math.sin(angle) * SWEEP_RANGE)
       .stroke({ width: e.isBoss ? 30 : 22, color: 0xff7a4a, alpha: 0.4 });
     g.moveTo(x, y)
-      .lineTo(x + Math.cos(angle) * 520, y + Math.sin(angle) * 520)
+      .lineTo(x + Math.cos(angle) * SWEEP_RANGE, y + Math.sin(angle) * SWEEP_RANGE)
       .stroke({ width: 3, color: 0xffe0c0, alpha: 0.9 });
   }
 
