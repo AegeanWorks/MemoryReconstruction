@@ -832,3 +832,103 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
   4. **Flow & Graze Echo Transmutation**: In src/sim/hub.ts, echoesEarned now awards grazes * 1 + floor(bestResonance / 5) * 2 bonus echoes, directly linking in-dungeon flow channel expression to Sanctuary meta-restoration.
 - **Consequences**:
   All 216 unit tests passing across 15 test suites, zero new dependencies, and seamless compliance with AIKit verification gates.
+
+## ADR-078: Room overlap separation — gate-aware furnish, clamped interiors, unified feet depth-sort
+
+- **Date**: 2026-11-02
+- **Status**: Accepted
+- **Context**: Goal slice 1 (room objects render on top of each other). Verified plan (Stage 2) narrowed the assumed causes to three real ones: (a) `dungeon.ts furnish()` `blocked()`/`isolated()` ignored gate tiles, so combat-room pillars could sit adjacent to gates/doors; (b) `world.ts placeInteractables()` fixed pixel offsets (cache, merchant, library shelves/table) could land in walls in small/non-rect rooms; (c) Pixi draw order: only `actors.sortableChildren`, `ground` unsorted, pickups without `zIndex`, dressing layer unsorted, interactable anchor `(0.5,0.82)` vs decor/props `(0.5,0.86)`, chunk cull with zero margin.
+- **Decision**:
+  1. In `src/sim/dungeon.ts`, `blocked()` and `isolated()` now reject tiles within Manhattan 3 (combat layouts) / 4 (start/boss/arena) of any door **or gate** tile via a shared `nearDoorOrGate` guard.
+  2. In `src/sim/world.ts`, new `clampToRoomInterior()` spirals fixed offsets to the nearest walkable tile inside the room (centre fallback); applied to cache, merchant, library shelves and table.
+  3. In `src/view/ActorView.ts`, `ground.sortableChildren = true`, pickup roots get `zIndex = item.y` (feet basis), interactable sprite anchor unified to `(0.5, 0.86)`.
+  4. In `src/view/LevelView.ts`, dressing layer `sortableChildren` with per-sprite feet `zIndex`, chunk cull margin 96px.
+  5. New failing-first `tests/sim/overlap.test.ts` (18 tests): pillar clearance from doors/gates, interactables inside walkable room bounds, hazard/interactable 40px separation.
+- **Consequences**: 271 vitest tests pass (18 new), typecheck clean, mechanics 230 pass; changed regions are eslint-clean (remaining lint debt is pre-existing on the dirty tree). No commit yet: working tree co-mingles other uncommitted work in the same files, so staging is deferred to avoid sweeping foreign changes. Screenshots: one post-fix start-room capture verified clean; combat-room capture deferred (shared Playwright browser contended by parallel sessions).
+
+## ADR-079: Field-manual checklist no longer overprints the controls hint
+
+- **Date**: 2026-11-02
+- **Status**: Accepted (partial Slice 2: hint fix verified; map/pause captures pending)
+- **Context**: Goal slice 2 (UI cleanup). Three start-room screenshots (two seeds + check pass) showed the bottom-left key-hint rows overprinted. Live DOM census proved the two `.hint` control rows stack cleanly (rects 652-678/678-704 at 1280x720); the overprinting element was `DIV.hint.checklist` ("Field manual — next: ...", `Hud.ts:86,283-284`) at rect 681-704, directly atop hint row 2. No `.checklist` CSS rule existed, so it inherited `.hint`'s `absolute; left:20px; bottom:16px` position.
+- **Decision**: In `src/ui/ui.css`, add `.hint.checklist { bottom: 72px; }` beside the `.hint` rules — same look, its own line above the controls hint. No markup, behavior, or vitals/bar-style changes.
+- **Consequences**: Re-measured checklist at 625-648 vs hint at 652-704 (4px gap); fresh screenshot `docs/qa/slice2-hud-fixed.png` shows all three lines crisp vs garbled `slice2-hud-after.png`. 271 vitest + 230 mechanics pass, typecheck clean. Map overlay / pause / choice screens now captured (see ADR-080); victory screen shares death-screen components.
+
+## ADR-081: Expedition omens — daily-style twists for normal runs
+
+- **Date**: 2026-11-02
+- **Status**: Accepted (Slice 4 mechanics depth, first increment)
+- **Context**: Goal slice 4. Daily descents had 4 twists (`ember_tide`, `heavy_air`, `restless_dead`, `keen_edge`) with 4 live sim hooks, but normal expeditions always played flat. Verified: hooks read `run.dailyMod` at `world.ts:420/498/1139/1487`; `RunState` persists as raw JSON with `restoreRun` defaulting new optional fields; `createExpedition` already builds the run deterministically.
+- **Decision**:
+  1. `sim/run.ts`: `MODIFIER_DEFS` table (moved verbatim from SaveStore; SaveStore re-exports it as `DAILY_MODIFIERS`, no UI import changes), `omen?: string` on `RunState`, `rollOmen(seed)` (independent mixed-seed stream, ~20% none), `activeModifier(run)` (daily wins).
+  2. `sim/hub.ts createExpedition`: `run.omen = rollOmen(seed)`.
+  3. `sim/world.ts`: all 4 hooks check `activeModifier(this.run)` instead of `dailyMod` alone.
+  4. `app/App.ts startRun`: `Omen: name — text` toast for non-daily runs (mirrors the daily twist toast; same `.toast` styling, no new CSS).
+  5. `tests/sim/omens.test.ts` (8 tests, failing-first): determinism, full outcome coverage, attach at creation, daily precedence, no-mod vanilla, plus live-World effect proofs for keen_edge (+damage), heavy_air (+incoming), restless_dead (+1/wave).
+- **Consequences**: 279 vitest pass (8 new), mechanics 238 pass, typecheck clean; new/edited sim files prettier-clean (world/App/SaveStore whole-file lint is co-mingled with unrelated uncommitted work). Live proof: seed 424242 rolled `keen_edge`, DOM toast read back as "Omen: Keen Edge — The walker deals +15% damage." (`docs/qa/slice4-omen-after.png` filed). Old saves load with `omen === undefined` = no behavior change. No commit (co-mingled tree), no push.
+
+## ADR-080: Death-screen menu fits its longest label; full UI capture sweep
+
+- **Date**: 2026-11-02
+- **Status**: Accepted (Slice 2 UI sweep complete except victory screen)
+- **Context**: `slice2-death-after.png` showed "START FROM THE BEGINNING" wrapping to two lines while its sibling buttons fit one. Buttons share `.menu` (`width: min(300px, 80vw)`) with 16px Cinzel + letterspacing; the 23-char label needs ~300px of content width.
+- **Decision**: In `src/ui/ui.css`, `.menu` width `min(300px, 80vw)` → `min(340px, 86vw)` with a comment. No copy, markup, or behavior change; pause/title/hub menus inherit the slightly wider column and stay visually consistent.
+- **Consequences**: Two consecutive post-fix death runs render all three buttons 48px tall x 340px wide, single-line (`slice2-death-fixed.png`, `slice2-death-retry-after.png`). Full sweep filed in `docs/qa/`: title, HUD before/after, combat, map (rooms/legend/Close all legible), pause (choice 3 cards, emblems, reroll row balanced), death before/after. Victory screen unphotographed (needs a full clear); it shares `.menu`/`.panel` with the verified death screen, so the fix applies by construction. 271 vitest + 230 mechanics pass, typecheck clean after the edit.
+
+## ADR-082: Attack bobble removed (aim-axis ease-out), sanctuary 3x2 grid, backdrop/glyph lift, third enemy wave + 2 relics as DATA
+
+- **Date**: 2026-11-02
+- **Status**: Accepted (Stage 3 implementation; Stage 4 check pending)
+- **Context**: Goal Slices 1-5. Stage 2 verified the bobble is view tween math (`ActorView.ts` sine-driven squash/tilt/vertical bob + restart), not sprite anchor (origins uniform: player `(0.5,0.88)`, enemies `(0.5,0.9)`) — no atlas re-cut needed. Sanctuary showed 5+1 orphan card + uneven blurbs. Roster had only 3 duelists; melee+human-like emphasis justified.
+- **Decision**:
+  1. `src/view/ActorView.ts` player: attack motion is a 3px aim-axis nudge easing out (`1-progress`), no vertical bob, no squash/tilt/shadow pop; rotation keeps move lean only. Enemy: steady `lunge 0.1` commitment for the whole active phase instead of a sine pulse. No sim/behavior change.
+  2. `src/ui/ui.css`: `building-grid` 5 cols -> 3 cols (6 cards = 2 even rows), `building-blurb` 4-line clamp + fixed min-height, `station-row` 2 -> 4 cols (2 cols at <=820px). No markup/logic change.
+  3. `src/view/LevelView.ts` (view-only): backdrop alpha 0.55 -> 0.68, glyph glow 56px/0.25 -> 64px/0.32.
+  4. DATA wave: `src/data/enemies.json` +3 (`ember_squire` chase/ash, `pale_blademaster` duelist/frost, `mire_halberdier` long-reach chase/mire) reusing `guardian`/`crystalGuardian`/`boneKnight` sheets via new `SPRITE_KEYS` + tint/scale in `src/sim/content.ts`, rostered on depths 4/10/12; `src/data/equipment.json` +2 (`duelist_mantle`, `ember_ward`, existing mod keys only). `tests/sim/melee-human.test.ts` (6 tests, failing-first on distance assertion): archetype/sprite/roster gates, seeded melee-closes-distance, duelist reaches windup+attack, relic defs.
+- **Consequences**: Attack captured live (sword mid-swing x2 + post-graphics frame): body upright, feet planted, slash arc clean, no squash. Sanctuary re-shot: even 3x2 grid, uniform cards. 6/6 new tests pass; `npm test` 288/290 (2 failures are a parallel session's in-flight 22nd-section work: `hub.test.ts` expects checkpoint/depth 21 and `world.test.ts` victory flow — both in files this slice did not touch); typecheck has 1 error in their untracked `tide-trial.test.ts` (`player.maxHealth`); lint clean on `src`. No commit (tree co-mingles that session's uncommitted work in the same files), no push.
+
+## ADR-083: The Drowned Court — fourth echo trial with a new boss, floor plans now zod-validated
+
+- **Date**: 2026-11-02
+- **Status**: Accepted (Slice 5a: +1 boss, +1 level, both DATA-only)
+- **Context**: Goal slice 5. Verified: boss patterns compose from existing `AttackKind`s (`BOSS_PATTERNS[def.id] ?? keeper`), roster/boss resolution is data-driven with clear errors, checkpoints/finale/victory all derive from `FLOOR_PLANS.length`, atlas gate stays green via sheet reuse + tint/scale. One catch: the game reads `src/data/enemies.json` (live), not `assets/data/enemies.json`; the new row went to both copies to keep them in step. (Note: ADR-082's 2 attributed failures were this slice in flight — resolved below.)
+- **Decision**:
+  1. `src/data` + `assets/data` enemies.json: `abyssal_revenant` (boss behavior, tide biome, leviathan sheet borrow, 460 HP / 36 dmg).
+  2. `sim/content.ts`: `SPRITE_KEYS`/`ENEMY_TINTS`/`ENEMY_SCALE_OVERRIDES` entries (tide tint, 1.15 scale); new `FLOOR_PLANS` trial at depth 20 (tide, bossOnly, 1 room, grid, 'Echo Trial: The Drowned Court'), keeper finale moves to depth 21; new exported `FloorPlanSchema` (zod) parsed at load — first zod gate on game content.
+  3. `sim/enemies.ts`: `BOSS_PATTERNS.abyssal_revenant = ['charge','volley','mines','spiral']` (existing kinds only).
+  4. `tests/sim/tide-trial.test.ts` (5 tests, failing-first): schema round-trip + rejection, trial placement, boss wiring, checkpoints `[0,3,6,9,12,15,18,21]` + arena-pool inclusion, full scripted trial fight (spawns, phases ≥2, portal on kill).
+  5. Legitimate count updates: `content.test.ts` 21→22 (+trial assertions), `hub.test.ts` clamp 20→21, `world.test.ts` victory hardened (wait for spawn animation + 3.5s window — the finale's new dungeon shifts spawn timing by frames; same assertions, reliable trigger).
+- **Consequences**: 290 vitest pass (13 new this slice family: 8 omens + 5 trial), mechanics 249 pass, typecheck clean; new files prettier-clean (world.test.ts whole-file debt pre-exists — only my hunk verified clean). Live proof: `docs/qa/slice5-trial-after.png` — Section 21 banner, ABYSSAL REVENANT bar, tinted boss mid-volley with blink ring, tide arena. A parallel session's edit clobbered one SPRITE_KEYS line mid-implementation (same-file concurrent edit on the co-mingled tree); restored and verified. No commit (102+ modified / 37 untracked co-mingled), no push.
+
+## ADR-084: Title-screen scrim + responsive title (CSS-only), flow carry on room clear
+
+- **Date**: 2026-11-03
+- **Status**: Accepted (Stage 3 implementation; Stage 4 check pending)
+- **Context**: Goal Stages 1-2. Title backdrop is a live random `World` (`App.ts:337`) under translucent `.screen.clear` (radial 0.42→0.9); at 390px the single-div `.title` (`clamp(28px,10vw,46px)`, `Screens.ts:109`) overflowed (`RECONSTRUCTIO` clipped, `V1-title-390.png`). The controls `.hint` has no `hidden` class on title but is suppressed only by parent `.hud.hidden{opacity:0}` (`Hud.ts:133-151`, `ui.css:37-41`). Flow streak (`RESONANCE_WINDOW=3`) cannot survive room transitions by construction (`player.ts:102-103`, `world.ts:1331-1332`).
+- **Decision**:
+  1. `src/ui/ui.css` only: `.screen.clear` scrim to radial 0.62→0.94 + linear 0.32→0.55; `.title` adds `overflow-wrap:break-word`; mobile `.screen.clear .title` to `clamp(26px,8vw,40px)`/`0.03em`/`1.12`; `.hud.hidden` adds `visibility:hidden` (kills fade flash + a11y exposure, no JS change). No edits to `Screens.ts`, `Hud.ts`, `App.ts`, `Renderer.ts`, `LevelView.ts`.
+  2. `src/sim/world.ts` `clearRoom`: if `resonance>0`, top up `resonanceTime` to the graze floor (`RESONANCE_WINDOW*0.5` = 1.5s) — cross-room carry without extending fresh windows.
+  3. `tests/sim/world.test.ts` (failing-first): room-clear tops a decayed 0.2s window back to ≥1.49s. M2 economy (surge 6%×5/18%×2.5, potion 2.5%, reroll 20+10×depth) measured analytically this slice, no behavior change: ~3.0 shards/kill at depth 10, ~40 kills per reroll, ~8.5 potions per 200 kills.
+- **Consequences**: `V2-title-1280-after.png` (dimmer backdrop, menu pops), `V2-title-390-after.png` (two full lines, no clip), `V2-combat-1280-after.png` (framing by design, no defect). 291 vitest pass (1 new), mechanics 250 pass, typecheck + lint clean, build ok. No commit (co-mingled tree), no push.
+
+## ADR-085: Engagement tuning as data and measured proof (CyberPulse literature port)
+
+- **Date**: 2026-11-04
+- **Status**: Accepted (goal Stages 1-4: audit, verify, implement, check)
+- **Context**: Goal audit found all five engagement pillars already shipped (flow streaks, grazes/clutch, variable-ratio surges, floor objective/flawless, cache push-your-luck, reroll/checkpoint/restoration autonomy) but every number was hardcoded across `world.ts`/`run.ts`/`player.ts`, and no test paired a claim with a measurement. CyberPulse ADR-002/019 requires variable-ratio to vary magnitude AND timing, near-miss to mean almost-won (not almost-lost), and every number to be tunable from data. The graze reads as threat-escape arousal (almost-lost avoided) rather than a classic Clark almost-won; the true almost-won analogues here are the floor-objective countdown and clutch kills.
+- **Decision**:
+  1. Add `src/sim/tuning.ts` (`ENGAGEMENT_TUNING`) as the single source of truth: surge 6%/18% with 5x/2.5x, graze mana/dash/shot/reach, resonance 10 x 0.05 x 3s, clutch 0.30/0.25 with 10+2/depth shards, reroll 20+10/depth, cache 20% maxHP, floor 40+10/depth, flawless 6+3/depth. `world.ts`/`run.ts`/`player.ts` import it with zero behavior change.
+  2. Add `tests/sim/engagement.test.ts` (7 tests, seeded): README odds match tuning; flow caps at +50%; reroll/cache math derives from tuning; 10k-roll distribution proves RNG matches the label (6%/18% bands); graze pays and clutch fires once per critical episode; cache warns first, walks away free, then charges blood; scripted session proves elapsed grows and rewards stay bounded.
+  3. README: tuning pointer on the surge line plus an ethics line (tension yes, manipulation no; no pay-to-win/sunk-cost/fake-miss/countdown; cache price stated up front, walk-away free).
+- **Consequences**: Balancing is now data editing, stated odds equal coded odds by construction, and every engagement claim has a seeded measurement. 301 vitest pass (7 new), mechanics/typecheck/lint/build gates green. No new runtime dependencies.
+
+## ADR-086: Data-driven audio for every enemy telegraph, hook and shockwave
+
+- **Date**: 2026-11-06
+- **Status**: Accepted (goal cycle: audio cues)
+- **Context**: A goal audit of `src/audio/Sound.ts` found the `enemyAttack` handler covered only 8 of 27 `AttackKind`s (slam, combo, dashStrike, bolt, ring, spread, shot). Seventeen telegraphs added since ADR-030 (fan, sweep, wall, pillars, volley, charge, mortar, mines, spiral, summon, swarm, quake, strike, lunge, plus beam/blink/bomb/hook) played silently, and the `hook` and `shockwave` sim events had no audio case at all. Reproducer: node script slicing the `enemyAttack` block confirmed 17 missing kinds and both missing event cases.
+- **Decision**:
+  1. Add exported `ENEMY_ATTACK_AUDIO: Record<AttackKind, EnemyAttackAudio>` in `src/audio/Sound.ts` as the single source of truth. Projectile launches (shot/spread/ring/volley/fan/wall/spiral/bolt) share the `shot` throttle key so curtains cannot stack into clipping; heavies (slam/quake/pillars/mortar/mines) keep distinct keys; melee/rush (strike/lunge/charge/sweep/combo/dashStrike) use whooshes; summon/swarm use dark/bright chords. Beam/blink/bomb/hook resolve to `none` on `enemyAttack` because they already emit dedicated `beam`/`blink`/`bombThrown`/`hook` events with their own sound on the same tick.
+  2. Dispatch `enemyAttack` through the table instead of the hardcoded if-chain, preserving every existing cue byte-for-byte. Add `case 'hook'` (rising 420->780Hz sine pull) and `case 'shockwave'` (low thump) for the two silent events.
+  3. Add `tests/sim/audio-cues.test.ts` (4 tests, failing-first): full 25-kind coverage, shared shot throttle, dedicated-event silence on `enemyAttack`, distinct heavy keys. No save, sim or visual changes; health bar untouched.
+- **Consequences**: No telegraph is ever silent, no cue ever double-plays, and tuning is data editing. 308 vitest pass (4 new), 267 mechanics pass, typecheck/lint clean, 8/8 AIKit gates pass. Playwright live boot shows title and hub with zero console errors (`docs/qa/cycle-audio-title-after.png`, `docs/qa/cycle-audio-hub-after.png`). No new runtime dependencies.
