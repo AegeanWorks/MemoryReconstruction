@@ -128,6 +128,9 @@ export function restoreRun(data: unknown): RunState | undefined {
   )
     return undefined;
   if (!run.player.upgrades || typeof run.player.health !== 'number') return undefined;
+  // A snapshot without a stats block is unusable, not just old: the sim
+  // increments counters on it every frame, so reject instead of crashing.
+  if (!run.stats || typeof run.stats !== 'object') return undefined;
   const health = run.player.health;
   const mana = run.player.mana;
   const dash = run.player.dashCharges;
@@ -142,16 +145,31 @@ export function restoreRun(data: unknown): RunState | undefined {
   run.player.aspect ??= 'none';
   refreshStats(run.player);
   run.player.health = Math.min(health, run.player.stats.maxHealth);
-  run.player.mana = Math.min(mana, run.player.stats.maxMana);
-  run.player.dashCharges = Math.min(dash, run.player.stats.dashCharges);
+  // Vitals missing or corrupt on an older snapshot refill to full instead
+  // of loading as NaN, which would silently kill the dash and corrupt the HUD.
+  run.player.mana = Number.isFinite(mana)
+    ? Math.min(mana, run.player.stats.maxMana)
+    : run.player.stats.maxMana;
+  run.player.dashCharges = Number.isFinite(dash)
+    ? Math.min(dash, run.player.stats.dashCharges)
+    : run.player.stats.dashCharges;
   run.player.resonance ??= 0;
   run.player.resonanceTime ??= 0;
   run.player.dashGrazes ??= [];
+  // Core counters the sim increments every frame and the death recap reads.
+  run.stats.kills ??= 0;
+  run.stats.elapsed ??= 0;
+  run.stats.damageDealt ??= 0;
+  run.stats.roomsCleared ??= 0;
   run.stats.grazes ??= 0;
   run.stats.bestResonance ??= 0;
   run.stats.surges ??= 0;
   run.stats.floorsRestored ??= 0;
   run.stats.bossKills ??= 0;
   run.pendingChoices = Array.isArray(run.pendingChoices) ? run.pendingChoices : [];
+  // Fragment lists the world spreads into a set on entry and pushes to
+  // during play; an older snapshot without them would crash on load.
+  run.fragmentsFound = Array.isArray(run.fragmentsFound) ? run.fragmentsFound : [];
+  run.knownFragments = Array.isArray(run.knownFragments) ? run.knownFragments : [];
   return run;
 }
