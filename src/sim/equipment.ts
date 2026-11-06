@@ -45,6 +45,15 @@ export function equipmentDef(id: string): EquipmentDef {
   if (!def) throw new Error(`Unknown equipment '${id}' (not in equipment.json)`);
   return def;
 }
+/**
+ * Trust boundary for save data: every `equipmentDef` call site throws on an
+ * unknown id, so snapshots are filtered through this at load and the twenty
+ * render/sell/equip callers never see a phantom defId.
+ */
+export function equipmentExists(defId: string): boolean {
+  return BY_ID.has(defId);
+}
+
 
 export function emptyEquipment(): EquipmentSlots {
   return { weapon: null, armor: null, trinket: null };

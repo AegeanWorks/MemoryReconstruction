@@ -4,6 +4,7 @@
  * `restoreRun` (which recomputes derived stats).
  */
 import type { Player } from './entities';
+import { EQUIPMENT_SLOTS, emptyEquipment, equipmentExists } from './equipment';
 import { createPlayer, refreshStats } from './player';
 
 export type ChoiceSource = 'level' | 'chest' | 'shrine';
@@ -131,6 +132,18 @@ export function restoreRun(data: unknown): RunState | undefined {
   // A snapshot without a stats block is unusable, not just old: the sim
   // increments counters on it every frame, so reject instead of crashing.
   if (!run.stats || typeof run.stats !== 'object') return undefined;
+  // Phantom relic ids (hand-edited or forward-incompatible saves) would crash
+  // every equipmentDef call site — refreshStats here, then bag render, sell,
+  // equip — so the load boundary drops them once instead of guarding callers.
+  run.player.inventory = Array.isArray(run.player.inventory)
+    ? run.player.inventory.filter((i) => i && equipmentExists(i.defId))
+    : [];
+  if (!run.player.equipment || typeof run.player.equipment !== 'object')
+    run.player.equipment = emptyEquipment();
+  for (const slot of EQUIPMENT_SLOTS) {
+    const worn = run.player.equipment[slot];
+    if (worn && !equipmentExists(worn.defId)) run.player.equipment[slot] = null;
+  }
   const health = run.player.health;
   const mana = run.player.mana;
   const dash = run.player.dashCharges;

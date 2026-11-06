@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { equipmentExists } from '../../src/sim/equipment';
 import { createRun, restoreRun } from '../../src/sim/run';
 
 function snapshot(overrides: Record<string, unknown> = {}): unknown {
@@ -56,5 +57,33 @@ describe('restoreRun (a corrupt snapshot degrades, never crashes)', () => {
     expect(run?.depth).toBe(0);
     expect(run?.player.health).toBeGreaterThan(0);
     expect(run?.fragmentsFound).toEqual([]);
+  });
+
+  it('knows which relic ids exist', () => {
+    expect(equipmentExists('rusted_edge')).toBe(true);
+    expect(equipmentExists('not_a_relic')).toBe(false);
+    expect(equipmentExists('')).toBe(false);
+  });
+
+  it('drops phantom relic defIds instead of loading a crashing bag', () => {
+    const raw = snapshot({
+      player: {
+        ...(snapshot() as Record<string, unknown>)['player'] as Record<string, unknown>,
+        inventory: [
+          { uid: 1, defId: 'rusted_edge' },
+          { uid: 2, defId: 'not_a_relic' },
+        ],
+        equipment: {
+          weapon: { uid: 3, defId: 'echo_dagger' },
+          armor: null,
+          trinket: { uid: 4, defId: 'ghost_charm' },
+        },
+      },
+    });
+    const run = restoreRun(raw);
+    expect(run).toBeDefined();
+    expect(run!.player.inventory.map((i) => i.defId)).toEqual(['rusted_edge']);
+    expect(run!.player.equipment.weapon?.defId).toBe('echo_dagger');
+    expect(run!.player.equipment.trinket).toBeNull();
   });
 });
