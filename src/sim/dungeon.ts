@@ -704,22 +704,26 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
     'crossing',
     'ring',
   ] as const);
-  if (layout === 'pillars') {
+  // Big multi-wave chambers (area >= 200, up to 4 waves) never roll open:
+  // crossing that much bare floor under tracking volleys is exposure without
+  // counterplay. Small boxing rings keep the open variety.
+  const resolved = layout === 'open' && room.w * room.h >= 200 ? 'scatter' : layout;
+  if (resolved === 'pillars') {
     const ox = Math.max(room.x + 2, centre.x - 5);
     const oy = Math.max(room.y + 2, centre.y - 4);
     pillar(ox, oy, 2);
     pillar(centre.x + 3, oy, 2);
     pillar(ox, centre.y + 2, 2);
     pillar(centre.x + 3, centre.y + 2, 2);
-  } else if (layout === 'scatter') {
+  } else if (resolved === 'scatter') {
     for (let i = 0; i < 5; i++) {
       pillar(rng.int(room.x + 2, room.x + room.w - 3), rng.int(room.y + 2, room.y + room.h - 3), 1);
     }
-  } else if (layout === 'alcoves') {
+  } else if (resolved === 'alcoves') {
     // Two broad shoulders of stone: cover on the flanks, open in the middle.
     pillar(room.x + 2, centre.y - 4, 2);
     pillar(room.x + room.w - 4, centre.y + 2, 2);
-  } else if (layout === 'crossing') {
+  } else if (resolved === 'crossing') {
     // Four single stones on the diagonals around the room's heart.
     for (const [dx, dy] of [
       [-3, -2],
@@ -728,12 +732,34 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
       [3, 2],
     ])
       pillar(centre.x + dx, centre.y + dy, 1);
-  } else if (layout === 'ring') {
+  } else if (resolved === 'ring') {
     // A broken ring: four cardinal gaps keep the fight mobile.
     for (let i = 0; i < 8; i++) {
       if (i % 2 === 0) continue;
       const a = (i / 8) * Math.PI * 2;
       pillar(Math.round(centre.x + Math.cos(a) * 4), Math.round(centre.y + Math.sin(a) * 4), 1);
+    }
+  }
+
+  // Backstop: fixed-offset layouts can all whiff their blocked() checks, so a
+  // big chamber could still end up bare. Guarantee at least three stones,
+  // counting what actually landed since pillar() silently skips blocked spots.
+  if (room.w * room.h >= 200) {
+    const countWalls = (): number => {
+      let walls = 0;
+      for (let y = room.y + 1; y < room.y + room.h - 1; y++)
+        for (let x = room.x + 1; x < room.x + room.w - 1; x++)
+          if (grid.get(x, y) === Tile.Wall) walls++;
+      return walls;
+    };
+    if (countWalls() === 0) {
+      for (let i = 0; i < 40 && countWalls() < 3; i++) {
+        pillar(
+          rng.int(room.x + 2, room.x + room.w - 3),
+          rng.int(room.y + 2, room.y + room.h - 3),
+          1
+        );
+      }
     }
   }
 
