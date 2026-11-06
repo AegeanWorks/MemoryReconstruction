@@ -101,6 +101,22 @@ export const ENEMY_ATTACK_AUDIO: Record<AttackKind, EnemyAttackAudio> = {
   bolt: { op: 'tone', from: 880, to: 480, duration: 0.1, wave: 'sine', volume: 0.06, key: 'shot' },
 };
 
+/**
+ * Gate-spawn arrival cue: teleport spawns already announce themselves with
+ * blink, but gate waves materialise silently. One quiet rising pop on its
+ * own throttle key, so a four-strong wave pays a single cue and never
+ * suppresses — or is suppressed by — combat sounds.
+ */
+export const ENEMY_SPAWN_AUDIO = {
+  op: 'tone',
+  from: 300,
+  to: 520,
+  duration: 0.18,
+  wave: 'sine',
+  volume: 0.05,
+  key: 'spawn',
+} as const;
+
 /** Pentatonic-ish scale roots per biome, in Hz, for the ambient pad. */
 const BIOME_ROOTS: Record<BiomeId, number> = {
   ruins: 110,
@@ -239,6 +255,11 @@ export class Sound {
           );
           this.whoosh(e.boss ? 0.8 : 0.15, 400, 0.2);
           break;
+        case 'enemySpawned': {
+          const cue = ENEMY_SPAWN_AUDIO;
+          this.tone(cue.from, cue.to, cue.duration, cue.wave, cue.volume, cue.key);
+          break;
+        }
         case 'pickup':
           if (e.kind === 'shard')
             this.tone(1300 + Math.random() * 300, 1800, 0.06, 'sine', 0.06, 'shard');
