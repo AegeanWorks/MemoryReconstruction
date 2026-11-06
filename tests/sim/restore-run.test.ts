@@ -53,7 +53,8 @@ describe('restoreRun (a corrupt snapshot degrades, never crashes)', () => {
   it('round-trips a healthy snapshot unchanged', () => {
     const run = restoreRun(snapshot());
     expect(run?.seed).toBe(7);
-    expect(run?.difficulty).toBe('normal');
+    expect(run?.depth).toBe(0);
     expect(run?.player.health).toBeGreaterThan(0);
+    expect(run?.fragmentsFound).toEqual([]);
   });
 });
