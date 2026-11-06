@@ -11,6 +11,7 @@
  * the game keeps working without persistence.
  */
 import { z } from 'zod';
+import { equipmentExists } from '../sim/equipment';
 import { checkpointForDepth, echoesEarned } from '../sim/hub';
 import { restoreRun, type RunState } from '../sim/run';
 
@@ -123,7 +124,8 @@ export class SaveStore {
 
   loadMeta(): Meta {
     const parsed = MetaSchema.safeParse(this.read(META_KEY));
-    return parsed.success ? parsed.data : defaultMeta();
+    if (!parsed.success) return defaultMeta();
+    return dropPhantomRelics(parsed.data);
   }
 
   saveMeta(meta: Meta): boolean {
@@ -150,6 +152,29 @@ export class SaveStore {
     }
   }
 }
+/**
+ * Trust boundary for hand-edited saves: vault, attuned relic and reforge
+ * ranks reference equipment defs, and every render/kit call site throws on
+ * an unknown id — so the load boundary drops phantoms instead of crashing
+ * the Reliquary, the Reforge, or expedition start.
+ */
+export function dropPhantomRelics(meta: Meta): Meta {
+  const vault = meta.vault.filter((defId) => equipmentExists(defId));
+  const attunedRelic =
+    meta.attunedRelic && equipmentExists(meta.attunedRelic) ? meta.attunedRelic : null;
+  const relicRanks: Record<string, number> = {};
+  for (const [defId, rank] of Object.entries(meta.relicRanks)) {
+    if (equipmentExists(defId)) relicRanks[defId] = rank;
+  }
+  if (
+    vault.length === meta.vault.length &&
+    attunedRelic === meta.attunedRelic &&
+    Object.keys(relicRanks).length === Object.keys(meta.relicRanks).length
+  )
+    return meta;
+  return { ...meta, vault, attunedRelic, relicRanks };
+}
+
 
 /**
  * Adds a run's fragments, echoes and checkpoint into the meta progress (pure).

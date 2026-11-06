@@ -116,6 +116,30 @@ describe('SaveStore', () => {
     expect(meta.quests).toEqual({ accepted: [], claimed: [] });
   });
 
+
+  it('drops phantom relic ids from the vault instead of loading a crashing kit', () => {
+    const storage = memoryStorage();
+    const store = new SaveStore(storage);
+    storage.data.set(
+      'memory-reconstruction.meta.v1',
+      JSON.stringify({
+        version: 1,
+        fragments: [],
+        runs: 0,
+        victories: 0,
+        bestDepth: 0,
+        settings: { masterVolume: 0.8, musicVolume: 0.5, sfxVolume: 0.8, screenShake: true },
+        vault: ['rusted_edge', 'not_a_relic'],
+        attunedRelic: 'ghost_charm',
+        relicRanks: { rusted_edge: 2, ghost_charm: 1 },
+      })
+    );
+    const meta = store.loadMeta();
+    expect(meta.vault).toEqual(['rusted_edge']);
+    expect(meta.attunedRelic).toBeNull();
+    expect(meta.relicRanks).toEqual({ rusted_edge: 2 });
+  });
+
   it('banks echoes and unlocks a checkpoint when a run ends', () => {
     const run = createRun(1, []);
     run.depth = 4;
