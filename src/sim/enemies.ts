@@ -418,10 +418,14 @@ function beginWindup(arena: Arena, enemy: Enemy, kind: AttackKind): void {
 
 function windup(arena: Arena, enemy: Enemy): void {
   // Ranged attackers keep tracking until the last moment; melee commits early.
+  // Fan and wall aim like spread and volley, so they track like them: without
+  // this the 0.55-0.65s windup fires at stale air against any strafing walker.
   const tracks =
     enemy.attack === 'shot' ||
     enemy.attack === 'spread' ||
     enemy.attack === 'volley' ||
+    enemy.attack === 'fan' ||
+    enemy.attack === 'wall' ||
     enemy.attack === 'beam' ||
     enemy.attack === 'mortar' ||
     enemy.attack === 'bolt';
