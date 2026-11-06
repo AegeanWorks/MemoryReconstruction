@@ -6,7 +6,100 @@
  * on the first `unlock()` call (the title screen's first click or key).
  */
 import type { BiomeId } from '../sim/content';
+import type { AttackKind } from '../sim/entities';
 import type { SimEvent } from '../sim/events';
+
+/**
+ * Data-driven enemy attack audio. Every AttackKind the sim can telegraph
+ * resolves to exactly one preset so no telegraph is ever silent.
+ *
+ * Projectile launches share the `shot` throttle key so a volley, fan, wall
+ * or spiral curtain cannot stack into clipping. Attacks that already emit
+ * a dedicated event with its own sound on the same tick (beam, blink, bomb,
+ * hook) resolve to `none` here so the cue plays once, not twice.
+ */
+export type EnemyAttackAudio =
+  | { op: 'none' }
+  | { op: 'whoosh'; duration: number; cutoff: number; volume: number }
+  | {
+      op: 'tone';
+      from: number;
+      to: number;
+      duration: number;
+      wave: OscillatorType;
+      volume: number;
+      key: string;
+    }
+  | { op: 'thump'; freq: number; volume: number; key: string }
+  | { op: 'chord'; freqs: number[]; duration: number; volume: number };
+
+export const ENEMY_ATTACK_AUDIO: Record<AttackKind, EnemyAttackAudio> = {
+  strike: { op: 'whoosh', duration: 0.09, cutoff: 1150, volume: 0.16 },
+  lunge: { op: 'whoosh', duration: 0.14, cutoff: 900, volume: 0.18 },
+  slam: { op: 'thump', freq: 60, volume: 0.5, key: 'slam' },
+  shot: { op: 'tone', from: 700, to: 300, duration: 0.15, wave: 'sine', volume: 0.08, key: 'shot' },
+  spread: {
+    op: 'tone',
+    from: 700,
+    to: 300,
+    duration: 0.15,
+    wave: 'sine',
+    volume: 0.08,
+    key: 'shot',
+  },
+  ring: { op: 'tone', from: 700, to: 300, duration: 0.15, wave: 'sine', volume: 0.08, key: 'shot' },
+  charge: { op: 'whoosh', duration: 0.22, cutoff: 700, volume: 0.22 },
+  volley: {
+    op: 'tone',
+    from: 760,
+    to: 320,
+    duration: 0.18,
+    wave: 'sine',
+    volume: 0.08,
+    key: 'shot',
+  },
+  summon: { op: 'chord', freqs: [220, 277, 330], duration: 0.4, volume: 0.12 },
+  beam: { op: 'none' },
+  mortar: {
+    op: 'tone',
+    from: 300,
+    to: 120,
+    duration: 0.25,
+    wave: 'square',
+    volume: 0.08,
+    key: 'mortar',
+  },
+  mines: {
+    op: 'tone',
+    from: 500,
+    to: 200,
+    duration: 0.2,
+    wave: 'sine',
+    volume: 0.08,
+    key: 'mines',
+  },
+  spiral: {
+    op: 'tone',
+    from: 600,
+    to: 900,
+    duration: 0.2,
+    wave: 'sine',
+    volume: 0.08,
+    key: 'shot',
+  },
+  blink: { op: 'none' },
+  bomb: { op: 'none' },
+  swarm: { op: 'chord', freqs: [330, 415, 494], duration: 0.3, volume: 0.1 },
+  hook: { op: 'none' },
+  quake: { op: 'thump', freq: 70, volume: 0.4, key: 'quake' },
+  fan: { op: 'tone', from: 820, to: 360, duration: 0.16, wave: 'sine', volume: 0.08, key: 'shot' },
+  sweep: { op: 'whoosh', duration: 0.3, cutoff: 800, volume: 0.24 },
+  wall: { op: 'tone', from: 520, to: 240, duration: 0.22, wave: 'sine', volume: 0.08, key: 'shot' },
+  pillars: { op: 'thump', freq: 85, volume: 0.35, key: 'pillars' },
+  combo: { op: 'whoosh', duration: 0.1, cutoff: 1000, volume: 0.2 },
+  dashStrike: { op: 'whoosh', duration: 0.1, cutoff: 1000, volume: 0.2 },
+  bolt: { op: 'tone', from: 880, to: 480, duration: 0.1, wave: 'sine', volume: 0.06, key: 'shot' },
+};
 
 /** Pentatonic-ish scale roots per biome, in Hz, for the ambient pad. */
 const BIOME_ROOTS: Record<BiomeId, number> = {
@@ -23,6 +116,8 @@ const BIOME_ROOTS: Record<BiomeId, number> = {
   bloom: 138.59,
   hive: 110,
   catacomb: 87.31,
+  tide: 98,
+  storm: 164.81,
   sanctuary: 146.83,
 };
 const SCALE = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3, 2];
@@ -114,12 +209,27 @@ export class Sound {
         case 'enemySlash':
           this.whoosh(e.combo === 2 ? 0.11 : 0.08, 1150, 0.16);
           break;
-        case 'enemyAttack':
-          if (e.attack === 'slam') this.thump(60, 0.5, 'slam');
-          else if (e.attack === 'combo' || e.attack === 'dashStrike') this.whoosh(0.1, 1000, 0.2);
-          else if (e.attack === 'bolt') this.tone(880, 480, 0.1, 'sine', 0.06, 'shot');
-          else if (e.attack === 'ring' || e.attack === 'spread' || e.attack === 'shot')
-            this.tone(700, 300, 0.15, 'sine', 0.08, 'shot');
+        case 'enemyAttack': {
+          const preset = ENEMY_ATTACK_AUDIO[e.attack];
+          if (preset.op === 'whoosh') this.whoosh(preset.duration, preset.cutoff, preset.volume);
+          else if (preset.op === 'tone')
+            this.tone(
+              preset.from,
+              preset.to,
+              preset.duration,
+              preset.wave,
+              preset.volume,
+              preset.key
+            );
+          else if (preset.op === 'thump') this.thump(preset.freq, preset.volume, preset.key);
+          else if (preset.op === 'chord') this.chord(preset.freqs, preset.duration, preset.volume);
+          break;
+        }
+        case 'hook':
+          this.tone(420, 780, 0.16, 'sine', 0.09);
+          break;
+        case 'shockwave':
+          this.thump(70, 0.3, 'shockwave');
           break;
         case 'enemyDied':
           this.tone(
