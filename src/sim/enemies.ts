@@ -453,6 +453,17 @@ export const QUAKE_RADIUS = 40;
 export const PILLARS_RADIUS = 38;
 
 /**
+ * Mortar spread: three blasts across the walker's launch-time position, on
+ * the perpendicular axis. One source of truth for the sim landing pattern
+ * and the view warning, so the rings sit where the blasts will.
+ */
+export const MORTAR_OFFSETS = [-70, 0, 70];
+
+export function mortarRadius(isBoss: boolean): number {
+  return isBoss ? 52 : 40;
+}
+
+/**
  * Wall-warden curtain: bolt offsets across the lane and which pair is left
  * open. One source of truth for the sim launch and the view telegraph, so
  * the warning and the curtain can never disagree about where the gap is.
@@ -520,12 +531,12 @@ function launch(arena: Arena, enemy: Enemy): void {
       break;
     }
     case 'mortar':
-      for (const offset of [-70, 0, 70]) {
+      for (const offset of MORTAR_OFFSETS) {
         const a = angle + Math.PI / 2;
         arena.spawnBlast(
           p.x + Math.cos(a) * offset,
           p.y + Math.sin(a) * offset,
-          enemy.isBoss ? 52 : 40,
+          mortarRadius(enemy.isBoss),
           0.62,
           def.damage
         );

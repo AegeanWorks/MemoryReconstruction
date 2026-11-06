@@ -10,6 +10,8 @@ import { AnimatedSprite, Container, Graphics, Sprite, Text, type Texture } from 
 import type { Enemy, Hazard, Interactable, Pickup, Player, Projectile } from '../sim/entities';
 import {
   dashStrikeRange,
+  MORTAR_OFFSETS,
+  mortarRadius,
   PILLARS_RADIUS,
   QUAKE_RADIUS,
   slamRadius,
@@ -1187,10 +1189,23 @@ export class ActorView {
           .stroke({ width: 3, color: 0xffd0d0, alpha: urgency * 0.85 });
         break;
       }
-      case 'mortar':
-        g.circle(x, y, 46).stroke({ width: 2, color: TELEGRAPH_COLOR, alpha: urgency });
-        g.circle(x, y, 16 + (1 - urgency) * 20).fill({ color: TELEGRAPH_COLOR, alpha: 0.3 });
+      case 'mortar': {
+        // Blasts land across the walker's position, not at the caster: ring
+        // the landing zone from the shared layout so the warning sits where
+        // the sim will strike. Reads the live walker like the mines warning.
+        const p = this.world.player;
+        const aim = Math.atan2(p.y - y, p.x - x);
+        const perp = aim + Math.PI / 2;
+        const ring = mortarRadius(e.isBoss);
+        for (const offset of MORTAR_OFFSETS) {
+          g.circle(p.x + Math.cos(perp) * offset, p.y + Math.sin(perp) * offset, ring).stroke({
+            width: 2,
+            color: TELEGRAPH_COLOR,
+            alpha: urgency,
+          });
+        }
         break;
+      }
       case 'mines': {
         // Mines land around the player, so the warning must too.
         const p = this.world.player;
