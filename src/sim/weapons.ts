@@ -75,6 +75,23 @@ export const WEAPONS: readonly WeaponDef[] = [
   },
 ];
 
+/**
+ * Stance-art impact feel. The 7s-cooldown art is the heaviest single moment
+ * in the kit, so it must freeze at least as hard as a finisher swing
+ * (0.07s): sword/spear match a hard swing, the greatsword quake beats it.
+ * Shake strengths preserve the long-standing 9/5 split.
+ */
+export interface WeaponArtImpact {
+  hitstop: number;
+  shake: number;
+}
+
+export const WEAPON_ART_IMPACT: Record<WeaponId, WeaponArtImpact> = {
+  sword: { hitstop: 0.06, shake: 5 },
+  spear: { hitstop: 0.06, shake: 5 },
+  greatsword: { hitstop: 0.09, shake: 9 },
+};
+
 const BY_ID = new Map(WEAPONS.map((weapon) => [weapon.id, weapon]));
 
 export function weaponDef(id: string): WeaponDef {

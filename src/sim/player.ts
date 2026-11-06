@@ -7,7 +7,7 @@ import { moveAndCollide } from './physics';
 import { applyAspect } from './aspects';
 import { applyEquipment, emptyEquipment, type EquipmentSlots } from './equipment';
 import { computeStats } from './upgrades';
-import { WEAPONS, weaponDef } from './weapons';
+import { WEAPON_ART_IMPACT, WEAPONS, weaponDef } from './weapons';
 
 /** Fraction of a swing at which its hit lands. */
 const SWING_ACTIVE_AT = 0.38;
@@ -322,7 +322,9 @@ function useWeaponArt(arena: Arena): void {
       radius,
     });
   }
-  arena.emit({ type: 'shake', strength: weapon.id === 'greatsword' ? 9 : 5 });
+  const impact = WEAPON_ART_IMPACT[weapon.id];
+  arena.hitstop(impact.hitstop);
+  arena.emit({ type: 'shake', strength: impact.shake });
   arena.emit({ type: 'notice', text: `${weapon.name} art` });
 }
 
