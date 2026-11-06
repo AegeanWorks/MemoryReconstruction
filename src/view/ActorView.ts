@@ -8,7 +8,13 @@
  */
 import { AnimatedSprite, Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
 import type { Enemy, Hazard, Interactable, Pickup, Player, Projectile } from '../sim/entities';
-import { dashStrikeRange, slamRadius } from '../sim/enemies';
+import {
+  dashStrikeRange,
+  slamRadius,
+  wallGapCenter,
+  wallGapIndex,
+  WALL_BOLT_OFFSETS,
+} from '../sim/enemies';
 import { equipmentDef } from '../sim/equipment';
 import type { WeaponId } from '../sim/weapons';
 import { TILE_SIZE } from '../sim/tiles';
@@ -1285,19 +1291,22 @@ export class ActorView {
       }
       case 'wall': {
         // A curtain across the lane, with a visible gap to dive through.
+        // The guide sits on the true gap center from the shared helper, so
+        // it always marks the lane the sim actually leaves open.
         const nx = Math.cos(angle + Math.PI / 2);
         const ny = Math.sin(angle + Math.PI / 2);
-        const gap = e.id % 4;
-        for (let i = 0; i < 6; i++) {
+        const gap = wallGapIndex(e.id);
+        const gapC = wallGapCenter(e.id);
+        for (let i = 0; i < WALL_BOLT_OFFSETS.length; i++) {
           if (i === gap || i === gap + 1) continue;
-          const ox = x + nx * (-100 + i * 40);
-          const oy = y + ny * (-100 + i * 40);
+          const ox = x + nx * WALL_BOLT_OFFSETS[i];
+          const oy = y + ny * WALL_BOLT_OFFSETS[i];
           g.moveTo(ox, oy)
             .lineTo(ox + Math.cos(angle) * 90, oy + Math.sin(angle) * 90)
             .stroke({ width: 10, color: 0xff8a5a, alpha: urgency * 0.35 });
         }
-        g.moveTo(x + nx * 40, y + ny * 40)
-          .lineTo(x + nx * 80, y + ny * 80)
+        g.moveTo(x + nx * (gapC - 20), y + ny * (gapC - 20))
+          .lineTo(x + nx * (gapC + 20), y + ny * (gapC + 20))
           .stroke({ width: 2, color: 0x9df3ff, alpha: urgency * 0.8 });
         break;
       }

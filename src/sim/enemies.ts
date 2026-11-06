@@ -441,6 +441,22 @@ function windup(arena: Arena, enemy: Enemy): void {
   launch(arena, enemy);
 }
 
+/**
+ * Wall-warden curtain: bolt offsets across the lane and which pair is left
+ * open. One source of truth for the sim launch and the view telegraph, so
+ * the warning and the curtain can never disagree about where the gap is.
+ */
+export const WALL_BOLT_OFFSETS = [-100, -60, -20, 20, 60, 100];
+
+export function wallGapIndex(enemyId: number): number {
+  return enemyId % 4;
+}
+
+export function wallGapCenter(enemyId: number): number {
+  const gap = wallGapIndex(enemyId);
+  return (WALL_BOLT_OFFSETS[gap] + WALL_BOLT_OFFSETS[gap + 1]) / 2;
+}
+
 /** The instant part of an attack, fired as the attack phase begins. */
 function launch(arena: Arena, enemy: Enemy): void {
   const p = arena.player;
@@ -586,12 +602,10 @@ function launch(arena: Arena, enemy: Enemy): void {
     }
     case 'wall': {
       // A curtain of bolts with one gap: dash the gap or leave the lane.
-      // Gap varies per caster but the telegraph reads the same id, so the
-      // warning and the curtain always agree.
-      const gap = enemy.id % 4;
-      for (let i = 0; i < 6; i++) {
+      const gap = wallGapIndex(enemy.id);
+      for (let i = 0; i < WALL_BOLT_OFFSETS.length; i++) {
         if (i === gap || i === gap + 1) continue;
-        const offset = -100 + i * 40;
+        const offset = WALL_BOLT_OFFSETS[i];
         const px = enemy.x + Math.cos(angle + Math.PI / 2) * offset;
         const py = enemy.y + Math.sin(angle + Math.PI / 2) * offset;
         if (arena.grid.isSolidAtPixel(px, py)) continue;
