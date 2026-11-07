@@ -894,6 +894,19 @@
   border-right: 1px solid rgba(255, 217, 138, 0.45);
   border-bottom: 1px solid rgba(255, 217, 138, 0.45);
 }
+/* Resident rooms frame the NPC near the title band; hang the balloon below
+   the resident there and point the arrow up. */
+.npc-balloon.below {
+  transform: translate(-50%, 0);
+}
+.npc-balloon.below::after {
+  top: -6px;
+  bottom: auto;
+  border-right: none;
+  border-bottom: none;
+  border-left: 1px solid rgba(255, 217, 138, 0.45);
+  border-top: 1px solid rgba(255, 217, 138, 0.45);
+}
 .npc-balloon .npc-balloon-name {
   display: block;
   font-family: var(--serif);

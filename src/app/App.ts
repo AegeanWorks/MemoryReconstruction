@@ -21,11 +21,12 @@ import {
   sectionNumber,
   sellRelic,
 } from '../sim/hub';
-import { NPCS, questProgress, questsForNpc, questSnapshot } from '../sim/quests';
+import { NPCS, NPC_AMBIENT, questProgress, questsForNpc, questSnapshot } from '../sim/quests';
 import { createRun, type RunState } from '../sim/run';
 import { buildingById } from '../sim/sanctuary';
 import { World } from '../sim/world';
 import { SaveStore, recordRun, type Meta, type Settings } from '../save/SaveStore';
+import { placeBalloon } from '../ui/balloon';
 import { h } from '../ui/dom';
 import { Hud } from '../ui/Hud';
 import {
@@ -86,6 +87,11 @@ export class App {
   private readonly screens: Screens;
   private readonly fade = h('div', { class: 'fade' });
   private readonly prompt = h('div', { class: 'sanctuary-prompt hidden' });
+  /** Overhead speech balloon shown above nearby residents. */
+  private readonly balloon = h('div', { class: 'npc-balloon hidden' });
+  private balloonNpc = '';
+  private balloonLine = 0;
+  private balloonTimer = 0;
   private readonly sanctuaryName = h('div', { class: 'st-title' }, 'The Sanctuary');
   private sanctuaryNameText = 'The Sanctuary';
   private readonly sanctuaryTitle = h(
@@ -105,7 +111,7 @@ export class App {
     this.meta = this.store.loadMeta();
     this.applySettings(this.meta.settings);
     this.screens = new Screens(ui);
-    ui.append(this.hud.root, this.sanctuaryTitle, this.prompt, this.fade);
+    ui.append(this.hud.root, this.sanctuaryTitle, this.balloon, this.prompt, this.fade);
     this.input = new Input(renderer.canvas, (action) => this.onMenu(action));
     // Audio needs a user gesture; any first input unlocks it.
     const unlock = (): void => {
@@ -159,6 +165,7 @@ export class App {
     if (this.world && this.world.mode === 'dungeon' && this.state !== 'title')
       this.hud.update(this.world, dt);
     this.updatePrompt();
+    this.updateBalloon();
     requestAnimationFrame((t) => this.frame(t));
   }
 
@@ -729,6 +736,78 @@ export class App {
     this.sound.unlock();
     this.sound.click();
     action();
+  }
+
+  /**
+   * Overhead speech balloon above the nearest resident: greeting plus any
+   * quest the walker can pick up or turn in. Follows the resident in world
+   * space and hides past talking distance.
+   */
+  private updateBalloon(): void {
+    const world = this.world;
+    if (this.state !== 'sanctuary' || !world || world.mode !== 'sanctuary') {
+      this.balloon.classList.add('hidden');
+      this.balloonNpc = '';
+      return;
+    }
+    const npc = world.interactables.find((i) => i.kind === 'npc' && !i.used);
+    const player = world.player;
+    if (!npc || Math.hypot(npc.x - player.x, npc.y - player.y) > 260) {
+      this.balloon.classList.add('hidden');
+      this.balloonNpc = '';
+      return;
+    }
+    const npcId = npc.npcId ?? '';
+    const data = NPCS[npcId];
+    if (!data) {
+      this.balloon.classList.add('hidden');
+      return;
+    }
+    const quest = questsForNpc(npcId);
+    let questLine = '';
+    if (quest && !this.meta.quests.claimed.includes(quest.id)) {
+      const accepted = this.meta.quests.accepted.includes(quest.id);
+      const progress = questProgress(quest, this.questSnapshotNow());
+      questLine = accepted
+        ? progress >= quest.target
+          ? `ready to claim: ${quest.name}`
+          : `${quest.name} ${progress}/${quest.target}`
+        : `new task: ${quest.name}`;
+    }
+    // Residents speak on their own while the walker lingers: greeting first,
+    // then quest news, then ambient remarks on rotation.
+    const ambient = NPC_AMBIENT[npcId] ?? [];
+    const lines = [data.greeting, ...(questLine ? [questLine] : []), ...ambient];
+    if (this.balloonNpc !== npcId) {
+      this.balloonNpc = npcId;
+      this.balloonLine = 0;
+      this.balloonTimer = 0;
+    } else {
+      this.balloonTimer += 1 / 60;
+      if (this.balloonTimer > 7 && lines.length > 1) {
+        this.balloonTimer = 0;
+        this.balloonLine = (this.balloonLine + 1) % lines.length;
+      }
+    }
+    const text = lines[this.balloonLine % lines.length] ?? data.greeting;
+    this.balloon.innerHTML = '';
+    const name = document.createElement('span');
+    name.className = 'npc-balloon-name';
+    name.textContent = data.name;
+    const line = document.createElement('span');
+    line.textContent = text.length > 140 ? `${text.slice(0, 140)}...` : text;
+    this.balloon.append(name, line);
+    // Float above the resident's world-space name label, not on top of it.
+    // Near the top of a resident room the balloon would cross the room title
+    // and clip off-screen, so it flips below the resident instead.
+    this.balloon.classList.remove('hidden');
+    const above = this.renderer.worldToScreen(npc.x, npc.y - 108);
+    const below = this.renderer.worldToScreen(npc.x, npc.y + 54);
+    const height = this.balloon.offsetHeight || 64;
+    const placement = placeBalloon(above.y, below.y, height, this.ui.clientHeight);
+    this.balloon.classList.toggle('below', placement.below);
+    this.balloon.style.left = `${above.x}px`;
+    this.balloon.style.top = `${placement.top}px`;
   }
 
   private startRun(run: RunState): void {

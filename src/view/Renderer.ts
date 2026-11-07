@@ -142,6 +142,13 @@ export class Renderer {
     return { x: (x - w / 2) / this.zoom + this.camX, y: (y - h / 2) / this.zoom + this.camY };
   }
 
+  /** Inverse of screenToWorld: used for DOM overlays like NPC speech balloons. */
+  worldToScreen(x: number, y: number): { x: number; y: number } {
+    const w = this.app.screen.width;
+    const h = this.app.screen.height;
+    return { x: w / 2 + (x - this.camX) * this.zoom, y: h / 2 + (y - this.camY) * this.zoom };
+  }
+
   /**
    * Draws a frame. `alpha` is how far real time is between the last two sim
    * steps (0..1); `dt` is the real seconds since the previous frame.

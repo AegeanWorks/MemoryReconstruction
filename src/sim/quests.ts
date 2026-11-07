@@ -148,3 +148,13 @@ export function questProgress(def: QuestDef, snapshot: QuestSnapshot): number {
 export function structureLevel(progress: SanctuaryProgress, id: string): number {
   return restorationLevel(progress, id);
 }
+
+/** Short lines residents call out while the walker lingers nearby. */
+export const NPC_AMBIENT: Record<string, readonly string[]> = {
+  archivist: ['Another name for the index, Walker.', 'The shelves remember what you forget.'],
+  smith: ['Mind the edge. It minds you.', 'Bring me back something broken.'],
+  gardener: ['Water the cuttings if you pass.', 'Green things first. Always.'],
+  warden: ['Drill forms before you go.', 'The gate holds. See that you do.'],
+  lamplighter: ['Keep to the lit road.', 'A trimmed lamp is a kept promise.'],
+  hearthkeeper: ['Soup is on. Sit when you can.', 'Save me a story for supper.'],
+};
