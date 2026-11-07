@@ -77,6 +77,16 @@ export function dashStrikeRange(def: EnemyDef): number {
   return Math.round(dashStrikeSpeed(def) * ACTIVE.dashStrike);
 }
 
+/** Bosses that fight at blade range instead of caster distance. */
+export function isMeleeBossId(defId: string): boolean {
+  return (
+    defId === 'dread_champion' ||
+    defId === 'ruin_warlord' ||
+    defId === 'drowned_blademaster' ||
+    defId === 'storm_warlord'
+  );
+}
+
 const BOSS_PATTERNS: Record<string, AttackKind[]> = {
   guardian: ['slam', 'charge', 'spread', 'beam'],
   spirit: ['ring', 'volley', 'summon', 'spiral'],
@@ -362,10 +372,10 @@ function chase(arena: Arena, enemy: Enemy, dt: number): void {
       break;
     }
     case 'boss': {
-      const isMeleeBoss = def.id === 'dread_champion' || def.id === 'ruin_warlord';
-      const targetDist = isMeleeBoss ? 55 : 140;
+      const melee = isMeleeBossId(def.id);
+      const targetDist = melee ? 55 : 140;
       if (dist > targetDist)
-        step(arena, enemy, toward.x, toward.y, def.speed * (isMeleeBoss ? 1.25 : 1), dt);
+        step(arena, enemy, toward.x, toward.y, def.speed * (melee ? 1.25 : 1), dt);
       if (enemy.cooldown <= 0) {
         const pattern = BOSS_PATTERNS[def.id] ?? BOSS_PATTERNS.keeper;
         const kind = pattern[enemy.patternIndex % pattern.length];
