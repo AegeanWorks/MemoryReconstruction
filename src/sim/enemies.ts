@@ -383,7 +383,9 @@ function chase(arena: Arena, enemy: Enemy, dt: number): void {
         beginWindup(
           arena,
           enemy,
-          kind === 'summon' && summonCount(arena, enemy) >= MAX_SUMMONS ? 'ring' : kind
+          (kind === 'summon' || kind === 'swarm') && summonCount(arena, enemy) >= MAX_SUMMONS
+            ? 'ring'
+            : kind
         );
       }
       break;
@@ -598,8 +600,11 @@ function launch(arena: Arena, enemy: Enemy): void {
       break;
     case 'swarm': {
       const roster = arena.roster.length > 0 ? arena.roster : ['scavenger'];
-      for (let i = 0; i < 3; i++) {
-        const a = (i / 3) * Math.PI * 2 + arena.rng.range(0, 1);
+      // Swarm shares the same add cap as summon; spawn only the free slots so
+      // a partial cap still gets some pressure without flooding the arena.
+      const count = Math.min(3, Math.max(0, MAX_SUMMONS - summonCount(arena, enemy)));
+      for (let i = 0; i < count; i++) {
+        const a = (i / count) * Math.PI * 2 + arena.rng.range(0, 1);
         const x = enemy.x + Math.cos(a) * 56;
         const y = enemy.y + Math.sin(a) * 56;
         if (arena.grid.isSolidAtPixel(x, y)) continue;
