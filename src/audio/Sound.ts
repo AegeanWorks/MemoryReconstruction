@@ -390,6 +390,12 @@ export class Sound {
     this.tone(880, 990, 0.05, 'sine', 0.06);
   }
 
+  /** A relic locks into the Reliquary: a bright, settled two-note chime. */
+  attune(): void {
+    this.chord([659, 988, 1319], 0.45, 0.12);
+    this.tone(1568, 2093, 0.18, 'sine', 0.07);
+  }
+
   /** Level-up fanfare: a rising swell, a bright run, then a ringing peak. */
   private fanfare(): void {
     const ctx = this.ctx;

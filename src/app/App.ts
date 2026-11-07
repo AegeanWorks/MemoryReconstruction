@@ -619,7 +619,7 @@ export class App {
         onAttune: (defId) => {
           const next = attuneRelic(this.meta, defId);
           if (!next) return;
-          this.sound.click();
+          this.sound.attune();
           this.meta = { ...this.meta, attunedRelic: next.attunedRelic ?? null };
           this.store.saveMeta(this.meta);
           reopen();
