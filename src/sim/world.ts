@@ -468,9 +468,20 @@ export class World implements Arena {
     return dealt;
   }
 
-  damagePlayer(amount: number, fromX: number, fromY: number, knockback: number): void {
+  damagePlayer(
+    amount: number,
+    fromX: number,
+    fromY: number,
+    knockback: number,
+    grazeable = false
+  ): void {
     const p = this.player;
-    if (p.invulnerable > 0 || p.action === 'dead') return;
+    if (p.invulnerable > 0 || p.action === 'dead') {
+      // A dash that carries the walker through a real attack pays the near
+      // miss; i-frames left over after the dash do not.
+      if (grazeable && p.dashTime > 0) this.graze(fromX, fromY);
+      return;
+    }
     const taken = Math.max(1, Math.round(amount * (1 - p.stats.damageReduction)));
     p.health = Math.max(0, p.health - taken);
     p.invulnerable = HURT_IFRAMES;
@@ -1690,7 +1701,7 @@ export class World implements Arena {
       this.blasts.splice(i, 1);
       this.emit({ type: 'blast', x: b.x, y: b.y, radius: b.radius });
       if (Math.hypot(p.x - b.x, p.y - b.y) <= b.radius + p.radius)
-        this.damagePlayer(b.damage, b.x, b.y, 200);
+        this.damagePlayer(b.damage, b.x, b.y, 200, true);
       for (const e of this.enemies)
         if (e.state !== 'dying' && Math.hypot(e.x - b.x, e.y - b.y) <= b.radius + e.radius)
           this.damageEnemy(e, Math.round(b.damage * 0.6), 'hazard', false, 80);
@@ -1708,7 +1719,7 @@ export class World implements Arena {
       this.mines.splice(i, 1);
       this.emit({ type: 'blast', x: m.x, y: m.y, radius: 62 });
       if (Math.hypot(p.x - m.x, p.y - m.y) <= 62 + p.radius)
-        this.damagePlayer(m.damage, m.x, m.y, 180);
+        this.damagePlayer(m.damage, m.x, m.y, 180, true);
       for (const e of this.enemies)
         if (e.state !== 'dying' && Math.hypot(e.x - m.x, e.y - m.y) <= 62 + e.radius)
           this.damageEnemy(e, Math.round(m.damage * 0.5), 'hazard', false, 60);

@@ -488,7 +488,7 @@ function launch(arena: Arena, enemy: Enemy): void {
   switch (enemy.attack) {
     case 'strike':
       if (inArc(enemy.x, enemy.y, angle, def.attackRange + 14, 0.95, p.x, p.y, p.radius)) {
-        arena.damagePlayer(def.damage, enemy.x, enemy.y, 260);
+        arena.damagePlayer(def.damage, enemy.x, enemy.y, 260, true);
         enemy.attackLanded = true;
       }
       enemy.knockX += enemy.dirX * 160;
@@ -497,7 +497,7 @@ function launch(arena: Arena, enemy: Enemy): void {
     case 'slam': {
       const radius = slamRadius(enemy);
       if (circlesTouch(enemy.x, enemy.y, radius, p.x, p.y, p.radius))
-        arena.damagePlayer(def.damage, enemy.x, enemy.y, 380);
+        arena.damagePlayer(def.damage, enemy.x, enemy.y, 380, true);
       arena.emit({ type: 'shake', strength: enemy.isBoss ? 9 : 5 });
       break;
     }
@@ -525,7 +525,7 @@ function launch(arena: Arena, enemy: Enemy): void {
       const ex = enemy.x + Math.cos(angle) * length;
       const ey = enemy.y + Math.sin(angle) * length;
       if (segmentDistance(p.x, p.y, enemy.x, enemy.y, ex, ey) <= width / 2 + p.radius)
-        arena.damagePlayer(def.damage, enemy.x, enemy.y, 220);
+        arena.damagePlayer(def.damage, enemy.x, enemy.y, 220, true);
       arena.emit({ type: 'beam', x: enemy.x, y: enemy.y, angle, length, width });
       arena.emit({ type: 'shake', strength: 6 });
       break;
@@ -571,7 +571,7 @@ function launch(arena: Arena, enemy: Enemy): void {
         arena.emit({ type: 'blink', x: oldX, y: oldY, toX: tx, toY: ty });
       }
       if (Math.hypot(p.x - enemy.x, p.y - enemy.y) <= 86)
-        arena.damagePlayer(def.damage, enemy.x, enemy.y, 320);
+        arena.damagePlayer(def.damage, enemy.x, enemy.y, 320, true);
       break;
     }
     case 'bomb':
@@ -599,7 +599,7 @@ function launch(arena: Arena, enemy: Enemy): void {
     }
     case 'hook':
       if (Math.hypot(enemy.x - p.x, enemy.y - p.y) <= 330) {
-        arena.damagePlayer(Math.round(def.damage * 0.6), enemy.x, enemy.y, 40);
+        arena.damagePlayer(Math.round(def.damage * 0.6), enemy.x, enemy.y, 40, true);
         p.knockX += (enemy.x - p.x) * 3.4;
         p.knockY += (enemy.y - p.y) * 3.4;
         arena.emit({ type: 'hook', x: enemy.x, y: enemy.y, toX: p.x, toY: p.y });
@@ -747,7 +747,8 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
         def.damage,
         enemy.x,
         enemy.y,
-        enemy.attack === 'charge' ? 420 : enemy.attack === 'dashStrike' ? 300 : 260
+        enemy.attack === 'charge' ? 420 : enemy.attack === 'dashStrike' ? 300 : 260,
+        true
       );
       enemy.attackLanded = true;
       if (enemy.attack === 'dashStrike')
@@ -787,7 +788,8 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
           Math.round(def.damage * multiplier),
           enemy.x,
           enemy.y,
-          step === 2 ? 260 : 110
+          step === 2 ? 260 : 110,
+          true
         );
       moveAndCollide(arena.grid, enemy, Math.cos(swing) * 14, Math.sin(swing) * 14, 'enemy');
       arena.emit({
@@ -812,7 +814,7 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
       !enemy.attackLanded &&
       segmentDistance(p.x, p.y, enemy.x, enemy.y, ex, ey) <= width / 2 + p.radius
     ) {
-      arena.damagePlayer(def.damage, enemy.x, enemy.y, 240);
+      arena.damagePlayer(def.damage, enemy.x, enemy.y, 240, true);
       enemy.attackLanded = true;
     }
   } else if (enemy.attack === 'volley') {

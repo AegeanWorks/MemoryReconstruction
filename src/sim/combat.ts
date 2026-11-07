@@ -25,8 +25,18 @@ export interface Arena {
     crit: boolean,
     knockback: number
   ): number;
-  /** Applies damage unless the player is invulnerable; knockback points away from (fromX, fromY). */
-  damagePlayer(amount: number, fromX: number, fromY: number, knockback: number): void;
+  /**
+   * Applies damage unless the player is invulnerable; knockback points away
+   * from (fromX, fromY). Enemy attacks pass `grazeable` so a dash through the
+   * blow pays a graze instead of vanishing into the i-frames.
+   */
+  damagePlayer(
+    amount: number,
+    fromX: number,
+    fromY: number,
+    knockback: number,
+    grazeable?: boolean
+  ): void;
   spawnProjectile(projectile: Omit<Projectile, 'id' | 'hitIds'>): void;
   /** Spawns an enemy (with its spawn telegraph) into a room. */
   spawnEnemy(defId: string, x: number, y: number, roomId: number): Enemy;
