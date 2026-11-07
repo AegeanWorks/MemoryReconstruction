@@ -168,6 +168,7 @@ export function restoreRun(data: unknown): RunState | undefined {
     : run.player.stats.dashCharges;
   run.player.resonance ??= 0;
   run.player.resonanceTime ??= 0;
+  run.player.attackBuffer ??= 0;
   run.player.dashGrazes ??= [];
   // Core counters the sim increments every frame and the death recap reads.
   run.stats.kills ??= 0;

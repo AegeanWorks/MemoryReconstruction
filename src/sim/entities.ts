@@ -52,6 +52,8 @@ export interface Player {
   swingHitDone: boolean;
   /** Seconds left in which the next swing continues the combo. */
   comboWindow: number;
+  /** Seconds left on a queued strike pressed during a swing or dash. */
+  attackBuffer: number;
   dashTime: number;
   dashDirX: number;
   dashDirY: number;

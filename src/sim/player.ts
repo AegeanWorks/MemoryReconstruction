@@ -12,6 +12,8 @@ import { WEAPON_ART_IMPACT, WEAPONS, weaponDef } from './weapons';
 /** Fraction of a swing at which its hit lands. */
 const SWING_ACTIVE_AT = 0.38;
 const COMBO_GRACE = 0.4;
+/** How long a strike pressed during a swing or dash stays queued. */
+const ATTACK_BUFFER = 0.18;
 const DASH_TIME = 0.17;
 const DASH_SPEED = 560;
 const DASH_IFRAMES = 0.24;
@@ -52,6 +54,7 @@ export function createPlayer(x: number, y: number): Player {
     swingDuration: 0,
     swingHitDone: false,
     comboWindow: 0,
+    attackBuffer: 0,
     dashTime: 0,
     dashDirX: 1,
     dashDirY: 0,
@@ -97,6 +100,7 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
   p.boltCooldown = Math.max(0, p.boltCooldown - dt);
   p.artCooldown = Math.max(0, p.artCooldown - dt);
   p.comboWindow = Math.max(0, p.comboWindow - dt);
+  p.attackBuffer = Math.max(0, p.attackBuffer - dt);
   p.resonanceTime = Math.max(0, p.resonanceTime - dt);
   if (p.resonanceTime === 0) p.resonance = 0;
   p.mana = Math.min(s.maxMana, p.mana + s.manaRegen * dt);
@@ -121,13 +125,29 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
     startDash(arena, len > 1e-6 ? moveX : Math.cos(p.aim), len > 1e-6 ? moveY : Math.sin(p.aim));
 
   if (p.dashTime > 0) {
+    // A strike pressed mid-dash waits for the dash to finish instead of
+    // being swallowed by it.
+    if (input.attack) p.attackBuffer = ATTACK_BUFFER;
     updateDash(arena, dt);
     return;
   }
 
   if (input.bolt) fireBolt(arena);
-  if (input.attack && p.swingTime < 0) startSwing(arena);
+  if (input.attack) {
+    if (p.swingTime < 0) {
+      startSwing(arena);
+      p.attackBuffer = 0;
+    } else {
+      // Queue the press: holding works, but a deliberate tap during the
+      // current swing should not be lost either.
+      p.attackBuffer = ATTACK_BUFFER;
+    }
+  }
   if (p.swingTime >= 0) updateSwing(arena, dt);
+  if (p.swingTime < 0 && p.attackBuffer > 0) {
+    p.attackBuffer = 0;
+    startSwing(arena);
+  }
 
   const speed = s.moveSpeed * (p.swingTime >= 0 ? weaponDef(p.weapon).moveFactor : 1);
   moveAndCollide(arena.grid, p, (moveX * speed + p.knockX) * dt, (moveY * speed + p.knockY) * dt);
