@@ -177,11 +177,19 @@ function cloverCells(): Cell[] {
 /** A back-and-forth terrace: long runs joined at alternating ends. */
 function terraceCells(): Cell[] {
   const cells: Cell[] = [];
-  for (let x = 1; x <= 5; x++) cells.push({ x, y: 1 });
-  cells.push({ x: 5, y: 2 }, { x: 5, y: 3 });
-  for (let x = 5; x >= 1; x--) cells.push({ x, y: 3 });
-  cells.push({ x: 1, y: 4 });
-  for (let x = 1; x <= 3; x++) cells.push({ x, y: 4 });
+  const seen = new Set<number>();
+  const push = (x: number, y: number): void => {
+    const key = cellKey({ x, y });
+    if (seen.has(key)) return;
+    seen.add(key);
+    cells.push({ x, y });
+  };
+  for (let x = 1; x <= 5; x++) push(x, 1);
+  push(5, 2);
+  push(5, 3);
+  for (let x = 5; x >= 1; x--) push(x, 3);
+  push(1, 4);
+  for (let x = 1; x <= 3; x++) push(x, 4);
   return cells;
 }
 
