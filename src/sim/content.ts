@@ -273,7 +273,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 5,
     biome: 'frost',
-    roster: [],
+    roster: ['frost_stalker', 'frost_oracle', 'rime_duelist'],
     boss: 'choir_hierophant',
     roomCount: 1,
     finale: false,

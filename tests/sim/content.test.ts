@@ -135,3 +135,14 @@ describe('expanded bestiary', () => {
     for (const id of newIds) expect(rosters).toContain(id);
   });
 });
+
+describe('choir trial roster', () => {
+  it('gives the Frozen Choir trial a frost roster for its statues', () => {
+    const plan = FLOOR_PLANS[5];
+    expect(plan.trialName).toBe('Echo Trial: The Frozen Choir');
+    expect(plan.roster.length).toBeGreaterThan(0);
+    expect(plan.roster).not.toContain('scavenger');
+    expect(plan.roster).toContain('frost_stalker');
+    for (const id of plan.roster) expect(enemyDef(id).archetype).not.toBe('boss');
+  });
+});
