@@ -28,6 +28,7 @@ import { TILE_SIZE } from '../sim/tiles';
 import type { World } from '../sim/world';
 import { fxTextures } from './fxArt';
 import { BIOME_ART, hex } from './palette';
+import { clipLaneToRoom } from './telegraph';
 import { mirrorSheet, type ActorSheet, type Animation, type SpriteLibrary } from './sheets';
 
 interface ActorSprite {
@@ -1158,7 +1159,14 @@ export class ActorView {
       }
       case 'lunge':
       case 'charge': {
-        const length = e.attack === 'charge' ? 330 : 140;
+        const length = clipLaneToRoom(
+          x,
+          y,
+          e.dirX,
+          e.dirY,
+          e.attack === 'charge' ? 330 : 140,
+          this.world.currentRoom()
+        );
         const w = e.radius * 1.6;
         const nx = -e.dirY * w;
         const ny = e.dirX * w;
