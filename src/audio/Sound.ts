@@ -373,6 +373,9 @@ export class Sound {
         case 'playerDied':
           this.arpeggio([392, 330, 262, 196], 0.18, 0.15);
           break;
+        case 'soulAnchor':
+          this.shatter();
+          break;
         case 'victory':
           this.arpeggio([523, 659, 784, 1047, 1319], 0.16, 0.15);
           break;
@@ -474,6 +477,13 @@ export class Sound {
     if (!this.ctx || this.throttled(key, 0.03)) return;
     this.tone(freq, freq * 0.4, 0.14, 'sine', volume);
     this.whoosh(0.06, 2500, volume * 0.5);
+  }
+
+  /** A rare second wind: high glass noise, a bright shard chord, a low snap. */
+  private shatter(): void {
+    this.whoosh(0.38, 5200, 0.38);
+    this.chord([1760, 2093, 2637], 0.5, 0.1);
+    this.thump(55, 0.5, 'soulAnchor');
   }
 
   private chord(freqs: number[], duration: number, volume: number): void {

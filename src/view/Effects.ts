@@ -395,6 +395,12 @@ export class Effects {
         case 'interact':
           this.burst(e.x, e.y, 0xffd98a, 24, 120, 0.8, 5);
           break;
+        case 'soulAnchor':
+          this.ring(e.x, e.y, 70, 0xfff3c4, 0.55);
+          this.star(e.x, e.y, 0xffd98a, 64, 0.6);
+          this.burst(e.x, e.y, 0xfff3c4, 18, 140, 0.5, 4);
+          this.number(e.x, e.y - 30, 'SOUL ANCHOR', 0xffd98a, 16);
+          break;
         case 'playerHurt':
           this.hurtFlash = 1;
           break;

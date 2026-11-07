@@ -117,6 +117,16 @@
       "rarity": "rare",
       "description": "+8 melee damage, +2 mana per kill",
       "mods": { "meleeDamage": 8, "manaOnKill": 2 }
+    },
+    {
+      "id": "soul_anchor",
+      "name": "Soul Anchor",
+      "slot": "trinket",
+      "rarity": "rare",
+      "description": "+10 max health. Shatters instead of you once per run, refusing death.",
+      "mods": {
+        "maxHealth": 10
+      }
     }
   ]
 }

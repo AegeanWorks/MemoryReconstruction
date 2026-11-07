@@ -505,6 +505,19 @@ export class World implements Arena {
     this.emit({ type: 'playerHurt', amount: taken });
     this.emit({ type: 'shake', strength: 6 });
     this.hitstop(0.06);
+    // Second wind: a soul anchor shatters instead of the walker, once
+    // per anchor, and refuses death.
+    if (p.health <= 0 && p.equipment.trinket?.defId === 'soul_anchor') {
+      p.equipment.trinket = null;
+      refreshStats(p);
+      p.health = Math.round(p.stats.maxHealth * 0.4);
+      p.invulnerable = Math.max(p.invulnerable, 2);
+      this.emit({ type: 'soulAnchor', x: p.x, y: p.y });
+      this.emit({ type: 'notice', text: 'The soul anchor shatters — death refused.' });
+      this.emit({ type: 'shake', strength: 12 });
+      this.hitstop(0.2);
+      return;
+    }
     if (p.health <= 0) {
       p.action = 'dead';
       p.swingTime = -1;

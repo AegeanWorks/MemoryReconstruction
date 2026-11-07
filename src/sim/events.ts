@@ -43,6 +43,7 @@ export type SimEvent =
   | { type: 'enemyDied'; id: number; x: number; y: number; boss: boolean }
   | { type: 'playerHurt'; amount: number }
   | { type: 'playerDied' }
+  | { type: 'soulAnchor'; x: number; y: number }
   | { type: 'potion'; healed: number }
   | { type: 'pickup'; kind: PickupKind; x: number; y: number; amount: number }
   | { type: 'levelUp'; level: number }
