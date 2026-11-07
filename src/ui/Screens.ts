@@ -40,6 +40,7 @@ import type { World } from '../sim/world';
 import type { Meta, Settings } from '../save/SaveStore';
 import { assetUrl, button, h } from './dom';
 import { drawMap } from './Minimap';
+import { reliquaryCaption } from './reliquary';
 
 export class Screens {
   private current: HTMLElement | undefined;
@@ -445,7 +446,7 @@ export function reliquaryScreen(opts: {
         'div',
         { class: 'place-art' },
         h('img', { src: assetUrl('sprites/props/furn_weapon_rack.png'), alt: '' }),
-        h('div', { class: 'place-art-caption' }, 'The attuned relic waits on the shrine.')
+        h('div', { class: 'place-art-caption' }, reliquaryCaption(attuned))
       ),
       h(
         'div',
