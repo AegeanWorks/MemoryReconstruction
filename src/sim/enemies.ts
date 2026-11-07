@@ -488,6 +488,12 @@ export function mortarRadius(isBoss: boolean): number {
   return isBoss ? 52 : 40;
 }
 
+/** The three mine landing angles, shared by the sim and the ground telegraph. */
+export function mineOffsets(enemy: Enemy): readonly number[] {
+  const base = enemy.patternIndex * 0.7 + enemy.phase * 1.3;
+  return [0, 1, 2].map((i) => base + (i / 3) * Math.PI * 2);
+}
+
 /**
  * Wall-warden curtain: bolt offsets across the lane and which pair is left
  * open. One source of truth for the sim launch and the view telegraph, so
@@ -568,14 +574,12 @@ function launch(arena: Arena, enemy: Enemy): void {
       }
       break;
     case 'mines':
-      for (let i = 0; i < 3; i++) {
-        const a = arena.rng.range(0, Math.PI * 2);
+      for (const a of mineOffsets(enemy))
         arena.spawnMine(
           p.x + Math.cos(a) * 56,
           p.y + Math.sin(a) * 56,
           Math.round(def.damage * 0.9)
         );
-      }
       break;
     case 'spiral': {
       const count = enemy.isBoss ? phase.ring : 8;

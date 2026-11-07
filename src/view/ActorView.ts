@@ -10,6 +10,7 @@ import { AnimatedSprite, Container, Graphics, Sprite, Text, type Texture } from 
 import type { Enemy, Hazard, Interactable, Pickup, Player, Projectile } from '../sim/entities';
 import {
   dashStrikeRange,
+  mineOffsets,
   MORTAR_OFFSETS,
   mortarRadius,
   PILLARS_RADIUS,
@@ -1232,10 +1233,10 @@ export class ActorView {
         break;
       }
       case 'mines': {
-        // Mines land around the player, so the warning must too.
+        // Mines land around the player, so the warning shows the exact three
+        // landing points the sim will use.
         const p = this.world.player;
-        for (let i = 0; i < 3; i++) {
-          const a = (i / 3) * Math.PI * 2 + this.time * 0.8;
+        for (const a of mineOffsets(e)) {
           g.circle(p.x + Math.cos(a) * 56, p.y + Math.sin(a) * 56, 28).stroke({
             width: 2,
             color: 0xffb060,
