@@ -18,6 +18,13 @@ import { restoreRun, type RunState } from '../sim/run';
 const META_KEY = 'memory-reconstruction.meta.v1'; // aikit:allow-secret
 const RUN_KEY = 'memory-reconstruction.run.v1';
 
+const DEFAULT_SETTINGS = {
+  masterVolume: 0.8,
+  musicVolume: 0.5,
+  sfxVolume: 0.8,
+  screenShake: true,
+};
+
 const SettingsSchema = z.object({
   masterVolume: z.number().min(0).max(1),
   musicVolume: z.number().min(0).max(1),
@@ -56,7 +63,7 @@ const MetaSchema = z.object({
       claimed: z.array(z.string()).default([]),
     })
     .default({ accepted: [], claimed: [] }),
-  settings: SettingsSchema,
+  settings: SettingsSchema.default(DEFAULT_SETTINGS),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;
@@ -82,7 +89,7 @@ export function defaultMeta(): Meta {
     offerings: 0,
     relicRanks: {},
     quests: { accepted: [], claimed: [] },
-    settings: { masterVolume: 0.8, musicVolume: 0.5, sfxVolume: 0.8, screenShake: true },
+    settings: { ...DEFAULT_SETTINGS },
   };
 }
 
