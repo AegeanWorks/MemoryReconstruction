@@ -2065,6 +2065,9 @@
   background: rgba(255, 60, 60, 0.1);
   animation: quest-pulse 1.4s ease-in-out infinite;
 }
+.chip.stalked.hidden {
+  display: none;
+}
 /* Hub card badges: a themed prop beside the house so residents read apart. */
 .building-badge {
   position: absolute;
