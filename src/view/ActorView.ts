@@ -1058,6 +1058,16 @@ export class ActorView {
     for (const b of this.world.bombs) {
       const urgency = Math.max(0, Math.min(1, 1 - b.fuse / 1.4));
       const blink = 0.4 + 0.6 * Math.abs(Math.sin(this.time * (6 + urgency * 18) + b.id));
+      // The blast reaches `b.radius`; show it so the ball is not the only cue.
+      g.circle(b.x, b.y, b.radius).fill({
+        color: b.owner === 'player' ? 0x1d4a55 : 0x5a1d1d,
+        alpha: 0.08 + 0.1 * urgency,
+      });
+      g.circle(b.x, b.y, b.radius).stroke({
+        width: 2,
+        color: b.owner === 'player' ? 0x9df3ff : 0xff7a6a,
+        alpha: 0.18 + 0.25 * urgency,
+      });
       g.ellipse(b.x, b.y + 6, 13, 5).fill({ color: 0x000000, alpha: 0.35 });
       g.circle(b.x, b.y, 11).fill({ color: b.owner === 'player' ? 0x2b2a3a : 0x2a1717 });
       g.circle(b.x, b.y, 11).stroke({
