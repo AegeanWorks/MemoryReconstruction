@@ -4,7 +4,7 @@
  * no contact damage; only telegraphed attacks hurt.
  */
 import { angleBetween, circlesTouch, inArc, type Arena } from './combat';
-import type { EnemyDef } from './content';
+import { ENEMY_WINDUP_SCALE, type EnemyDef } from './content';
 import type { AttackKind, Enemy } from './entities';
 import { hasLineOfSight, moveAndCollide } from './physics';
 
@@ -419,7 +419,8 @@ function beginWindup(arena: Arena, enemy: Enemy, kind: AttackKind): void {
   enemy.state = 'windup';
   enemy.attack = kind;
   enemy.stateTime =
-    WINDUP[kind] * (enemy.isBoss ? Math.max(0.75, PHASES[enemy.phase].cooldown) : 1);
+    (WINDUP[kind] / ENEMY_WINDUP_SCALE) *
+    (enemy.isBoss ? Math.max(0.75, PHASES[enemy.phase].cooldown) : 1);
   enemy.dirX = Math.cos(angle);
   enemy.dirY = Math.sin(angle);
   enemy.attackLanded = false;

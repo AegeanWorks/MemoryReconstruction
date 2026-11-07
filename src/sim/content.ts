@@ -94,7 +94,12 @@ export interface CoreMemory {
 }
 
 /** Enemy attacks hit this hard relative to enemies.json, tuned for 100 base player health. */
-export const ENEMY_DAMAGE_SCALE = 0.85;
+export const ENEMY_DAMAGE_SCALE = 0.98;
+/** Harder enemy pass: global multipliers over enemies.json. */
+export const ENEMY_SPEED_SCALE = 1.15;
+export const ENEMY_ATTACK_SPEED_SCALE = 1.2;
+export const ENEMY_WINDUP_SCALE = 1.1;
+export const ENEMY_COUNT_SCALE = 1.25;
 /** Floor bosses are their data record with this much more health. */
 const BOSS_HEALTH_SCALE = 3.2;
 
@@ -430,11 +435,11 @@ function toEnemyDef(raw: RawEnemy, asBoss: boolean): EnemyDef {
       raw.stats.health * (asBoss && raw.ai.behavior !== 'final_boss' ? BOSS_HEALTH_SCALE : 1)
     ),
     damage: Math.max(4, Math.round(raw.stats.damage * ENEMY_DAMAGE_SCALE)),
-    speed: raw.stats.speed,
+    speed: Math.round(raw.stats.speed * ENEMY_SPEED_SCALE),
     radius: Math.round(raw.hitbox.width / 2) * (asBoss ? 1.3 : 1),
     aggroRange: Math.max(raw.ai.aggroRange, 260),
     attackRange: raw.ai.attackRange,
-    attackCooldown: raw.ai.attackCooldown,
+    attackCooldown: raw.ai.attackCooldown / ENEMY_ATTACK_SPEED_SCALE,
     xp: raw.stats.xpValue,
     sprite: SPRITE_KEYS[raw.id] ?? raw.id,
     displayHeight: Math.max(48, raw.sprite.height) * (asBoss ? 1.5 : 1),

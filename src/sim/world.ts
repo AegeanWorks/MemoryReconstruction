@@ -6,6 +6,7 @@
 import { circlesTouch, inArc, type Arena, type DamageSource } from './combat';
 import {
   arenaBossFor,
+  ENEMY_COUNT_SCALE,
   enemyDef,
   fragmentsForFloor,
   floorPlan,
@@ -984,7 +985,9 @@ export class World implements Arena {
     }
     // Wave size grows with the section, so late rooms are crowded rather than
     // just longer.
-    const count = 3 + Math.floor(this.run.depth * 0.85) + this.rng.int(0, 2);
+    const count = Math.round(
+      (3 + Math.floor(this.run.depth * 0.85) + this.rng.int(0, 2)) * ENEMY_COUNT_SCALE
+    );
     for (let i = 0; i < count; i++) {
       let spot: { x: number; y: number } | undefined;
       const enemyDefId = this.rng.pick(this.plan.roster);
