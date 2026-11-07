@@ -28,7 +28,7 @@ import { TILE_SIZE } from '../sim/tiles';
 import type { World } from '../sim/world';
 import { fxTextures } from './fxArt';
 import { BIOME_ART, hex } from './palette';
-import { clipLaneToRoom } from './telegraph';
+import { clipLaneToRoom, quakeRingPoints } from './telegraph';
 import { mirrorSheet, type ActorSheet, type Animation, type SpriteLibrary } from './sheets';
 
 interface ActorSprite {
@@ -1335,15 +1335,21 @@ export class ActorView {
         break;
       }
       case 'quake': {
-        // Four delayed eruptions in a line toward the player.
-        for (let i = 1; i <= 4; i++) {
-          g.circle(x + Math.cos(angle) * 62 * i, y + Math.sin(angle) * 62 * i, QUAKE_RADIUS).stroke(
-            {
-              width: 2,
-              color: 0xff8a5a,
-              alpha: urgency * (1 - i * 0.12),
-            }
-          );
+        // Four delayed eruptions in a line toward the player; only the rings
+        // that land inside the arena are reachable, so clip the rest.
+        const points = quakeRingPoints(
+          x,
+          y,
+          Math.cos(angle),
+          Math.sin(angle),
+          this.world.currentRoom()
+        );
+        for (const [index, point] of points.entries()) {
+          g.circle(point.x, point.y, QUAKE_RADIUS).stroke({
+            width: 2,
+            color: 0xff8a5a,
+            alpha: urgency * (1 - (index + 1) * 0.12),
+          });
         }
         break;
       }

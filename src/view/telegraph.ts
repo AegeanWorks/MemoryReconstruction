@@ -26,3 +26,20 @@ export function clipLaneToRoom(
   else if (dy < 0) clipped = Math.min(clipped, (y0 - y) / dy);
   return Math.max(0, clipped);
 }
+
+/** Quake rings that land inside the arena; outside rings are not reachable. */
+export function quakeRingPoints(
+  x: number,
+  y: number,
+  dx: number,
+  dy: number,
+  room: Room | undefined
+): Array<{ x: number; y: number }> {
+  const points = [1, 2, 3, 4].map((i) => ({ x: x + dx * 62 * i, y: y + dy * 62 * i }));
+  if (!room) return points;
+  const x0 = room.x * TILE_SIZE;
+  const y0 = room.y * TILE_SIZE;
+  const x1 = (room.x + room.w) * TILE_SIZE;
+  const y1 = (room.y + room.h) * TILE_SIZE;
+  return points.filter((p) => p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1);
+}
