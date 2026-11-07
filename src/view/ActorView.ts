@@ -133,6 +133,8 @@ export class ActorView {
   private readonly hazardsG = new Graphics();
   private readonly bars = new Graphics();
   private readonly reticleG = new Graphics();
+  /** Locator ring drawn above actors when a large body covers the walker. */
+  private readonly playerLocator = new Graphics();
   private readonly afterimages: Array<{ sprite: Sprite; age: number; life: number }> = [];
   private dashGhostTimer = 0;
   private readonly player: ActorSprite;
@@ -164,7 +166,7 @@ export class ActorView {
     this.addDecor();
     this.playerLight = this.glow(PLAYER_COLOR, 260, 0.16);
     this.ground.addChild(this.playerLight);
-    this.overlay.addChild(this.bars, this.reticleG);
+    this.overlay.addChild(this.bars, this.reticleG, this.playerLocator);
     this.capture();
   }
 
@@ -239,6 +241,7 @@ export class ActorView {
     this.hazardsG.clear();
     this.bars.clear();
     this.reticleG.clear();
+    this.playerLocator.clear();
     this.updateAfterimages(dt);
     this.drawHazards(view);
     this.drawGateWarnings();
@@ -246,6 +249,7 @@ export class ActorView {
     this.drawBombs();
     this.updateLabels();
     this.updatePlayer(dt, alpha);
+    this.drawPlayerLocator();
     this.syncEnemies(dt, alpha);
     this.syncProjectiles(alpha);
     this.syncPickups();
@@ -468,6 +472,27 @@ export class ActorView {
       const my = y + Math.sin(a) * (radius * 1.35);
       g.circle(mx, my, 2.5).fill({ color: 0x6fe7ff, alpha: alpha * 0.9 });
     }
+  }
+
+  /**
+   * A boss's silhouette can swallow the walker at blade range. Draw a small
+   * locator ring above the actor layer while a much larger body overlaps the
+   * player, so the player can always read their own position and iframes.
+   */
+  private drawPlayerLocator(): void {
+    const p = this.world.player;
+    if (p.action === 'dead') return;
+    const covered = this.world.enemies.some((enemy) => {
+      if (enemy.state === 'spawning' || enemy.state === 'dying') return false;
+      if (enemy.radius < p.radius + 8) return false;
+      return Math.hypot(enemy.x - p.x, enemy.y - p.y) < enemy.radius + 46;
+    });
+    if (!covered) return;
+    const pos = this.player.root.position;
+    const alpha = 0.55 + 0.25 * Math.sin(this.time * 7);
+    const g = this.playerLocator;
+    g.circle(pos.x, pos.y - 6, 16).stroke({ width: 2, color: 0x6fe7ff, alpha });
+    g.circle(pos.x, pos.y - 6, 10).stroke({ width: 1, color: 0xffffff, alpha: alpha * 0.7 });
   }
 
   private syncEnemies(dt: number, alpha: number): void {
