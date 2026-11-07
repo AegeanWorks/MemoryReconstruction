@@ -1900,7 +1900,9 @@
 }
 /* --- Reliquary / Cairn: a shrine beside its controls --------------------- */
 .screen.place-screen {
-  justify-content: center;
+  /* Keep a tall shrine screen top-aligned when it overflows: plain center
+     clipped the heading above the viewport on 800x600. */
+  justify-content: safe center;
   gap: 12px;
   background:
     linear-gradient(180deg, rgba(6, 5, 12, 0.82), rgba(6, 5, 12, 0.96)),
@@ -2236,6 +2238,24 @@
 @media (max-width: 900px) {
   .aspect-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* Short windows: keep the shrine heading and Back button on screen. */
+@media (max-height: 700px) {
+  .screen.place-screen {
+    gap: 8px;
+    padding: 14px 16px;
+  }
+  .aspect-card {
+    gap: 6px;
+    padding: 10px;
+  }
+  .aspect-sigil {
+    width: 36px;
+    height: 36px;
+  }
+  .aspect-copy {
+    min-height: 64px;
   }
 }
 
