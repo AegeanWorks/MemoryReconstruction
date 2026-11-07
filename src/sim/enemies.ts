@@ -109,6 +109,18 @@ const BOSS_PATTERNS: Record<string, AttackKind[]> = {
   mirror_self: ['combo', 'dashStrike', 'bolt', 'ring', 'combo', 'dashStrike'],
 };
 
+/**
+ * Per-step damage for the mirror's three-hit combo. The base stat still grows
+ * with the player's level, but the combo total is capped so a fresh checkpoint
+ * walker cannot be deleted by one clean combo.
+ */
+export function mirrorComboStepDamage(defDamage: number, maxHealth: number, step: number): number {
+  const multipliers = [0.4, 0.4, 0.75] as const;
+  const total = multipliers.reduce((sum, m) => sum + m, 0);
+  const cap = Math.max(1, Math.floor((maxHealth - 1) / total));
+  return Math.round(Math.min(defDamage, cap) * multipliers[step]);
+}
+
 /** Boss phase tuning: cooldown factor, ring bullets, bullet speed. */
 const PHASES = [
   { cooldown: 1, ring: 10, speed: 170 },
@@ -799,14 +811,12 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
       // A copy hits lighter than the player it copies: three clean swings are
       // punishing, but never a one-combo kill against a fresh checkpoint.
       const multiplier = step === 2 ? 0.75 : 0.4;
+      const amount =
+        enemy.def.id === 'mirror_self'
+          ? mirrorComboStepDamage(def.damage, p.stats.maxHealth, step)
+          : Math.round(def.damage * multiplier);
       if (inArc(enemy.x, enemy.y, swing, reach, 1, p.x, p.y, p.radius))
-        arena.damagePlayer(
-          Math.round(def.damage * multiplier),
-          enemy.x,
-          enemy.y,
-          step === 2 ? 260 : 110,
-          true
-        );
+        arena.damagePlayer(amount, enemy.x, enemy.y, step === 2 ? 260 : 110, true);
       moveAndCollide(arena.grid, enemy, Math.cos(swing) * 14, Math.sin(swing) * 14, 'enemy');
       arena.emit({
         type: 'enemySlash',
