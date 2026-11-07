@@ -87,8 +87,8 @@ export interface WeaponArtImpact {
 }
 
 export const WEAPON_ART_IMPACT: Record<WeaponId, WeaponArtImpact> = {
-  sword: { hitstop: 0.06, shake: 5 },
-  spear: { hitstop: 0.06, shake: 5 },
+  sword: { hitstop: 0.07, shake: 5 },
+  spear: { hitstop: 0.07, shake: 5 },
   greatsword: { hitstop: 0.09, shake: 9 },
 };
 
