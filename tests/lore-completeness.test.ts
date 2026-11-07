@@ -15,4 +15,9 @@ describe('memory lore completeness', () => {
     expect(titles).toContain('The Sunken Tideways');
     expect(titles).toContain('The Howling Spire');
   });
+
+  it('gives every core memory a distinct title', () => {
+    const titles = CORE_MEMORIES.map((core) => core.title);
+    expect(new Set(titles).size).toBe(titles.length);
+  });
 });
