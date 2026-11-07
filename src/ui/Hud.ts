@@ -47,6 +47,8 @@ export class Hud {
   private readonly shards = h('span');
   private readonly prompt = h('div', { class: 'prompt hidden' });
   private readonly toasts = h('div', { class: 'toasts' });
+  /** Hunter radar: visible while a stalker is armed on the walker. */
+  private readonly stalked = h('span', { class: 'chip stalked hidden' }, '👁 stalked');
   private readonly hint = h(
     'div',
     { class: 'hint' },
@@ -96,7 +98,8 @@ export class Hud {
         'div',
         { class: 'hud-row' },
         h('span', { class: 'chip' }, 'Dash', this.pips),
-        h('span', { class: 'chip' }, potionIcon, this.potions, h('span', { class: 'key' }, 'Q'))
+        h('span', { class: 'chip' }, potionIcon, this.potions, h('span', { class: 'key' }, 'Q')),
+        this.stalked
       ),
       this.kit
     );
@@ -263,6 +266,8 @@ export class Hud {
         `${Math.max(0, Math.ceil((boss.health / boss.maxHealth) * 100))}%`
       );
     }
+
+    this.stalked.classList.toggle('hidden', !world.isStalked);
 
     const near = world.nearbyInteractable();
     this.prompt.classList.toggle('hidden', !near);

@@ -871,3 +871,98 @@ describe('the mirror of self', () => {
     expect(shard!.vx).toBeLessThan(0);
   });
 });
+
+describe('hunter pressure', () => {
+  it('sends an elite stalker into the room after every third clear', () => {
+    const w = world(9);
+    const combats = w.floor.rooms.filter((r) => r.kind === 'combat');
+    expect(combats.length).toBeGreaterThanOrEqual(4);
+    const clearRoomByForce = (roomId: number): void => {
+      // Up to 10 waves plus ambushes can take a while at depth 9; the loop
+      // only ends when the room actually clears. Kills level the walker, and
+      // the sim pauses while a choice is pending, so spend every upgrade.
+      for (let i = 0; i < 2500 && w.rooms[roomId].phase !== 'cleared'; i++) {
+        for (const e of [...w.enemies]) {
+          if (e.roomId === roomId && e.state !== 'dying') {
+            e.state = 'chase';
+            w.damageEnemy(e, 99999, 'melee', false, 0);
+          }
+        }
+        while (w.run.pendingChoices.length > 0) {
+          w.chooseUpgrade(w.run.pendingChoices[0].options[0]);
+        }
+        w.step(NO_INPUT, DT);
+      }
+      expect(w.rooms[roomId].phase).toBe('cleared');
+    };
+    const centreOf = (id: number): { x: number; y: number } => {
+      const r = w.floor.rooms[id];
+      return { x: (r.x + r.w / 2) * 32, y: (r.y + r.h / 2) * 32 };
+    };
+    // Clear three combat rooms in turn.
+    for (const room of combats.slice(0, 3)) {
+      const c = centreOf(room.id);
+      w.player.x = c.x;
+      w.player.y = c.y;
+      w.player.invulnerable = 9999;
+      for (let i = 0; i < 5; i++) w.step(NO_INPUT, DT);
+      clearRoomByForce(room.id);
+    }
+    // The next activation carries the stalker.
+    const fourth = combats[3];
+    const c = centreOf(fourth.id);
+    w.player.x = c.x;
+    w.player.y = c.y;
+    const seen: string[] = [];
+    for (let i = 0; i < 10; i++) for (const e of w.step(NO_INPUT, DT)) if (e.type === 'notice') seen.push(e.text);
+    expect(seen.some((t) => t.includes('stalker'))).toBe(true);
+    expect(w.enemies.some((e) => e.elite && e.roomId === fourth.id)).toBe(true);
+  });
+
+  it('brings the armed stalker into a guardian fight instead of dropping it', () => {
+    const w = world(9);
+    const combats = w.floor.rooms.filter((r) => r.kind === 'combat');
+    expect(combats.length).toBeGreaterThanOrEqual(3);
+    const bossRoom = w.floor.rooms[w.floor.bossRoom];
+    const clearRoomByForce = (roomId: number): void => {
+      for (let i = 0; i < 2500 && w.rooms[roomId].phase !== 'cleared'; i++) {
+        for (const e of [...w.enemies]) {
+          if (e.roomId === roomId && e.state !== 'dying') {
+            e.state = 'chase';
+            w.damageEnemy(e, 99999, 'melee', false, 0);
+          }
+        }
+        while (w.run.pendingChoices.length > 0) {
+          w.chooseUpgrade(w.run.pendingChoices[0].options[0]);
+        }
+        w.step(NO_INPUT, DT);
+      }
+      expect(w.rooms[roomId].phase).toBe('cleared');
+    };
+    const centreOf = (id: number): { x: number; y: number } => {
+      const r = w.floor.rooms[id];
+      return { x: (r.x + r.w / 2) * 32, y: (r.y + r.h / 2) * 32 };
+    };
+    for (const room of combats.slice(0, 3)) {
+      const c = centreOf(room.id);
+      w.player.x = c.x;
+      w.player.y = c.y;
+      w.player.invulnerable = 9999;
+      for (let i = 0; i < 5; i++) w.step(NO_INPUT, DT);
+      clearRoomByForce(room.id);
+    }
+    expect(w.isStalked).toBe(true);
+
+    const c = centreOf(bossRoom.id);
+    w.player.x = c.x;
+    w.player.y = c.y;
+    const seen: string[] = [];
+    for (let i = 0; i < 120; i++) {
+      for (const e of w.step(NO_INPUT, DT)) if (e.type === 'notice') seen.push(e.text);
+    }
+
+    expect(w.isStalked).toBe(false);
+    expect(w.enemies.some((e) => e.elite && !e.isBoss && e.roomId === bossRoom.id)).toBe(true);
+    expect(seen.some((t) => t.toLowerCase().includes('stalker'))).toBe(true);
+  });
+});

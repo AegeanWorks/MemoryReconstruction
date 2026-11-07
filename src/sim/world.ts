@@ -156,6 +156,17 @@ export class World implements Arena {
   private bonusClaimed = false;
   /** Damage taken since the active room was locked, for the flawless bonus. */
   private roomDamage = 0;
+  /** True while a stalker is armed and hunting the next room (HUD radar). */
+  get isStalked(): boolean {
+    return this.stalkerArmed;
+  }
+  /**
+   * Hunter pressure: every third cleared combat room arms a stalker that joins
+   * the next fight as an elite. Resets per floor so each section escalates on
+   * its own.
+   */
+  private stalkerClock = 0;
+  private stalkerArmed = false;
 
   constructor(
     readonly run: RunState,
@@ -206,6 +217,8 @@ export class World implements Arena {
       wavesLeft: 0,
       spawnDelay: 0,
     }));
+    this.stalkerClock = 0;
+    this.stalkerArmed = false;
     this.visited = this.floor.rooms.map((_, i) => i === this.floor.startRoom);
     this.flow = new FlowField(this.floor.grid);
     const owned = new Set([...run.knownFragments, ...run.fragmentsFound]);
@@ -951,6 +964,7 @@ export class World implements Arena {
       state.totalWaves = waves;
       state.hideWaveCount = this.rng.chance(0.42);
       state.spawnDelay = 0.35;
+      this.spawnStalker(room);
     }
   }
 
@@ -981,6 +995,9 @@ export class World implements Arena {
         this.emit({ type: 'notice', text: 'It moves the way you move.' });
         this.emit({ type: 'shake', strength: 5 });
       }
+      // A guardian is still a fight: the armed stalker joins it instead of
+      // being silently dropped at the boss door.
+      this.spawnStalker(room);
       return;
     }
     // Wave size grows with the section, so late rooms are crowded rather than
@@ -1016,6 +1033,22 @@ export class World implements Arena {
     if (!open || open.length === 0) return undefined;
     const gate = this.rng.pick(open);
     return { x: gate.spawnX, y: gate.spawnY };
+  }
+
+  /** Spends the armed hunter pressure: an elite stalker joins this fight. */
+  private spawnStalker(room: Room): void {
+    if (!this.stalkerArmed) return;
+    this.stalkerArmed = false;
+    if (this.plan.roster.length === 0) return;
+    const spot = this.spawnPoint(room);
+    if (!spot) return;
+    const stalker = this.spawnEnemy(this.rng.pick(this.plan.roster), spot.x, spot.y, room.id);
+    stalker.elite = true;
+    stalker.maxHealth = Math.round(stalker.maxHealth * 1.5);
+    stalker.health = stalker.maxHealth;
+    stalker.state = 'chase';
+    this.emit({ type: 'notice', text: 'A stalker has picked up your scent.' });
+    this.emit({ type: 'shake', strength: 6 });
   }
 
   /** A random open spot in the room, kept away from the player. */
@@ -1054,6 +1087,12 @@ export class World implements Arena {
     this.setRoomLocked(room, false);
     this.run.stats.roomsCleared++;
     this.emit({ type: 'roomCleared', roomId: room.id });
+    // Hunter pressure: every third cleared combat room arms a stalker for the
+    // next one, so loud runs escalate on their own.
+    if (room.kind === 'combat') {
+      this.stalkerClock++;
+      if (this.stalkerClock % 3 === 0) this.stalkerArmed = true;
+    }
     const c = roomCentrePx(room);
     // Untouched health is its own reward: finishing a room clean pays extra.
     if (this.roomDamage === 0) {
