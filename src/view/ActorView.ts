@@ -1210,7 +1210,14 @@ export class ActorView {
         g.circle(x, y, 70).stroke({ width: 2, color: this.accent, alpha: urgency });
         break;
       case 'beam': {
-        const length = 600;
+        const length = clipLaneToRoom(
+          x,
+          y,
+          Math.cos(angle),
+          Math.sin(angle),
+          600,
+          this.world.currentRoom()
+        );
         const width = e.isBoss ? 34 : 24;
         // Taper to nothing well before the far end: a lane leaving the screen
         // should read as "danger continues", not as a hard bright border.
