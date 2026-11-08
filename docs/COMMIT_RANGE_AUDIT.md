@@ -1000,21 +1000,22 @@ from `be2e7b3`.
 
 **Finding:** none.
 
-## Range 1 -> 207 (End) (`407e047..4ee3b5b`)
+## Range 1 -> 208 (End) (`407e047..f21ef44`)
 
 **Commits:** the story/fight follow-up, the visual UI review pass and its
-before/after evidence commit. The follow-up added core-memory rewards and an
-in-run completion toast, a 0.55s stagger guard against non-boss stun-lock, every
-crossed boss phase, aligned banner timing and a stale choice-card guard. The
-visual pass themed scrollbars, fixed narrow expedition/hub/HUD layouts, clamped
-the loading title, wrapped wide feats and bounded the combat tutorial toast. The
-evidence commit adds the pre-fix hub/expedition/combat captures and fresh HEAD
-captures to `docs/UI_REVIEW.md`.
+before/after evidence commit, and the cycle 1 combat-feel fix. The follow-up
+added core-memory rewards and an in-run completion toast, a 0.55s stagger guard
+against non-boss stun-lock, every crossed boss phase, aligned banner timing and
+a stale choice-card guard. The visual pass themed scrollbars, fixed narrow
+expedition/hub/HUD layouts, clamped the loading title, wrapped wide feats and
+bounded the combat tutorial toast. Cycle 1 held the attack buffer through a
+swing so an early greatsword tap chains instead of expiring.
 
 **Verification:** story/fight passed 462 vitest (83 files); the visual pass adds
-the responsive CSS test and captures, reaching 465 vitest (84 files) and 370
-mechanics (55 files); typecheck/lint/build clean, 8/8 AIKit; the `app` UI task
-was closed from `2fcb82d`.
+the responsive CSS test and captures; cycle 1 adds the greatsword buffer test
+and before/after played run, reaching 466 vitest (84 files) and 371 mechanics
+(55 files); typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed
+from `f21ef44`.
 
 **Finding:** none.
 
@@ -1061,8 +1062,8 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **465 passed (84 files)**
-- `npm run test:mechanics`: **370 passed (55 files)**
+- `npm test`: **466 passed (84 files)**
+- `npm run test:mechanics`: **371 passed (55 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
 - `npm run build`: clean (existing chunk-size warning only)
@@ -1070,9 +1071,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (207 commits,
+The inventory covers every content commit through `1 -> End` (208 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review pass and its evidence commit). The generator
+follow-up, visual review pass and the cycle 1 combat-feel fix). The generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
 earlier refreshes. After a new content commit, run
@@ -1087,5 +1088,6 @@ mirror drift), ADR-172 (mine warning radius), ADR-173 (bestiary mirror drift),
 ADR-174 (18px health bar pinned), ADR-175 (inventory omits its own refresh
 commit), ADR-176 (implicit state machines catalogued and guarded), ADR-177
 (audit refresh commits omitted by subject), ADR-178 (story completion and fight
-fairness), ADR-179 (visual UI review) and the README boss-count correction
-recorded above. No open audit items remain.
+fairness), ADR-179 (visual UI review), ADR-180 (attack buffer survives a slow
+swing) and the README boss-count correction recorded above. No open audit items
+remain.
