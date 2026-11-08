@@ -986,7 +986,7 @@ sprite; `volley-timing` 1/1 confirms the five shots spread across the phase;
 runtime-only. Added a mirror-parity test and synced the assets copy. The new
 test failed first (76 vs 83); `content` now passes 18/18. Recorded as ADR-173.
 
-## Range 1 -> 204 (End) (`407e047..be2e7b3`)
+## Range 1 -> 204 (`407e047..be2e7b3`)
 
 **Commits:** the delivery commit that ships the audited late-content slice, the
 UI-task bookkeeping record, and the state-machine audit and guards.
@@ -1000,9 +1000,21 @@ from `be2e7b3`.
 
 **Finding:** none.
 
+## Range 1 -> 205 (End) (`407e047..28255be`)
+
+**Commit:** the story/fight follow-up: core-memory rewards and an in-run
+completion toast, a 0.55s stagger guard against non-boss stun-lock, every
+crossed boss phase emitted, aligned banner timing and a stale choice-card guard.
+
+**Verification:** 462 vitest (83 files), 370 mechanics (55 files),
+typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed from
+`28255be`.
+
+**Finding:** none.
+
 ## Late-content batch summary
 
-The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 68 cumulative
+The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 69 cumulative
 ranges, the three commits added by each, and the file count at the endpoint.
 Every range is now deep-dived; this section keeps the shared verification for
 the art, UI, combat-polish and late-content expansion that followed the early
@@ -1043,8 +1055,8 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **456 passed (81 files)**
-- `npm run test:mechanics`: **365 passed (53 files)**
+- `npm test`: **462 passed (83 files)**
+- `npm run test:mechanics`: **370 passed (55 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
 - `npm run build`: clean (existing chunk-size warning only)
@@ -1052,8 +1064,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (204 commits,
-ending with the delivery, UI-bookkeeping and state-machine audit). The generator
+The inventory covers every content commit through `1 -> End` (205 commits,
+ending with the delivery, UI-bookkeeping, state-machine audit and story/fight
+follow-up). The generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
 earlier refreshes. After a new content commit, run
@@ -1067,5 +1080,6 @@ ADR-169 (enemy-bomb graze), ADR-170 (non-vault attuned relic), ADR-171 (lore
 mirror drift), ADR-172 (mine warning radius), ADR-173 (bestiary mirror drift),
 ADR-174 (18px health bar pinned), ADR-175 (inventory omits its own refresh
 commit), ADR-176 (implicit state machines catalogued and guarded), ADR-177
-(audit refresh commits omitted by subject) and the README boss-count correction
-recorded above. No open audit items remain.
+(audit refresh commits omitted by subject), ADR-178 (story completion and fight
+fairness) and the README boss-count correction recorded above. No open audit
+items remain.

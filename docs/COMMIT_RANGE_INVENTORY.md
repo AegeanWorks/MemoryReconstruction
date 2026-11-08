@@ -74,6 +74,7 @@ cumulative range from commit 1, in steps of three, ending at `1 -> End`.
 | 1 -> 198 | `cbcdcd8` | `d0546ac` fix(view): draw the true lunge lane<br>`87fcf73` fix(sim): cap summons at the resident add limit<br>`cbcdcd8` fix(view): show quake blasts that reach into the room | 498 | yes |
 | 1 -> 201 | `6a72b36` | `60e7db7` fix(sim): give the Crystal Golem its prism beam<br>`533f13b` fix(sim): spread the volley across its active phase<br>`6a72b36` fix(sim): dress the Ruin Warlord in ash-forged armor | 510 | yes |
 | 1 -> 204 | `be2e7b3` | `e5ff84d` feat(content): ship the late-content slice with audit evidence<br>`6311b21` chore(aikit): record the app UI task close<br>`be2e7b3` feat(state): guard implicit transitions and document the machine catalog | 898 | yes |
+| 1 -> 205 (End) | `28255be` | `28255be` feat(gameplay): reward restored memories and stop mob stun-lock | 900 | yes |
 
 The deep-dive column marks ranges with a narrative section in the
 curated report. The current tree is verified by the full suite in
