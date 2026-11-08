@@ -204,8 +204,9 @@ export class SaveStore {
   }
 
   loadMeta(): Meta {
-    const parsed = MetaSchema.safeParse(this.read(META_KEY));
-    if (!parsed.success) return defaultMeta();
+    const raw = this.read(META_KEY);
+    const parsed = MetaSchema.safeParse(raw);
+    if (!parsed.success) return recoverMeta(raw);
     return dropPhantomRelics(parsed.data);
   }
 
@@ -232,6 +233,36 @@ export class SaveStore {
       // Nothing to clear when storage is unavailable.
     }
   }
+}
+
+/**
+ * Field-wise recovery for a meta save with one bad field. A single corrupt
+ * setting or history entry must not discard valid fragments, echoes, kills or
+ * achievements; parse every top-level field independently, then salvage the
+ * settings subfields. Unknown/absent fields keep their defaults.
+ */
+function recoverMeta(raw: unknown): Meta {
+  const base = defaultMeta();
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return base;
+  const obj = raw as Record<string, unknown>;
+  const out: Record<string, unknown> = { ...base };
+  for (const key of Object.keys(MetaSchema.shape)) {
+    if (key === 'version') continue;
+    const schema = MetaSchema.shape[key as keyof typeof MetaSchema.shape];
+    const parsed = schema.safeParse(obj[key]);
+    if (parsed.success) out[key] = parsed.data;
+  }
+  const rawSettings = obj.settings;
+  if (rawSettings && typeof rawSettings === 'object' && !Array.isArray(rawSettings)) {
+    const settings: Record<string, unknown> = { ...DEFAULT_SETTINGS };
+    for (const key of Object.keys(SettingsSchema.shape)) {
+      const schema = SettingsSchema.shape[key as keyof typeof SettingsSchema.shape];
+      const parsed = schema.safeParse((rawSettings as Record<string, unknown>)[key]);
+      if (parsed.success) settings[key] = parsed.data;
+    }
+    out.settings = settings;
+  }
+  return dropPhantomRelics(out as Meta);
 }
 
 /**

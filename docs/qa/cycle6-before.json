@@ -1,0 +1,26 @@
+{
+  "seeded": true,
+  "meta": {
+    "fragments": 0,
+    "runs": 0,
+    "victories": 0,
+    "bestDepth": 0,
+    "echoes": 0,
+    "kills": 0,
+    "masterVolume": 0.8,
+    "screen": "screen clear"
+  },
+  "hub": {
+    "meta": {
+      "fragments": 0,
+      "runs": 0,
+      "echoes": 0
+    },
+    "text": "Between ExpeditionsThe SanctuaryEchoes 0Restored 0/12Memories 0/35Checkpoint Section 1Best 0Best flow x0Daily streak 0ResidentsThe ArchiveLorekeeperShelves of salvaged pages, and a"
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.8,
+    "frames": 59
+  }
+}

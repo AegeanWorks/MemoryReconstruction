@@ -1719,3 +1719,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: `Sound.setSuspended` existed but had no caller, so pausing (including the visibility/blur auto-pause path) left the AudioContext running. A naive `pause()` call was still undone because every keydown calls the generic `Sound.unlock()`, which resumed a suspended context. A seed-7 played run reported `paused.ctx = running` before the fix.
 - **Decision**: Suspend in `pause()` and `showSanctuaryMenu()`; clear suspension in `resume()`, `resumeRoom()`, `showHub()`, `showTitle()` and `startRun()`. Add a sticky `Sound.suspended` flag so `unlock()` never resumes paused audio and a context created while paused starts suspended.
 - **Consequences**: The played run now reports `running → suspended → running` across pause/resume while the pause screen is visually unchanged; automatic pause follows the same path. Frames stayed 16.68ms average / 16.90ms max. Final gates: 474 vitest (88 files), 374 mechanics (57 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle5-*`.
+
+## ADR-184: Meta saves recover field by field
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 6, progression/saves)
+- **Context**: `loadMeta` ran one full `MetaSchema.safeParse`; one invalid field (for example `settings.masterVolume = 2`) failed the whole save and returned `defaultMeta()`, discarding valid fragments, echoes, kills, runs, depth and achievements. This is the deferred D10 field-wise recovery item.
+- **Decision**: Keep the full-schema fast path. On failure, parse each top-level meta field independently, keep the valid ones, and default the invalid ones; salvage valid settings subfields. Keep `dropPhantomRelics` on the result.
+- **Consequences**: The corrupt-save browser run now preserves 3 fragments, 4 runs, 2 victories, 42 echoes, 77 kills and defaults only the invalid volume; the hub shows `Memories 3/35` and Echoes 42 instead of 0/35 and 0. The hub layout is unchanged and frames stayed 16.68ms average / 16.90ms max. Final gates: 476 vitest (89 files), 374 mechanics (57 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle6-*`.

@@ -16,6 +16,7 @@ run.
 | 3 | Levels | Dry after a 60-seed fuzz; guard retained |
 | 4 | Graphics/effects | Completed (boss phase burst) |
 | 5 | Audio cues | Completed (pause suspends audio) |
+| 6 | Progression/saves | Completed (field-wise meta recovery) |
 
 ---
 
@@ -419,6 +420,87 @@ time and the pause-menu layout.
 
 ```text
 npx vitest run tests/audio-pause.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 6 — Progression/saves: one bad field wipes the career
+
+### FIND
+
+Evidence:
+
+- `SaveStore.loadMeta()` does one `MetaSchema.safeParse`; any invalid field
+  fails the whole object and returns `defaultMeta()`.
+- A single corrupt settings value, quest record or history entry therefore
+  discards fragments, echoes, kills, vault, checkpoints and achievements even
+  though those fields are valid.
+- `tests/save.test.ts` covers invalid JSON and old saves, but not a save with
+  one invalid field beside valid career progress. This is the deferred D10
+  field-wise recovery item.
+
+### ANALYZE
+
+Read: `MetaSchema`, `defaultMeta`, `loadMeta`, `dropPhantomRelics` and the save
+tests. Recover per top-level field: parse each schema entry independently, keep
+valid fields, default invalid ones; salvage valid volume fields inside
+`settings`. Keep the full-schema fast path and the phantom-relic filter.
+
+Files: `src/save/SaveStore.ts`, `tests/save-recovery.test.ts`.
+
+Proof: failing save test first; a browser run writes a corrupt meta with valid
+fragments/echoes, reloads, and captures title/hub `Memories` and `Runs` before
+and after the fix from the same viewport.
+
+### IMPLEMENT
+
+- `src/save/SaveStore.ts`: on a full-schema failure, `recoverMeta` parses every
+  top-level meta field independently and keeps valid data; settings are salvaged
+  field by field. The full-schema fast path and phantom-relic filter remain.
+- `tests/save-recovery.test.ts`: two failing-first tests for corrupt settings
+  beside valid career data, then green.
+
+### RECORD — played browser run
+
+Same corrupt save both runs: `fragment_001..003`, runs 4, victories 2,
+bestDepth 3, echoes 42, kills 77, `settings.masterVolume = 2`; 1280x720;
+reload → title → hub; 59 sampled frames.
+
+| Evidence | Before (old loader) | After (field-wise) |
+| --- | --- | --- |
+| Fragments | 0 | **3** |
+| Runs / victories | 0 / 0 | **4 / 2** |
+| Echoes / kills | 0 / 0 | **42 / 77** |
+| Invalid volume | 0.8 default | 0.8 default |
+| Hub | `docs/qa/cycle6-before-hub.png` — Echoes 0, Memories 0/35 | `docs/qa/cycle6-after-hub.png` — Echoes 42, Memories 3/35, feat progress restored |
+| Frame health | 16.68ms avg, 16.80ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle6-before.json` and `cycle6-after.json`. What improved:
+one corrupt field no longer wipes valid fragments, echoes, kills, runs, depth or
+settings; only the invalid field falls back. What broke: nothing observed; the
+hub layout is identical. What stayed the same: full-schema saves, phantom-relic
+filtering and frame time.
+
+### Gate results
+
+- `npx vitest run tests/save-recovery.test.ts`: **2 passed** after the
+  failing-first run
+- `npm test`: **476 passed (89 files)**
+- `npm run test:mechanics`: **374 passed (57 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 213`)
+
+### Commands run
+
+```text
+npx vitest run tests/save-recovery.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck
