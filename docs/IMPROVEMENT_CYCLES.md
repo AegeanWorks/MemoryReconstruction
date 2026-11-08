@@ -18,6 +18,7 @@ run.
 | 5 | Audio cues | Completed (pause suspends audio) |
 | 6 | Progression/saves | Completed (field-wise meta recovery) |
 | 7 | Combat feel | Completed (dash-bolt buffer) |
+| 8 | Enemies/bosses | Completed (readable enemy health bars) |
 
 ---
 
@@ -581,6 +582,78 @@ cost, bolt cooldown, speed, spread and the strike buffer.
 
 ```text
 npx vitest run tests/sim/bolt-buffer.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 8 — Enemies/bosses: enemy health bars are hard to read
+
+### FIND
+
+Evidence:
+
+- `ActorView.drawHealthBar` draws a 5px black backing with a **3px fill** and
+  no inner border or highlight. At 1280 the bar is thin; at the 390 camera
+  scale it is close to a hairline.
+- Elites and bosses share the same geometry; only the fill color differs.
+- The existing view tests cover bosses and telegraphs, not the enemy bar.
+
+### ANALYZE
+
+Read: `drawHealthBar`, the `bars` overlay layer, elite/boss scaling and the
+combat captures. Raise the bar height, add a dark inner frame and a 1px highlight,
+and keep the elite gold / normal red distinction. No health, damage or AI change.
+
+Files: `src/view/ActorView.ts`, `tests/ui-enemy-health-bar.test.ts`.
+
+Proof: failing source check first; a seed-7 combat room with one enemy at 55%
+health captures the same state before/after at 1280x720.
+
+### IMPLEMENT
+
+- `src/view/ActorView.ts`: enemy bars are 4px (6px boss), at least 28px wide,
+  with a black outer shadow, dark inner frame and a 1px white highlight; the
+  fill is clamped to 0..1. Elite gold and normal red are unchanged.
+- `tests/ui-enemy-health-bar.test.ts`: two failing-first source checks, then
+  green.
+
+### RECORD — played browser run
+
+Same seed 7, combat room, enemy id 51 (`gutter_runner`), health 38/70 (54%),
+state `recover`, 1280x720, 59 sampled frames.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Bar geometry | 24px min, 3px fill, 5px backing | **28px min, 4px fill, 8px framed bar + highlight** |
+| Enemy | gutter_runner, 38/70 | gutter_runner, 38/70 |
+| Screenshot | `docs/qa/cycle8-before-healthbar.png` — hairline bar | `docs/qa/cycle8-after-healthbar.png` — framed, highlighted bar |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle8-before.json` and `cycle8-after.json`. What improved:
+the enemy bar is legible at a glance and distinguishes boss height; elites keep
+gold and normal enemies red. What broke: nothing observed; health, AI and frame
+time are unchanged.
+
+### Gate results
+
+- `npx vitest run tests/ui-enemy-health-bar.test.ts`: **2 passed** after the
+  failing-first run
+- `npm test`: **480 passed (91 files)**
+- `npm run test:mechanics`: **376 passed (58 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 215`)
+
+### Commands run
+
+```text
+npx vitest run tests/ui-enemy-health-bar.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck

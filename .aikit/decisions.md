@@ -1735,3 +1735,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: `updatePlayer` returned from the dash branch after buffering `attack` only; `input.bolt` was read later, so a bolt tap during the 0.17s dash was lost while a strike tap was queued.
 - **Decision**: Add `boltBuffer` to `Player`, record a bolt during a dash, hold it through the dash, and consume it immediately after; default it for old saves. Do not fire mid-dash or change mana/cooldown.
 - **Consequences**: The failing dash-tap test now shows a projectile after the dash and `boltBuffer` cleared; the browser capture shows the bolt trail with mana 42/60 and cooldown 0.283. Frames stayed 16.68ms average / 16.90ms max. Final gates: 478 vitest (90 files), 376 mechanics (58 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle7-*`.
+
+## ADR-186: Enemy health bars are readable at a glance
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 8, enemies/bosses)
+- **Context**: `ActorView.drawHealthBar` drew a 3px fill over a 5px black backing with no inner frame or highlight. At 1280 it was a hairline; at the 390 camera scale it nearly vanished, and elites/bosses shared the same geometry.
+- **Decision**: Use a 28px minimum width, 4px normal / 6px boss height, a black outer shadow, a dark inner frame and a 1px white highlight; clamp the fill ratio. Keep elite gold and normal red.
+- **Consequences**: The same seed-7 gutter runner at 38/70 HP now has a legible framed bar in the before/after pair while health, AI and frame time stay unchanged (16.68ms average / 16.90ms max). Final gates: 480 vitest (91 files), 376 mechanics (58 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle8-*`.

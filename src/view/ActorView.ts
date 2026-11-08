@@ -1550,13 +1550,15 @@ export class ActorView {
   }
 
   private drawHealthBar(e: Enemy, x: number, y: number): void {
-    const w = Math.max(24, e.radius * 2.2);
+    const w = Math.max(28, e.radius * 2.4);
+    const h = e.isBoss ? 6 : 4;
+    const ratio = Math.max(0, Math.min(1, e.health / e.maxHealth));
     const visualHeight = e.def.displayHeight * (e.elite ? 1.15 : 1);
-    const top = y - visualHeight * 0.95 - 6;
-    this.bars.rect(x - w / 2 - 1, top - 1, w + 2, 5).fill({ color: 0x000000, alpha: 0.7 });
-    this.bars
-      .rect(x - w / 2, top, w * (e.health / e.maxHealth), 3)
-      .fill({ color: e.elite ? 0xffc84a : 0xff4d5e });
+    const top = y - visualHeight * 0.95 - 8;
+    this.bars.rect(x - w / 2 - 2, top - 2, w + 4, h + 4).fill({ color: 0x000000, alpha: 0.82 });
+    this.bars.rect(x - w / 2 - 1, top - 1, w + 2, h + 2).fill({ color: 0x1a1622, alpha: 0.92 });
+    this.bars.rect(x - w / 2, top, w * ratio, h).fill({ color: e.elite ? 0xffc84a : 0xff4d5e });
+    this.bars.rect(x - w / 2, top, w * ratio, 1).fill({ color: 0xffffff, alpha: 0.3 });
   }
 
   private syncProjectiles(alpha: number): void {

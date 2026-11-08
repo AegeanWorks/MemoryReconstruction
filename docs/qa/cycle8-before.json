@@ -1,0 +1,33 @@
+{
+  "enter": {
+    "room": "combat",
+    "x": 1952,
+    "y": 2048
+  },
+  "setup": {
+    "room": "combat",
+    "id": 51,
+    "def": "gutter_runner",
+    "elite": false,
+    "boss": false,
+    "health": 38,
+    "max": 70,
+    "ratio": 0.54
+  },
+  "state": {
+    "room": "combat",
+    "enemies": 1,
+    "def": "gutter_runner",
+    "elite": false,
+    "boss": false,
+    "health": 38,
+    "max": 70,
+    "ratio": 0.54,
+    "state": "recover"
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}
