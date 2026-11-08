@@ -179,7 +179,9 @@ const SPRITE_KEYS: Record<string, string> = {
   phase_stalker: 'crystalGuardian',
   void_stalker: 'voidWalker',
   dread_champion: 'boneKnight',
-  ruin_warlord: 'guardian',
+  // The Ruin Warlord's bestiary promises obsidian spiked armor; the Guardian
+  // sheet is the depth-0 chest construct, so reuse the ash-forged armor art.
+  ruin_warlord: 'cinderWarden',
   // Both the duelist and the trial boss wear the player's own sheet.
   lost_self: 'mirror',
   mirror_self: 'mirror',

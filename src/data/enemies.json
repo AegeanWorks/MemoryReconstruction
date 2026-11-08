@@ -2786,7 +2786,7 @@
         "offsetY": -10
       },
       "sprite": {
-        "texture": "enemy_guardian",
+        "texture": "enemy_cinder_warden",
         "width": 64,
         "height": 64,
         "animations": ["idle", "walk", "attack", "stunned", "death"]
