@@ -781,7 +781,11 @@ function shoot(arena: Arena, enemy: Enemy, angle: number, speed: number, damage:
 function summon(arena: Arena, boss: Enemy): void {
   // Summons come from the floor's own roster, so late bosses call late enemies.
   const roster = arena.roster.length > 0 ? arena.roster : ['memory_echo', 'scavenger'];
-  for (let i = 0; i < 2; i++) {
+  // A summon starts with up to two adds, but never takes the room past the
+  // same cap the swarm pattern uses. Starting at three residents, only one
+  // free slot remains.
+  const count = Math.min(2, Math.max(0, MAX_SUMMONS - summonCount(arena, boss)));
+  for (let i = 0; i < count; i++) {
     const angle = arena.rng.range(0, Math.PI * 2);
     const x = boss.x + Math.cos(angle) * 70;
     const y = boss.y + Math.sin(angle) * 70;
