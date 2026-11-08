@@ -165,6 +165,17 @@ describe('hazards and the sanctuary', () => {
     expect(enemy.health).toBeLessThan(before);
   });
 
+  it('a disarmed hazard stops its warning telegraph', () => {
+    const w = world(2);
+    const trap = w.hazards.find((h) => h.kind === 'spike' || h.kind === 'flame')!;
+    trap.phase = 'warning';
+    trap.timer = 0.2;
+    w.disableHazards(trap.roomId);
+    expect(trap.disabled).toBe(true);
+    expect(trap.phase).toBe('idle');
+    expect(trap.timer).toBe(0);
+  });
+
   it('a disarmed room keeps its breakables intact', () => {
     const w = world(3);
     const barrel = w.hazards.find((h) => h.kind === 'barrel')!;

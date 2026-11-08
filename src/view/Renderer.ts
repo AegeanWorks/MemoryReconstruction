@@ -55,6 +55,7 @@ export class Renderer {
   private aimX = 0;
   private aimY = 0;
   private screenFlashEnabled = true;
+  private damageNumbers = true;
   private time = 0;
 
   async init(host: HTMLElement, onProgress?: (fraction: number) => void): Promise<void> {
@@ -94,6 +95,7 @@ export class Renderer {
     );
     const actors = new ActorView(this.sprites, world);
     const effects = new Effects(hex(art.accent), atmosphereFor(biome));
+    effects.showDamageNumbers = this.damageNumbers;
     this.camera.addChild(level.root, actors.ground, actors.actors, effects.layer, actors.overlay);
     for (const prop of level.props) actors.actors.addChild(prop);
     this.scene = { world, level, actors, effects };
@@ -153,6 +155,7 @@ export class Renderer {
 
   /** Toggled from settings: floating hit amounts on or off. */
   setDamageNumbers(visible: boolean): void {
+    this.damageNumbers = visible;
     if (this.scene) this.scene.effects.showDamageNumbers = visible;
   }
 

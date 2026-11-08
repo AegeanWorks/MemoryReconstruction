@@ -78,6 +78,15 @@ describe('restoreRun (a corrupt snapshot degrades, never crashes)', () => {
     expect(run!.player.dashCharges).toBeGreaterThan(0);
   });
 
+  it('validates the saved weapon id', () => {
+    const raw = snapshot() as Record<string, unknown>;
+    raw['player'] = { ...(raw['player'] as Record<string, unknown>), weapon: 'not_a_weapon' };
+    expect(restoreRun(raw)?.player.weapon).toBe('sword');
+    const spear = snapshot() as Record<string, unknown>;
+    spear['player'] = { ...(spear['player'] as Record<string, unknown>), weapon: 'spear' };
+    expect(restoreRun(spear)?.player.weapon).toBe('spear');
+  });
+
   it('round-trips a healthy snapshot unchanged', () => {
     const run = restoreRun(snapshot());
     expect(run?.seed).toBe(7);

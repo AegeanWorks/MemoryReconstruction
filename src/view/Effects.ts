@@ -443,16 +443,16 @@ export class Effects {
   /** Soft dust puffs while the walker runs; still air while idle. */
   private updateFootsteps(dt: number, player: { x: number; y: number; moving: boolean }): void {
     const moved = Math.hypot(player.x - this.lastPX, player.y - this.lastPY);
+    const wasMoving = this.lastMoving;
     this.lastPX = player.x;
     this.lastPY = player.y;
-    if (!player.moving || moved < 4) {
-      this.lastMoving = player.moving;
+    this.lastMoving = player.moving;
+    if (!player.moving) {
       // A single landing poof when motion stops after a run, not every frame.
-      if (this.lastMoving && !player.moving) this.dust(player.x, player.y + 10, 3);
-      this.lastMoving = player.moving;
+      if (wasMoving) this.dust(player.x, player.y + 10, 3);
       return;
     }
-    this.lastMoving = true;
+    if (moved < 4) return;
     this.stepTimer -= dt;
     if (this.stepTimer <= 0) {
       this.stepTimer = 0.22;

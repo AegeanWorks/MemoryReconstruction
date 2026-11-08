@@ -321,8 +321,12 @@ export class Hud {
         case 'merchant':
           label = `Trade ${near.cost} shards for a relic`;
           break;
-        default:
+        case 'shrine':
           label = `Offer ${near.cost} shards to the Memory Well (heal + upgrade)`;
+          break;
+        default:
+          // Never silently label a new interactable as the Memory Well.
+          label = near.label ? `Use ${near.label}` : 'Interact';
       }
       this.setText(this.prompt, `[E]  ${label}`);
     }

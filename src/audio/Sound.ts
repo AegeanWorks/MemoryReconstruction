@@ -146,6 +146,8 @@ export class Sound {
   private noise!: AudioBuffer;
   private ambience: { stop(): void } | undefined;
   private ambienceKey = '';
+  /** A request made before the first user gesture; replayed on unlock. */
+  private pendingAmbience: { biome: BiomeId; tense: boolean } | undefined;
   private volumes = { master: 0.8, music: 0.5, sfx: 0.8 };
   private lastPlayed = new Map<string, number>();
 
@@ -170,6 +172,12 @@ export class Sound {
     const data = this.noise.getChannelData(0);
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
     this.applyVolumes();
+    // The title requests its ambience before the first gesture; play it now.
+    const pending = this.pendingAmbience;
+    if (pending) {
+      this.pendingAmbience = undefined;
+      this.playAmbience(pending.biome, pending.tense);
+    }
   }
 
   setVolumes(master: number, music: number, sfx: number): void {
@@ -517,7 +525,13 @@ export class Sound {
   /** Starts (or keeps) the ambient pad for a biome; `tense` adds a low pulse for boss fights. */
   playAmbience(biome: BiomeId, tense = false): void {
     const key = `${biome}:${tense}`;
-    if (!this.ctx || this.ambienceKey === key) return;
+    if (!this.ctx) {
+      // No gesture yet: remember the request instead of dropping it.
+      this.pendingAmbience = { biome, tense };
+      return;
+    }
+    this.pendingAmbience = undefined;
+    if (this.ambienceKey === key) return;
     this.ambience?.stop();
     this.ambienceKey = key;
     const ctx = this.ctx;
@@ -586,6 +600,7 @@ export class Sound {
   }
 
   stopAmbience(): void {
+    this.pendingAmbience = undefined;
     this.ambience?.stop();
     this.ambience = undefined;
     this.ambienceKey = '';

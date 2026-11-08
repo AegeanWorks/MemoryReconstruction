@@ -38,6 +38,7 @@ import {
   clipLaneToRoom,
   mortarRingPoints,
   quakeRingPoints,
+  ringTelegraphRadius,
   wallGapGuideSegment,
 } from './telegraph';
 import {
@@ -1293,7 +1294,7 @@ export class ActorView {
         break;
       }
       case 'ring':
-        g.circle(x, y, e.radius + 10 + (1 - e.stateTime) * 30).stroke({
+        g.circle(x, y, ringTelegraphRadius(e.radius, progress)).stroke({
           width: 3,
           color: TELEGRAPH_COLOR,
           alpha: urgency,

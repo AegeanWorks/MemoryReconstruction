@@ -9,6 +9,7 @@ import { createPlayer, refreshStats } from './player';
 import { Rng } from './rng';
 import { ENGAGEMENT_TUNING } from './tuning';
 import { computeStats, upgradeExists } from './upgrades';
+import { isWeaponId } from './weapons';
 
 export type ChoiceSource = 'level' | 'chest' | 'shrine' | 'wayfarer';
 
@@ -237,7 +238,7 @@ export function restoreRun(data: unknown): RunState | undefined {
   const mana = run.player.mana;
   const dash = run.player.dashCharges;
   // Fields added after v1 shipped default safely on older snapshots.
-  run.player.weapon ??= 'sword';
+  if (!isWeaponId(run.player.weapon)) run.player.weapon = 'sword';
   run.player.bombs ??= 0;
   run.player.traps ??= 0;
   run.player.artCooldown ??= 0;

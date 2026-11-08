@@ -3,6 +3,15 @@ import { MORTAR_OFFSETS, QUAKE_RADIUS, wallGapCenter } from '../sim/enemies';
 import { TILE_SIZE } from '../sim/tiles';
 
 /**
+ * Outward ring radius for the omnidirectional ring telegraph. `progress` is
+ * normalized windup progress (0..1), so a short and a long windup breathe at
+ * the same rate instead of using raw seconds.
+ */
+export function ringTelegraphRadius(radius: number, progress: number): number {
+  return radius + 10 + Math.max(0, Math.min(1, progress)) * 30;
+}
+
+/**
  * Shorten a lane so its telegraph stops at the arena wall instead of spilling
  * into the void or the HUD. The sim's attack range is unchanged; the player
  * can only stand inside the room, so the visible lane stays honest.

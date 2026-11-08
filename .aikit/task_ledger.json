@@ -1,56 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "audit-inventory-self-reference",
+    "task_id": "state-machine-audit",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794162085.866938,
+    "updated_at": 1794163068.9777052,
     "owner": "commandcode:mr-audit",
     "started_by": "commandcode:mr-audit",
     "continuations": [],
-    "completed_at": 1794162086.5429802
+    "completed_at": 1794163069.317879
   },
   "checkpoints": [
-    {
-      "task_id": "commit-range-audit-v33",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified 1 -> 189: beam and sweep warning/live lanes still clip via clipLaneToRoom (ui-beam-clip 1/1, ui-sweep-clip 1/1); mortar uses the radius-aware helper (ui-mortar-clip 3/3); quake stays radius-aware; no finding; 447 vitest (78 files), 361 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794157940.167232,
-      "timestamp_str": "2026-11-08 20:12:20",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v33",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'commit-range-audit-v33' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794157940.5203583,
-      "timestamp_str": "2026-11-08 20:12:20",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v34",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Deep-dive range 1 -> 192: verify dash-strike and projectile aim-line clipping plus the room telegraph mask",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794157949.8781543,
-      "timestamp_str": "2026-11-08 20:12:29",
-      "agent": "commandcode:mr-audit",
-      "impact_assessment": {
-        "why": "The curated deep dives stop at 1 -> 189; 1 -> 192 was only batch-mapped.",
-        "benefits": "The report covers the dash, aim-line and room-mask fixes with current evidence.",
-        "risks": "contract: docs only; dependency: none; concurrency: none; state: none",
-        "mitigation": "Dash, aim-line and mask suites plus the full gates."
-      },
-      "plan_digest": "fbc28aec8462df08c77043531f5ea9244dbfcf1c6a3c3b14c2fcb21c3bc62e5c"
-    },
     {
       "task_id": "commit-range-audit-v34",
       "phase": "phase 4",
@@ -265,6 +226,45 @@
       "status": "completed",
       "timestamp": 1794162086.542982,
       "timestamp_str": "2026-11-08 21:21:26",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "state-machine-audit",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Audit implicit state machines across app, sim, view, audio and save; verify the high-impact defects; implement the low-risk UX/DX/AX proposals and document deferred/risky ones",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794162749.927371,
+      "timestamp_str": "2026-11-08 21:32:29",
+      "agent": "commandcode:mr-audit",
+      "impact_assessment": {
+        "why": "State is spread across App strings, DOM classes and plain sim records with no transition guards. The verified set includes double run settlement, state-blind floor/victory events, prologue skip, gameplay input latching behind menus, an understated ring telegraph, settings/audio drops and unvalidated restored weapons.",
+        "benefits": "Removes impossible or duplicate transitions, keeps overlay exits consistent, restores tutorial and audio/settings UX, and leaves a documented state catalog with pure helpers and tests.",
+        "risks": "contract: App lifecycle guards, input gate, view/audio settings, restore validation, hazard reset; dependency: none; concurrency: App/Input/ActorView/Renderer/Sound/SaveStore/W; state: no save schema or wire-format change",
+        "mitigation": "Targeted tests for input gating, ring radius, restore weapon and hazard disarm; full npm test/mechanics, typecheck/lint/build, AIKit 8/8."
+      },
+      "plan_digest": "db8debee4566f60c5c026d2925cd1c7bc06e1c2c8ac8e12a9ea50140c6fc11c5"
+    },
+    {
+      "task_id": "state-machine-audit",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: 11 implicit-state fixes plus docs/STATE_MACHINES.md and ADR-176; input gate 2/2, ring radius 2/2, restore weapon 10/10, hazard disarm 80/80; 456 vitest (81 files), 365 mechanics (53 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794163068.9777052,
+      "timestamp_str": "2026-11-08 21:37:48",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "state-machine-audit",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'state-machine-audit' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794163069.3178804,
+      "timestamp_str": "2026-11-08 21:37:49",
       "agent": "commandcode:mr-audit"
     }
   ]

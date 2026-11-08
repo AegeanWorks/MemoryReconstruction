@@ -137,6 +137,8 @@ export class App {
   private accumulator = 0;
   private lastTime = 0;
   private deathTimer = -1;
+  /** Guards the one-way run settlement transition (death, victory or abandon). */
+  private runSettled = false;
 
   constructor(
     private readonly renderer: Renderer,
@@ -288,13 +290,16 @@ export class App {
           break;
         }
         case 'playerDied':
+          if (this.state !== 'playing') break;
           this.state = 'dead';
           this.deathTimer = DEATH_LINGER;
           break;
         case 'floorExit':
+          if (this.state !== 'playing') break;
           this.nextFloor();
           return;
         case 'victory':
+          if (this.state !== 'playing') break;
           this.endRun(true);
           return;
         case 'sanctuary':
@@ -358,7 +363,13 @@ export class App {
           this.click(() =>
             this.screens.show(memoriesScreen(this.meta.fragments, () => this.showTitle()))
           ),
-        onPrologue: () => this.click(() => this.showPrologue(() => this.showHub())),
+        onPrologue: () =>
+          this.click(() =>
+            this.showPrologue(() => {
+              this.markTutorialSeen();
+              this.showHub();
+            })
+          ),
         onSettings: () => this.click(() => this.showSettings(() => this.showTitle())),
         onControls: () =>
           this.click(() => this.screens.show(controlsScreen(() => this.showTitle()))),
@@ -761,12 +772,21 @@ export class App {
     return run;
   }
 
+  /** Marks the prologue seen only once it completed, not when it was launched. */
+  private markTutorialSeen(): void {
+    if (this.meta.seenTutorial) return;
+    this.meta = { ...this.meta, seenTutorial: true };
+    this.store.saveMeta(this.meta);
+  }
+
   private startExpedition(startDepth: number, replaySeed?: number): void {
     // First descent goes through the prologue: story first, controls fresh.
+    // Backing out leaves it unseen so the next descent still shows it.
     if (!this.meta.seenTutorial) {
-      this.meta = { ...this.meta, seenTutorial: true };
-      this.store.saveMeta(this.meta);
-      this.showPrologue(() => this.startExpedition(startDepth, replaySeed));
+      this.showPrologue(() => {
+        this.markTutorialSeen();
+        this.startExpedition(startDepth, replaySeed);
+      });
       return;
     }
     const seed = replaySeed ?? Math.floor(Math.random() * 2 ** 31);
@@ -1000,6 +1020,7 @@ export class App {
 
   private startRun(run: RunState): void {
     this.run = run;
+    this.runSettled = false;
     this.tipRoom = false;
     this.tipHurt = false;
     this.tipFlask = false;
@@ -1056,6 +1077,8 @@ export class App {
     this.state = 'transition';
     this.fade.classList.add('on');
     window.setTimeout(() => {
+      // A death or settlement during the fade must not resurrect the run.
+      if (this.state !== 'transition') return;
       this.run!.depth++;
       this.enterFloor();
       this.fade.classList.remove('on');
@@ -1070,7 +1093,9 @@ export class App {
     this.state = 'inventory';
     this.input.releaseAll();
     const close = (): void => {
-      if (inSanctuary) this.closeHubPanel();
+      // Closing the bag returns to the room it was opened in, matching the
+      // inventory hotkey; only an explicit Sanctuary action leaves the room.
+      if (inSanctuary) this.resumeRoom();
       else this.resume();
     };
     let status = 'Click a carried relic to equip it, ↑↓ to browse, or sell what you will not wear.';
@@ -1140,6 +1165,10 @@ export class App {
   }
 
   private endRun(won: boolean): void {
+    // Death, victory and abandon all funnel here; settle exactly once so a
+    // late victory event cannot double-bank a run that already ended.
+    if (this.runSettled) return;
+    this.runSettled = true;
     const run = this.run!;
     const earned = echoesEarned(run, won);
     const oldFeats = new Set(this.meta.feats);
@@ -1190,6 +1219,11 @@ export class App {
         onControls: () => this.click(() => this.screens.show(controlsScreen(() => this.pause()))),
         onAbandon: () =>
           this.click(() => {
+            if (this.runSettled) {
+              this.showHub();
+              return;
+            }
+            this.runSettled = true;
             this.meta = recordRun(this.meta, this.run!, false);
             this.store.saveMeta(this.meta);
             this.store.clearRun();
@@ -1244,8 +1278,10 @@ export class App {
     if (action === 'pause') {
       if (this.state === 'sanctuary') this.showSanctuaryMenu();
       else if (this.state === 'hub') {
-        // Escape closes a hub sub-screen, but does nothing on the hub root.
-        if (!document.querySelector('.sanctuary-hub')) this.showHub();
+        // A panel opened inside a resident's room returns to that room; the
+        // hub root has nothing to close.
+        if (this.world?.mode === 'sanctuary') this.resumeRoom();
+        else if (!document.querySelector('.sanctuary-hub')) this.showHub();
       } else if (this.state === 'playing') this.pause();
       else if (this.state === 'paused' || this.state === 'map' || this.state === 'inventory')
         closeOverlay();

@@ -91,6 +91,15 @@ export class Input {
     )
       e.preventDefault();
     if (e.repeat) return;
+    if (screenOpen) {
+      // A DOM screen owns the keyboard. Route menu keys, but never latch a
+      // gameplay action that could fire the moment the screen closes.
+      if (e.code === 'Escape' || e.code === 'KeyP') this.onMenu('pause');
+      if (e.code === 'Tab' || e.code === 'KeyM') this.onMenu('map');
+      if (e.code === 'Enter') this.onMenu('confirm');
+      if (e.code === 'KeyI') this.onMenu('inventory');
+      return;
+    }
     this.held.add(e.code);
     if (KEYS.dash.includes(e.code as never)) this.latched.dash = true;
     if (KEYS.potion.includes(e.code as never)) this.latched.potion = true;

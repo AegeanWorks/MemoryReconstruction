@@ -2109,7 +2109,12 @@ export class World implements Arena {
   /** A lever disables every trap in its room; breakables keep their contents. */
   disableHazards(roomId?: number): void {
     for (const h of this.hazards)
-      if (!isBreakable(h.kind) && (roomId === undefined || h.roomId === roomId)) h.disabled = true;
+      if (!isBreakable(h.kind) && (roomId === undefined || h.roomId === roomId)) {
+        h.disabled = true;
+        // A hazard disarmed mid-warning must not leave a dead telegraph ring.
+        h.phase = 'idle';
+        h.timer = 0;
+      }
   }
 
   /** Opens a sealed vault: its doorway becomes a real door and the room is revealed. */
