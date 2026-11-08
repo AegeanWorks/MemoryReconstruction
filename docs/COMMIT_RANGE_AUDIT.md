@@ -1036,7 +1036,7 @@ zero failures across 60 seeds × 4 layouts.
 
 **Finding:** none.
 
-## Range 1 -> 213 (End) (`407e047..544cba3`)
+## Range 1 -> 213 (`407e047..544cba3`)
 
 **Commits:** cycle 4 graphics/effects, cycle 5 audio cues and cycle 6
 progression/saves. Cycle 4 draws a local boss-phase burst. Cycle 5 suspends
@@ -1052,9 +1052,22 @@ corrupt-save hub preserved 3 fragments and 42 echoes instead of 0.
 
 **Finding:** none.
 
+## Range 1 -> 214 (End) (`407e047..ae912d6`)
+
+**Commit:** cycle 7 combat feel: a bolt tapped during a dash is buffered and
+fires when the dash ends; `boltBuffer` defaults for old saves. Adds failing-first
+dash-tap coverage and a queued-bolt capture.
+
+**Verification:** 478 vitest (90 files), 376 mechanics (58 files),
+typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed from
+`ae912d6`; the browser capture shows projectile 1, mana 42/60, cooldown 0.283
+and 16.68ms average / 16.90ms max frames.
+
+**Finding:** none.
+
 ## Late-content batch summary
 
-The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 71 cumulative
+The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 72 cumulative
 ranges, the three commits added by each, and the file count at the endpoint.
 Every range is now deep-dived; this section keeps the shared verification for
 the art, UI, combat-polish and late-content expansion that followed the early
@@ -1095,8 +1108,8 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **476 passed (89 files)**
-- `npm run test:mechanics`: **374 passed (57 files)**
+- `npm test`: **478 passed (90 files)**
+- `npm run test:mechanics`: **376 passed (58 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
 - `npm run build`: clean (existing chunk-size warning only)
@@ -1104,9 +1117,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (213 commits,
+The inventory covers every content commit through `1 -> End` (214 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-5 and the cycle 6 save recovery). The
+follow-up, visual review, cycles 1-6 and the cycle 7 dash-bolt buffer). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1125,5 +1138,5 @@ commit), ADR-176 (implicit state machines catalogued and guarded), ADR-177
 fairness), ADR-179 (visual UI review), ADR-180 (attack buffer survives a slow
 swing), ADR-181 (boss telegraphs freeze their windup), ADR-182 (boss phase
 burst), ADR-183 (pause suspends audio), ADR-184 (meta saves recover field by
-field) and the README boss-count correction recorded above. No open audit items
-remain.
+field), ADR-185 (a bolt tapped mid-dash is buffered) and the README boss-count
+correction recorded above. No open audit items remain.
