@@ -8,9 +8,9 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `5`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `69`
+- **Total Top-Level Functions**: `67`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `4397`
+- **Total Source Lines**: `4374`
 
 ---
 
@@ -19,12 +19,10 @@
 ### [`scripts/audit_commit_ranges.py`](scripts/audit_commit_ranges.py)
 > *Generate the cumulative commit-range inventory used by the audit.*
 
-**Size**: `162` lines (`6013` bytes)
+**Size**: `139` lines (`5215` bytes)
 
 **Functions:**
 - `def git(*args)` - *Run a git command in the project root with a hard timeout.*
-- `def last_inventory_commit()` - *Full hash of the latest commit touching the generated inventory.*
-- `def is_audit_only(commit)` - *True when a commit changes only the audit report, inventory, script or memory.*
 - `def commit_rows()` - *Return `(short hash, subject)` for every content commit, oldest first.*
 - `def deep_dive_ranges()` - *Ranges with a narrative section in the curated audit report.*
 - `def build_inventory()`
