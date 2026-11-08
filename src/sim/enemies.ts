@@ -77,6 +77,16 @@ export function dashStrikeRange(def: EnemyDef): number {
   return Math.round(dashStrikeSpeed(def) * ACTIVE.dashStrike);
 }
 
+/** Closing speed of a lunge; the view uses it to draw an honest lane. */
+export function lungeSpeed(def: EnemyDef): number {
+  return def.speed * 4 + 120;
+}
+
+/** How far a lunge actually travels before its attack phase ends. */
+export function lungeRange(def: EnemyDef): number {
+  return Math.round(lungeSpeed(def) * ACTIVE.lunge);
+}
+
 /** Bosses that fight at blade range instead of caster distance. */
 export function isMeleeBossId(defId: string): boolean {
   return (
@@ -789,7 +799,7 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
         ? 520
         : enemy.attack === 'dashStrike'
           ? dashStrikeSpeed(def)
-          : def.speed * 4 + 120;
+          : lungeSpeed(def);
     const hitWall = moveAndCollide(
       arena.grid,
       enemy,

@@ -10,6 +10,7 @@ import { AnimatedSprite, Container, Graphics, Sprite, Text, type Texture } from 
 import type { Enemy, Hazard, Interactable, Pickup, Player, Projectile } from '../sim/entities';
 import {
   dashStrikeRange,
+  lungeRange,
   mineOffsets,
   mortarRadius,
   PILLARS_RADIUS,
@@ -1184,7 +1185,7 @@ export class ActorView {
           y,
           e.dirX,
           e.dirY,
-          e.attack === 'charge' ? 330 : 140,
+          e.attack === 'charge' ? 330 : lungeRange(e.def),
           this.world.currentRoom()
         );
         const w = e.radius * 1.6;
