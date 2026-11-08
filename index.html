@@ -22,7 +22,9 @@
       z-index: 100; transition: opacity 0.5s, visibility 0.5s;
     }
     .loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    .loading-title { font-family: 'Cinzel', serif; font-size: 3rem; font-weight: 700; 
+    .loading-title { font-family: 'Cinzel', serif; font-weight: 700;
+      font-size: clamp(1.5rem, 7vw, 3rem); line-height: 1.15; text-align: center;
+      max-width: 100%; padding: 0 16px; overflow-wrap: anywhere;
       background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text; animation: shimmer 2s infinite; }

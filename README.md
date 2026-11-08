@@ -169,6 +169,7 @@ The simulation advances in fixed 1/60 s steps from a seed, so a run with the sam
 - [Architecture](docs/ARCHITECTURE.md): modules, data flow and the frame loop
 - [Commit-Range Audit](docs/COMMIT_RANGE_AUDIT.md): cumulative verification of the project history
 - [State Machines](docs/STATE_MACHINES.md): implicit transitions, their guards and deferred proposals
+- [Visual UI Review](docs/UI_REVIEW.md): responsive layout and combat-readability captures
 - [AI Agent Guide](docs/AI_AGENT_GUIDE.md): how to add enemies, upgrades, bosses and biomes
 - [Graphics](docs/Graphics.md): art direction and the asset pipeline
 - [Contributing](docs/CONTRIBUTING.md): workflow and checks
