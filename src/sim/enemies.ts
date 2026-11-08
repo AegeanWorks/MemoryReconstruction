@@ -888,10 +888,15 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
       enemy.attackLanded = true;
     }
   } else if (enemy.attack === 'volley') {
-    // Five aimed shots across the attack phase.
-    const before = Math.floor(((ACTIVE.volley - enemy.stateTime - dt) / ACTIVE.volley) * 5);
+    // Five aimed shots across the attack phase. Clamp the pre-step fraction
+    // so float dust cannot fire a stale shot at fraction zero, and allow the
+    // fifth crossing so the last shot is not suppressed.
+    const before = Math.max(
+      0,
+      Math.floor(((ACTIVE.volley - enemy.stateTime - dt) / ACTIVE.volley) * 5)
+    );
     const after = Math.floor(((ACTIVE.volley - enemy.stateTime) / ACTIVE.volley) * 5);
-    if (after > before && after < 5) {
+    if (after > before && after <= 5) {
       const angle = angleBetween(enemy.x, enemy.y, p.x, p.y);
       shoot(arena, enemy, angle, PHASES[enemy.phase].speed + 40, def.damage);
     }
