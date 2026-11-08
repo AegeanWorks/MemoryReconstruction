@@ -1018,19 +1018,21 @@ was closed from `2fcb82d`.
 
 **Finding:** none.
 
-## Range 1 -> 209 (End) (`407e047..a0ef779`)
+## Range 1 -> 210 (End) (`407e047..544f274`)
 
-**Commits:** cycle 1 combat feel and cycle 2 enemies/bosses. Cycle 1 holds the
-attack buffer through a swing, so an early deliberate greatsword tap chains.
-Cycle 2 freezes `windupTotal` at `beginWindup`, so a boss phase jump during a
-windup cannot shorten or reset the telegraph denominator while `stateTime`
-continues. Both add failing-first tests and same-setup played-run evidence.
+**Commits:** cycle 1 combat feel, cycle 2 enemies/bosses and cycle 3 levels.
+Cycle 1 holds the attack buffer through a swing, so an early deliberate
+greatsword tap chains. Cycle 2 freezes `windupTotal` at `beginWindup`, so a boss
+phase jump during a windup cannot shorten or reset the telegraph denominator
+while `stateTime` continues. Cycle 3 found no reproducible level defect after a
+60-seed default/atoll/spire/terrace fuzz; it retains that reachability and void
+guard without claiming a game change.
 
-**Verification:** 468 vitest (85 files), 373 mechanics (56 files),
+**Verification:** 469 vitest (86 files), 374 mechanics (57 files),
 typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed from
 `a0ef779`; cycle 1 changed `combo 0 / idle` to `combo 1 / attack`; cycle 2 kept
-a seeded boss windup total at `0.6818` across phase 0→2, with 16.68ms average and
-16.90ms max frame time.
+a seeded boss windup total at `0.6818` across phase 0→2; the level fuzz passed
+zero failures across 60 seeds × 4 layouts.
 
 **Finding:** none.
 
@@ -1077,8 +1079,8 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **468 passed (85 files)**
-- `npm run test:mechanics`: **373 passed (56 files)**
+- `npm test`: **469 passed (86 files)**
+- `npm run test:mechanics`: **374 passed (57 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
 - `npm run build`: clean (existing chunk-size warning only)
@@ -1086,9 +1088,10 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (209 commits,
+The inventory covers every content commit through `1 -> End` (210 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review and the cycle 1-2 combat/boss fixes). The generator
+follow-up, visual review, cycle 1-2 combat/boss fixes and the cycle 3 level
+fuzz guard). The generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
 earlier refreshes. After a new content commit, run
