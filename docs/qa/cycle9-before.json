@@ -1,0 +1,50 @@
+{
+  "enter": {
+    "room": "combat",
+    "id": 1,
+    "x": 1952,
+    "y": 2048
+  },
+  "cleared": {
+    "phase": "cleared",
+    "room": 1,
+    "enemies": 0,
+    "forced": true
+  },
+  "dismissed": 27,
+  "setup": {
+    "room": "combat",
+    "id": 1,
+    "phase": "cleared",
+    "gate": {
+      "dir": "west",
+      "x": 51,
+      "y": 63
+    },
+    "player": {
+      "x": 1664,
+      "y": 2032
+    }
+  },
+  "state": {
+    "room": "combat",
+    "id": 1,
+    "phase": "cleared",
+    "enemies": 0,
+    "player": {
+      "x": 1664,
+      "y": 2032
+    },
+    "gates": [
+      {
+        "dir": "west",
+        "tiles": 3
+      }
+    ]
+  },
+  "frames": {
+    "avgMs": 17.7,
+    "maxMs": 18.5,
+    "frames": 59
+  }
+}

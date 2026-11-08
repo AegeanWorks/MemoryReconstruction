@@ -1743,3 +1743,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: `ActorView.drawHealthBar` drew a 3px fill over a 5px black backing with no inner frame or highlight. At 1280 it was a hairline; at the 390 camera scale it nearly vanished, and elites/bosses shared the same geometry.
 - **Decision**: Use a 28px minimum width, 4px normal / 6px boss height, a black outer shadow, a dark inner frame and a 1px white highlight; clamp the fill ratio. Keep elite gold and normal red.
 - **Consequences**: The same seed-7 gutter runner at 38/70 HP now has a legible framed bar in the before/after pair while health, AI and frame time stay unchanged (16.68ms average / 16.90ms max). Final gates: 480 vitest (91 files), 376 mechanics (58 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle8-*`.
+
+## ADR-187: Cleared spawn gates read as spent in the world
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 9, levels)
+- **Context**: The minimap dimmed a cleared room’s gates, but `LevelView.drawDoors` had no room-phase input and kept the world portcullis bright with its ember glow, suggesting a cleared room could reinforce.
+- **Decision**: Pass `world.rooms[id]?.phase` into `LevelView`; when a gate’s room is cleared, overlay a 0.55 dark wash on each gate tile after its art. No collision, spawn, room-state or minimap change.
+- **Consequences**: The same seed-7 cleared room now shows a dim spent gate in the world, matching the minimap. The capture records `forced:true` because the scripted damage loop left the room active after 8s; this is a controlled visual state. Frames were 17.70/17.72ms average with 18.50/18.70ms max. Final gates: 482 vitest (92 files), 376 mechanics (58 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle9-*`.

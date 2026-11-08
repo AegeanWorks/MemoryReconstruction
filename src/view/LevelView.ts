@@ -5,6 +5,7 @@
 import { Container, Graphics, Sprite, TilingSprite, type Texture } from 'pixi.js';
 import type { BiomeId } from '../sim/content';
 import type { FloorMap } from '../sim/dungeon';
+import type { RoomState } from '../sim/world';
 import { Deco, Tile, TILE_SIZE, type TileGrid } from '../sim/tiles';
 import { fxTextures } from './fxArt';
 import { BIOME_ART, hex } from './palette';
@@ -106,7 +107,8 @@ export class LevelView {
     biome: BiomeId,
     private readonly propTextures: Record<string, Texture>,
     backdrop?: Texture,
-    dressRooms = false
+    dressRooms = false,
+    private readonly roomPhase?: (roomId: number) => RoomState['phase'] | undefined
   ) {
     this.biome = biome;
     this.accent = hex(BIOME_ART[biome].accent);
@@ -436,6 +438,7 @@ export class LevelView {
           g.fill({ color: 0xffffff, alpha: pulse * 0.8 });
         }
       }
+      const cleared = this.roomPhase?.(room.id) === 'cleared';
       if (room.gates) {
         for (const gate of room.gates) {
           const isNorthOrSouth = gate.direction === 'north' || gate.direction === 'south';
@@ -489,6 +492,7 @@ export class LevelView {
               color: 0xff5a3a,
               alpha: glow,
             });
+            if (cleared) g.rect(px, py, T, T).fill({ color: 0x05040a, alpha: 0.55 });
           }
         }
       }

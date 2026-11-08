@@ -19,6 +19,7 @@ run.
 | 6 | Progression/saves | Completed (field-wise meta recovery) |
 | 7 | Combat feel | Completed (dash-bolt buffer) |
 | 8 | Enemies/bosses | Completed (readable enemy health bars) |
+| 9 | Levels | Completed (spent gates dim) |
 
 ---
 
@@ -654,6 +655,83 @@ time are unchanged.
 
 ```text
 npx vitest run tests/ui-enemy-health-bar.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 9 — Levels: cleared spawn gates stay bright in the world
+
+### FIND
+
+Evidence:
+
+- `Minimap` tracks cleared combat rooms and dims spent gates (`spent ? 0.32`
+  instead of `0.95`).
+- `LevelView.drawDoors` has no room-phase input; it draws every portcullis gate
+  with the same bright iron and ember glow before and after the room is cleared.
+- The world and minimap therefore disagree about whether a gate is still
+  reinforcing; a cleared room can look like it may spawn another wave.
+
+### ANALYZE
+
+Read: `LevelView` constructor/`drawDoors`, `Renderer.showFloor`, `World.rooms`
+and the minimap gate state. Pass a room-phase lookup into the view; when a gate's
+room is cleared, overlay a dark spent wash after the gate art (including its
+ember). No gate collision, spawn or room-state change.
+
+Files: `src/view/LevelView.ts`, `src/view/Renderer.ts`,
+`tests/ui-gate-cleared.test.ts`.
+
+Proof: failing source check first; seed-7 combat room cleared, player framed at
+the gate, before/after screenshots at 1280x720.
+
+### IMPLEMENT
+
+- `src/view/LevelView.ts`: accepts a `roomPhase(roomId)` lookup and overlays a
+  0.55 dark wash on each gate tile after its art when the room is cleared.
+- `src/view/Renderer.ts`: passes `world.rooms[id]?.phase` through.
+- `tests/ui-gate-cleared.test.ts`: two failing-first source checks, then green.
+
+### RECORD — scripted clear
+
+Same seed 7, combat room 1, west gate at `51,63`, player at `1664,2032`,
+1280x720. The damage loop left the room active after 8s, so the state log
+records `forced:true`; 27 queued level-up choices were drained before capture.
+This is a controlled cleared-room state, not a fresh manual clear.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Room phase | cleared (forced) | cleared (forced) |
+| Gate | bright iron portcullis | **dimmed by the spent wash** |
+| Screenshot | `docs/qa/cycle9-before-gate.png` | `docs/qa/cycle9-after-gate.png` |
+| Frame health | 17.70ms avg, 18.50ms max | 17.72ms avg, 18.70ms max |
+
+Raw logs: `docs/qa/cycle9-before.json` and `cycle9-after.json`. What improved:
+the world gate now agrees with the minimap’s spent state, so a cleared room no
+longer looks like it may reinforce. What broke: nothing observed; gate
+collision, spawns and room phase are unchanged. What stayed the same: the gate
+art itself, the room clear rules and the minimap.
+
+### Gate results
+
+- `npx vitest run tests/ui-gate-cleared.test.ts`: **2 passed** after the
+  failing-first run
+- `npm test`: **482 passed (92 files)**
+- `npm run test:mechanics`: **376 passed (58 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 216`)
+
+### Commands run
+
+```text
+npx vitest run tests/ui-gate-cleared.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck

@@ -91,7 +91,8 @@ export class Renderer {
       biome,
       this.sprites.props,
       this.sprites.backgrounds[biome],
-      world.mode !== 'sanctuary'
+      world.mode !== 'sanctuary',
+      (id) => world.rooms[id]?.phase
     );
     const actors = new ActorView(this.sprites, world);
     const effects = new Effects(hex(art.accent), atmosphereFor(biome));
