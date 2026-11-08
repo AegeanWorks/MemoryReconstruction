@@ -1018,7 +1018,7 @@ was closed from `2fcb82d`.
 
 **Finding:** none.
 
-## Range 1 -> 210 (End) (`407e047..544f274`)
+## Range 1 -> 210 (`407e047..544f274`)
 
 **Commits:** cycle 1 combat feel, cycle 2 enemies/bosses and cycle 3 levels.
 Cycle 1 holds the attack buffer through a swing, so an early deliberate
@@ -1036,9 +1036,23 @@ zero failures across 60 seeds × 4 layouts.
 
 **Finding:** none.
 
+## Range 1 -> 211 (End) (`407e047..56fb130`)
+
+**Commit:** cycle 4 graphics/effects: `bossPhase` now carries the boss position
+and `Effects` draws a local ring/star/burst at the boss. The HUD toast, screen
+shake, audio, damage and phase thresholds are unchanged. Adds a failing-first
+view/event test and a seed-7 before/after phase capture.
+
+**Verification:** 471 vitest (87 files), 374 mechanics (57 files),
+typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed from
+`56fb130`; the phase run kept boss health 640→158, phase 0→2 and 16.68ms average
+/ 16.80ms max frames.
+
+**Finding:** none.
+
 ## Late-content batch summary
 
-The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 69 cumulative
+The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 71 cumulative
 ranges, the three commits added by each, and the file count at the endpoint.
 Every range is now deep-dived; this section keeps the shared verification for
 the art, UI, combat-polish and late-content expansion that followed the early
@@ -1079,7 +1093,7 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **469 passed (86 files)**
+- `npm test`: **471 passed (87 files)**
 - `npm run test:mechanics`: **374 passed (57 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
@@ -1088,10 +1102,10 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (210 commits,
+The inventory covers every content commit through `1 -> End` (211 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycle 1-2 combat/boss fixes and the cycle 3 level
-fuzz guard). The generator
+follow-up, visual review, cycle 1-2 combat/boss fixes, the cycle 3 level fuzz
+guard and the cycle 4 boss phase burst). The generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
 earlier refreshes. After a new content commit, run
@@ -1107,5 +1121,6 @@ ADR-174 (18px health bar pinned), ADR-175 (inventory omits its own refresh
 commit), ADR-176 (implicit state machines catalogued and guarded), ADR-177
 (audit refresh commits omitted by subject), ADR-178 (story completion and fight
 fairness), ADR-179 (visual UI review), ADR-180 (attack buffer survives a slow
-swing), ADR-181 (boss telegraphs freeze their windup) and the README boss-count
-correction recorded above. No open audit items remain.
+swing), ADR-181 (boss telegraphs freeze their windup), ADR-182 (boss phase
+burst) and the README boss-count correction recorded above. No open audit items
+remain.
