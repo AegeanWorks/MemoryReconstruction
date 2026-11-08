@@ -172,6 +172,7 @@ export function createEnemy(
     maxHealth: health,
     state: 'spawning',
     stateTime: SPAWN_TIME,
+    windupTotal: 0,
     cooldown: 0,
     attack: defaultAttack(def),
     dirX: 1,
@@ -486,6 +487,10 @@ export function blinkLanding(arena: Arena, enemy: Enemy): { x: number; y: number
 
 /** Exact windup seconds for an enemy's current attack and boss phase. */
 export function windupDuration(enemy: Enemy): number {
+  // A boss can cross a phase threshold while a windup is already running. The
+  // frozen total keeps the view's progress bar on the duration the sim started
+  // with instead of shortening the warning under the player.
+  if (enemy.windupTotal > 0) return enemy.windupTotal;
   return (
     (WINDUP[enemy.attack] / ENEMY_WINDUP_SCALE) *
     (enemy.isBoss ? Math.max(0.75, PHASES[enemy.phase].cooldown) : 1)
@@ -497,7 +502,9 @@ function beginWindup(arena: Arena, enemy: Enemy, kind: AttackKind): void {
   const angle = angleBetween(enemy.x, enemy.y, p.x, p.y);
   enemy.state = 'windup';
   enemy.attack = kind;
+  enemy.windupTotal = 0;
   enemy.stateTime = windupDuration(enemy);
+  enemy.windupTotal = enemy.stateTime;
   enemy.dirX = Math.cos(angle);
   enemy.dirY = Math.sin(angle);
   enemy.attackLanded = false;

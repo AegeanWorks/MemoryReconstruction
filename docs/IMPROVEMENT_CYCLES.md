@@ -11,7 +11,8 @@ run.
 | Cycle | Area | Status |
 | --- | --- | --- |
 | pre-cycle | UI readability / responsive layout | Completed in `2fcb82d`, evidence in `docs/UI_REVIEW.md` |
-| 1 | Combat feel | In progress |
+| 1 | Combat feel | Completed (attack buffer) |
+| 2 | Enemies/bosses | Completed (boss windup cache) |
 
 ---
 
@@ -97,6 +98,102 @@ path.
 
 ```text
 npx vitest run tests/sim/attack-buffer.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 2 — Enemies/bosses: boss telegraph changes phase mid-windup
+
+### FIND
+
+Evidence:
+
+- `src/view/ActorView.ts` computes `const total = windupDuration(e)` on every
+  telegraph frame.
+- `src/sim/enemies.ts` derives `windupDuration` from `PHASES[enemy.phase]`;
+  the three phase cooldown factors are `1`, `0.8` and `0.62`.
+- `World.damageEnemy` updates the boss phase on damage. A hit that crosses a
+  phase threshold during a windup therefore changes the denominator while
+  `stateTime` keeps counting down from the old duration.
+- The telegraph progress is `1 - stateTime / total`; switching from phase 0 to
+  phase 2 during a 0.8s windup makes the total 0.496s, so the warning jumps
+  backward (or resets to empty) just as the attack is about to land.
+- No test covers a phase change during a windup.
+
+### ANALYZE
+
+Read: `windupDuration`, `beginWindup`, `windup`, `drawTelegraph` and the boss
+phase tables. The sim and view already share `windupDuration`; the missing piece
+is a stable denominator for the in-progress windup.
+
+Reproducer: mock a phase-0 boss windup, cache its duration, change `phase` to 2
+without touching `stateTime`, and assert the duration is unchanged.
+
+Fix: cache the computed duration on the enemy at `beginWindup` (`windupTotal`)
+and have `windupDuration` return that cache while it is set. `beginWindup`
+resets the cache before computing, so the next attack picks up the new phase.
+Files: `src/sim/entities.ts`, `src/sim/enemies.ts`,
+`tests/sim/boss-windup.test.ts`.
+
+Killed: no art or damage change; this is a telegraph-timing correctness fix.
+The screenshots will show the same boss attack state before/after the phase
+change; the play log records `stateTime`, cached duration and phase.
+
+Proof: failing unit/source test first, then green; a boss-room played run
+captures the telegraph after a forced phase change, before and after the fix.
+
+### IMPLEMENT
+
+- `src/sim/entities.ts`: added `windupTotal` to `Enemy`.
+- `src/sim/enemies.ts`: `beginWindup` resets and caches the duration; 
+  `windupDuration` returns the cache while it is set. The view already calls the
+  shared function, so no view change was needed.
+- `tests/sim/boss-windup.test.ts`: two failing-first checks (the phase jump
+  changes 0.636s to 0.477s; `beginWindup` had no cache), then green.
+
+### RECORD — played run
+
+Same setup both runs: seed **7**, boss room at `1952,3200`, boss health
+640/640, phase 0, player invulnerable and 100/100, 1280x720, 59 sampled frames.
+The real boss attack was `slam`; the phase jump was forced by setting health to
+25% and applying one damage event during the windup.
+
+| Evidence | Before (old sim) | After (cached) |
+| --- | --- | --- |
+| Windup total before phase | `null` (recomputed) | `0.6818` |
+| Windup total after phase 0→2 | `null` | `0.6818` |
+| `stateTime` across the jump | `0.682` → `0.682` | `0.665` → `0.665` |
+| Boss health | `640` → `158` | `640` → `158` |
+| Telegraph frame | `docs/qa/cycle2-before-boss.png` — ring at phase-2 progress | `docs/qa/cycle2-after-boss.png` — ring at cached progress |
+| Frame health | 16.68ms avg, 17.00ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle2-before.json` and `docs/qa/cycle2-after.json`. What
+improved: the warning keeps the denominator the sim started with, so a phase
+jump cannot shorten or reset the tell while `stateTime` continues. What broke:
+nothing observed; the boss still reached 25%, phase 2, and the room stayed at
+one enemy. What stayed the same: boss health/damage, phase thresholds and the
+shared view function.
+
+### Gate results
+
+- `npx vitest run tests/sim/boss-windup.test.ts`: **2 passed** after two
+  failing-first checks
+- `npm test`: **468 passed (85 files)**
+- `npm run test:mechanics`: **373 passed (56 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 209`)
+
+### Commands run
+
+```text
+npx vitest run tests/sim/boss-windup.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck

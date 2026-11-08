@@ -119,6 +119,8 @@ export interface Enemy {
   state: EnemyState;
   /** Seconds left in the current state. */
   stateTime: number;
+  /** Frozen total of the current windup so a phase change cannot move the tell. */
+  windupTotal: number;
   /** Seconds until the next attack may start. */
   cooldown: number;
   attack: AttackKind;
