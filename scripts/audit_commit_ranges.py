@@ -8,10 +8,10 @@ narrative deep dive for it. It is read-only apart from writing the inventory
 file (or checking it with `--check`).
 
 A tracked inventory generated at HEAD always lags the commit that contains it.
-To avoid that self-reference, the latest commit touching the inventory is
-omitted from the range list when it changes only audit/governance files (the
-curated report, the inventory, this script or `.aikit/`). Content commits still
-shift `1 -> End` and require a refresh.
+Audit refresh/bookkeeping commits use the `chore(audit):` subject prefix and are
+omitted from the range list, so the checked-in map stays current at HEAD instead
+of re-admitting previous refreshes. Content commits still shift `1 -> End` and
+require a refresh.
 """
 
 from __future__ import annotations
@@ -26,11 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "docs" / "COMMIT_RANGE_AUDIT.md"
 DEFAULT_OUTPUT = ROOT / "docs" / "COMMIT_RANGE_INVENTORY.md"
 STEP = 3
-AUDIT_ONLY_PATHS = {
-    "docs/COMMIT_RANGE_AUDIT.md",
-    "docs/COMMIT_RANGE_INVENTORY.md",
-    "scripts/audit_commit_ranges.py",
-}
+AUDIT_SKIP_PREFIXES = ("chore(audit):",)
 
 
 def git(*args: str) -> str:
@@ -48,34 +44,15 @@ def git(*args: str) -> str:
     return result.stdout
 
 
-def last_inventory_commit() -> str:
-    """Full hash of the latest commit touching the generated inventory."""
-    return git("log", "-1", "--format=%H", "--", "docs/COMMIT_RANGE_INVENTORY.md").strip()
-
-
-def is_audit_only(commit: str) -> bool:
-    """True when a commit changes only the audit report, inventory, script or memory."""
-    files = [
-        line.strip()
-        for line in git("show", "--pretty=format:", "--name-only", commit).splitlines()
-        if line.strip()
-    ]
-    return bool(files) and all(
-        path in AUDIT_ONLY_PATHS or path.startswith(".aikit/") for path in files
-    )
-
-
 def commit_rows() -> list[tuple[str, str]]:
     """Return `(short hash, subject)` for every content commit, oldest first."""
-    raw = git("log", "--reverse", "--format=%h%x09%H%x09%s")
-    refresh = last_inventory_commit()
-    skip = refresh if refresh and is_audit_only(refresh) else ""
+    raw = git("log", "--reverse", "--format=%h%x09%s")
     rows: list[tuple[str, str]] = []
     for line in raw.splitlines():
         if not line.strip():
             continue
-        short, full, subject = line.split("\t", 2)
-        if full == skip:
+        short, subject = line.split("\t", 1)
+        if subject.startswith(AUDIT_SKIP_PREFIXES):
             continue
         rows.append((short, subject))
     return rows

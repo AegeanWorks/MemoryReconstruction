@@ -1054,8 +1054,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 The inventory covers every content commit through `1 -> End` (204 commits,
 ending with the delivery, UI-bookkeeping and state-machine audit). The generator
-omits its own audit-only refresh commit, so the map stays current at HEAD
-instead of lagging the commit that contains it. After a new content commit, run
+omits commits whose subject starts with `chore(audit):` (its refresh and
+bookkeeping commits), so the map stays current at HEAD instead of re-admitting
+earlier refreshes. After a new content commit, run
 `npm run audit:ranges` to refresh the map and `npm run audit:ranges:check` as a
 gate. The cumulative findings are ADR-157
 (partial settings), ADR-158 (living docs), ADR-159 (rest-heal test), ADR-163
@@ -1065,5 +1066,6 @@ ADR-167 (pending-choice phantom ids), ADR-168 (radius-aware mortar clip),
 ADR-169 (enemy-bomb graze), ADR-170 (non-vault attuned relic), ADR-171 (lore
 mirror drift), ADR-172 (mine warning radius), ADR-173 (bestiary mirror drift),
 ADR-174 (18px health bar pinned), ADR-175 (inventory omits its own refresh
-commit), ADR-176 (implicit state machines catalogued and guarded) and the README
-boss-count correction recorded above. No open audit items remain.
+commit), ADR-176 (implicit state machines catalogued and guarded), ADR-177
+(audit refresh commits omitted by subject) and the README boss-count correction
+recorded above. No open audit items remain.
