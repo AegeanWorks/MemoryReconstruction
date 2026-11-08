@@ -1,0 +1,29 @@
+{
+  "setup": {
+    "weapon": "greatsword",
+    "health": 100,
+    "max": 100,
+    "room": "start"
+  },
+  "state": {
+    "combo": 0,
+    "swingTime": -1,
+    "action": "idle",
+    "buffer": 0,
+    "health": 100,
+    "weapon": "greatsword",
+    "room": "start"
+  },
+  "combat": {
+    "room": "combat",
+    "enemies": 4,
+    "playerHealth": 76,
+    "action": "idle",
+    "combo": 0
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}

@@ -103,7 +103,10 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
   p.boltCooldown = Math.max(0, p.boltCooldown - dt);
   p.artCooldown = Math.max(0, p.artCooldown - dt);
   p.comboWindow = Math.max(0, p.comboWindow - dt);
-  p.attackBuffer = Math.max(0, p.attackBuffer - dt);
+  // Hold the buffer while a swing resolves. The greatsword's arcs last
+  // 0.42-0.54s, so a tap early in the swing must survive longer than the
+  // 0.18s window instead of being dropped before the swing ends.
+  if (p.swingTime < 0) p.attackBuffer = Math.max(0, p.attackBuffer - dt);
   p.resonanceTime = Math.max(0, p.resonanceTime - dt);
   if (p.resonanceTime === 0) p.resonance = 0;
   p.mana = Math.min(s.maxMana, p.mana + s.manaRegen * dt);

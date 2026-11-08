@@ -27,6 +27,19 @@ describe('attack input buffering', () => {
     expect(p.swingTime).toBeGreaterThan(0);
   });
 
+  it('keeps an early greatsword tap queued through the slow swing', () => {
+    const world = newWorld();
+    const p = world.player;
+    world.step({ ...NO_INPUT, attack: true }, DT);
+    expect(p.swingTime).toBeGreaterThan(0);
+    // The greatsword's first step is 0.42s, far longer than the 0.18s buffer.
+    world.step({ ...NO_INPUT, attack: true }, DT);
+    expect(p.attackBuffer).toBeGreaterThan(0);
+    for (let i = 0; i < 40; i++) world.step(NO_INPUT, DT);
+    expect(p.combo).toBe(1);
+    expect(p.swingTime).toBeGreaterThan(0);
+  });
+
   it('queues a strike pressed during a dash and swings when it lands', () => {
     const world = newWorld();
     const p = world.player;
