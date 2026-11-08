@@ -140,7 +140,7 @@ export class Hud {
   }
 
   /** Hides the persistent floor line while the same text plays as a banner. */
-  showBanner(seconds = 3.3): void {
+  showBanner(seconds = 3.0): void {
     this.bannerTimer = seconds;
     this.root.classList.add('banner-open');
     // A toast from the previous floor must not survive into the new one's banner.

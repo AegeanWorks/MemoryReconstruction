@@ -1671,3 +1671,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: ADR-175 skipped only the latest commit touching the inventory. After a second refresh (`fef556f`), the first refresh (`7c14842`) re-entered the range list, shifted the filtered End and made the checked-in map stale again. Only those two commits use the `chore(audit):` subject; no historical content commit does.
 - **Decision**: Omit every commit whose subject starts with `chore(audit):` from the range list, persistently. Future inventory refreshes and audit bookkeeping must use that prefix; content commits still shift `1 -> End` and require a refresh.
 - **Consequences**: The checked-in map stays current at `1 -> 204` across repeated refresh commits, and `audit:ranges:check` is green at HEAD. The rule is explicit in `scripts/audit_commit_ranges.py`. Final gates: 456 vitest (81 files), 365 mechanics (53 files), typecheck/lint/build clean, 8/8 AIKit. No new runtime dependencies.
+
+## ADR-178: Story completion and fight fairness follow-up
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: continue improving story, fights and UI after the state-machine audit)
+- **Context**: The audit deferred the stun-lock, boss phase-event, banner-timing and stale-choice items (D2/D4/D8/D9). Separately, `CoreMemory` dropped the lore `reward`, finding a core's last fragment had no in-run moment, every hit could re-stagger a surviving non-boss, a double boss phase jump emitted one cue, the HUD banner class lasted 3.3s while the element removed at 3.0s, and a replaced choice queue could throw from the captured card.
+- **Decision**: Preserve `CoreMemory.reward`, add `completedCoreFor` and an App toast when a run completes a core; add a 0.55s `staggerGuard`; make `updateBossPhase` return every crossed phase and emit each; align the banner default to 3.0s; and guard a stale choice card by re-rendering instead of calling `applyChoice`.
+- **Consequences**: Story completion is felt in-run, non-boss casters cannot be permanently stun-locked, phase jumps announce every phase, and the UI timer/choice states agree. Final gates: 462 vitest (83 files), 370 mechanics (55 files), typecheck/lint/build clean, 8/8 AIKit. No new runtime dependencies and no save-schema change.

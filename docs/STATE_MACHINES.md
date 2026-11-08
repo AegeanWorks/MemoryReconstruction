@@ -33,8 +33,8 @@ tests an agent can extend safely) without a large rewrite.
 | S11 | Player action | `player.action` | idle, move, attack, dash, dead | `updatePlayer`, `startDash`, `world.damagePlayer` | stagger during dash is ignored | `world`, `systems` |
 | S12 | Swing / combo / buffer | `swingTime`, `combo`, `comboWindow`, `attackBuffer` | steps, active, queued | `startSwing`, `updateSwing`, `updatePlayer` | art + attack in one frame; buffered hit lost after stagger | `attack-buffer`, `world`, `arsenal` |
 | S13 | Invulnerability / stagger | `invulnerable`, `stagger` | none, dash i-frames, hurt i-frames, status | `damagePlayer`, pickups, soul anchor, player update | three immunity sources with no provenance; stagger has no stack rule | `world`, `graze-attacks`, `systems` |
-| S14 | Enemy state | `enemy.state` | spawning, chase, windup, attack, recover, stagger, dying | `updateEnemy`, `beginWindup`, `finishAttack`, `killEnemy` | every hit staggers non-bosses; recover can be extended | `world`, `windup-*`, `melee-human` |
-| S15 | Attack / boss phase / pattern | `attack`, `attackLanded`, `phase`, `patternIndex` | 25 attack kinds, phases 0-2 | `windupDuration`, `launch`, `attack`, `updateBossPhase` | a double phase jump emits one event; windup and finish use different floors | `crystal-golem`, `sweep`, `mortar`, `mine`, `wall`, `spiral`, `volley`, `ui-boss-aura` |
+| S14 | Enemy state | `enemy.state`, `staggerGuard` | spawning, chase, windup, attack, recover, stagger, dying | `updateEnemy`, `beginWindup`, `finishAttack`, `killEnemy`, `staggerEnemy` | a stagger guard now blocks instant re-staggers; recover can still be extended | `world`, `windup-*`, `melee-human`, `stagger-guard` |
+| S15 | Attack / boss phase / pattern | `attack`, `attackLanded`, `phase`, `patternIndex` | 25 attack kinds, phases 0-2 | `windupDuration`, `launch`, `attack`, `updateBossPhase` | phase jumps now emit each crossed phase; windup and finish use different floors | `crystal-golem`, `sweep`, `mortar`, `mine`, `wall`, `spiral`, `volley`, `boss-phase`, `ui-boss-aura` |
 | S16 | Summon / swarm cap | `MAX_SUMMONS`, `summonCount` | under cap, at cap | `summon`, `swarm`, pattern substitution | cap counts natives, so a full room silently switches to `ring` | `summon-cap`, `swarm-cap` |
 | S17 | Room phase | `RoomState.phase`, waves, ambush/storm flags | dormant, active, cleared | `updateRooms`, `activateRoom`, `spawnWave`, `clearRoom` | teleporting out of an active room can strand its waves | `world`, `colosseum`, `systems` |
 | S18 | Gates / levers / vault / teleport | interactable flags and grid tiles | unused/used, sealed/open | `interact`, `openVault`, `useWaystone`, `gateSpawn` | teleports bypass door locks; vault lever skips hazard disarm | `frontier-world`, `gate-spawn` |
@@ -46,6 +46,7 @@ tests an agent can extend safely) without a large rewrite.
 | S24 | Camera / effects / labels | renderer and Effects fields | snap/ease, shake, flash, lifetimes | `Renderer.updateScene`, `Effects.update` | two clocks (real dt vs frozen sim); label snapshot never refreshed | Pure camera helper only |
 | S25 | Audio unlock / ambience | `Sound.ctx`, `ambienceKey`, throttle map | locked, unlocked, playing, stopping | `unlock`, `playAmbience`, `stopAmbience` | requests before unlock were dropped | `audio-cues`, `spawn-audio` |
 | S26 | Persistence history / daily | `recordRun`, `settleDaily`, `lastRun`, `runHistory` | unsettled, settled, streak | `recordRun`, `settleDaily` | local/UTC day mismatch; non-idempotent counters | `save` |
+| S27 | Story memory completion | `CORE_MEMORIES`, `meta.fragments`, `completedCoreFor` | fragment missing, partial core, restored core | `fragmentFound` → `completedCoreFor` → toast | core rewards were dropped at the data boundary; completion had no in-run moment | `lore-completeness` |
 
 ## Verified findings
 
@@ -78,6 +79,16 @@ These were verified against the current code, not just the first read:
     before the transition check.
 12. **HUD prompt catch-all** — unknown interactables were labelled as the
     Memory Well.
+13. **Core rewards dropped, no completion moment** — `CoreMemory` omitted the
+    lore `reward`, and finding a core's last fragment only changed a set.
+14. **Non-boss stun-lock** — every hit staggered a surviving non-boss, so a
+    rapid caster could be held in `windup → stagger` forever.
+15. **Double phase jump announced once** — `updateBossPhase` returned one
+    boolean, so a 100%→25% hit emitted one cue while the aura showed phase 2.
+16. **Banner timing split** — the HUD class held 3.3s while the banner element
+    removed itself at 3.0s.
+17. **Stale choice card could throw** — the click handler used a captured
+    choice; a replaced queue reached `applyChoice` and threw.
 
 ## Proposals and decisions
 
@@ -94,15 +105,16 @@ These were verified against the current code, not just the first read:
 | P9 | Disarm resets hazard phase/timer | no dead telegraph | one disarm rule | regression test | low | **Implemented** |
 | P10 | Read `lastMoving` before overwriting it | landing dust returns | dead code removed | no new API | low | **Implemented** |
 | P11 | Explicit shrine prompt + safe catch-all | no false Memory Well label | no silent default | future kinds safe | low | **Implemented** |
+| P12 | Preserve core rewards and toast a restored memory | story completion is felt | reward data survives | pure completion helper | low | **Implemented** |
+| P13 | Stagger guard for non-bosses | fairer fights, no bolt stun-lock | one guard rule | testable transition | low | **Implemented** |
+| P14 | Emit every crossed boss phase | audio/shake match the aura | one event per phase | return-type contract | low-medium | **Implemented** |
+| P15 | Align banner class and element timing | consistent floor reveal | one duration | low | low | **Implemented** |
+| P16 | Guard stale choice-card clicks | no uncaught throw | explicit stale check | low | low | **Implemented** |
 | D1 | Revalidate room locks after teleport | prevents rare stall | explicit invariant | needs design | medium | Deferred |
-| D2 | Stun-lock guard for non-bosses | fairer fights | balance rule | needs tuning | medium | Deferred |
 | D3 | Resolve stagger vs dash precedence | one feel | one status owner | feel change | medium | Deferred |
-| D4 | Emit every crossed boss phase | audio matches aura | one event per phase | event contract | medium | Deferred |
 | D5 | Persist World or save only at entrances | no mid-floor replay | snapshot contract | schema work | high | Deferred |
 | D6 | Full explicit FSM framework for every machine | no direct gain | large migration | large migration | high | Rejected for now |
 | D7 | Suspend audio on pause/auto-pause | quieter pause | one lifecycle hook | autoplay semantics | low-medium | Deferred |
-| D8 | Resolve banner timer / element mismatch | consistent toast | one source | visual test | low | Deferred |
-| D9 | Guard stale choice-card clicks | no uncaught throw | explicit stale check | edge test | low | Deferred |
 | D10 | Field-wise meta recovery/migration | less career loss | schema migration | versioned saves | medium | Deferred |
 
 ## Implemented changes
@@ -122,21 +134,34 @@ These were verified against the current code, not just the first read:
 - `src/sim/world.ts`: `disableHazards` resets `phase`/`timer`; regression in
   `tests/sim/systems.test.ts`.
 - `src/view/Effects.ts`: landing poof transition fixed.
-- `src/ui/Hud.ts`: explicit shrine prompt and safe unknown-kind fallback.
+- `src/ui/Hud.ts`: explicit shrine prompt, safe unknown-kind fallback, and a
+  banner duration aligned with the element's 3000 ms removal.
+- `src/sim/content.ts`: core `reward` preserved, `completedCoreFor` helper, and
+  App toast when a run finds a core's last fragment
+  (`tests/lore-completeness.test.ts`).
+- `src/sim/entities.ts` + `src/sim/enemies.ts`: `staggerGuard` blocks instant
+  re-staggers for 0.55s (`tests/sim/stagger-guard.test.ts`).
+- `src/sim/enemies.ts` + `src/sim/world.ts`: `updateBossPhase` returns every
+  crossed phase and the world emits both cues
+  (`tests/sim/boss-phase.test.ts`).
+- `src/app/App.ts`: stale choice-card guard re-renders instead of throwing.
 
 ## Deferred items and why
 
-The deferred items change feel, balance, save schema or event contracts. They
-need a design decision and a broader test matrix; they are not safe drive-by
-edits. The rejected FSM framework would add a migration layer without a current
-behavioural defect, so the project keeps plain data plus guarded boundaries and
-this catalog.
+The remaining deferred items change feel, balance or save schema: room locks
+after teleport (D1), stagger-vs-dash precedence (D3), mid-floor World snapshots
+(D5), a full FSM framework (D6, rejected for now), audio suspend (D7) and
+field-wise meta recovery (D10). They need a design decision and a broader test
+matrix; they are not safe drive-by edits. The previously deferred stun-lock,
+boss phase events, banner timing and stale choice card are now implemented
+(P13-P16).
 
 ## Verification
 
-- `npm test` — 456 tests / 81 files (after the new state-machine suites)
-- `npm run test:mechanics` — 365 tests / 53 files
+- `npm test` — 462 tests / 83 files
+- `npm run test:mechanics` — 370 tests / 55 files
 - `npx tsc --noEmit`, `npm run lint`, `npm run build` — clean
 - `python aikit.py check MemoryReconstruction` — 8/8 gates
 - Targeted: `input-menu-gate` 2/2, `ui-ring-telegraph` 2/2,
-  `restore-run` 10/10, `systems` 80/80
+  `restore-run` 10/10, `systems` 80/80, `lore-completeness` 5/5,
+  `stagger-guard` 3/3, `boss-phase` 2/2

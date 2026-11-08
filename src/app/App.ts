@@ -5,7 +5,7 @@
  */
 import { Sound } from '../audio/Sound';
 import { Input, type MenuAction } from '../input/Input';
-import { biomeInfo } from '../sim/content';
+import { biomeInfo, completedCoreFor } from '../sim/content';
 import { NO_INPUT } from '../sim/entities';
 import type { SimEvent } from '../sim/events';
 import {
@@ -251,6 +251,10 @@ export class App {
             fragments: Array.from(new Set([...this.meta.fragments, e.fragmentId])),
           };
           this.store.saveMeta(this.meta);
+          {
+            const restored = completedCoreFor(e.fragmentId, new Set(this.meta.fragments));
+            if (restored) this.hud.toast(`Memory restored: ${restored.title}`, true);
+          }
           break;
         case 'bossIntro':
           this.sound.playAmbience(world.plan.biome, true);
@@ -1126,6 +1130,13 @@ export class App {
         choice,
         world.player.upgrades,
         (id) => {
+          // A restored save or a second queued choice can replace the captured
+          // card; re-render instead of throwing from the click handler.
+          if (world.run.pendingChoices[0] !== choice) {
+            if (world.awaitingChoice) this.showChoice();
+            else this.resume();
+            return;
+          }
           this.sound.click();
           world.chooseUpgrade(id);
           this.screens.close();

@@ -129,6 +129,8 @@ export interface Enemy {
   knockY: number;
   /** Seconds the white hit flash shows. */
   flash: number;
+  /** Remaining immunity to a fresh stagger; stops non-boss stun-lock. */
+  staggerGuard: number;
   roomId: number;
   elite: boolean;
   isBoss: boolean;

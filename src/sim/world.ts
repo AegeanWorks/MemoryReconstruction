@@ -509,8 +509,10 @@ export class World implements Arena {
       }
     } else {
       staggerEnemy(enemy);
-      if (updateBossPhase(enemy)) {
-        this.emit({ type: 'bossPhase', phase: enemy.phase });
+      // A single big hit can cross both phase thresholds; announce each one
+      // so audio and shake never lag the aura the view already shows.
+      for (const phase of updateBossPhase(enemy)) {
+        this.emit({ type: 'bossPhase', phase });
         this.emit({ type: 'shake', strength: 8 });
       }
     }

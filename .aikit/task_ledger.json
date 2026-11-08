@@ -1,56 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "state-machine-audit",
+    "task_id": "gameplay-polish-2",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794163068.9777052,
+    "updated_at": 1794164112.114453,
     "owner": "commandcode:mr-audit",
     "started_by": "commandcode:mr-audit",
     "continuations": [],
-    "completed_at": 1794163069.317879
+    "completed_at": 1794164112.4407227
   },
   "checkpoints": [
-    {
-      "task_id": "commit-range-audit-v34",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified 1 -> 192: dash lane still clips (ui-dash-clip 1/1); shot/spread/volley/bolt aim lines still clip (ui-aim-line-clip 1/1); telegraph layer still masks to the current room (ui-telegraph-mask 1/1); no finding; 447 vitest (78 files), 361 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794158006.8723779,
-      "timestamp_str": "2026-11-08 20:13:26",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v34",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'commit-range-audit-v34' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794158007.2837198,
-      "timestamp_str": "2026-11-08 20:13:27",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v35",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Deep-dive range 1 -> 195: verify boss aura phase alignment, every spiral bullet marked and the locked blink landing",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794158022.0862334,
-      "timestamp_str": "2026-11-08 20:13:42",
-      "agent": "commandcode:mr-audit",
-      "impact_assessment": {
-        "why": "The curated deep dives stop at 1 -> 192; 1 -> 195 was only batch-mapped.",
-        "benefits": "The report covers the aura, spiral and blink telegraph fixes with current evidence.",
-        "risks": "contract: docs only; dependency: none; concurrency: none; state: none",
-        "mitigation": "Aura, spiral and blink suites plus the full gates."
-      },
-      "plan_digest": "09463b0b0e45e2812bf5a139dc9f85b996cea4e7af7fe730ef221a5d2beef687"
-    },
     {
       "task_id": "commit-range-audit-v35",
       "phase": "phase 4",
@@ -265,6 +226,45 @@
       "status": "completed",
       "timestamp": 1794163069.3178804,
       "timestamp_str": "2026-11-08 21:37:49",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "gameplay-polish-2",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Improve story feedback, mob fairness and fight/UI state: preserve core-memory rewards and toast completion, add a stagger guard against stun-lock, emit every crossed boss phase, align banner timing and guard stale choice cards",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794163833.1118112,
+      "timestamp_str": "2026-11-08 21:50:33",
+      "agent": "commandcode:mr-audit",
+      "impact_assessment": {
+        "why": "The state-machine audit deferred these as safe, evidence-backed follow-ups; core memory rewards are dropped at the data boundary, every hit staggers non-bosses, a double boss phase jump emits one cue, and the banner timing is split.",
+        "benefits": "Story completion is felt in-run, casters cannot be permanently stun-locked, phase jumps announce each phase, and UI timers/choice cards stop disagreeing.",
+        "risks": "contract: content mapping, enemy field/transition, boss phase return type, Hud default, App choice guard; dependency: none; concurrency: content/enemies/world/Hud/App; state: no save schema change",
+        "mitigation": "Pure content test, stagger and boss-phase sim tests, full npm test/mechanics, typecheck/lint/build, AIKit 8/8 and strict delivery."
+      },
+      "plan_digest": "cfecb06fbab2579bd3f0715dfd53dc0f05cc632ff9f21282bf1f466761da6d82"
+    },
+    {
+      "task_id": "gameplay-polish-2",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: core rewards preserved + completion toast, stagger guard 3/3, crossed boss phases 2/2, banner timing and stale-choice guard; lore-completeness 5/5, world 44/44, systems 80/80; 462 vitest (83 files), 370 mechanics (55 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794164112.114453,
+      "timestamp_str": "2026-11-08 21:55:12",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "gameplay-polish-2",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'gameplay-polish-2' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794164112.4407241,
+      "timestamp_str": "2026-11-08 21:55:12",
       "agent": "commandcode:mr-audit"
     }
   ]

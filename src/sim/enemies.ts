@@ -147,6 +147,8 @@ const PHASES = [
 
 const SPAWN_TIME = 0.7;
 const STAGGER_TIME = 0.16;
+/** A recovered mob cannot be re-staggered instantly; breaks bolt stun-lock. */
+const STAGGER_GUARD = 0.55;
 const DEATH_TIME = 0.5;
 const MAX_SUMMONS = 4;
 
@@ -177,6 +179,7 @@ export function createEnemy(
     knockX: 0,
     knockY: 0,
     flash: 0,
+    staggerGuard: 0,
     roomId,
     elite,
     isBoss: def.archetype === 'boss',
@@ -216,10 +219,17 @@ function defaultAttack(def: EnemyDef): AttackKind {
 
 /** Puts an enemy into its stagger state after a hit (bosses and attackers keep going). */
 export function staggerEnemy(enemy: Enemy): void {
-  if (enemy.isBoss || enemy.state === 'attack' || enemy.state === 'spawning') return;
+  if (
+    enemy.isBoss ||
+    enemy.state === 'attack' ||
+    enemy.state === 'spawning' ||
+    enemy.staggerGuard > 0
+  )
+    return;
   // Interrupt: a hit during windup cancels the telegraphed attack and staggers.
   enemy.state = 'stagger';
   enemy.stateTime = STAGGER_TIME;
+  enemy.staggerGuard = STAGGER_GUARD;
 }
 
 export function killEnemy(enemy: Enemy): void {
@@ -230,6 +240,7 @@ export function killEnemy(enemy: Enemy): void {
 /** Advances one enemy. Returns false once its death animation has finished. */
 export function updateEnemy(arena: Arena, enemy: Enemy, dt: number): boolean {
   enemy.flash = Math.max(0, enemy.flash - dt);
+  enemy.staggerGuard = Math.max(0, enemy.staggerGuard - dt);
   enemy.cooldown = Math.max(0, enemy.cooldown - dt);
   enemy.stateTime -= dt;
   applyKnockback(arena, enemy, dt);
@@ -958,11 +969,14 @@ export function bossPhaseFor(health: number, maxHealth: number): 0 | 1 | 2 {
   return fraction <= 0.3 ? 2 : fraction <= 0.6 ? 1 : 0;
 }
 
-/** Advances a boss to the phase its health calls for. Returns true when it changed. */
-export function updateBossPhase(enemy: Enemy): boolean {
-  if (!enemy.isBoss) return false;
-  const phase = bossPhaseFor(enemy.health, enemy.maxHealth);
-  if (phase <= enemy.phase) return false;
-  enemy.phase = phase;
-  return true;
+/** Advances a boss to its health phase and returns each phase crossed. */
+export function updateBossPhase(enemy: Enemy): number[] {
+  if (!enemy.isBoss) return [];
+  const target = bossPhaseFor(enemy.health, enemy.maxHealth);
+  const crossed: number[] = [];
+  while (enemy.phase < target) {
+    enemy.phase++;
+    crossed.push(enemy.phase);
+  }
+  return crossed;
 }

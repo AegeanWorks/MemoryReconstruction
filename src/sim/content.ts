@@ -104,6 +104,8 @@ export interface CoreMemory {
   title: string;
   text: string;
   fragments: string[];
+  /** Legacy unlock marker kept from the lore data for future story use. */
+  reward?: string;
 }
 
 /** Enemy attacks hit this hard relative to enemies.json, tuned for 100 base player health. */
@@ -697,7 +699,10 @@ export function arenaBossFor(depth: number): string {
 
 interface RawLore {
   memoryFragments: Record<string, { text: string; location: string }>;
-  coreMemories: Record<string, { title: string; text: string; fragments: string[] }>;
+  coreMemories: Record<
+    string,
+    { title: string; text: string; fragments: string[]; reward?: string }
+  >;
 }
 
 const rawLore = (loreJson as { lore: RawLore }).lore;
@@ -707,8 +712,18 @@ export const MEMORY_FRAGMENTS: readonly MemoryFragment[] = Object.entries(
 ).map(([id, f]) => ({ id, text: f.text, biome: f.location }));
 
 export const CORE_MEMORIES: readonly CoreMemory[] = Object.entries(rawLore.coreMemories).map(
-  ([id, c]) => ({ id, title: c.title, text: c.text, fragments: c.fragments })
+  ([id, c]) => ({ id, title: c.title, text: c.text, fragments: c.fragments, reward: c.reward })
 );
+
+/** The core whose last fragment `fragmentId` just completed, if any. */
+export function completedCoreFor(
+  fragmentId: string,
+  owned: ReadonlySet<string>
+): CoreMemory | undefined {
+  return CORE_MEMORIES.find(
+    (core) => core.fragments.includes(fragmentId) && core.fragments.every((id) => owned.has(id))
+  );
+}
 
 /**
  * Fragments a floor can award: its biome's first, then any not yet owned.
