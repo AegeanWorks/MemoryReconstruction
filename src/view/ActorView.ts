@@ -1401,7 +1401,14 @@ export class ActorView {
       }
       case 'sweep': {
         const span = SWEEP_SPAN;
-        const radius = SWEEP_RANGE;
+        const radius = clipLaneToRoom(
+          x,
+          y,
+          Math.cos(angle),
+          Math.sin(angle),
+          SWEEP_RANGE,
+          this.world.currentRoom()
+        );
         g.moveTo(x, y)
           .arc(x, y, radius, angle - span / 2, angle + span / 2)
           .lineTo(x, y)
@@ -1420,12 +1427,20 @@ export class ActorView {
     const base = Math.atan2(e.dirY, e.dirX);
     const progress = 1 - e.stateTime / 0.7;
     const angle = base - span / 2 + progress * span;
+    const range = clipLaneToRoom(
+      x,
+      y,
+      Math.cos(angle),
+      Math.sin(angle),
+      SWEEP_RANGE,
+      this.world.currentRoom()
+    );
     const g = this.telegraphs;
     g.moveTo(x, y)
-      .lineTo(x + Math.cos(angle) * SWEEP_RANGE, y + Math.sin(angle) * SWEEP_RANGE)
+      .lineTo(x + Math.cos(angle) * range, y + Math.sin(angle) * range)
       .stroke({ width: e.isBoss ? 30 : 22, color: 0xff7a4a, alpha: 0.4 });
     g.moveTo(x, y)
-      .lineTo(x + Math.cos(angle) * SWEEP_RANGE, y + Math.sin(angle) * SWEEP_RANGE)
+      .lineTo(x + Math.cos(angle) * range, y + Math.sin(angle) * range)
       .stroke({ width: 3, color: 0xffe0c0, alpha: 0.9 });
   }
 
