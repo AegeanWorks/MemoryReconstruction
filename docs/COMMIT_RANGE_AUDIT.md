@@ -1000,22 +1000,34 @@ from `be2e7b3`.
 
 **Finding:** none.
 
-## Range 1 -> 208 (End) (`407e047..f21ef44`)
+## Range 1 -> 207 (`407e047..4ee3b5b`)
 
 **Commits:** the story/fight follow-up, the visual UI review pass and its
-before/after evidence commit, and the cycle 1 combat-feel fix. The follow-up
-added core-memory rewards and an in-run completion toast, a 0.55s stagger guard
-against non-boss stun-lock, every crossed boss phase, aligned banner timing and
-a stale choice-card guard. The visual pass themed scrollbars, fixed narrow
-expedition/hub/HUD layouts, clamped the loading title, wrapped wide feats and
-bounded the combat tutorial toast. Cycle 1 held the attack buffer through a
-swing so an early greatsword tap chains instead of expiring.
+before/after evidence commit. The follow-up added core-memory rewards and an
+in-run completion toast, a 0.55s stagger guard against non-boss stun-lock, every
+crossed boss phase, aligned banner timing and a stale choice-card guard. The
+visual pass themed scrollbars, fixed narrow expedition/hub/HUD layouts, clamped
+the loading title, wrapped wide feats and bounded the combat tutorial toast. The
+evidence commit adds the pre-fix hub/expedition/combat captures and fresh HEAD
+captures to `docs/UI_REVIEW.md`.
 
 **Verification:** story/fight passed 462 vitest (83 files); the visual pass adds
-the responsive CSS test and captures; cycle 1 adds the greatsword buffer test
-and before/after played run, reaching 466 vitest (84 files) and 371 mechanics
-(55 files); typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed
-from `f21ef44`.
+the responsive CSS test and captures, reaching 465 vitest (84 files) and 370
+mechanics (55 files); typecheck/lint/build clean, 8/8 AIKit; the `app` UI task
+was closed from `2fcb82d`.
+
+**Finding:** none.
+
+## Range 1 -> 208 (End) (`407e047..f21ef44`)
+
+**Commit:** cycle 1 combat feel: the attack buffer now survives a slow swing, so
+an early deliberate greatsword tap chains instead of expiring. Adds the failing-
+first greatsword test and a before/after played-run record.
+
+**Verification:** 466 vitest (84 files), 371 mechanics (55 files),
+typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed from
+`f21ef44`; the played run changed `combo 0 / idle` to `combo 1 / attack` with
+16.68ms average and 16.90ms max frame time.
 
 **Finding:** none.
 
