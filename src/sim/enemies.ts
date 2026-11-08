@@ -100,7 +100,7 @@ export function isMeleeBossId(defId: string): boolean {
 const BOSS_PATTERNS: Record<string, AttackKind[]> = {
   guardian: ['slam', 'charge', 'spread', 'beam'],
   spirit: ['ring', 'volley', 'summon', 'spiral'],
-  crystal_golem: ['slam', 'ring', 'mortar', 'slam'],
+  crystal_golem: ['slam', 'ring', 'mortar', 'beam'],
   crystal_guardian: ['charge', 'fan', 'beam', 'blink'],
   cinder_warden: ['slam', 'mortar', 'spread', 'beam'],
   leviathan: ['charge', 'ring', 'volley', 'spiral'],

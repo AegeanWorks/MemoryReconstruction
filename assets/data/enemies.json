@@ -201,7 +201,7 @@
     {
       "id": "crystal_golem",
       "name": "Crystal Golem",
-      "description": "Massive construct of living crystal. Reflects projectiles and channels light.",
+      "description": "Massive construct of living crystal. Channels light through a prism beam and rains crystal shards.",
       "type": "crystalGolem",
       "biome": "caves",
       "stats": {
@@ -224,7 +224,7 @@
       },
       "hitbox": { "width": 56, "height": 64, "offsetX": 0, "offsetY": -16 },
       "sprite": { "texture": "enemy_crystal_golem", "width": 80, "height": 80, "animations": ["idle", "walk", "attack", "reflect", "stunned", "death"] },
-      "abilities": ["crystal_reflect", "prism_beam", "shard_explosion"],
+      "abilities": ["prism_beam", "shard_explosion"],
       "lootTable": [
         { "item": "memory_fragment", "chance": 0.8, "min": 5, "max": 8 },
         { "item": "core_memory", "chance": 0.15, "min": 1, "max": 2 },
