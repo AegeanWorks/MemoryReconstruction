@@ -1000,17 +1000,19 @@ from `be2e7b3`.
 
 **Finding:** none.
 
-## Range 1 -> 206 (End) (`407e047..2fcb82d`)
+## Range 1 -> 207 (End) (`407e047..4ee3b5b`)
 
-**Commits:** the story/fight follow-up and the visual UI review pass. The
-follow-up added core-memory rewards and an in-run completion toast, a 0.55s
-stagger guard against non-boss stun-lock, every crossed boss phase, aligned
-banner timing and a stale choice-card guard. The visual pass themed scrollbars,
-fixed narrow expedition/hub/HUD layouts, clamped the loading title, wrapped wide
-feats and bounded the combat tutorial toast.
+**Commits:** the story/fight follow-up, the visual UI review pass and its
+before/after evidence commit. The follow-up added core-memory rewards and an
+in-run completion toast, a 0.55s stagger guard against non-boss stun-lock, every
+crossed boss phase, aligned banner timing and a stale choice-card guard. The
+visual pass themed scrollbars, fixed narrow expedition/hub/HUD layouts, clamped
+the loading title, wrapped wide feats and bounded the combat tutorial toast. The
+evidence commit adds the pre-fix hub/expedition/combat captures and fresh HEAD
+captures to `docs/UI_REVIEW.md`.
 
 **Verification:** story/fight passed 462 vitest (83 files); the visual pass adds
-the responsive CSS test and six captures, reaching 465 vitest (84 files) and 370
+the responsive CSS test and captures, reaching 465 vitest (84 files) and 370
 mechanics (55 files); typecheck/lint/build clean, 8/8 AIKit; the `app` UI task
 was closed from `2fcb82d`.
 
@@ -1068,9 +1070,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (206 commits,
+The inventory covers every content commit through `1 -> End` (207 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up and visual review pass). The generator
+follow-up, visual review pass and its evidence commit). The generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
 earlier refreshes. After a new content commit, run
