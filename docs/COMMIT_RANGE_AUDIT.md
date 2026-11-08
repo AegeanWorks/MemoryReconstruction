@@ -1018,16 +1018,19 @@ was closed from `2fcb82d`.
 
 **Finding:** none.
 
-## Range 1 -> 208 (End) (`407e047..f21ef44`)
+## Range 1 -> 209 (End) (`407e047..a0ef779`)
 
-**Commit:** cycle 1 combat feel: the attack buffer now survives a slow swing, so
-an early deliberate greatsword tap chains instead of expiring. Adds the failing-
-first greatsword test and a before/after played-run record.
+**Commits:** cycle 1 combat feel and cycle 2 enemies/bosses. Cycle 1 holds the
+attack buffer through a swing, so an early deliberate greatsword tap chains.
+Cycle 2 freezes `windupTotal` at `beginWindup`, so a boss phase jump during a
+windup cannot shorten or reset the telegraph denominator while `stateTime`
+continues. Both add failing-first tests and same-setup played-run evidence.
 
-**Verification:** 466 vitest (84 files), 371 mechanics (55 files),
+**Verification:** 468 vitest (85 files), 373 mechanics (56 files),
 typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed from
-`f21ef44`; the played run changed `combo 0 / idle` to `combo 1 / attack` with
-16.68ms average and 16.90ms max frame time.
+`a0ef779`; cycle 1 changed `combo 0 / idle` to `combo 1 / attack`; cycle 2 kept
+a seeded boss windup total at `0.6818` across phase 0→2, with 16.68ms average and
+16.90ms max frame time.
 
 **Finding:** none.
 
@@ -1074,8 +1077,8 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **466 passed (84 files)**
-- `npm run test:mechanics`: **371 passed (55 files)**
+- `npm test`: **468 passed (85 files)**
+- `npm run test:mechanics`: **373 passed (56 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
 - `npm run build`: clean (existing chunk-size warning only)
@@ -1083,9 +1086,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (208 commits,
+The inventory covers every content commit through `1 -> End` (209 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review pass and the cycle 1 combat-feel fix). The generator
+follow-up, visual review and the cycle 1-2 combat/boss fixes). The generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
 earlier refreshes. After a new content commit, run
@@ -1101,5 +1104,5 @@ ADR-174 (18px health bar pinned), ADR-175 (inventory omits its own refresh
 commit), ADR-176 (implicit state machines catalogued and guarded), ADR-177
 (audit refresh commits omitted by subject), ADR-178 (story completion and fight
 fairness), ADR-179 (visual UI review), ADR-180 (attack buffer survives a slow
-swing) and the README boss-count correction recorded above. No open audit items
-remain.
+swing), ADR-181 (boss telegraphs freeze their windup) and the README boss-count
+correction recorded above. No open audit items remain.
