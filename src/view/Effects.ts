@@ -286,6 +286,14 @@ export class Effects {
         case 'resonanceBreak':
           this.ring(playerX, playerY, 70, 0xff5a5a, 0.4);
           break;
+        case 'bossPhase': {
+          const color = e.phase >= 2 ? 0xff6a3a : 0xffc84a;
+          this.ring(e.x, e.y, e.phase >= 2 ? 112 : 84, color, 0.55);
+          this.ring(e.x, e.y, 36, 0xffffff, 0.3);
+          this.star(e.x, e.y, color, 64, 0.45);
+          this.burst(e.x, e.y, color, 22, 180, 0.5, 5);
+          break;
+        }
         case 'lootSurge':
           this.ring(e.x, e.y, e.kind === 'jackpot' ? 100 : 70, 0xffd98a, 0.5);
           this.star(e.x, e.y, 0xffd98a, e.kind === 'jackpot' ? 56 : 42, 0.4);

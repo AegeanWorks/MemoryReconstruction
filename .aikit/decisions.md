@@ -1703,3 +1703,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: `ActorView.drawTelegraph` recomputed `windupDuration(enemy)` every frame from `PHASES[enemy.phase]`. A damage event can cross a boss phase threshold during a windup; the phase cooldown factors are 1, 0.8 and 0.62, so the denominator shrank while `stateTime` kept counting down. In a seed-7 boss run, a phase 0→2 jump left `stateTime 0.682` but changed the computed total from 0.636s to 0.477s, resetting the warning as the attack was about to land. No test covered it.
 - **Decision**: Add `Enemy.windupTotal`; `beginWindup` resets it, computes the duration, then freezes it for that windup. `windupDuration` returns the frozen value while set, so the sim and view share the original denominator. No damage, phase threshold, art or audio change.
 - **Consequences**: A phase jump during a windup now keeps the telegraph denominator (`0.6818` before and after in the played run) while `stateTime` continues; the controlled frame shows the same phase-2 attack with the stable ring. Frames stayed 16.68ms average / 16.90ms max. Final gates: 468 vitest (85 files), 373 mechanics (56 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle2-*`.
+
+## ADR-182: Boss phase changes burst at the boss
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 4, graphics/effects)
+- **Context**: `World.damageEnemy` emitted a `bossPhase` event plus a global shake, and the HUD toasted the phase, but `Effects.handle` had no `bossPhase` case and the event carried no position. A player could feel the screen shake but not see where the phase change happened.
+- **Decision**: Carry `x`/`y` on `bossPhase`; draw a phase-colored ring, white inner ring, star and 22-particle burst at the boss in `Effects`. Keep the existing shake, toast, audio, health and phase thresholds unchanged.
+- **Consequences**: The phase moment now has a local visual anchor. The seed-7 boss played run kept health 640→158, phase 0→2, windup total 0.6818 and 16.68ms average / 16.80ms max frames; the before frame has only the red attack telegraph, the after frame adds the local burst. Final gates: 471 vitest (87 files), 374 mechanics (57 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle4-*`.

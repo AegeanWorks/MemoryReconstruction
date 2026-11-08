@@ -1,0 +1,61 @@
+{
+  "started": true,
+  "enter": {
+    "room": "boss",
+    "x": 1952,
+    "y": 3200
+  },
+  "spawn": {
+    "enemies": [
+      {
+        "boss": true,
+        "state": "chase",
+        "phase": 0,
+        "health": 640,
+        "max": 640
+      }
+    ],
+    "room": "boss"
+  },
+  "transition": {
+    "before": {
+      "phase": 0,
+      "stateTime": 0.682,
+      "total": 0.6818181818181818,
+      "attack": "slam",
+      "health": 640
+    },
+    "after": {
+      "phase": 2,
+      "stateTime": 0.682,
+      "total": 0.6818181818181818,
+      "attack": "slam",
+      "health": 158
+    },
+    "real": true
+  },
+  "frame": {
+    "phase": 2,
+    "stateTime": 0.4,
+    "total": 0.6364,
+    "attack": "ring",
+    "health": 160
+  },
+  "final": {
+    "room": "boss",
+    "boss": {
+      "phase": 2,
+      "state": "chase",
+      "stateTime": -0.267,
+      "total": 0.6364
+    },
+    "enemies": 1,
+    "playerHealth": 100,
+    "action": "idle"
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.8,
+    "frames": 59
+  }
+}

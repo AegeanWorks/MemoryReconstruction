@@ -14,6 +14,7 @@ run.
 | 1 | Combat feel | Completed (attack buffer) |
 | 2 | Enemies/bosses | Completed (boss windup cache) |
 | 3 | Levels | Dry after a 60-seed fuzz; guard retained |
+| 4 | Graphics/effects | Completed (boss phase burst) |
 
 ---
 
@@ -257,6 +258,84 @@ reachability/void guard. It is verification, not a game change.
 
 ```text
 npx vitest run tests/sim/level-fuzz.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 4 — Graphics/effects: boss phase has no local burst
+
+### FIND
+
+Evidence:
+
+- `World.damageEnemy` emits `bossPhase` plus a global `shake`, and the HUD
+  shows “It grows angry/desperate”, but `Effects.handle` has no `bossPhase`
+  case. There is no ring, star or burst at the boss itself.
+- The event payload is only `{ phase }`, so the view has no position even if it
+  wanted a local effect.
+- The phase change is one of the largest moments in a boss fight; the screen
+  shake and remote toast do not mark where it happened.
+
+### ANALYZE
+
+Read: `World.damageEnemy` phase loop, `events.ts`, the `Effects` switch and the
+existing `weaponArt`/`blink` burst patterns. Add the boss position to the event
+and draw the same kind of local ring/star/burst used by other major impacts.
+No sim balance, damage, phase threshold or audio change.
+
+Files: `src/sim/events.ts`, `src/sim/world.ts`, `src/view/Effects.ts`,
+`tests/view-boss-phase-fx.test.ts`.
+
+Proof: failing source/event test first; seed-7 boss played run captures the
+phase frame before/after the effect, with the same room and viewport.
+
+### IMPLEMENT
+
+- `src/sim/events.ts`: `bossPhase` now carries `x` and `y`.
+- `src/sim/world.ts`: the phase event emits the boss position.
+- `src/view/Effects.ts`: a phase burst with a phase-colored ring, white inner
+  ring, star and 22-particle burst at the boss.
+- `tests/view-boss-phase-fx.test.ts`: failing-first source/event checks, then
+  green. No damage, phase threshold, audio or HUD change.
+
+### RECORD — played run
+
+Same setup both runs: seed **7**, boss room at `1952,3200`, boss 640/640,
+phase 0→2, player invulnerable and 100/100, 1280x720, 59 sampled frames.
+
+| Evidence | Before (old view) | After (local burst) |
+| --- | --- | --- |
+| Phase frame | `docs/qa/cycle4-before-phase.png` — red telegraph + toasts only | `docs/qa/cycle4-after-phase.png` — orange/white ring, star and burst at the boss |
+| Boss health | 640 → 158 | 640 → 158 |
+| Windup total | `0.6818` before/after | `0.6818` before/after |
+| Frame health | 16.68ms avg, 16.80ms max | 16.68ms avg, 16.80ms max |
+
+Raw logs: `docs/qa/cycle4-before.json` and `cycle4-after.json`. What improved:
+the phase change now marks the boss's location locally, instead of only a
+screen shake and a remote toast. What broke: nothing observed; boss health,
+phase and room state matched. What stayed the same: windup duration, damage and
+the existing red attack telegraph.
+
+### Gate results
+
+- `npx vitest run tests/view-boss-phase-fx.test.ts`: **2 passed** after the
+  failing-first run
+- `npm test`: **471 passed (87 files)**
+- `npm run test:mechanics`: **374 passed (57 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 211`)
+
+### Commands run
+
+```text
+npx vitest run tests/view-boss-phase-fx.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck
