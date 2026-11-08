@@ -1195,8 +1195,11 @@ export class ActorView {
       case 'bolt': {
         const offsets = e.attack === 'spread' ? [-0.32, 0, 0.32] : [0];
         for (const o of offsets) {
+          const dx = Math.cos(angle + o);
+          const dy = Math.sin(angle + o);
+          const length = clipLaneToRoom(x, y, dx, dy, 260, this.world.currentRoom());
           g.moveTo(x, y)
-            .lineTo(x + Math.cos(angle + o) * 260, y + Math.sin(angle + o) * 260)
+            .lineTo(x + dx * length, y + dy * length)
             .stroke({
               width: e.attack === 'bolt' ? 1.5 : 2,
               color: TELEGRAPH_COLOR,
