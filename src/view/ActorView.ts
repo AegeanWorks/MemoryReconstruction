@@ -1127,7 +1127,14 @@ export class ActorView {
       case 'dashStrike': {
         // A committed closing lane: leave it sideways, not backward. The lane
         // matches the real travel distance so it never over-promises danger.
-        const length = dashStrikeRange(e.def);
+        const length = clipLaneToRoom(
+          x,
+          y,
+          e.dirX,
+          e.dirY,
+          dashStrikeRange(e.def),
+          this.world.currentRoom()
+        );
         const w = e.radius * 1.1;
         const nx = -e.dirY * w;
         const ny = e.dirX * w;
