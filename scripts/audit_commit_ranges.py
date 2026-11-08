@@ -6,6 +6,12 @@ This script lists every range, the three commits added by it, the repository
 file count at its endpoint, and whether `docs/COMMIT_RANGE_AUDIT.md` contains a
 narrative deep dive for it. It is read-only apart from writing the inventory
 file (or checking it with `--check`).
+
+A tracked inventory generated at HEAD always lags the commit that contains it.
+To avoid that self-reference, the latest commit touching the inventory is
+omitted from the range list when it changes only audit/governance files (the
+curated report, the inventory, this script or `.aikit/`). Content commits still
+shift `1 -> End` and require a refresh.
 """
 
 from __future__ import annotations
@@ -20,6 +26,11 @@ ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "docs" / "COMMIT_RANGE_AUDIT.md"
 DEFAULT_OUTPUT = ROOT / "docs" / "COMMIT_RANGE_INVENTORY.md"
 STEP = 3
+AUDIT_ONLY_PATHS = {
+    "docs/COMMIT_RANGE_AUDIT.md",
+    "docs/COMMIT_RANGE_INVENTORY.md",
+    "scripts/audit_commit_ranges.py",
+}
 
 
 def git(*args: str) -> str:
@@ -37,14 +48,35 @@ def git(*args: str) -> str:
     return result.stdout
 
 
+def last_inventory_commit() -> str:
+    """Full hash of the latest commit touching the generated inventory."""
+    return git("log", "-1", "--format=%H", "--", "docs/COMMIT_RANGE_INVENTORY.md").strip()
+
+
+def is_audit_only(commit: str) -> bool:
+    """True when a commit changes only the audit report, inventory, script or memory."""
+    files = [
+        line.strip()
+        for line in git("show", "--pretty=format:", "--name-only", commit).splitlines()
+        if line.strip()
+    ]
+    return bool(files) and all(
+        path in AUDIT_ONLY_PATHS or path.startswith(".aikit/") for path in files
+    )
+
+
 def commit_rows() -> list[tuple[str, str]]:
-    """Return `(short hash, subject)` for every commit, oldest first."""
-    raw = git("log", "--reverse", "--format=%h%x09%s")
+    """Return `(short hash, subject)` for every content commit, oldest first."""
+    raw = git("log", "--reverse", "--format=%h%x09%H%x09%s")
+    refresh = last_inventory_commit()
+    skip = refresh if refresh and is_audit_only(refresh) else ""
     rows: list[tuple[str, str]] = []
     for line in raw.splitlines():
         if not line.strip():
             continue
-        short, subject = line.split("\t", 1)
+        short, full, subject = line.split("\t", 2)
+        if full == skip:
+            continue
         rows.append((short, subject))
     return rows
 

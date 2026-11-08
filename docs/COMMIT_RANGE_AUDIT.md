@@ -986,9 +986,21 @@ sprite; `volley-timing` 1/1 confirms the five shots spread across the phase;
 runtime-only. Added a mirror-parity test and synced the assets copy. The new
 test failed first (76 vs 83); `content` now passes 18/18. Recorded as ADR-173.
 
+## Range 1 -> 203 (End) (`407e047..6311b21`)
+
+**Commits:** the delivery commit that ships the audited late-content slice and
+the UI-task bookkeeping record.
+
+**Verification:** the delivery commit is the exact tree verified by every gate:
+450 vitest (79 files), 363 mechanics (53 files), typecheck/lint/build clean,
+8/8 AIKit and the `app` UI task closed. The bookkeeping commit only records
+that UI task.
+
+**Finding:** none.
+
 ## Late-content batch summary
 
-The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 67 cumulative
+The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 68 cumulative
 ranges, the three commits added by each, and the file count at the endpoint.
 Every range is now deep-dived; this section keeps the shared verification for
 the art, UI, combat-polish and late-content expansion that followed the early
@@ -1038,15 +1050,18 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every cumulative range through `1 -> End` (201 commits),
-and the curated report now deep-dives all of them. There is no next range; after
-new commits, run `npm run audit:ranges` to refresh the map and
-`npm run audit:ranges:check` as a gate. The cumulative findings are ADR-157
+The inventory covers every content commit through `1 -> End` (203 commits,
+ending with the delivery and UI-bookkeeping pair). The generator omits its own
+audit-only refresh commit, so the map stays current at HEAD instead of lagging
+the commit that contains it. After a new content commit, run
+`npm run audit:ranges` to refresh the map and `npm run audit:ranges:check` as a
+gate. The cumulative findings are ADR-157
 (partial settings), ADR-158 (living docs), ADR-159 (rest-heal test), ADR-163
 (big-room cover backstop), ADR-164 (wall-guide drawn-segment test), ADR-165
 (player-stats restore crash and NaN health), ADR-166 (sweep beam duration/angle),
 ADR-167 (pending-choice phantom ids), ADR-168 (radius-aware mortar clip),
 ADR-169 (enemy-bomb graze), ADR-170 (non-vault attuned relic), ADR-171 (lore
 mirror drift), ADR-172 (mine warning radius), ADR-173 (bestiary mirror drift),
-ADR-174 (18px health bar pinned) and the README boss-count correction recorded
-above. No open audit items remain.
+ADR-174 (18px health bar pinned), ADR-175 (inventory omits its own refresh
+commit) and the README boss-count correction recorded above. No open audit items
+remain.

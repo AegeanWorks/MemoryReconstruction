@@ -73,6 +73,7 @@ cumulative range from commit 1, in steps of three, ending at `1 -> End`.
 | 1 -> 195 | `ec38c41` | `a35c0b4` fix(view): align boss aura with simulation phases<br>`e681547` fix(view): mark every spiral bullet in the telegraph<br>`ec38c41` fix(sim): lock blink landing point for the telegraph | 487 | yes |
 | 1 -> 198 | `cbcdcd8` | `d0546ac` fix(view): draw the true lunge lane<br>`87fcf73` fix(sim): cap summons at the resident add limit<br>`cbcdcd8` fix(view): show quake blasts that reach into the room | 498 | yes |
 | 1 -> 201 | `6a72b36` | `60e7db7` fix(sim): give the Crystal Golem its prism beam<br>`533f13b` fix(sim): spread the volley across its active phase<br>`6a72b36` fix(sim): dress the Ruin Warlord in ash-forged armor | 510 | yes |
+| 1 -> 203 (End) | `6311b21` | `e5ff84d` feat(content): ship the late-content slice with audit evidence<br>`6311b21` chore(aikit): record the app UI task close | 895 | yes |
 
 The deep-dive column marks ranges with a narrative section in the
 curated report. The current tree is verified by the full suite in

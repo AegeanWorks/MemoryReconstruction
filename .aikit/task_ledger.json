@@ -1,56 +1,17 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "ui-health-bar-decision",
+    "task_id": "audit-inventory-self-reference",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794159776.847719,
+    "updated_at": 1794162085.866938,
     "owner": "commandcode:mr-audit",
     "started_by": "commandcode:mr-audit",
     "continuations": [],
-    "completed_at": 1794159777.994792
+    "completed_at": 1794162086.5429802
   },
   "checkpoints": [
-    {
-      "task_id": "commit-range-audit-v32",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified 1 -> 186: drawBombs still circles b.radius (ui-bomb-radius 1/1); clipLaneToRoom still clips lunge/charge (ui-telegraph-clip 2/2, ui-dash-clip 1/1); quakeRingPoints is radius-aware and ui-quake-clip 3/3; no finding; 447 vitest (78 files), 361 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794157869.2965522,
-      "timestamp_str": "2026-11-08 20:11:09",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v32",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'commit-range-audit-v32' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794157869.820013,
-      "timestamp_str": "2026-11-08 20:11:09",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v33",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Deep-dive range 1 -> 189: verify beam, sweep and mortar telegraph clipping to the arena",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794157889.504721,
-      "timestamp_str": "2026-11-08 20:11:29",
-      "agent": "commandcode:mr-audit",
-      "impact_assessment": {
-        "why": "The curated deep dives stop at 1 -> 186; 1 -> 189 was only batch-mapped.",
-        "benefits": "The report covers the three clipping fixes with current evidence.",
-        "risks": "contract: docs only; dependency: none; concurrency: none; state: none",
-        "mitigation": "Beam, sweep and mortar clip suites plus the full gates."
-      },
-      "plan_digest": "3e03a96a618f9cdb1fba278305c74b116730cd830c9c357857f4bed49317ef22"
-    },
     {
       "task_id": "commit-range-audit-v33",
       "phase": "phase 4",
@@ -265,6 +226,45 @@
       "status": "completed",
       "timestamp": 1794159777.9947937,
       "timestamp_str": "2026-11-08 20:42:57",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "audit-inventory-self-reference",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Make the generated range inventory omit its own audit-only refresh commit so audit:ranges:check stays current at HEAD",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794161987.014673,
+      "timestamp_str": "2026-11-08 21:19:47",
+      "agent": "commandcode:mr-audit",
+      "impact_assessment": {
+        "why": "A tracked inventory generated from git log is stale by one immediately after the commit that contains it; the strict delivery check therefore failed on audit:ranges:check even though all gates passed.",
+        "benefits": "The checked-in map matches HEAD with a clean tree, and only future content commits require a refresh.",
+        "risks": "contract: one tooling script, one report section and one ADR; dependency: none; concurrency: audit script/report/inventory carry the slice; state: none",
+        "mitigation": "Before/after audit:ranges:check, full npm test/mechanics, typecheck/lint/build, AIKit 8/8 and strict delivery."
+      },
+      "plan_digest": "08f3ef2c7d99f7f3f679c7cc057d98116508be89374ade0b0f3c9b716e594e0c"
+    },
+    {
+      "task_id": "audit-inventory-self-reference",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: audit:ranges generated 68 rows (0 blanks, End 1 -> 203) and audit:ranges:check is green before commit; 450 vitest (79 files), 363 mechanics (53 files), typecheck/lint/build clean, 8/8 AIKit; after this refresh commit the audit-only filter omits it so the map stays current; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794162085.866938,
+      "timestamp_str": "2026-11-08 21:21:25",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "audit-inventory-self-reference",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'audit-inventory-self-reference' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794162086.542982,
+      "timestamp_str": "2026-11-08 21:21:26",
       "agent": "commandcode:mr-audit"
     }
   ]

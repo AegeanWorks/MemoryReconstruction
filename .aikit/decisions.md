@@ -1647,3 +1647,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Decision**: Keep the 18px combat bar. Add `tests/ui-health-bar.test.ts` pinning `.bar` at 18px and `.bar.thin` at 5px so the restyle is deliberate and regression-guarded. Replace the open-review notes in `docs/COMMIT_RANGE_AUDIT.md`.
 - **Consequences**: The health-bar height is now a tested design decision rather than an accidental co-mingled hunk. The new file passes 2/2, and the audit has no open items. Final gates: 450 vitest pass (79 files), 362 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
 - **Errata**: `tests/tmp-gates.test.ts` was renamed to `tests/sim/gate-spawn.test.ts` in the same slice, so the mechanics tier is now 363 tests (53 files); the full suite stays 450.
+
+## ADR-175: The range inventory omits its own refresh commit
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: keep `audit:ranges:check` current at HEAD)
+- **Context**: `docs/COMMIT_RANGE_INVENTORY.md` is generated from `git log` and committed. The commit that contains a refreshed map immediately becomes the newest history entry, so the tracked file is stale by one after every refresh and `npm run audit:ranges:check` fails on a clean tree. This blocked the strict delivery check even though every gate passed.
+- **Decision**: In `scripts/audit_commit_ranges.py`, find the latest commit touching the inventory; if that commit changes only the curated report, the inventory, the script or `.aikit/`, omit it from the range list. Add the `1 -> 203 (End)` section for the delivery and UI-bookkeeping pair. Content commits still move `1 -> End` and require a refresh.
+- **Consequences**: The checked-in map is current at HEAD with a clean tree; only audit-only refresh commits are invisible to it. Final gates: 450 vitest (79 files), 363 mechanics (53 files), typecheck/lint/build clean, 8/8 AIKit, and `audit:ranges:check` green at HEAD. No new runtime dependencies and no push.
