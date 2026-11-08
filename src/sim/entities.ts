@@ -138,6 +138,9 @@ export interface Enemy {
   attackLanded: boolean;
   /** Strafe sign for casters and skirmishers. */
   strafe: number;
+  /** Blink landing point locked at windup, so the tell can show it. */
+  blinkX?: number;
+  blinkY?: number;
 }
 
 export type ProjectileOwner = 'player' | 'enemy';

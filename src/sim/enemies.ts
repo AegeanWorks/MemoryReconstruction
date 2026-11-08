@@ -438,6 +438,24 @@ function beginWindup(arena: Arena, enemy: Enemy, kind: AttackKind): void {
   enemy.dirX = Math.cos(angle);
   enemy.dirY = Math.sin(angle);
   enemy.attackLanded = false;
+  if (kind === 'blink') {
+    // Lock the landing point now so the ground tell can mark the real strike
+    // zone instead of a circle around the player that the landing can outgrow.
+    let a = arena.rng.range(0, Math.PI * 2);
+    let tx = p.x + Math.cos(a) * 58;
+    let ty = p.y + Math.sin(a) * 58;
+    for (let i = 0; i < 8 && arena.grid.isSolidAtPixel(tx, ty); i++) {
+      a = arena.rng.range(0, Math.PI * 2);
+      tx = p.x + Math.cos(a) * 58;
+      ty = p.y + Math.sin(a) * 58;
+    }
+    if (arena.grid.isSolidAtPixel(tx, ty)) {
+      tx = enemy.x;
+      ty = enemy.y;
+    }
+    enemy.blinkX = tx;
+    enemy.blinkY = ty;
+  }
   arena.emit({ type: 'enemyWindup', id: enemy.id, attack: kind });
 }
 
@@ -593,9 +611,13 @@ function launch(arena: Arena, enemy: Enemy): void {
       break;
     }
     case 'blink': {
-      const a = arena.rng.range(0, Math.PI * 2);
-      const tx = p.x + Math.cos(a) * 58;
-      const ty = p.y + Math.sin(a) * 58;
+      let tx = enemy.blinkX;
+      let ty = enemy.blinkY;
+      if (tx === undefined || ty === undefined) {
+        const a = arena.rng.range(0, Math.PI * 2);
+        tx = p.x + Math.cos(a) * 58;
+        ty = p.y + Math.sin(a) * 58;
+      }
       const oldX = enemy.x;
       const oldY = enemy.y;
       if (!arena.grid.isSolidAtPixel(tx, ty)) {

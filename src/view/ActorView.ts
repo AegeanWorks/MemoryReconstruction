@@ -1322,28 +1322,35 @@ export class ActorView {
           alpha: urgency * 0.4,
         });
 
-        // 2. Incoming strike danger zone centered on the target player
+        // 2. Incoming strike zone at the landing point locked at windup.
+        // The old tell centred this on the player, but the boss can land 58px
+        // away, so the real 86px strike zone extended past the warning.
         const p = this.world.player;
+        const tx = e.blinkX ?? p.x;
+        const ty = e.blinkY ?? p.y;
         const strikeR = 86;
-        g.circle(p.x, p.y, strikeR).fill({
+        g.moveTo(x, y)
+          .lineTo(tx, ty)
+          .stroke({ width: 1.5, color: 0xbfa0ff, alpha: urgency * 0.45 });
+        g.circle(tx, ty, strikeR).fill({
           color: 0x7a3aff,
           alpha: urgency * 0.18,
         });
-        g.circle(p.x, p.y, strikeR).stroke({
+        g.circle(tx, ty, strikeR).stroke({
           width: 2,
           color: 0xbfa0ff,
           alpha: urgency * 0.85,
         });
         const lockR = strikeR * (0.3 + 0.7 * Math.min(1, 1 - e.stateTime / 0.8));
-        g.circle(p.x, p.y, lockR).stroke({
+        g.circle(tx, ty, lockR).stroke({
           width: 1.5,
           color: 0x9df3ff,
           alpha: urgency * 0.9,
         });
         for (let i = 0; i < 4; i++) {
           const a = (i * Math.PI) / 2 + this.time * 2;
-          g.moveTo(p.x + Math.cos(a) * (strikeR - 6), p.y + Math.sin(a) * (strikeR - 6))
-            .lineTo(p.x + Math.cos(a) * (strikeR + 6), p.y + Math.sin(a) * (strikeR + 6))
+          g.moveTo(tx + Math.cos(a) * (strikeR - 6), ty + Math.sin(a) * (strikeR - 6))
+            .lineTo(tx + Math.cos(a) * (strikeR + 6), ty + Math.sin(a) * (strikeR + 6))
             .stroke({ width: 2, color: 0xffe6ff, alpha: urgency });
         }
         break;
