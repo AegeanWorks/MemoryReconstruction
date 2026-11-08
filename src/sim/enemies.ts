@@ -868,11 +868,16 @@ function finishAttack(arena: Arena, enemy: Enemy, recover: number): void {
   enemy.cooldown = base * arena.rng.range(0.85, 1.2);
 }
 
+/** The sim's boss phase thresholds, shared with the view so its tell cannot drift. */
+export function bossPhaseFor(health: number, maxHealth: number): 0 | 1 | 2 {
+  const fraction = maxHealth > 0 ? health / maxHealth : 1;
+  return fraction <= 0.3 ? 2 : fraction <= 0.6 ? 1 : 0;
+}
+
 /** Advances a boss to the phase its health calls for. Returns true when it changed. */
 export function updateBossPhase(enemy: Enemy): boolean {
   if (!enemy.isBoss) return false;
-  const fraction = enemy.health / enemy.maxHealth;
-  const phase = fraction <= 0.3 ? 2 : fraction <= 0.6 ? 1 : 0;
+  const phase = bossPhaseFor(enemy.health, enemy.maxHealth);
   if (phase <= enemy.phase) return false;
   enemy.phase = phase;
   return true;

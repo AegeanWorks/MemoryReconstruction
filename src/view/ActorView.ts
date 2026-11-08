@@ -25,6 +25,7 @@ import { equipmentDef } from '../sim/equipment';
 import type { WeaponId } from '../sim/weapons';
 import { TILE_SIZE } from '../sim/tiles';
 import type { World } from '../sim/world';
+import { bossAuraTier } from './bossAura';
 import { fxTextures } from './fxArt';
 import { BIOME_ART, hex } from './palette';
 import { clipLaneToRoom, mortarRingPoints, quakeRingPoints } from './telegraph';
@@ -636,8 +637,7 @@ export class ActorView {
   /** Rotating runic aura beneath bosses that intensifies across phase transitions into critical frenzy. */
   private drawBossAura(e: Enemy, x: number, y: number): void {
     const g = this.bossAuras;
-    const hpFrac = e.maxHealth > 0 ? e.health / e.maxHealth : 1;
-    const phase = hpFrac < 0.25 ? 4 : hpFrac < 0.33 ? 3 : hpFrac < 0.66 ? 2 : 1;
+    const phase = bossAuraTier(e.health, e.maxHealth);
     const speed = phase === 4 ? 4.8 : phase === 3 ? 3.4 : phase === 2 ? 2.2 : 1.2;
     const angle = this.time * speed;
     const radius = e.radius * 2.2;
