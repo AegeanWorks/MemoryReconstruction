@@ -494,6 +494,13 @@ export function mineOffsets(enemy: Enemy): readonly number[] {
   return [0, 1, 2].map((i) => base + (i / 3) * Math.PI * 2);
 }
 
+/** The spiral bullet angles, shared by the sim and the ground telegraph. */
+export function spiralAngles(enemy: Enemy): readonly number[] {
+  const count = enemy.isBoss ? PHASES[enemy.phase].ring : 8;
+  const twist = (enemy.patternIndex + enemy.phase) * 0.35;
+  return Array.from({ length: count }, (_, i) => twist + (i / count) * Math.PI * 2);
+}
+
 /**
  * Wall-warden curtain: bolt offsets across the lane and which pair is left
  * open. One source of truth for the sim launch and the view telegraph, so
@@ -582,10 +589,7 @@ function launch(arena: Arena, enemy: Enemy): void {
         );
       break;
     case 'spiral': {
-      const count = enemy.isBoss ? phase.ring : 8;
-      const twist = (enemy.patternIndex + enemy.phase) * 0.35;
-      for (let i = 0; i < count; i++)
-        shoot(arena, enemy, twist + (i / count) * Math.PI * 2, phase.speed * 0.85, def.damage);
+      for (const a of spiralAngles(enemy)) shoot(arena, enemy, a, phase.speed * 0.85, def.damage);
       break;
     }
     case 'blink': {

@@ -15,6 +15,7 @@ import {
   PILLARS_RADIUS,
   QUAKE_RADIUS,
   slamRadius,
+  spiralAngles,
   SWEEP_RANGE,
   SWEEP_SPAN,
   wallGapCenter,
@@ -1293,15 +1294,18 @@ export class ActorView {
         break;
       }
       case 'spiral': {
-        // Warm danger ring with rotating spokes so it cannot be mistaken for
-        // the player's cyan flow effects.
+        // Warm danger ring with one marker per real bullet, so the gaps in
+        // the tell are the gaps in the attack (and there are none).
         const radius = e.radius + 24;
         g.circle(x, y, radius).stroke({ width: 3, color: 0xff8a5a, alpha: urgency });
-        for (let i = 0; i < 6; i++) {
-          const a = this.time * 4 + (i / 6) * Math.PI * 2;
+        for (const a of spiralAngles(e)) {
           g.moveTo(x + Math.cos(a) * (radius + 6), y + Math.sin(a) * (radius + 6))
-            .lineTo(x + Math.cos(a + 0.5) * (radius + 30), y + Math.sin(a + 0.5) * (radius + 30))
+            .lineTo(x + Math.cos(a) * (radius + 26), y + Math.sin(a) * (radius + 26))
             .stroke({ width: 2, color: 0xffb060, alpha: urgency * 0.9 });
+          g.circle(x + Math.cos(a) * (radius + 30), y + Math.sin(a) * (radius + 30), 3).fill({
+            color: 0xffe0a0,
+            alpha: urgency,
+          });
         }
         break;
       }
