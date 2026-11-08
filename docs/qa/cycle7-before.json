@@ -1,0 +1,23 @@
+{
+  "setup": {
+    "room": "start",
+    "mana": 60,
+    "base": 60,
+    "x": 1816,
+    "y": 1488,
+    "aim": 0
+  },
+  "state": {
+    "projectiles": 0,
+    "shots": [],
+    "boltBuffer": null,
+    "action": "",
+    "mana": 0,
+    "cooldown": 0
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}

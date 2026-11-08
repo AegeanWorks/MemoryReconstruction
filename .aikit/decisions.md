@@ -1727,3 +1727,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: `loadMeta` ran one full `MetaSchema.safeParse`; one invalid field (for example `settings.masterVolume = 2`) failed the whole save and returned `defaultMeta()`, discarding valid fragments, echoes, kills, runs, depth and achievements. This is the deferred D10 field-wise recovery item.
 - **Decision**: Keep the full-schema fast path. On failure, parse each top-level meta field independently, keep the valid ones, and default the invalid ones; salvage valid settings subfields. Keep `dropPhantomRelics` on the result.
 - **Consequences**: The corrupt-save browser run now preserves 3 fragments, 4 runs, 2 victories, 42 echoes, 77 kills and defaults only the invalid volume; the hub shows `Memories 3/35` and Echoes 42 instead of 0/35 and 0. The hub layout is unchanged and frames stayed 16.68ms average / 16.90ms max. Final gates: 476 vitest (89 files), 374 mechanics (57 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle6-*`.
+
+## ADR-185: A bolt tapped mid-dash is buffered
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 7, combat feel)
+- **Context**: `updatePlayer` returned from the dash branch after buffering `attack` only; `input.bolt` was read later, so a bolt tap during the 0.17s dash was lost while a strike tap was queued.
+- **Decision**: Add `boltBuffer` to `Player`, record a bolt during a dash, hold it through the dash, and consume it immediately after; default it for old saves. Do not fire mid-dash or change mana/cooldown.
+- **Consequences**: The failing dash-tap test now shows a projectile after the dash and `boltBuffer` cleared; the browser capture shows the bolt trail with mana 42/60 and cooldown 0.283. Frames stayed 16.68ms average / 16.90ms max. Final gates: 478 vitest (90 files), 376 mechanics (58 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle7-*`.

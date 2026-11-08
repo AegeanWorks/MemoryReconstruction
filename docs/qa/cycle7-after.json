@@ -1,0 +1,31 @@
+{
+  "setup": {
+    "room": "start",
+    "mana": 60,
+    "base": 60,
+    "x": 1816,
+    "y": 1488,
+    "aim": 0
+  },
+  "state": {
+    "projectiles": 1,
+    "shots": [
+      {
+        "x": 1788.2,
+        "y": 1470.8,
+        "vx": -476.6,
+        "vy": -294.1
+      }
+    ],
+    "boltBuffer": 0,
+    "action": "idle",
+    "mana": 42.1,
+    "cooldown": 0.283,
+    "dash": 0
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}

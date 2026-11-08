@@ -265,6 +265,7 @@ export function restoreRun(data: unknown): RunState | undefined {
   run.player.resonance ??= 0;
   run.player.resonanceTime ??= 0;
   run.player.attackBuffer ??= 0;
+  run.player.boltBuffer ??= 0;
   run.player.dashGrazes ??= [];
   run.player.dashHits ??= [];
   run.player.stagger ??= 0;

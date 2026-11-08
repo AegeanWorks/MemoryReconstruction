@@ -54,6 +54,8 @@ export interface Player {
   comboWindow: number;
   /** Seconds left on a queued strike pressed during a swing or dash. */
   attackBuffer: number;
+  /** Seconds left on a queued bolt pressed during a dash. */
+  boltBuffer: number;
   dashTime: number;
   dashDirX: number;
   dashDirY: number;

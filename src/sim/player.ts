@@ -15,6 +15,7 @@ const SWING_ACTIVE_AT = 0.38;
 const COMBO_GRACE = 0.4;
 /** How long a strike pressed during a swing or dash stays queued. */
 const ATTACK_BUFFER = 0.18;
+const BOLT_BUFFER = 0.18;
 const DASH_TIME = 0.17;
 const DASH_SPEED = 560;
 const DASH_IFRAMES = 0.24;
@@ -56,6 +57,7 @@ export function createPlayer(x: number, y: number): Player {
     swingHitDone: false,
     comboWindow: 0,
     attackBuffer: 0,
+    boltBuffer: 0,
     dashTime: 0,
     dashDirX: 1,
     dashDirY: 0,
@@ -107,6 +109,9 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
   // 0.42-0.54s, so a tap early in the swing must survive longer than the
   // 0.18s window instead of being dropped before the swing ends.
   if (p.swingTime < 0) p.attackBuffer = Math.max(0, p.attackBuffer - dt);
+  // A bolt pressed during a dash waits for the dash to finish, just like a
+  // strike; hold the buffer for the committed move instead of dropping it.
+  if (p.dashTime <= 0) p.boltBuffer = Math.max(0, p.boltBuffer - dt);
   p.resonanceTime = Math.max(0, p.resonanceTime - dt);
   if (p.resonanceTime === 0) p.resonance = 0;
   p.mana = Math.min(s.maxMana, p.mana + s.manaRegen * dt);
@@ -140,16 +145,18 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
   }
 
   if (p.dashTime > 0) {
-    // A strike pressed mid-dash waits for the dash to finish instead of
-    // being swallowed by it.
+    // Strikes and bolts pressed mid-dash wait for the dash to finish instead
+    // of being swallowed by it.
     if (input.attack && !staggered) p.attackBuffer = ATTACK_BUFFER;
+    if (input.bolt && !staggered) p.boltBuffer = BOLT_BUFFER;
     updateDash(arena, dt);
     return;
   }
 
-  if (input.bolt && !staggered) {
+  if ((input.bolt || p.boltBuffer > 0) && !staggered) {
     arena.run.stats.onboarding |= 2;
     fireBolt(arena);
+    p.boltBuffer = 0;
   }
   if (input.attack && !staggered) {
     if (p.swingTime < 0) {

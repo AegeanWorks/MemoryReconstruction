@@ -17,6 +17,7 @@ run.
 | 4 | Graphics/effects | Completed (boss phase burst) |
 | 5 | Audio cues | Completed (pause suspends audio) |
 | 6 | Progression/saves | Completed (field-wise meta recovery) |
+| 7 | Combat feel | Completed (dash-bolt buffer) |
 
 ---
 
@@ -501,6 +502,85 @@ filtering and frame time.
 
 ```text
 npx vitest run tests/save-recovery.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 7 — Combat feel: a bolt pressed mid-dash is dropped
+
+### FIND
+
+Evidence:
+
+- `updatePlayer` reads `input.bolt` only after the `p.dashTime > 0` branch.
+  That branch returns after buffering `input.attack`; it never records a bolt.
+- A deliberate bolt tap during a 0.17s dash is therefore lost, while a strike
+  tap in the same window is queued. The same committed-move window has two
+  different input rules.
+- No test covers bolt input during a dash.
+
+### ANALYZE
+
+Read: `updatePlayer` bool order, `fireBolt`, `dashTime`, `attackBuffer`,
+`restoreRun` defaults. Add `boltBuffer` symmetric to the strike buffer: record
+a bolt during a dash, hold it until the dash ends, consume it immediately after,
+and default it for old saves. Do not fire mid-dash or change mana/cooldown.
+
+Files: `src/sim/entities.ts`, `src/sim/player.ts`, `src/sim/run.ts`,
+`tests/sim/bolt-buffer.test.ts`.
+
+Proof: failing headless dash-bolt test first; a played run taps dash then bolt
+and records projectile count before/after, with a bolt-trail screenshot.
+
+### IMPLEMENT
+
+- `src/sim/entities.ts`: added `boltBuffer` to `Player`.
+- `src/sim/player.ts`: record a bolt during a dash, hold the buffer through the
+  dash, and consume it immediately after; the buffer decays only outside a dash.
+- `src/sim/run.ts`: default `boltBuffer` for old saves.
+- `tests/sim/bolt-buffer.test.ts`: failing-first dash-tap and save-default
+  checks, then green.
+
+### RECORD — played browser run
+
+Same start-room state and 1280x720; the queued buffer state (0.2s) is set so the
+view can show the projectile; the headless test separately proves the dash-tap
+path that fills it.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Projectiles | 0 | **1** |
+| `boltBuffer` after fire | absent | `0` |
+| Mana / cooldown | 60 / 0 | 42.1 / 0.283 |
+| Screenshot | `docs/qa/cycle7-before-bolt.png` — no shot | `docs/qa/cycle7-after-bolt.png` — blue bolt trail northwest |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle7-before.json` and `cycle7-after.json`. What improved:
+a bolt tapped during the 0.17s dash now fires when the dash ends instead of
+being swallowed. What broke: nothing observed; the bolt flies through the same
+projectile path and the frame budget is unchanged. What stayed the same: mana
+cost, bolt cooldown, speed, spread and the strike buffer.
+
+### Gate results
+
+- `npx vitest run tests/sim/bolt-buffer.test.ts`: **2 passed** after the
+  failing-first run
+- `npm test`: **478 passed (90 files)**
+- `npm run test:mechanics`: **376 passed (58 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 214`)
+
+### Commands run
+
+```text
+npx vitest run tests/sim/bolt-buffer.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck
