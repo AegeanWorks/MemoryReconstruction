@@ -131,6 +131,8 @@ export class ActorView {
   private readonly bossAuras = new Graphics();
   private readonly playerAura = new Graphics();
   private readonly telegraphs = new Graphics();
+  /** Rectangular room mask so every ground telegraph stops at the walls. */
+  private readonly telegraphMask = new Graphics();
   private readonly hazardsG = new Graphics();
   private readonly bars = new Graphics();
   private readonly reticleG = new Graphics();
@@ -162,6 +164,8 @@ export class ActorView {
     this.actors.sortableChildren = true;
     this.accent = hex(BIOME_ART[world.plan.biome].accent);
     this.ground.addChild(this.bossAuras, this.playerAura, this.telegraphs, this.hazardsG);
+    this.ground.addChild(this.telegraphMask);
+    this.telegraphs.mask = this.telegraphMask;
     this.player = makeActor(sprites.player, 56);
     this.actors.addChild(this.player.root);
     this.addDecor();
@@ -236,6 +240,15 @@ export class ActorView {
    */
   update(dt: number, alpha: number, view?: { x: number; y: number; w: number; h: number }): void {
     this.time += dt;
+    const room = this.world.currentRoom();
+    this.telegraphMask.clear();
+    if (room) {
+      this.telegraphMask
+        .rect(room.x * TILE_SIZE, room.y * TILE_SIZE, room.w * TILE_SIZE, room.h * TILE_SIZE)
+        .fill({ color: 0xffffff });
+    } else {
+      this.telegraphMask.rect(-100000, -100000, 200000, 200000).fill({ color: 0xffffff });
+    }
     this.bossAuras.clear();
     this.playerAura.clear();
     this.telegraphs.clear();
