@@ -13,6 +13,7 @@ run.
 | pre-cycle | UI readability / responsive layout | Completed in `2fcb82d`, evidence in `docs/UI_REVIEW.md` |
 | 1 | Combat feel | Completed (attack buffer) |
 | 2 | Enemies/bosses | Completed (boss windup cache) |
+| 3 | Levels | Dry after a 60-seed fuzz; guard retained |
 
 ---
 
@@ -194,6 +195,68 @@ shared view function.
 
 ```text
 npx vitest run tests/sim/boss-windup.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 3 — Levels: dry after a 60-seed layout fuzz
+
+### FIND
+
+Candidates examined:
+
+- **Generation reachability/void leaks.** The named tests cover seven seeds and
+  the atoll/spire layouts. A temporary fuzz harness covered **60 seeds ×
+  default/atoll/spire/terrace**, checking every non-vault room centre and every
+  walkable tile for a void edge. Zero failures.
+- **Room locks after teleport (deferred D1).** The only waystone is placed in
+  the start room, and the waystone can only target visited non-vault rooms; the
+  player has no current path to teleport out of an active locked room. Killed as
+  not player-reachable under the current design.
+- **Sealed door / spawn gate readability.** Locked doors already draw animated
+  energy bars; enemy gates are distinct iron portcullises. The minimap already
+  blinks active gates and dims spent ones. No mismatch worth a change.
+- **Sealed vaults.** The lever path is covered by the dungeon suite; no
+  reproducible leak or unreachable reward.
+
+No game defect or opportunity survived reproduction, so this is a dry cycle.
+
+### ANALYZE
+
+The fuzz failure modes were killed by the existing tests after 60 seeds; running
+more seeds would be brute force without a hypothesis. The D1 candidate was
+killed because the waystone placement makes the scenario unreachable in normal
+play. Door/gate art is already stateful and legible.
+
+Retained: `tests/sim/level-fuzz.test.ts` as a permanent 60-seed
+reachability/void guard. It is verification, not a game change.
+
+### RECORD
+
+- `npx vitest run tests/sim/level-fuzz.test.ts --reporter=verbose`: **1 passed
+  (4.18s)** — zero failures across 60 seeds × 4 layouts.
+- No visual claim and no gameplay-mechanics claim: this cycle changed no runtime
+  behaviour, so no before/after screenshot pair or played run is claimed.
+- Full gate results after adding the guard are recorded below.
+
+### Gate results
+
+- `npm test`: **469 passed (86 files)**
+- `npm run test:mechanics`: **374 passed (57 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 210`)
+
+### Commands run
+
+```text
+npx vitest run tests/sim/level-fuzz.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck
