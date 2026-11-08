@@ -76,7 +76,7 @@ cumulative range from commit 1, in steps of three, ending at `1 -> End`.
 | 1 -> 204 | `be2e7b3` | `e5ff84d` feat(content): ship the late-content slice with audit evidence<br>`6311b21` chore(aikit): record the app UI task close<br>`be2e7b3` feat(state): guard implicit transitions and document the machine catalog | 898 | yes |
 | 1 -> 207 | `4ee3b5b` | `28255be` feat(gameplay): reward restored memories and stop mob stun-lock<br>`2fcb82d` feat(ui): responsive visual review pass<br>`4ee3b5b` docs(ui): add before/after visual evidence and model checklist | 917 | yes |
 | 1 -> 210 | `544f274` | `f21ef44` feat(combat): keep attack buffer through a swing<br>`a0ef779` fix(boss): freeze windup duration through phase changes<br>`544f274` test(levels): add 60-seed fuzz guard and record dry cycle | 930 | yes |
-| 1 -> 211 (End) | `56fb130` | `56fb130` feat(fx): burst at the boss on phase change | 935 | yes |
+| 1 -> 212 (End) | `b042b4d` | `56fb130` feat(fx): burst at the boss on phase change<br>`b042b4d` fix(audio): suspend context on pause and keep it suspended | 940 | yes |
 
 The deep-dive column marks ranges with a narrative section in the
 curated report. The current tree is verified by the full suite in
