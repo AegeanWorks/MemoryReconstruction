@@ -1036,19 +1036,19 @@ zero failures across 60 seeds × 4 layouts.
 
 **Finding:** none.
 
-## Range 1 -> 212 (End) (`407e047..b042b4d`)
+## Range 1 -> 213 (End) (`407e047..544cba3`)
 
-**Commits:** cycle 4 graphics/effects and cycle 5 audio cues. Cycle 4 carries
-the boss position on `bossPhase` and draws a local ring/star/burst at the boss.
-Cycle 5 wires `setSuspended` into pause/resume and adds a sticky flag so the
-generic keydown unlock cannot resume paused audio; the pause screen is visually
-unchanged.
+**Commits:** cycle 4 graphics/effects, cycle 5 audio cues and cycle 6
+progression/saves. Cycle 4 draws a local boss-phase burst. Cycle 5 suspends
+audio on pause and adds a sticky flag so unlock cannot resume it. Cycle 6
+recovers meta saves field by field instead of wiping valid career data when one
+field is invalid.
 
-**Verification:** 474 vitest (88 files), 374 mechanics (57 files),
+**Verification:** 476 vitest (89 files), 374 mechanics (57 files),
 typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed from
-`b042b4d`; the boss phase run kept health 640→158, phase 0→2 and 16.68ms average
-/ 16.80ms max frames; the audio run reports `running → suspended → running` with
-16.68ms average / 16.90ms max frames.
+`544cba3`; the boss phase run kept health 640→158, phase 0→2 and 16.68ms average
+/ 16.80ms max frames; the audio run reports `running → suspended → running`; the
+corrupt-save hub preserved 3 fragments and 42 echoes instead of 0.
 
 **Finding:** none.
 
@@ -1095,7 +1095,7 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **474 passed (88 files)**
+- `npm test`: **476 passed (89 files)**
 - `npm run test:mechanics`: **374 passed (57 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
@@ -1104,9 +1104,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (212 commits,
+The inventory covers every content commit through `1 -> End` (213 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-4 and the cycle 5 audio suspend fix). The
+follow-up, visual review, cycles 1-5 and the cycle 6 save recovery). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1124,5 +1124,6 @@ commit), ADR-176 (implicit state machines catalogued and guarded), ADR-177
 (audit refresh commits omitted by subject), ADR-178 (story completion and fight
 fairness), ADR-179 (visual UI review), ADR-180 (attack buffer survives a slow
 swing), ADR-181 (boss telegraphs freeze their windup), ADR-182 (boss phase
-burst), ADR-183 (pause suspends audio) and the README boss-count correction
-recorded above. No open audit items remain.
+burst), ADR-183 (pause suspends audio), ADR-184 (meta saves recover field by
+field) and the README boss-count correction recorded above. No open audit items
+remain.
