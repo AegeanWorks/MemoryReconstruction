@@ -11,7 +11,6 @@ import type { Enemy, Hazard, Interactable, Pickup, Player, Projectile } from '..
 import {
   dashStrikeRange,
   mineOffsets,
-  MORTAR_OFFSETS,
   mortarRadius,
   PILLARS_RADIUS,
   QUAKE_RADIUS,
@@ -28,7 +27,7 @@ import { TILE_SIZE } from '../sim/tiles';
 import type { World } from '../sim/world';
 import { fxTextures } from './fxArt';
 import { BIOME_ART, hex } from './palette';
-import { clipLaneToRoom, quakeRingPoints } from './telegraph';
+import { clipLaneToRoom, mortarRingPoints, quakeRingPoints } from './telegraph';
 import { mirrorSheet, type ActorSheet, type Animation, type SpriteLibrary } from './sheets';
 
 interface ActorSprite {
@@ -1248,8 +1247,8 @@ export class ActorView {
         const aim = Math.atan2(p.y - y, p.x - x);
         const perp = aim + Math.PI / 2;
         const ring = mortarRadius(e.isBoss);
-        for (const offset of MORTAR_OFFSETS) {
-          g.circle(p.x + Math.cos(perp) * offset, p.y + Math.sin(perp) * offset, ring).stroke({
+        for (const point of mortarRingPoints(p.x, p.y, perp, this.world.currentRoom())) {
+          g.circle(point.x, point.y, ring).stroke({
             width: 2,
             color: TELEGRAPH_COLOR,
             alpha: urgency,
