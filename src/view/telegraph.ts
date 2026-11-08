@@ -1,5 +1,5 @@
 import type { Room } from '../sim/dungeon';
-import { MORTAR_OFFSETS } from '../sim/enemies';
+import { MORTAR_OFFSETS, QUAKE_RADIUS } from '../sim/enemies';
 import { TILE_SIZE } from '../sim/tiles';
 
 /**
@@ -28,7 +28,11 @@ export function clipLaneToRoom(
   return Math.max(0, clipped);
 }
 
-/** Quake rings that land inside the arena; outside rings are not reachable. */
+/**
+ * Quake rings whose blast reaches into the arena. A centre just outside the
+ * wall still has a 40px radius, so its warning arc belongs inside the room;
+ * the telegraph layer's room mask clips the overhang.
+ */
 export function quakeRingPoints(
   x: number,
   y: number,
@@ -42,7 +46,13 @@ export function quakeRingPoints(
   const y0 = room.y * TILE_SIZE;
   const x1 = (room.x + room.w) * TILE_SIZE;
   const y1 = (room.y + room.h) * TILE_SIZE;
-  return points.filter((p) => p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1);
+  return points.filter(
+    (p) =>
+      p.x + QUAKE_RADIUS >= x0 &&
+      p.x - QUAKE_RADIUS <= x1 &&
+      p.y + QUAKE_RADIUS >= y0 &&
+      p.y - QUAKE_RADIUS <= y1
+  );
 }
 
 /** Mortar landing rings that stay inside the arena. */
