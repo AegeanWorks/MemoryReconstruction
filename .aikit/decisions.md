@@ -1711,3 +1711,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: `World.damageEnemy` emitted a `bossPhase` event plus a global shake, and the HUD toasted the phase, but `Effects.handle` had no `bossPhase` case and the event carried no position. A player could feel the screen shake but not see where the phase change happened.
 - **Decision**: Carry `x`/`y` on `bossPhase`; draw a phase-colored ring, white inner ring, star and 22-particle burst at the boss in `Effects`. Keep the existing shake, toast, audio, health and phase thresholds unchanged.
 - **Consequences**: The phase moment now has a local visual anchor. The seed-7 boss played run kept health 640→158, phase 0→2, windup total 0.6818 and 16.68ms average / 16.80ms max frames; the before frame has only the red attack telegraph, the after frame adds the local burst. Final gates: 471 vitest (87 files), 374 mechanics (57 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle4-*`.
+
+## ADR-183: Pause suspends audio, and unlock respects it
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 5, audio cues)
+- **Context**: `Sound.setSuspended` existed but had no caller, so pausing (including the visibility/blur auto-pause path) left the AudioContext running. A naive `pause()` call was still undone because every keydown calls the generic `Sound.unlock()`, which resumed a suspended context. A seed-7 played run reported `paused.ctx = running` before the fix.
+- **Decision**: Suspend in `pause()` and `showSanctuaryMenu()`; clear suspension in `resume()`, `resumeRoom()`, `showHub()`, `showTitle()` and `startRun()`. Add a sticky `Sound.suspended` flag so `unlock()` never resumes paused audio and a context created while paused starts suspended.
+- **Consequences**: The played run now reports `running → suspended → running` across pause/resume while the pause screen is visually unchanged; automatic pause follows the same path. Frames stayed 16.68ms average / 16.90ms max. Final gates: 474 vitest (88 files), 374 mechanics (57 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle5-*`.

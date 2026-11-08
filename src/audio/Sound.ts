@@ -149,12 +149,14 @@ export class Sound {
   /** A request made before the first user gesture; replayed on unlock. */
   private pendingAmbience: { biome: BiomeId; tense: boolean } | undefined;
   private volumes = { master: 0.8, music: 0.5, sfx: 0.8 };
+  /** Sticky pause state; the generic unlock gesture must not resume it. */
+  private suspended = false;
   private lastPlayed = new Map<string, number>();
 
   /** Creates the audio context; call from a user gesture. Safe to call repeatedly. */
   unlock(): void {
     if (this.ctx) {
-      if (this.ctx.state === 'suspended') void this.ctx.resume();
+      if (!this.suspended && this.ctx.state === 'suspended') void this.ctx.resume();
       return;
     }
     const Ctor =
@@ -172,6 +174,7 @@ export class Sound {
     const data = this.noise.getChannelData(0);
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
     this.applyVolumes();
+    if (this.suspended) void this.ctx.suspend();
     // The title requests its ambience before the first gesture; play it now.
     const pending = this.pendingAmbience;
     if (pending) {
@@ -194,6 +197,7 @@ export class Sound {
 
   /** Suspends or resumes all audio (e.g. while paused in the background). */
   setSuspended(suspended: boolean): void {
+    this.suspended = suspended;
     if (!this.ctx) return;
     void (suspended ? this.ctx.suspend() : this.ctx.resume());
   }

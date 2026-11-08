@@ -1,0 +1,28 @@
+{
+  "initial": {
+    "state": "playing",
+    "ctx": "running",
+    "ambience": true,
+    "master": 0.8
+  },
+  "paused": {
+    "state": "paused",
+    "ctx": "running",
+    "ambience": true,
+    "master": 0.8
+  },
+  "pauseSrc": "pause() {\n    this.state = \"paused\";\n    this.input.releaseAll();\n    this.screens.show(\n      pauseScreen({\n        world: this.world,\n        onResume: () => this.click(() => this.resume()),\n        onQuests: () => this.click(() => this.showQuestLog(() => this.pause())),\n        onSettings: () => this.click(() => this.showSettings(() => this.pause())),\n        onControls: () => this.click(() => this.screens.show(controlsScreen(() => this.pause()))),\n        onAbandon: () => this.click(() => {\n          if (this.runSettled) {\n            this.showHub();\n            return;\n          }\n          this.runSettled = true;\n          this.meta = recordRun(this.meta, this.run, false);\n          this.store.saveMeta(this.meta);\n          this.store.clearRun();\n          this.showHub();\n        })\n      })\n    );\n  }",
+  "manualSuspend": true,
+  "manualState": "suspended",
+  "resumed": {
+    "state": "playing",
+    "ctx": "running",
+    "ambience": true,
+    "master": 0.8
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}

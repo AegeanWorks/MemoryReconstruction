@@ -15,6 +15,7 @@ run.
 | 2 | Enemies/bosses | Completed (boss windup cache) |
 | 3 | Levels | Dry after a 60-seed fuzz; guard retained |
 | 4 | Graphics/effects | Completed (boss phase burst) |
+| 5 | Audio cues | Completed (pause suspends audio) |
 
 ---
 
@@ -336,6 +337,88 @@ the existing red attack telegraph.
 
 ```text
 npx vitest run tests/view-boss-phase-fx.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 5 — Audio cues: pause never suspends the AudioContext
+
+### FIND
+
+Evidence:
+
+- `src/audio/Sound.ts` already exposes `setSuspended(suspended)` which calls
+  `AudioContext.suspend()/resume()`.
+- A grep across `src` finds **no caller**. `App.pause()` sets `state='paused'`
+  and opens the pause screen, but the AudioContext keeps running (ambience and
+  queued SFX continue). `visibilitychange` and `blur` call that same
+  `App.pause()`, so auto-pause also leaves audio live.
+- This is the deferred D7 “Suspend audio on pause/auto-pause” item.
+
+### ANALYZE
+
+Read: `Sound.unlock/setSuspended`, `App.pause/resume/resumeRoom`,
+`showSanctuaryMenu`, `showHub`, `showTitle`, `startRun`, and the
+visibility/blur listeners. Pause and sanctuary-menu overlays should suspend;
+resume, resumeRoom, hub, title and startRun should ensure audio is running so an
+abandoned pause cannot leave the hub silent.
+
+Files: `src/app/App.ts`, `tests/audio-pause.test.ts`.
+
+Proof: failing source lifecycle check first; a real seed-7 run logs
+`AudioContext.state` before pause, while paused and after resume; pause-screen
+captures before/after show no visual regression.
+
+### IMPLEMENT
+
+- `src/app/App.ts`: `pause()` and `showSanctuaryMenu()` suspend; `resume()`,
+  `resumeRoom()`, `showHub()`, `showTitle()` and `startRun()` clear suspension.
+- `src/audio/Sound.ts`: added a sticky `suspended` flag. `unlock()` no longer
+  resumes a paused context, because every keydown calls that generic unlock.
+  A context created while suspended is suspended too.
+- `tests/audio-pause.test.ts`: failing-first lifecycle and sticky-unlock checks;
+  three passing tests.
+
+### RECORD — played run
+
+Same setup both runs: seed **7**, expedition active, audio unlocked by a user
+gesture, 1280x720, 59 sampled frames. Escape pauses, Escape resumes.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Playing `AudioContext.state` | `running` | `running` |
+| Paused `AudioContext.state` | **`running`** | **`suspended`** |
+| Resumed `AudioContext.state` | `running` | `running` |
+| Pause screen | `docs/qa/cycle5-before-pause.png` | `docs/qa/cycle5-after-pause.png` (identical layout) |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle5-before.json` and `cycle5-after.json`. What improved:
+the ambience and queued SFX actually stop while paused and while auto-paused by
+tab blur/visibility; resume restores them, and abandoning to the hub cannot
+leave audio suspended. What broke: nothing observed; the pause screen is
+visually unchanged. What stayed the same: ambience selection, volumes, frame
+time and the pause-menu layout.
+
+### Gate results
+
+- `npx vitest run tests/audio-pause.test.ts`: **3 passed** after the
+  failing-first checks
+- `npm test`: **474 passed (88 files)**
+- `npm run test:mechanics`: **374 passed (57 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 212`)
+
+### Commands run
+
+```text
+npx vitest run tests/audio-pause.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck

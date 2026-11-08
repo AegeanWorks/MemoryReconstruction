@@ -346,6 +346,7 @@ export class App {
 
   private showTitle(): void {
     this.state = 'title';
+    this.sound.setSuspended(false);
     this.hud.setVisible(false);
     document.querySelectorAll('.banner').forEach((el) => el.remove());
     // A quiet backdrop: the first floor of a random run, not simulated.
@@ -384,6 +385,7 @@ export class App {
   /** The Sanctuary hub: a UI screen with the residents, places and the gate. */
   private showHub(): void {
     this.state = 'hub';
+    this.sound.setSuspended(false);
     this.screens.close();
     document.querySelectorAll('.banner').forEach((el) => el.remove());
     this.hud.setVisible(false);
@@ -751,6 +753,7 @@ export class App {
 
   private showSanctuaryMenu(): void {
     this.state = 'paused';
+    this.sound.setSuspended(true);
     this.input.releaseAll();
     const reopen = (): void => this.showSanctuaryMenu();
     this.screens.show(
@@ -1023,6 +1026,7 @@ export class App {
   }
 
   private startRun(run: RunState): void {
+    this.sound.setSuspended(false);
     this.run = run;
     this.runSettled = false;
     this.tipRoom = false;
@@ -1220,6 +1224,7 @@ export class App {
 
   private pause(): void {
     this.state = 'paused';
+    this.sound.setSuspended(true);
     this.input.releaseAll();
     this.screens.show(
       pauseScreen({
@@ -1245,6 +1250,7 @@ export class App {
   }
 
   private resume(): void {
+    this.sound.setSuspended(false);
     this.screens.close();
     this.input.releaseAll();
     this.accumulator = 0;
@@ -1253,6 +1259,7 @@ export class App {
 
   /** Closes the in-room menu and hands control back to the room. */
   private resumeRoom(): void {
+    this.sound.setSuspended(false);
     this.screens.close();
     this.input.releaseAll();
     this.accumulator = 0;
