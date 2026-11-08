@@ -15,6 +15,7 @@ import {
   clearOfferings,
   createExpedition,
   echoesEarned,
+  healRunForRest,
   nextRestorationCost,
   purchaseOffering,
   purchaseRestoration,
@@ -38,7 +39,7 @@ function progress(overrides: Partial<SanctuaryProgress> = {}): SanctuaryProgress
 
 describe('Sanctuary hub', () => {
   it('offers every third section plus the last as a checkpoint', () => {
-    expect(checkpointDepths()).toEqual([0, 3, 6, 9, 12, 15, 18]);
+    expect(checkpointDepths()).toEqual([0, 3, 6, 9, 12, 15, 18, 21, 22]);
     expect(checkpointForDepth(0)).toBe(0);
     expect(checkpointForDepth(2)).toBe(0);
     expect(checkpointForDepth(3)).toBe(3);
@@ -137,7 +138,7 @@ describe('Sanctuary hub', () => {
 
   it('clamps a checkpoint beyond the last section', () => {
     const run = createExpedition(1, [], 99, progress());
-    expect(run.depth).toBe(18);
+    expect(run.depth).toBe(22);
   });
 });
 
@@ -283,6 +284,23 @@ describe('rest price', () => {
   });
 });
 
+describe('rest heal', () => {
+  it('heals the saved run in place without changing its depth or seed', () => {
+    const run = createRun(77, []);
+    run.depth = 9;
+    run.player.health = 4;
+    run.player.mana = 0;
+    run.player.potions = 0;
+    const healed = healRunForRest(run);
+    expect(healed).toBe(run);
+    expect(healed.depth).toBe(9);
+    expect(healed.seed).toBe(77);
+    expect(healed.player.health).toBe(healed.player.stats.maxHealth);
+    expect(healed.player.mana).toBe(healed.player.stats.maxMana);
+    expect(healed.player.potions).toBe(healed.player.stats.maxPotions);
+  });
+});
+
 describe('Relic selling and the bag limit', () => {
   it('sells vault relics for echoes, clearing rank and attunement, and refuses spares not owned', () => {
     expect(sellRelic(progress(), 'echo_dagger')).toBeUndefined();
@@ -316,6 +334,10 @@ describe('Relic selling and the bag limit', () => {
       'mire_talisman',
       'ember_charm',
       'tide_lens',
+      'thorn_ring',
+      'clockwork_gear',
+      'sun_core',
+      'bog_crown',
     ];
     const run = createExpedition(21, [], 0, progress({ vault }));
     expect(EQUIPMENT_SLOTS.every((slot) => run.player.equipment[slot] !== null)).toBe(true);
@@ -324,6 +346,6 @@ describe('Relic selling and the bag limit', () => {
       ...EQUIPMENT_SLOTS.map((slot) => run.player.equipment[slot]!.defId),
       ...run.player.inventory.map((item) => item.defId),
     ]);
-    expect(carried.has('tide_lens')).toBe(false);
+    expect(carried.has('bog_crown')).toBe(false);
   });
 });

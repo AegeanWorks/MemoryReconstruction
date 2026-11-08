@@ -26,6 +26,8 @@ const OBSTACLE_PROPS: Record<BiomeId, string> = {
   bloom: 'ancient_tree',
   hive: 'hive_comb',
   catacomb: 'bone_pile',
+  tide: 'coral',
+  storm: 'statue',
   sanctuary: 'sanctuary_altar',
 };
 const T = TILE_SIZE;
@@ -50,6 +52,25 @@ const ROOM_DRESSING: Record<BiomeId, string[]> = {
   mire: ['furn_herbs', 'bone_pile', 'ancient_tree'],
   hive: ['hive_comb', 'furn_crate'],
   catacomb: ['bone_pile', 'furn_candle'],
+  tide: ['coral', 'furn_lantern', 'barrel'],
+  storm: ['furn_banner', 'furn_brazier', 'cog_pillar'],
+};
+
+const ROOM_KIND_DRESSING: Partial<Record<FloorMap['rooms'][number]['kind'], string[]>> = {
+  library: ['furn_shelf', 'furn_books', 'furn_candle'],
+  shrine: ['furn_candle', 'furn_brazier', 'furn_column'],
+  treasure: ['furn_crate', 'barrel', 'furn_lantern'],
+  start: ['furn_lantern', 'furn_bench'],
+  boss: ['furn_banner', 'furn_brazier', 'furn_column', 'furn_dais'],
+  arena: ['furn_banner', 'furn_brazier', 'furn_dais'],
+};
+
+const DRESSING_SCALE: Record<string, number> = {
+  furn_shelf: 0.46,
+  furn_brazier: 0.42,
+  furn_column: 0.42,
+  furn_crate: 0.38,
+  barrel: 0.4,
 };
 
 interface Chunk {
@@ -101,12 +122,25 @@ export class LevelView {
    * room and tile, and never lands on a doorway or a glyph.
    */
   private addDressing(biome: BiomeId): void {
-    const kinds = ROOM_DRESSING[biome] ?? ROOM_DRESSING.ruins;
+    const biomeKinds = ROOM_DRESSING[biome] ?? ROOM_DRESSING.ruins;
     const grid = this.floor.grid;
     const layer = new Container();
+    // Depth-sort dressing by feet so wall-base clutter occludes correctly
+    // against actors and props instead of always rendering behind them.
+    layer.sortableChildren = true;
     for (const room of this.floor.rooms) {
       const seed = room.x * 7919 + room.y * 104729 + room.w * 31;
-      const count = 1 + ((seed >>> 3) % 2);
+      const kinds = ROOM_KIND_DRESSING[room.kind] ?? biomeKinds;
+      const count =
+        room.kind === 'library'
+          ? 3
+          : room.kind === 'shrine' || room.kind === 'treasure'
+            ? 2
+            : room.kind === 'boss' || room.kind === 'arena'
+              ? 3
+              : room.kind === 'colosseum'
+                ? 5
+                : 1 + ((seed >>> 3) % 2);
       const candidates: Array<[number, number]> = [];
       for (let ty = room.y; ty < room.y + room.h; ty++) {
         for (let tx = room.x; tx < room.x + room.w; tx++) {
@@ -127,7 +161,8 @@ export class LevelView {
         const sprite = new Sprite(texture);
         sprite.anchor.set(0.5, 1);
         sprite.position.set(pick[0] * T + T / 2, pick[1] * T + T);
-        sprite.scale.set(0.34);
+        sprite.zIndex = pick[1] * T + T;
+        sprite.scale.set(DRESSING_SCALE[kinds[(seed + i * 37) % kinds.length]] ?? 0.34);
         sprite.alpha = 0.92;
         layer.addChild(sprite);
       }
@@ -147,7 +182,7 @@ export class LevelView {
       height: grid.height * T,
     });
     bg.scale.set(1);
-    bg.alpha = 0.55;
+    bg.alpha = 0.68;
     bg.tint = 0xffffff;
     this.root.addChild(bg);
   }
@@ -274,10 +309,10 @@ export class LevelView {
     const glow = new Sprite(fxTextures().glow);
     glow.anchor.set(0.5);
     glow.position.set((tx + 0.5) * T, (ty + 0.5) * T);
-    glow.width = glow.height = 56;
+    glow.width = glow.height = 64;
     glow.tint = this.accent;
     glow.blendMode = 'add';
-    glow.alpha = 0.25;
+    glow.alpha = 0.32;
     layer.addChild(glow);
     this.glyphs.push(glow);
   }
@@ -286,12 +321,14 @@ export class LevelView {
   update(dt: number, viewX: number, viewY: number, viewW: number, viewH: number): void {
     this.time += dt;
     const span = CHUNK * T;
+    // 96px margin so fast pans don't reveal a one-frame hole at chunk edges.
+    const margin = 96;
     for (const chunk of this.chunks) {
       chunk.container.visible =
-        chunk.x0 + span > viewX &&
-        chunk.x0 < viewX + viewW &&
-        chunk.y0 + span > viewY &&
-        chunk.y0 < viewY + viewH;
+        chunk.x0 + span > viewX - margin &&
+        chunk.x0 < viewX + viewW + margin &&
+        chunk.y0 + span > viewY - margin &&
+        chunk.y0 < viewY + viewH + margin;
     }
     for (let i = 0; i < this.glyphs.length; i++) {
       this.glyphs[i].alpha = 0.18 + 0.12 * Math.sin(this.time * 1.7 + i * 1.3);

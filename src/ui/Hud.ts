@@ -4,7 +4,13 @@
  */
 import { biomeInfo, MEMORY_FRAGMENTS } from '../sim/content';
 import type { SimEvent } from '../sim/events';
-import { resonanceMultiplier, RESONANCE_MAX, RESONANCE_WINDOW, xpForLevel } from '../sim/run';
+import {
+  nextOnboardingStep,
+  resonanceMultiplier,
+  RESONANCE_MAX,
+  RESONANCE_WINDOW,
+  xpForLevel,
+} from '../sim/run';
 import { weaponDef } from '../sim/weapons';
 import type { World } from '../sim/world';
 import { assetUrl, h } from './dom';
@@ -76,6 +82,8 @@ export class Hud {
     )
   );
   private readonly written = new Map<HTMLElement | CSSStyleDeclaration, string>();
+  /** Field-manual checklist, visible on the first section until complete. */
+  private readonly checklist = h('div', { class: 'hint checklist hidden' });
   private time = 0;
   private mapTimer = 0;
   private objectiveTimer = 0;
@@ -117,7 +125,8 @@ export class Hud {
       map,
       this.prompt,
       this.toasts,
-      this.hint
+      this.hint,
+      this.checklist
     );
   }
 
@@ -228,7 +237,7 @@ export class Hud {
     this.updatePips(p.dashCharges, s.dashCharges);
     this.setText(
       this.kit,
-      `${weaponDef(p.weapon).name} 1-3  ·  Art ${p.artCooldown <= 0 ? 'V' : `${p.artCooldown.toFixed(1)}s`}  ·  Bombs ${p.bombs} G  ·  Traps ${p.traps} T`
+      `${weaponDef(p.weapon).name} [1-3]  ·  Art ${p.artCooldown <= 0 ? 'ready [V]' : `${p.artCooldown.toFixed(1)}s`}  ·  Bomb x${p.bombs} [G]  ·  Trap x${p.traps} [T]`
     );
 
     // The meter keeps its row when idle, so the vitals never jump between states.
@@ -268,6 +277,12 @@ export class Hud {
     }
 
     this.stalked.classList.toggle('hidden', !world.isStalked);
+    // Field manual (cyberpulse ADR-037): the next unlearned basic, shown on
+    // the first section until the checklist is complete.
+    const nextStep =
+      world.run.depth === 0 ? nextOnboardingStep(world.run.stats.onboarding) : undefined;
+    this.checklist.classList.toggle('hidden', nextStep === undefined);
+    if (nextStep !== undefined) this.setText(this.checklist, `Field manual — next: ${nextStep}`);
 
     const near = world.nearbyInteractable();
     this.prompt.classList.toggle('hidden', !near);
@@ -280,6 +295,11 @@ export class Hud {
         case 'chest':
           label = 'Open the memory chest';
           break;
+        case 'cache':
+          label = near.armed
+            ? 'Break the seal: double loot, blood and company'
+            : 'Strain the sealed cache (E again breaks it)';
+          break;
         case 'archive':
           label = 'Read the memory archive';
           break;
@@ -287,7 +307,16 @@ export class Hud {
           label = 'Drink from the fountain';
           break;
         case 'lever':
-          label = 'Pull the lever';
+          label = near.label === 'Sealed vault' ? 'Pull the sealed-vault lever' : 'Pull the lever';
+          break;
+        case 'wayfarer':
+          label = 'Trade a memory with the Wayfarer';
+          break;
+        case 'waystone':
+          label = 'Step through the waystone';
+          break;
+        case 'ferryman':
+          label = `Pay ${near.cost} shards to cross to the guardian`;
           break;
         case 'merchant':
           label = `Trade ${near.cost} shards for a relic`;

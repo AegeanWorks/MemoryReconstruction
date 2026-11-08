@@ -1,282 +1,271 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "visual-level-gate-polish-and-flow-echoes-v1",
-    "last_phase": "in_progress",
+    "task_id": "ui-health-bar-decision",
+    "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1793549407.9979455,
-    "owner": "Antigravity",
-    "started_by": "Antigravity",
+    "updated_at": 1794159776.847719,
+    "owner": "commandcode:mr-audit",
+    "started_by": "commandcode:mr-audit",
     "continuations": [],
-    "impact_assessment": {
-      "why": "Elevate visual cohesion of reinforcement gates and torch illumination in LevelView, add room completion salience to Minimap, and reward flow mastery in echoes",
-      "benefits": "Visual consistency with gate threshold and wall faces, deeper dungeon atmosphere, clear exploration feedback, and competency reinforcement",
-      "risks": "contract: pure additive rendering and formula extension; dependency: zero new packages; concurrency: single-threaded PIXI renderer; state: preserves all SaveStore and run contract invariants",
-      "mitigation": "Unit test in hub.test.ts and systems.test.ts, 100% vitest suite pass, 8 AIKit verification gates in strict mode"
-    },
-    "completed_at": 1793549583.7112617
+    "completed_at": 1794159777.994792
   },
   "checkpoints": [
     {
-      "task_id": "graphics-ui-polish-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/4] Plan: enhance east/west gate teeth, teleport telegraphs & void FX, equipment relic visuals, chest opening shimmer, and NPC dialogue portraits",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793542946.169667,
-      "timestamp_str": "2026-11-01 17:22:26",
-      "agent": "antigravity:ui",
-      "impact_assessment": {
-        "why": "Elevate visual fidelity, combat readability, and character immersion across graphics and UI",
-        "benefits": "Readable teleport warnings, distinct relic ground visuals, visceral void FX, completed 4-way gate rendering, and NPC portraits in dialogue",
-        "risks": "contract: none; dependency: none; concurrency: none; state: none (rendering only)",
-        "mitigation": "Comprehensive Vitest, mechanics tests, and AIKit pre-commit gate triad"
-      }
-    },
-    {
-      "task_id": "graphics-ui-polish-v1",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "[2/4] Implement: east/west gate teeth, teleport telegraphs & void FX, equipment relic floor graphics, chest opening shimmer, and NPC dialogue portraits; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793543332.8307323,
-      "timestamp_str": "2026-11-01 17:28:52",
-      "agent": "antigravity:ui"
-    },
-    {
-      "task_id": "graphics-ui-polish-v1",
+      "task_id": "commit-range-audit-v32",
       "phase": "phase 4",
       "phase_num": 4,
-      "description": "[3/4] Verify: 8/8 gates passed (test, lint, typecheck, build, mechanics, hygiene, guidelines, secrets); checklists: passed",
+      "description": "[1/1] Verified 1 -> 186: drawBombs still circles b.radius (ui-bomb-radius 1/1); clipLaneToRoom still clips lunge/charge (ui-telegraph-clip 2/2, ui-dash-clip 1/1); quakeRingPoints is radius-aware and ui-quake-clip 3/3; no finding; 447 vitest (78 files), 361 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
       "files_affected": [],
       "status": "in_progress",
-      "timestamp": 1793543379.0412366,
-      "timestamp_str": "2026-11-01 17:29:39",
-      "agent": "antigravity:ui"
+      "timestamp": 1794157869.2965522,
+      "timestamp_str": "2026-11-08 20:11:09",
+      "agent": "commandcode:mr-audit"
     },
     {
-      "task_id": "graphics-ui-polish-v1",
+      "task_id": "commit-range-audit-v32",
       "phase": "completed",
       "phase_num": 5,
-      "description": "Task 'graphics-ui-polish-v1' completed successfully.",
+      "description": "Task 'commit-range-audit-v32' completed successfully.",
       "status": "completed",
-      "timestamp": 1793543383.468726,
-      "timestamp_str": "2026-11-01 17:29:43",
-      "agent": "antigravity:ui"
+      "timestamp": 1794157869.820013,
+      "timestamp_str": "2026-11-08 20:11:09",
+      "agent": "commandcode:mr-audit"
     },
     {
-      "task_id": "behavioral-mechanics-polish-v1",
+      "task_id": "commit-range-audit-v33",
       "phase": "phase 2",
       "phase_num": 2,
-      "description": "[1/4] Plan: implement literature-grounded mechanics from cyberpulse (near-miss clutch surge, flow overdrive aura, boss frenzy goal gradient, and archive completionist tracking)",
+      "description": "[1/1] Deep-dive range 1 -> 189: verify beam, sweep and mortar telegraph clipping to the arena",
       "files_affected": [],
       "status": "in_progress",
-      "timestamp": 1793545131.8766322,
-      "timestamp_str": "2026-11-01 17:58:51",
-      "agent": "antigravity:sim",
+      "timestamp": 1794157889.504721,
+      "timestamp_str": "2026-11-08 20:11:29",
+      "agent": "commandcode:mr-audit",
       "impact_assessment": {
-        "why": "Integrate proven cognitive neuroscience and behavioral game design from CyberPulse literature review into Memory Reconstruction",
-        "benefits": "Adrenaline near-miss comeback moments, visual Flow mastery rewards, escalating boss tension near death, and completionist exploration clarity",
-        "risks": "contract: none; dependency: none; concurrency: none; state: backward-compatible FloorObjectives extension",
-        "mitigation": "Unit tests covering near-miss clutch and objectives, 100% test pass, and AIKit pre-commit gate triad"
-      }
-    },
-    {
-      "task_id": "behavioral-mechanics-polish-v1",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "Implement clutchGraze near-miss surge, flow overdrive aura, boss frenzy phase 4, archive objectives, and crit hitstop",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793546089.7652485,
-      "timestamp_str": "2026-11-01 18:14:49",
-      "agent": "antigravity:sim"
-    },
-    {
-      "task_id": "behavioral-mechanics-polish-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "Pass all 213 vitest tests across 15 suites, lint, typecheck, build, mechanics, hygiene, guidelines, and secrets gates",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793546095.87298,
-      "timestamp_str": "2026-11-01 18:14:55",
-      "agent": "antigravity:sim"
-    },
-    {
-      "task_id": "behavioral-mechanics-polish-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'behavioral-mechanics-polish-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793546101.8487267,
-      "timestamp_str": "2026-11-01 18:15:01",
-      "agent": "antigravity:sim"
-    },
-    {
-      "task_id": "visual-atmosphere-polish-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/4] Plan: dynamic wall sconce firelight, minimap objective completeness, stance-aligned aim reticle, and elite champion runic aura",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793546864.640756,
-      "timestamp_str": "2026-11-01 18:27:44",
-      "agent": "antigravity:sim",
-      "impact_assessment": {
-        "why": "Elevate dungeon atmosphere, minimap navigation clarity, and tactile combat aiming feedback",
-        "benefits": "Atmospheric living dungeon lighting, clear minimap icons for archives/merchants/fountains, stance-aligned directional aim reticle, and crisp elite readability",
-        "risks": "contract: none; dependency: none; concurrency: none; state: view-only rendering",
-        "mitigation": "View-only layer additions, 100% test pass, zero regressions, and pre-commit gate triad"
-      }
-    },
-    {
-      "task_id": "visual-atmosphere-polish-v1",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "Implement dynamic wall torches, minimap objective markers, stance aim reticle, and elite champion aura",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793547207.2989273,
-      "timestamp_str": "2026-11-01 18:33:27",
-      "agent": "antigravity:sim"
-    },
-    {
-      "task_id": "visual-atmosphere-polish-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "Pass all 213 vitest tests, lint, typecheck, build, mechanics, hygiene, guidelines, and secrets gates",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793547212.0740685,
-      "timestamp_str": "2026-11-01 18:33:32",
-      "agent": "antigravity:sim"
-    },
-    {
-      "task_id": "visual-atmosphere-polish-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'visual-atmosphere-polish-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793547216.7677486,
-      "timestamp_str": "2026-11-01 18:33:36",
-      "agent": "antigravity:sim"
-    },
-    {
-      "task_id": "audio-visual-finisher-polish-v1",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/4] Plan: stance-weighted swing audio, combo finisher glints, and big map objective sync",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793547569.773201,
-      "timestamp_str": "2026-11-01 18:39:29",
-      "agent": "antigravity:sim",
-      "impact_assessment": {
-        "why": "Differentiate audio feedback across weapon stances, punch up combo finishers, and synchronize map objectives",
-        "benefits": "Heavier greatsword impact, sharper spear whistle, satisfying finisher visual spark, and complete map objective clarity",
-        "risks": "contract: none; dependency: none; concurrency: none; state: view/audio presentation only",
-        "mitigation": "Presentation layer additions, 100% test pass, and pre-commit gate triad"
-      }
-    },
-    {
-      "task_id": "audio-visual-finisher-polish-v1",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "Implement stance-weighted audio, finisher apex glint, and big map objective sync",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793547574.971115,
-      "timestamp_str": "2026-11-01 18:39:34",
-      "agent": "antigravity:sim"
-    },
-    {
-      "task_id": "audio-visual-finisher-polish-v1",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "Pass all 213 vitest tests, lint, typecheck, build, mechanics, hygiene, guidelines, and secrets gates",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793547580.520097,
-      "timestamp_str": "2026-11-01 18:39:40",
-      "agent": "antigravity:sim"
-    },
-    {
-      "task_id": "audio-visual-finisher-polish-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'audio-visual-finisher-polish-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793547585.309462,
-      "timestamp_str": "2026-11-01 18:39:45",
-      "agent": "antigravity:sim"
-    },
-    {
-      "task_id": "variable-ratio-pickups-and-tactical-map-v1",
-      "phase": "in_progress",
-      "phase_num": 2,
-      "description": "[1/2] Plan variable-ratio surges, pickup boundaries and tactical minimap",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1793548298.088288,
-      "timestamp_str": "2026-11-01 18:51:38",
-      "agent": "Antigravity",
-      "impact_assessment": {
-        "why": "Implement variable-ratio reinforcement schedules for breakables and chests, fix pickups falling in doors/gates, and enhance tactical map",
-        "benefits": "Empirical grounding with cyberpulse literature (Skinner/Schultz RPE, Zeigarnik effect), eliminates lost drops at doors, enhances feedback",
-        "risks": "contract: no breaking changes; dependency: zero new dependencies; concurrency: single-threaded PIXI/game loop; state: pure extension to existing event/pickup/minimap systems",
-        "mitigation": "Thorough unit tests in systems.test.ts, 100% vitest suite pass, 8 AIKit gates in strict mode"
+        "why": "The curated deep dives stop at 1 -> 186; 1 -> 189 was only batch-mapped.",
+        "benefits": "The report covers the three clipping fixes with current evidence.",
+        "risks": "contract: docs only; dependency: none; concurrency: none; state: none",
+        "mitigation": "Beam, sweep and mortar clip suites plus the full gates."
       },
-      "handoff": {
-        "state": "clean",
-        "next": "implement pickup safety and surge drops in world.ts and minimap.ts",
-        "open": "none"
-      }
+      "plan_digest": "3e03a96a618f9cdb1fba278305c74b116730cd830c9c357857f4bed49317ef22"
     },
     {
-      "task_id": "variable-ratio-pickups-and-tactical-map-v1",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'variable-ratio-pickups-and-tactical-map-v1' completed successfully.",
-      "status": "completed",
-      "timestamp": 1793548604.4174783,
-      "timestamp_str": "2026-11-01 18:56:44",
-      "agent": "Antigravity"
-    },
-    {
-      "task_id": "visual-level-gate-polish-and-flow-echoes-v1",
-      "phase": "in_progress",
-      "phase_num": 2,
-      "description": "[1/2] Plan gate visual rendering, torch ambient lighting, mastered minimap rooms and flow echoes",
+      "task_id": "commit-range-audit-v33",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified 1 -> 189: beam and sweep warning/live lanes still clip via clipLaneToRoom (ui-beam-clip 1/1, ui-sweep-clip 1/1); mortar uses the radius-aware helper (ui-mortar-clip 3/3); quake stays radius-aware; no finding; 447 vitest (78 files), 361 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
       "files_affected": [],
       "status": "in_progress",
-      "timestamp": 1793549407.9979455,
-      "timestamp_str": "2026-11-01 19:10:07",
-      "agent": "Antigravity",
-      "impact_assessment": {
-        "why": "Elevate visual cohesion of reinforcement gates and torch illumination in LevelView, add room completion salience to Minimap, and reward flow mastery in echoes",
-        "benefits": "Visual consistency with gate threshold and wall faces, deeper dungeon atmosphere, clear exploration feedback, and competency reinforcement",
-        "risks": "contract: pure additive rendering and formula extension; dependency: zero new packages; concurrency: single-threaded PIXI renderer; state: preserves all SaveStore and run contract invariants",
-        "mitigation": "Unit test in hub.test.ts and systems.test.ts, 100% vitest suite pass, 8 AIKit verification gates in strict mode"
-      },
-      "handoff": {
-        "state": "clean",
-        "next": "update LevelView.ts, Minimap.ts, hub.ts",
-        "open": "none"
-      }
+      "timestamp": 1794157940.167232,
+      "timestamp_str": "2026-11-08 20:12:20",
+      "agent": "commandcode:mr-audit"
     },
     {
-      "task_id": "visual-level-gate-polish-and-flow-echoes-v1",
+      "task_id": "commit-range-audit-v33",
       "phase": "completed",
       "phase_num": 5,
-      "description": "Task 'visual-level-gate-polish-and-flow-echoes-v1' completed successfully.",
+      "description": "Task 'commit-range-audit-v33' completed successfully.",
       "status": "completed",
-      "timestamp": 1793549583.711263,
-      "timestamp_str": "2026-11-01 19:13:03",
-      "agent": "Antigravity"
+      "timestamp": 1794157940.5203583,
+      "timestamp_str": "2026-11-08 20:12:20",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "commit-range-audit-v34",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Deep-dive range 1 -> 192: verify dash-strike and projectile aim-line clipping plus the room telegraph mask",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794157949.8781543,
+      "timestamp_str": "2026-11-08 20:12:29",
+      "agent": "commandcode:mr-audit",
+      "impact_assessment": {
+        "why": "The curated deep dives stop at 1 -> 189; 1 -> 192 was only batch-mapped.",
+        "benefits": "The report covers the dash, aim-line and room-mask fixes with current evidence.",
+        "risks": "contract: docs only; dependency: none; concurrency: none; state: none",
+        "mitigation": "Dash, aim-line and mask suites plus the full gates."
+      },
+      "plan_digest": "fbc28aec8462df08c77043531f5ea9244dbfcf1c6a3c3b14c2fcb21c3bc62e5c"
+    },
+    {
+      "task_id": "commit-range-audit-v34",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified 1 -> 192: dash lane still clips (ui-dash-clip 1/1); shot/spread/volley/bolt aim lines still clip (ui-aim-line-clip 1/1); telegraph layer still masks to the current room (ui-telegraph-mask 1/1); no finding; 447 vitest (78 files), 361 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794158006.8723779,
+      "timestamp_str": "2026-11-08 20:13:26",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "commit-range-audit-v34",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'commit-range-audit-v34' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794158007.2837198,
+      "timestamp_str": "2026-11-08 20:13:27",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "commit-range-audit-v35",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Deep-dive range 1 -> 195: verify boss aura phase alignment, every spiral bullet marked and the locked blink landing",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794158022.0862334,
+      "timestamp_str": "2026-11-08 20:13:42",
+      "agent": "commandcode:mr-audit",
+      "impact_assessment": {
+        "why": "The curated deep dives stop at 1 -> 192; 1 -> 195 was only batch-mapped.",
+        "benefits": "The report covers the aura, spiral and blink telegraph fixes with current evidence.",
+        "risks": "contract: docs only; dependency: none; concurrency: none; state: none",
+        "mitigation": "Aura, spiral and blink suites plus the full gates."
+      },
+      "plan_digest": "09463b0b0e45e2812bf5a139dc9f85b996cea4e7af7fe730ef221a5d2beef687"
+    },
+    {
+      "task_id": "commit-range-audit-v35",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified 1 -> 195: bossAuraTier follows the 60/30 sim phases (ui-boss-aura 2/2); spiralAngles feeds sim and markers (spiral-telegraph 3/3); blinkLanding is locked at windup (blink-target 2/2); no finding; 447 vitest (78 files), 361 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794158071.8461874,
+      "timestamp_str": "2026-11-08 20:14:31",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "commit-range-audit-v35",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'commit-range-audit-v35' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794158072.193044,
+      "timestamp_str": "2026-11-08 20:14:32",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "commit-range-audit-v36",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Deep-dive range 1 -> 198: verify the true lunge lane, the summon add cap and quake warnings for blasts that reach inside",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794158084.9502664,
+      "timestamp_str": "2026-11-08 20:14:44",
+      "agent": "commandcode:mr-audit",
+      "impact_assessment": {
+        "why": "The curated deep dives stop at 1 -> 195; 1 -> 198 was only batch-mapped.",
+        "benefits": "The report covers the lunge, summon and quake fixes with current evidence.",
+        "risks": "contract: docs only; dependency: none; concurrency: none; state: none",
+        "mitigation": "Lunge, summon and quake suites plus the full gates."
+      },
+      "plan_digest": "0f6b37c9faabe25bfd4e2048659c7fbebf751fe20cdbdd36c2d914cb1fbc5e1d"
+    },
+    {
+      "task_id": "commit-range-audit-v36",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified 1 -> 198: lungeRange feeds the lane (lunge-telegraph 2/2); summon checks summonCount (summon-cap 1/1); quakeRingPoints uses blast intersection (ui-quake-clip 3/3); no finding; 447 vitest (78 files), 361 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794158137.0393825,
+      "timestamp_str": "2026-11-08 20:15:37",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "commit-range-audit-v36",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'commit-range-audit-v36' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794158137.377087,
+      "timestamp_str": "2026-11-08 20:15:37",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "commit-range-audit-v37",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Deep-dive range 1 -> 201 (End): verify the Crystal Golem beam, volley timing and Ruin Warlord armor, and resync the assets enemies mirror with the 83-enemy runtime copy",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794158175.7703521,
+      "timestamp_str": "2026-11-08 20:16:15",
+      "agent": "commandcode:mr-audit",
+      "impact_assessment": {
+        "why": "The final cumulative range was only batch-mapped. src/data/enemies.json has 83 records (matching the README) while assets/data/enemies.json still has 76, so the distribution mirror is stale for the late-content enemies.",
+        "benefits": "The runtime bestiary and its assets mirror agree, guarded by a parity test, and every cumulative range through End is deep-dived.",
+        "risks": "contract: one assets data sync plus one test; dependency: none; concurrency: enemies data/content test carry the slice; state: none",
+        "mitigation": "Failing-first mirror test, content/assets suites, full npm test/mechanics, typecheck/lint/build and AIKit 8/8."
+      },
+      "plan_digest": "23dca935198d7879ccf24f96a05d4d1da0c169f695718f647002ddbba6f8c61f"
+    },
+    {
+      "task_id": "commit-range-audit-v37",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified 1 -> 201 (End): Crystal Golem beam (crystal-golem-pattern 2/2), volley timing 1/1 and Ruin Warlord armor (1/1, assets 4/4) pass; fixed the runtime/mirror bestiary drift by syncing assets/data/enemies.json and adding a parity test (content 18/18); all 67 cumulative ranges are now deep-dived; 448 vitest (78 files), 362 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794158365.3704755,
+      "timestamp_str": "2026-11-08 20:19:25",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "commit-range-audit-v37",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'commit-range-audit-v37' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794158365.7039413,
+      "timestamp_str": "2026-11-08 20:19:25",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "ui-health-bar-decision",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Close the audit's unblessed .bar restyle by keeping the verified 18px combat bar and pinning it with a CSS regression test",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794159632.9774582,
+      "timestamp_str": "2026-11-08 20:40:32",
+      "agent": "commandcode:mr-audit",
+      "impact_assessment": {
+        "why": "Commit 2918da8 bundled a 16px -> 18px .bar restyle into a short-window hub commit and explicitly left it unblessed; the audit report kept it as an open human-review item. The current UI and screenshots use 18px, so reverting would invalidate the verified layout.",
+        "benefits": "The health-bar height becomes deliberate and regression-guarded, and the audit's last open presentation item closes.",
+        "risks": "contract: one test and one ADR, no runtime change; dependency: none; concurrency: ui.css test/audit report carry the slice; state: none",
+        "mitigation": "New CSS test, full npm test/mechanics, typecheck/lint/build and AIKit 8/8."
+      },
+      "plan_digest": "4bd5e6311c20d70ab0c8cbcb399a224a96e786af2815f0ef88865d95fccc1ae4"
+    },
+    {
+      "task_id": "ui-health-bar-decision",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Kept the verified 18px .bar and pinned it in tests/ui-health-bar.test.ts (2/2; .bar.thin 5px); ADR-174 closes the audit's last open item; 450 vitest (79 files), 362 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794159776.847719,
+      "timestamp_str": "2026-11-08 20:42:56",
+      "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "ui-health-bar-decision",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'ui-health-bar-decision' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794159777.9947937,
+      "timestamp_str": "2026-11-08 20:42:57",
+      "agent": "commandcode:mr-audit"
     }
   ]
 }

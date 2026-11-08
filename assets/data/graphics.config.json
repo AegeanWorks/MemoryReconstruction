@@ -2,20 +2,22 @@
   "resolution": {
     "width": 1920,
     "height": 1080,
-    "pixelRatio": 1
+    "pixelRatio": 2
   },
   "rendering": {
-    "antialias": true,
+    "antialias": false,
     "preserveDrawingBuffer": false,
     "powerPreference": "high-performance",
-    "backgroundColor": 1052719
+    "backgroundColor": 1052719,
+    "notes": "Pixel art stays crisp with nearest filtering and no MSAA; resolution caps at min(devicePixelRatio, 2). The camera zooms so ~520 world px fill the window height."
   },
   "layers": {
     "background": 0,
     "midground": 100,
     "foreground": 200,
     "effects": 300,
-    "ui": 1000
+    "ui": 1000,
+    "notes": "World-space order is level tiles, ground (telegraphs, glows), actors (depth-sorted), effects, overlay (projectiles, bars), then screen-space darkness and hurt flash."
   },
   "parallax": {
     "enabled": true,
@@ -23,14 +25,16 @@
     "baseSpeed": 0.1
   },
   "postProcessing": {
-    "enabled": true,
-    "bloom": true,
+    "enabled": false,
+    "bloom": false,
     "vignette": true,
-    "colorGrading": true,
-    "crtEffect": false
+    "colorGrading": false,
+    "crtEffect": false,
+    "notes": "No GPU post chain: vignette/darkness breathing, low-HP pulse and hurt flash are drawn in canvas in Renderer/ActorView. Shader files under assets/shaders are reserved, not loaded."
   },
   "particles": {
-    "maxParticles": 10000,
-    "useGPU": true
+    "maxParticles": 500,
+    "useGPU": false,
+    "notes": "CPU-pooled sprites in Effects.ts; ambient mote budget is 32-48 per biome in atmosphere.ts."
   }
 }

@@ -56,7 +56,23 @@
       "tideCaller": "sprites/enemies/tideCaller.png",
       "frostOracle": "sprites/enemies/frostOracle.png",
       "ashHerald": "sprites/enemies/ashHerald.png",
-      "petalWitch": "sprites/enemies/petalWitch.png"
+      "petalWitch": "sprites/enemies/petalWitch.png",
+      "tideReaver": "sprites/enemies/tideReaver.png",
+      "brineHulk": "sprites/enemies/brineHulk.png",
+      "harborGunner": "sprites/enemies/harborGunner.png",
+      "sirenCaller": "sprites/enemies/sirenCaller.png",
+      "stormSquire": "sprites/enemies/stormSquire.png",
+      "galeArcher": "sprites/enemies/galeArcher.png",
+      "thunderBrute": "sprites/enemies/thunderBrute.png",
+      "tempestOracle": "sprites/enemies/tempestOracle.png",
+      "drownedBlademaster": "sprites/enemies/drownedBlademaster.png",
+      "stormWarlord": "sprites/enemies/stormWarlord.png",
+      "gutterRunner": "sprites/enemies/gutterRunner.png",
+      "briarWolf": "sprites/enemies/briarWolf.png",
+      "gloomStalker": "sprites/enemies/gloomStalker.png",
+      "prismWisp": "sprites/enemies/prismWisp.png",
+      "nullHound": "sprites/enemies/nullHound.png",
+      "slagGolem": "sprites/enemies/slagGolem.png"
     },
     "tilesets": {
       "ruins": "sprites/tilesets/ruins.png",
@@ -64,6 +80,12 @@
       "caves": "sprites/tilesets/caves.png",
       "crystal": "sprites/tilesets/crystal.png",
       "void": "sprites/tilesets/void.png",
+      "tide": "sprites/tilesets/tide.png",
+      "storm": "sprites/tilesets/storm.png",
+      "ash": "sprites/tilesets/ash.png",
+      "abyss": "sprites/tilesets/abyss.png",
+      "frost": "sprites/tilesets/frost.png",
+      "bloom": "sprites/tilesets/bloom.png",
       "sanctuary": "sprites/tilesets/sanctuary.png",
       "foundry": "sprites/tilesets/foundry.png",
       "mire": "sprites/tilesets/mire.png",
@@ -84,7 +106,9 @@
       "foundry": "sprites/backgrounds/foundry.png",
       "mire": "sprites/backgrounds/mire.png",
       "hive": "sprites/backgrounds/hive.png",
-      "catacomb": "sprites/backgrounds/catacomb.png"
+      "catacomb": "sprites/backgrounds/catacomb.png",
+      "tide": "sprites/backgrounds/tide.png",
+      "storm": "sprites/backgrounds/storm.png"
     },
     "props": {
       "memory_fountain": "sprites/props/memory_fountain.png",
@@ -141,11 +165,15 @@
       "furn_desk": "sprites/props/furn_desk.png",
       "furn_cauldron": "sprites/props/furn_cauldron.png",
       "furn_strings": "sprites/props/furn_strings.png",
+      "furn_chandelier": "sprites/props/furn_chandelier.png",
+      "furn_tapestry": "sprites/props/furn_tapestry.png",
       "building_archive": "sprites/props/building_archive.png",
       "building_forge": "sprites/props/building_forge.png",
       "building_garden": "sprites/props/building_garden.png",
       "building_barracks": "sprites/props/building_barracks.png",
-      "building_lamphouse": "sprites/props/building_lamphouse.png"
+      "building_lamphouse": "sprites/props/building_lamphouse.png",
+      "building_hearth": "sprites/props/building_hearth.png",
+      "npc_hearthkeeper": "sprites/props/npc_hearthkeeper.png"
     },
     "ui": {
       "health": "sprites/ui/health.png",

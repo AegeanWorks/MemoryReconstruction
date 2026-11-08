@@ -7,6 +7,7 @@
 import type { Enemy, Player, Projectile } from './entities';
 import type { SimEvent } from './events';
 import type { Rng } from './rng';
+import type { RunState } from './run';
 import type { TileGrid } from './tiles';
 
 export type DamageSource = 'melee' | 'bolt' | 'dash' | 'shockwave' | 'hazard';
@@ -16,6 +17,9 @@ export interface Arena {
   readonly rng: Rng;
   readonly player: Player;
   readonly enemies: readonly Enemy[];
+  readonly run: RunState;
+  /** Interior rectangle of the room containing a pixel point, if any. */
+  roomBoundsAt(x: number, y: number): { x: number; y: number; w: number; h: number } | undefined;
   emit(event: SimEvent): void;
   /** Applies damage, knockback, lifesteal and kill rewards. Returns damage dealt. */
   damageEnemy(

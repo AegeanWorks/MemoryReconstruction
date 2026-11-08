@@ -3,8 +3,10 @@ import { NO_INPUT } from '../../src/sim/entities';
 import {
   PILLARS_RADIUS,
   QUAKE_RADIUS,
+  SWEEP_ACTIVE,
   SWEEP_RANGE,
   SWEEP_SPAN,
+  sweepBeamAngle,
 } from '../../src/sim/enemies';
 import { createRun } from '../../src/sim/run';
 import { World } from '../../src/sim/world';
@@ -18,6 +20,15 @@ describe('sweep and ground zones (the warning covers the whole hazard)', () => {
     expect(SWEEP_RANGE).toBe(520);
     expect(QUAKE_RADIUS).toBe(40);
     expect(PILLARS_RADIUS).toBe(38);
+  });
+
+  it('the live beam starts and ends on the telegraphed arc', () => {
+    const beam = { dirX: -1, dirY: 0, stateTime: SWEEP_ACTIVE };
+    expect(sweepBeamAngle(beam)).toBeCloseTo(Math.PI - SWEEP_SPAN / 2);
+    beam.stateTime = SWEEP_ACTIVE / 2;
+    expect(sweepBeamAngle(beam)).toBeCloseTo(Math.PI);
+    beam.stateTime = 0;
+    expect(sweepBeamAngle(beam)).toBeCloseTo(Math.PI + SWEEP_SPAN / 2);
   });
 
   it('the sim beam hurts well past the old 220px telegraph', () => {

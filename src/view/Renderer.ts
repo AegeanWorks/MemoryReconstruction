@@ -10,6 +10,7 @@ import type { SimEvent } from '../sim/events';
 import type { World } from '../sim/world';
 import { ActorView } from './ActorView';
 import { atmosphereFor } from './atmosphere';
+import { cameraFocus } from './camera';
 import { Effects } from './Effects';
 import { fxTextures } from './fxArt';
 import { LevelView } from './LevelView';
@@ -53,6 +54,7 @@ export class Renderer {
   private zoom = 1;
   private aimX = 0;
   private aimY = 0;
+  private screenFlashEnabled = true;
   private time = 0;
 
   async init(host: HTMLElement, onProgress?: (fraction: number) => void): Promise<void> {
@@ -149,6 +151,16 @@ export class Renderer {
     return { x: w / 2 + (x - this.camX) * this.zoom, y: h / 2 + (y - this.camY) * this.zoom };
   }
 
+  /** Toggled from settings: floating hit amounts on or off. */
+  setDamageNumbers(visible: boolean): void {
+    if (this.scene) this.scene.effects.showDamageNumbers = visible;
+  }
+
+  /** Toggled from settings: red hurt flash on damage. */
+  setScreenFlash(enabled: boolean): void {
+    this.screenFlashEnabled = enabled;
+  }
+
   /**
    * Draws a frame. `alpha` is how far real time is between the last two sim
    * steps (0..1); `dt` is the real seconds since the previous frame.
@@ -178,8 +190,13 @@ export class Renderer {
       Math.min(LOOK_AHEAD_MAX, ((this.aimY - h / 2) / this.zoom) * LOOK_AHEAD)
     );
     const follow = 1 - Math.exp(-10 * dt);
-    this.camX += (target.x + lookX - this.camX) * follow;
-    this.camY += (target.y + lookY - this.camY) * follow;
+    const boss = scene.world.mode === 'dungeon' ? scene.world.activeBoss() : undefined;
+    const focus = cameraFocus(
+      { x: target.x + lookX, y: target.y + lookY },
+      boss ? { x: boss.x, y: boss.y, displayHeight: boss.def.displayHeight } : undefined
+    );
+    this.camX += (focus.x - this.camX) * follow;
+    this.camY += (focus.y - this.camY) * follow;
     // A resident's room is one small stage: hold it framed instead of letting
     // the camera crop the top wall when the walker stands near the door.
     if (scene.world.mode === 'sanctuary') {
@@ -200,7 +217,12 @@ export class Renderer {
     const view = { x: this.camX - viewW / 2, y: this.camY - viewH / 2, w: viewW, h: viewH };
     scene.level.update(dt, view.x - 64, view.y - 64, view.w + 128, view.h + 128);
     scene.actors.update(dt, alpha, view);
-    scene.effects.update(dt, view);
+    const runner = scene.world.player;
+    scene.effects.update(dt, view, {
+      x: runner.x,
+      y: runner.y,
+      moving: runner.action === 'move' || runner.action === 'dash',
+    });
 
     // Dynamic breathing and atmospheric lighting
     const biome = scene.world.plan.biome;
@@ -228,7 +250,7 @@ export class Renderer {
       const strokeW = Math.max(16, Math.min(w, h) * 0.05);
       this.flash.rect(0, 0, w, h).stroke({ width: strokeW, color: 0x99000b, alpha });
     }
-    if (scene.effects.hurtFlash > 0)
+    if (scene.effects.hurtFlash > 0 && this.screenFlashEnabled)
       this.flash.rect(0, 0, w, h).fill({ color: 0xff2020, alpha: scene.effects.hurtFlash * 0.22 });
   }
 }

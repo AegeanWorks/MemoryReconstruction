@@ -21,7 +21,17 @@ const CELL_MARGIN = 3;
 /** Half-size of the centre band every room must contain. */
 const CORE_HALF = 2;
 
-export type RoomKind = 'start' | 'combat' | 'treasure' | 'shrine' | 'boss' | 'arena' | 'library';
+export type RoomKind =
+  | 'start'
+  | 'combat'
+  | 'treasure'
+  | 'shrine'
+  | 'boss'
+  | 'arena'
+  | 'library'
+  | 'colosseum'
+  /** A sealed reward room opened by a lever elsewhere on the floor. */
+  | 'vault';
 export type RoomShape = 'rect' | 'rounded' | 'octagon' | 'cave';
 export type Direction = 'north' | 'south' | 'east' | 'west';
 
@@ -57,6 +67,10 @@ export interface Room {
   gates?: EnemyGate[];
   /** Steps from the start room through doorways. */
   distance: number;
+  /** A vault starts with its doorway walled shut until a lever is pulled. */
+  sealed?: boolean;
+  /** Original furnished tiles hidden while a vault is sealed. */
+  secretTiles?: Array<{ x: number; y: number; tile: Tile }>;
 }
 
 export interface FloorMap {
@@ -70,7 +84,16 @@ export interface FloorMap {
 
 /** Structural feel of a floor: branching maze, ring, spine or dense grid. */
 export type MapLayout =
-  'branch' | 'ring' | 'spine' | 'grid' | 'diamond' | 'cross' | 'clover' | 'terrace';
+  | 'branch'
+  | 'ring'
+  | 'spine'
+  | 'grid'
+  | 'diamond'
+  | 'cross'
+  | 'clover'
+  | 'terrace'
+  | 'atoll'
+  | 'spire';
 
 export interface FloorOptions {
   /** Rooms including start and boss; clamped to what the grid can hold. */
@@ -110,8 +133,9 @@ export function generateFloor(seed: number, depth: number, options: FloorOptions
   const distances = cellDistances(cells.length, links);
   const kinds = options.bossOnly
     ? (['boss'] as RoomKind[])
-    : assignKinds(rng, distances, links, !!options.finale, depth);
+    : assignKinds(rng, cells, distances, links, !!options.finale, depth);
   const rooms = cells.map((cell, id) => placeRoom(rng, cell, id, kinds[id], distances[id]));
+  if (!options.bossOnly && !options.finale) expandColosseum(rng, cells, links, rooms);
 
   const grid = new TileGrid(GRID_W * CELL_W + 2, GRID_H * CELL_H + 2);
   for (const room of rooms) {
@@ -122,6 +146,49 @@ export function generateFloor(seed: number, depth: number, options: FloorOptions
   addWalls(grid);
   placeEnemyGates(rng, grid, rooms);
   for (const room of rooms) furnish(rng, grid, room);
+  // Pick the vault after the layout is generated, so choosing a secret room
+  // never shifts the RNG stream that carved the rest of the floor.
+  if (!options.bossOnly && !options.finale && depth >= 1) {
+    const degree = rooms.map(() => 0);
+    for (const [a, b] of links) {
+      degree[a]++;
+      degree[b]++;
+    }
+    // Only a true dead end is safe: sealing a cut vertex would strand the
+    // chambers beyond it. Prefer a combat dead end; a spare treasure/library
+    // dead end can become the vault so most floors keep a secret.
+    const deadEnds = rooms.filter(
+      (r) =>
+        degree[r.id] === 1 &&
+        r.kind !== 'start' &&
+        r.kind !== 'boss' &&
+        r.kind !== 'arena' &&
+        r.kind !== 'colosseum'
+    );
+    const vault =
+      deadEnds.find((r) => r.kind === 'combat') ??
+      deadEnds.find((r) => r.kind === 'treasure' || r.kind === 'library');
+    if (vault) {
+      vault.kind = 'vault';
+      // A vault has no enemy gates: its interior is hidden, so the gate art
+      // and spawn point must go back to plain wall.
+      for (const gate of vault.gates ?? [])
+        for (const t of gate.tiles) grid.set(t.x, t.y, Tile.Wall);
+      vault.gates = [];
+    }
+  }
+  // A vault is a solid wall block until its lever opens it. Capture the
+  // furnished room first so opening restores the floor and obstacles exactly.
+  for (const room of rooms) {
+    if (room.kind !== 'vault') continue;
+    room.sealed = true;
+    room.secretTiles = [];
+    for (let ty = room.y; ty < room.y + room.h; ty++)
+      for (let tx = room.x; tx < room.x + room.w; tx++)
+        room.secretTiles.push({ x: tx, y: ty, tile: grid.get(tx, ty) });
+    for (const t of room.secretTiles) grid.set(t.x, t.y, Tile.Wall);
+    for (const door of room.doors) for (const t of door.tiles) grid.set(t.x, t.y, Tile.Wall);
+  }
 
   const startRoom = 0;
   const bossRoom = options.bossOnly ? 0 : kinds.indexOf('boss');
@@ -142,7 +209,33 @@ function layoutCells(rng: Rng, layout: MapLayout, target: number): Cell[] {
   if (layout === 'cross') return crossCells();
   if (layout === 'clover') return cloverCells();
   if (layout === 'terrace') return terraceCells();
+  if (layout === 'atoll') return atollCells();
+  if (layout === 'spire') return spireCells();
   return spineCells(target);
+}
+
+/**
+ * A drowned atoll: two arcs of islets around an open lagoon with a single
+ * mouth to the east. Built for the Tideways, where the water took the middle.
+ */
+function atollCells(): Cell[] {
+  const cells: Cell[] = [];
+  for (let x = 1; x <= 5; x++) cells.push({ x, y: 1 });
+  cells.push({ x: 1, y: 2 }, { x: 1, y: 3 }, { x: 5, y: 2 });
+  for (let x = 1; x <= 5; x++) cells.push({ x, y: 4 });
+  return cells;
+}
+
+/**
+ * A militant spire: one long vertical ward with drill cells jutting off
+ * alternating sides. Built for the Howling Spire's straight-up assault.
+ */
+function spireCells(): Cell[] {
+  const cells: Cell[] = [];
+  cells.push({ x: 3, y: 5 });
+  for (let y = 4; y >= 0; y--) cells.push({ x: 3, y });
+  cells.push({ x: 2, y: 1 }, { x: 4, y: 2 }, { x: 2, y: 3 }, { x: 4, y: 4 });
+  return cells;
 }
 
 /** A diamond of cells: a central hall with four tapering approaches. */
@@ -339,13 +432,99 @@ function span(
   return [start, end - start];
 }
 
+/**
+ * Grows each colosseum room into a neighbouring 2x2 cell block, producing a
+ * single chamber of roughly 42x30 tiles — about six times a grand hall.
+ * Only blocks whose other three cells are free of rooms AND corridor paths
+ * qualify, so no doorway, gate or corridor is ever swallowed. Rooms that
+ * find no valid block keep their grand single-cell span and still run
+ * colosseum waves.
+ */
+function expandColosseum(
+  rng: Rng,
+  cells: Cell[],
+  links: Array<[number, number]>,
+  rooms: Room[]
+): void {
+  const occupied = new Set(cells.map(cellKey));
+  // Cells a straight corridor passes through (endpoints have rooms anyway).
+  const corridorCells = new Set<number>();
+  for (const [a, b] of links) {
+    const ca = cells[a];
+    const cb = cells[b];
+    // Mirror carveCorridor's ordering exactly so the marked cells cover the
+    // tiles the corridor will actually carve, including diagonal links.
+    const [f, s] = ca.x < cb.x || ca.y < cb.y ? [ca, cb] : [cb, ca];
+    if (f.y === s.y) {
+      const [lo, hi] = f.x < s.x ? [f.x, s.x] : [s.x, f.x];
+      for (let x = lo; x <= hi; x++) corridorCells.add(cellKey({ x, y: f.y }));
+    } else {
+      const [lo, hi] = f.y < s.y ? [f.y, s.y] : [s.y, f.y];
+      for (let y = lo; y <= hi; y++) corridorCells.add(cellKey({ x: f.x, y }));
+    }
+  }
+  const rectsOverlap = (a: Room, bx: number, by: number, bw: number, bh: number): boolean =>
+    a.x < bx + bw + 1 && bx < a.x + a.w + 1 && a.y < by + bh + 1 && by < a.y + a.h + 1;
+
+  for (const room of rooms) {
+    if (room.kind !== 'colosseum') continue;
+    const { cellX: cx, cellY: cy } = room;
+    // Candidate 2x2 blocks containing the room's cell: [dx, dy] of the block origin.
+    const blocks = rng.shuffle([
+      [0, 0],
+      [-1, 0],
+      [0, -1],
+      [-1, -1],
+    ] as Array<[number, number]>);
+    for (const [dx, dy] of blocks) {
+      const bx = cx + dx;
+      const by = cy + dy;
+      if (bx < 0 || by < 0 || bx + 1 >= GRID_W || by + 1 >= GRID_H) continue;
+      const blockCells = [
+        { x: bx, y: by },
+        { x: bx + 1, y: by },
+        { x: bx, y: by + 1 },
+        { x: bx + 1, y: by + 1 },
+      ];
+      // The room's own cell must be in the block; the other three must be
+      // completely free (no room, no corridor path).
+      if (!blockCells.some((c) => c.x === cx && c.y === cy)) continue;
+      if (
+        blockCells.some(
+          (c) =>
+            (c.x !== cx || c.y !== cy) &&
+            (occupied.has(cellKey(c)) || corridorCells.has(cellKey(c)))
+        )
+      )
+        continue;
+      // World-pixel origin of the block in tiles: grid has a 1-tile border.
+      const ox = 1 + bx * CELL_W;
+      const oy = 1 + by * CELL_H;
+      const nx = ox + CELL_MARGIN;
+      const ny = oy + CELL_MARGIN;
+      const nw = CELL_W * 2 - CELL_MARGIN * 2;
+      const nh = CELL_H * 2 - CELL_MARGIN * 2;
+      // Keep a 1-tile void buffer from every other room so chambers never merge.
+      if (rooms.some((other) => other !== room && rectsOverlap(other, nx, ny, nw, nh))) continue;
+      // The room's own centre band must survive inside the new rect (it does:
+      // the rect covers the whole original cell), and corridors attach after.
+      room.x = nx;
+      room.y = ny;
+      room.w = nw;
+      room.h = nh;
+      break;
+    }
+  }
+}
+
 function placeRoom(rng: Rng, cell: Cell, id: number, kind: RoomKind, distance: number): Room {
   const centre = cellCentre(cell);
-  // Boss and arena rooms are always grand; ~45% of combat rooms and ~40% of library rooms
-  // are also crafted as grand chambers.
+  // Boss, arena and colosseum rooms are always grand; ~45% of combat rooms
+  // and ~40% of library rooms are also crafted as grand chambers.
   const isGrand =
     kind === 'boss' ||
     kind === 'arena' ||
+    kind === 'colosseum' ||
     (kind === 'combat' && rng.chance(0.45)) ||
     (kind === 'library' && rng.chance(0.4));
   const [x, w] = span(rng, 1 + cell.x * CELL_W, CELL_W, centre.x, isGrand);
@@ -492,7 +671,7 @@ function addWalls(grid: TileGrid): void {
  */
 function placeEnemyGates(rng: Rng, grid: TileGrid, rooms: Room[]): void {
   for (const room of rooms) {
-    if (room.kind !== 'combat' && room.kind !== 'arena') continue;
+    if (room.kind !== 'combat' && room.kind !== 'arena' && room.kind !== 'colosseum') continue;
     if (room.w < 12 || room.h < 9) continue;
     if (!rng.chance(0.65)) continue;
 
@@ -606,6 +785,7 @@ function cellDistances(count: number, links: Array<[number, number]>): number[] 
  */
 function assignKinds(
   rng: Rng,
+  cells: Cell[],
   distances: number[],
   links: Array<[number, number]>,
   finale: boolean,
@@ -646,6 +826,29 @@ function assignKinds(
     const pool = deadEnds().length > 0 ? deadEnds() : free();
     kinds[rng.pick(pool)] = 'arena';
   }
+  // The colosseum: one chamber per floor swells to a 2x2-cell battleground
+  // running six-plus enemy waves. Prefer a dead end so the fight is a
+  // deliberate detour, never a corridor the player must cross. Cells shared
+  // by two rooms are excluded as a guard: two rooms on one cell would trigger
+  // two encounters at once. The threshold is 3 so even the seven-room opening
+  // floor gets its battleground.
+  if (free().length >= 3) {
+    // A shared cell would trigger two encounters at once; keep this guard
+    // even though the current layouts emit unique cells.
+    const cellSeen = new Set<number>();
+    const firstOccurrence = new Set<number>();
+    cells.forEach((c, i) => {
+      const key = cellKey(c);
+      if (!cellSeen.has(key)) {
+        cellSeen.add(key);
+        firstOccurrence.add(i);
+      }
+    });
+    const pool = (deadEnds().length > 0 ? deadEnds() : free()).filter((i) =>
+      firstOccurrence.has(i)
+    );
+    if (pool.length > 0) kinds[rng.pick(pool)] = 'colosseum';
+  }
   // A safe memory archive: lore instead of a fight.
   if (free().length >= 2 && rng.chance(0.5)) {
     const pool = deadEnds().length > 0 ? deadEnds() : free();
@@ -668,12 +871,19 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
       [room.x + inset, room.y + room.h - inset - 1],
       [room.x + room.w - inset - 1, room.y + room.h - inset - 1],
     ];
+    const nearDoorOrGate = (tx: number, ty: number, clearance: number): boolean => {
+      for (const door of room.doors)
+        for (const tile of door.tiles)
+          if (Math.abs(tx - tile.x) + Math.abs(ty - tile.y) < clearance) return true;
+      for (const gate of room.gates ?? [])
+        for (const tile of gate.tiles)
+          if (Math.abs(tx - tile.x) + Math.abs(ty - tile.y) < clearance) return true;
+      return false;
+    };
     const isolated = (tx: number, ty: number): boolean => {
       if (grid.get(tx, ty) !== Tile.Floor) return false;
       if (Math.abs(tx - centre.x) <= 2 && Math.abs(ty - centre.y) <= 2) return false;
-      for (const door of room.doors)
-        for (const tile of door.tiles)
-          if (Math.abs(tx - tile.x) + Math.abs(ty - tile.y) < 4) return false;
+      if (nearDoorOrGate(tx, ty, 4)) return false;
       for (let oy = -1; oy <= 1; oy++)
         for (let ox = -1; ox <= 1; ox++)
           if ((ox !== 0 || oy !== 0) && grid.get(tx + ox, ty + oy) === Tile.Wall) return false;
@@ -690,13 +900,23 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
     return;
   }
   if (room.w < 10 || room.h < 8) return;
+  const nearDoorOrGate = (tx: number, ty: number): boolean => {
+    for (const door of room.doors)
+      for (const tile of door.tiles)
+        if (Math.abs(tx - tile.x) + Math.abs(ty - tile.y) < 3) return true;
+    for (const gate of room.gates ?? [])
+      for (const tile of gate.tiles)
+        if (Math.abs(tx - tile.x) + Math.abs(ty - tile.y) < 3) return true;
+    return false;
+  };
   const blocked = (tx: number, ty: number): boolean =>
     Math.abs(tx - centre.x) <= 1 ||
     Math.abs(ty - centre.y) <= 1 ||
     tx < room.x + 2 ||
     ty < room.y + 2 ||
     tx > room.x + room.w - 3 ||
-    ty > room.y + room.h - 3;
+    ty > room.y + room.h - 3 ||
+    nearDoorOrGate(tx, ty);
   const pillar = (tx: number, ty: number, size: number): void => {
     for (let y = ty; y < ty + size; y++)
       for (let x = tx; x < tx + size; x++) if (blocked(x, y)) return;
@@ -760,7 +980,7 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
           if (grid.get(x, y) === Tile.Wall) walls++;
       return walls;
     };
-    if (countWalls() === 0) {
+    if (countWalls() < 3) {
       for (let i = 0; i < 40 && countWalls() < 3; i++) {
         pillar(
           rng.int(room.x + 2, room.x + room.w - 3),
@@ -768,6 +988,19 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
           1
         );
       }
+    }
+  }
+
+  // Colosseums are six times a grand hall: the fixed offsets above leave a
+  // vast empty middle, so scatter extra cover scaled to the chamber area.
+  if (room.w * room.h > 600) {
+    const extra = Math.min(8, Math.floor((room.w * room.h) / 220));
+    for (let i = 0; i < extra; i++) {
+      pillar(
+        rng.int(room.x + 3, room.x + room.w - 5),
+        rng.int(room.y + 3, room.y + room.h - 5),
+        rng.chance(0.35) ? 2 : 1
+      );
     }
   }
 

@@ -175,6 +175,19 @@
     "relatedMemories": [
      "fragment_500"
     ]
+   },
+   {
+    "id": "lore_013",
+    "title": "The First Remembering",
+    "category": "history",
+    "text": "The Keeper guarded a lantern, not a tomb. Beneath its light the first name is still being spoken, and every section the walker restores is an answer. The First Memory is not a monster. It is the question the world asked before it had a word for asking.",
+    "unlockCondition": {
+     "type": "memory",
+     "amount": 30
+    },
+    "relatedMemories": [
+     "fragment_first"
+    ]
    }
   ],
   "memoryFragments": {
@@ -347,6 +360,11 @@
     "text": "The spire bell rings thirteen times at every changing of the guard. Nobody admits casting it.",
     "location": "storm",
     "value": 1
+   },
+   "fragment_first": {
+    "text": "Before the first name, there was only the wish to be remembered.",
+    "location": "void",
+    "value": 50
    }
   },
   "coreMemories": {
@@ -453,6 +471,14 @@
     ],
     "reward": "unlock_storm",
     "text": "The order built its spire where the lightning already struck, then called the strikes approval. The vanguard shouts its oath into the gale; the warlord's medal-heavy cloak waits folded on the rampart; the bell rings thirteen times at every changing of the guard. The wind keeps what the ink cannot."
+   },
+   "core_memory_011": {
+    "title": "The First Remembering",
+    "fragments": [
+     "fragment_first"
+    ],
+    "reward": "unlock_first_memory",
+    "text": "The first name was not a word. It was a promise that someone would come back for it. The First Memory has been waiting under the Keeper's lantern ever since, repeating the promise until a walker answers."
    }
   },
   "primordialMemories": {

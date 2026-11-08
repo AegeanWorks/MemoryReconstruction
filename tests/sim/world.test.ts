@@ -4,7 +4,7 @@ import { FINAL_DEPTH, FLOOR_PLANS } from '../../src/sim/content';
 import { NO_INPUT, type InputFrame, type Pickup } from '../../src/sim/entities';
 import { equipmentDef, INVENTORY_SLOTS, relicSellShards } from '../../src/sim/equipment';
 import type { SimEvent } from '../../src/sim/events';
-import { createRun, restoreRun, xpForLevel } from '../../src/sim/run';
+import { createRun, RESONANCE_WINDOW, restoreRun, xpForLevel } from '../../src/sim/run';
 import { TILE_SIZE } from '../../src/sim/tiles';
 import { UPGRADES } from '../../src/sim/upgrades';
 import { World } from '../../src/sim/world';
@@ -269,11 +269,14 @@ describe('World', () => {
     teleportToRoom(world, 'boss');
     stepFor(world, 1.5);
     const boss = world.activeBoss()!;
-    expect(boss.def.id).toBe('keeper');
-    stepFor(world, 0.8);
+    expect(boss.def.id).toBe('first_memory');
+    // Let the spawn animation finish (timing varies per floor): damage during
+    // 'spawning' is ignored, which would silently skip the kill below.
+    for (let i = 0; i < 120 && boss.state === 'spawning'; i++) stepFor(world, 0.1);
+    expect(boss.state).not.toBe('spawning');
     world.damageEnemy(boss, 999999, 'melee', false, 0);
     clearChoices(world);
-    const events = stepFor(world, 3);
+    const events = stepFor(world, 3.5);
     expect(events.some((e) => e.type === 'victory')).toBe(true);
     expect(world.victory).toBe(true);
   });
@@ -375,6 +378,29 @@ describe('World', () => {
     expect(hurt.some((e) => e.type === 'resonanceBreak' && e.count === 2)).toBe(true);
   });
 
+  it('tops up the flow window on room clear so streaks survive travel', () => {
+    const world = newWorld();
+    const roomId = teleportToRoom(world, 'combat');
+    stepFor(world, 0.5);
+    expect(world.rooms[roomId].phase).toBe('active');
+    // Single-wave room: no further spawns after this wave dies.
+    world.rooms[roomId].wavesLeft = 0;
+    for (const e of [...world.enemies]) {
+      if (e.roomId !== roomId) continue;
+      e.state = 'chase';
+      world.damageEnemy(e, 99999, 'melee', false, 0);
+    }
+    clearChoices(world);
+    expect(world.player.resonance).toBeGreaterThan(0);
+    // Simulate a decayed streak: the last kill was a while ago because the
+    // final wave took time to hunt down.
+    world.player.resonanceTime = 0.2;
+    for (let i = 0; i < 30 && world.rooms[roomId].phase !== 'cleared'; i++)
+      world.step(NO_INPUT, DT);
+    expect(world.rooms[roomId].phase).toBe('cleared');
+    expect(world.player.resonanceTime).toBeGreaterThanOrEqual(1.49);
+  });
+
   it('rewards a near miss while dashing through an enemy', () => {
     const world = newWorld();
     teleportToRoom(world, 'start');
@@ -448,7 +474,8 @@ describe('World', () => {
   it('pays the floor bonus for clearing every room and the chest', () => {
     const world = newWorld();
     for (const room of world.floor.rooms)
-      if (room.kind === 'combat') world.rooms[room.id].phase = 'cleared';
+      if (room.kind === 'combat' || room.kind === 'colosseum')
+        world.rooms[room.id].phase = 'cleared';
     const chest = world.interactables.find((i) => i.kind === 'chest')!;
     world.player.x = chest.x;
     world.player.y = chest.y + 20;
@@ -472,7 +499,8 @@ describe('World', () => {
   it('pays the floor bonus for a chest opened after the guardian falls', () => {
     const world = newWorld();
     for (const room of world.floor.rooms)
-      if (room.kind === 'combat') world.rooms[room.id].phase = 'cleared';
+      if (room.kind === 'combat' || room.kind === 'colosseum')
+        world.rooms[room.id].phase = 'cleared';
     teleportToRoom(world, 'boss');
     stepFor(world, 1.5);
     const boss = world.activeBoss()!;
@@ -562,10 +590,13 @@ describe('crit reward', () => {
     const enemy = world.enemies[0];
     enemy.state = 'chase';
     const manaBefore = world.player.mana;
-    const flowBefore = world.player.resonanceTime;
+    const flowBefore = RESONANCE_WINDOW * 0.4;
+    world.player.resonanceTime = flowBefore;
     world.damageEnemy(enemy, 5, 'melee', true, 0);
     expect(world.player.mana).toBe(Math.min(world.player.stats.maxMana, manaBefore + 3));
-    expect(world.player.resonanceTime).toBeGreaterThanOrEqual(flowBefore);
+    expect(world.player.resonanceTime).toBeCloseTo(
+      Math.min(RESONANCE_WINDOW * 2, flowBefore + 0.5)
+    );
   });
 });
 

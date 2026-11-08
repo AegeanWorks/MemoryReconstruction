@@ -16,6 +16,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,json,md}\"",
     "typecheck": "tsc --noEmit",
     "generate:art": "python scripts/generate_art_assets.py",
+    "audit:ranges": "python scripts/audit_commit_ranges.py",
+    "audit:ranges:check": "python scripts/audit_commit_ranges.py --check",
     "test:mechanics": "vitest run tests/sim --reporter=dot"
   },
   "dependencies": {

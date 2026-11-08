@@ -4,6 +4,7 @@
  * The JSON stays the source of names, stats and lore; this module decides how
  * those records map onto the simulation (AI archetype, floor rosters, bosses).
  */
+import { z } from 'zod';
 import biomesJson from '@data/biomes.json';
 import enemiesJson from '@data/enemies.json';
 import loreJson from '@data/lore.json';
@@ -22,6 +23,8 @@ export type BiomeId =
   | 'bloom'
   | 'hive'
   | 'catacomb'
+  | 'tide'
+  | 'storm'
   | 'sanctuary';
 
 /** How an enemy fights; several data behaviours share one archetype. */
@@ -73,7 +76,17 @@ export interface FloorPlan {
   roomCount: number;
   finale: boolean;
   /** Cell pattern for this section. */
-  layout: 'branch' | 'ring' | 'spine' | 'grid' | 'diamond' | 'cross' | 'clover' | 'terrace';
+  layout:
+    | 'branch'
+    | 'ring'
+    | 'spine'
+    | 'grid'
+    | 'diamond'
+    | 'cross'
+    | 'clover'
+    | 'terrace'
+    | 'atoll'
+    | 'spire';
   /** A boss-only episode: one arena, no trash. */
   bossOnly?: boolean;
   /** Banner title for an episode instead of the biome name. */
@@ -94,12 +107,17 @@ export interface CoreMemory {
 }
 
 /** Enemy attacks hit this hard relative to enemies.json, tuned for 100 base player health. */
-export const ENEMY_DAMAGE_SCALE = 0.98;
+export const ENEMY_DAMAGE_SCALE = 1.15;
 /** Harder enemy pass: global multipliers over enemies.json. */
-export const ENEMY_SPEED_SCALE = 1.15;
+export const ENEMY_SPEED_SCALE = 1.08;
 export const ENEMY_ATTACK_SPEED_SCALE = 1.2;
 export const ENEMY_WINDUP_SCALE = 1.1;
-export const ENEMY_COUNT_SCALE = 1.25;
+/** Wave size multiplier before the room-area cap; late rooms were too crowded. */
+export const ENEMY_COUNT_SCALE = 1.1;
+/** Kill XP is deliberately scarce: levels should be earned, not showered. */
+export const ENEMY_XP_SCALE = 0.55;
+/** Extra incoming-damage growth per section (was 0.08). */
+export const ENEMY_DAMAGE_DEPTH_SCALE = 0.1;
 /** Floor bosses are their data record with this much more health. */
 const BOSS_HEALTH_SCALE = 3.2;
 
@@ -154,6 +172,7 @@ const SPRITE_KEYS: Record<string, string> = {
   catacomb_archer: 'catacombArcher',
   bone_knight: 'boneKnight',
   grave_hound: 'graveHound',
+  ossuary_chanter: 'voidCantor',
   void_cantor: 'voidCantor',
   hive_queen: 'hiveQueen',
   bone_tyrant: 'boneTyrant',
@@ -170,11 +189,13 @@ const SPRITE_KEYS: Record<string, string> = {
   cinder_hound: 'cinderHound',
   frost_oracle: 'frostOracle',
   rime_duelist: 'crystalGuardian',
-  bloom_sentinel: 'guardian',
+  // Roots and flowers, not the Guardian's keyhole chest.
+  bloom_sentinel: 'petalWitch',
   petal_stalker: 'caveDweller',
   grave_warden: 'boneKnight',
   void_herald: 'voidCantor',
   hive_slinger: 'hiveDrone',
+  hive_oracle: 'voidCantor',
   mire_lurker: 'bogLeech',
   phase_stalker: 'crystalGuardian',
   void_stalker: 'voidWalker',
@@ -182,9 +203,37 @@ const SPRITE_KEYS: Record<string, string> = {
   // The Ruin Warlord's bestiary promises obsidian spiked armor; the Guardian
   // sheet is the depth-0 chest construct, so reuse the ash-forged armor art.
   ruin_warlord: 'cinderWarden',
+  obsidian_reaver: 'cinderWarden',
+  first_echo: 'voidCantor',
+  first_memory: 'keeper',
   // Both the duelist and the trial boss wear the player's own sheet.
   lost_self: 'mirror',
   mirror_self: 'mirror',
+  // Sunken Tideways and Howling Spire mobs carry dedicated sheets.
+  tide_reaver: 'tideReaver',
+  brine_hulk: 'brineHulk',
+  harbor_gunner: 'harborGunner',
+  siren_caller: 'sirenCaller',
+  storm_squire: 'stormSquire',
+  gale_archer: 'galeArcher',
+  thunder_brute: 'thunderBrute',
+  tempest_oracle: 'tempestOracle',
+  drowned_blademaster: 'drownedBlademaster',
+  storm_warlord: 'stormWarlord',
+  // Second wave: deepen the early and middle rosters.
+  gutter_runner: 'gutterRunner',
+  briar_wolf: 'briarWolf',
+  gloom_stalker: 'gloomStalker',
+  prism_wisp: 'prismWisp',
+  null_hound: 'nullHound',
+  slag_golem: 'slagGolem',
+  // Third wave: melee-led and human-like blades. All reuse existing sheets
+  // with tint/scale so the atlas gate stays green without new art.
+  ember_squire: 'guardian',
+  pale_blademaster: 'crystalGuardian',
+  mire_halberdier: 'boneKnight',
+  // The Drowned Court trial boss borrows the leviathan sheet.
+  abyssal_revenant: 'leviathan',
 };
 
 /**
@@ -205,17 +254,63 @@ const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
     bloom_sentinel: 0xbaffc4,
     petal_stalker: 0xffb0e6,
     grave_warden: 0xd8d0c0,
+    ossuary_chanter: 0xe0d8c8,
     void_herald: 0xc0b0ff,
     hive_slinger: 0xffd090,
+    hive_oracle: 0xffd98a,
     mire_lurker: 0x9fd0a0,
     phase_stalker: 0xc4b5ff,
     void_stalker: 0xa8c0ff,
     dread_champion: 0xffdf80,
     ruin_warlord: 0xff8a7a,
+    obsidian_reaver: 0xff8a7a,
+    first_echo: 0x9fd8ff,
+    first_memory: 0xffd98a,
+    abyssal_revenant: 0x7fd8e8,
+    ember_squire: 0xffb070,
+    pale_blademaster: 0xbfeaff,
+    mire_halberdier: 0x9fd0a0,
     lost_self: 0x9fd8ff,
     mirror_self: 0xbfeaff,
   }).map(([id, color]) => [id, pastel(color)])
 );
+
+/**
+ * Shared sheets keep their silhouette, so each borrower gets a distinct
+ * display scale: a reskin that is also 8-15% taller or shorter reads as a
+ * different creature instead of a palette swap.
+ */
+const ENEMY_SCALE_OVERRIDES: Record<string, number> = {
+  cinder_wisp: 0.92,
+  drowned: 1.06,
+  frost_stalker: 1.12,
+  glass_sentinel: 1.2,
+  bloom_crawler: 0.9,
+  rime_duelist: 1.05,
+  bloom_sentinel: 1.25,
+  petal_stalker: 0.92,
+  grave_warden: 1.15,
+  ossuary_chanter: 1.05,
+  void_herald: 1.1,
+  hive_slinger: 0.88,
+  hive_oracle: 1.05,
+  mire_lurker: 1.05,
+  phase_stalker: 1.08,
+  void_stalker: 1.02,
+  dread_champion: 1.35,
+  ruin_warlord: 1.4,
+  obsidian_reaver: 1.15,
+  first_echo: 1.05,
+  // Same display height as the Keeper: the 1.15 scale clipped the halo and
+  // crowded the boss bar against the top of the screen.
+  first_memory: 1.0,
+  abyssal_revenant: 1.15,
+  ember_squire: 1.05,
+  pale_blademaster: 1.1,
+  mire_halberdier: 1.15,
+  lost_self: 1.0,
+  mirror_self: 1.0,
+};
 
 /** Tint is multiplicative, so dark shared sheets need a mostly-white mix. */
 function pastel(color: number): number {
@@ -226,11 +321,56 @@ function pastel(color: number): number {
   return (r << 16) | (g << 8) | b;
 }
 
-export const FLOOR_PLANS: readonly FloorPlan[] = [
+/** Zod-validated shape of a floor plan: new bosses/levels arrive as DATA, never code. */
+export const FloorPlanSchema = z.object({
+  depth: z.number().int().min(0),
+  biome: z.enum([
+    'ruins',
+    'forest',
+    'caves',
+    'crystal',
+    'ash',
+    'foundry',
+    'abyss',
+    'void',
+    'frost',
+    'mire',
+    'bloom',
+    'hive',
+    'catacomb',
+    'tide',
+    'storm',
+    'sanctuary',
+  ]),
+  roster: z.array(z.string()),
+  boss: z.string().min(1),
+  roomCount: z.number().int().min(1),
+  finale: z.boolean(),
+  layout: z.enum([
+    'branch',
+    'ring',
+    'spine',
+    'grid',
+    'diamond',
+    'cross',
+    'clover',
+    'terrace',
+    'atoll',
+    'spire',
+  ]),
+  bossOnly: z.boolean().optional(),
+  trialName: z.string().optional(),
+});
+
+function parsePlans(plans: readonly FloorPlan[]): readonly FloorPlan[] {
+  return plans.map((plan) => FloorPlanSchema.parse(plan));
+}
+
+export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 0,
     biome: 'ruins',
-    roster: ['scavenger', 'memory_echo'],
+    roster: ['scavenger', 'memory_echo', 'gutter_runner'],
     boss: 'guardian',
     roomCount: 7,
     finale: false,
@@ -239,7 +379,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 1,
     biome: 'forest',
-    roster: ['wildling', 'scavenger', 'memory_echo'],
+    roster: ['wildling', 'scavenger', 'memory_echo', 'briar_wolf'],
     boss: 'spirit',
     roomCount: 8,
     finale: false,
@@ -248,7 +388,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 2,
     biome: 'caves',
-    roster: ['cave_dweller', 'shadow', 'wildling'],
+    roster: ['cave_dweller', 'shadow', 'wildling', 'gloom_stalker'],
     boss: 'crystal_golem',
     roomCount: 9,
     finale: false,
@@ -257,7 +397,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 3,
     biome: 'crystal',
-    roster: ['prism_entity', 'shadow', 'cave_dweller'],
+    roster: ['prism_entity', 'shadow', 'cave_dweller', 'prism_wisp'],
     boss: 'crystal_guardian',
     roomCount: 9,
     finale: false,
@@ -266,7 +406,14 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 4,
     biome: 'ash',
-    roster: ['cinder_wisp', 'magma_hound', 'bombardier', 'ash_herald', 'cinder_hound'],
+    roster: [
+      'cinder_wisp',
+      'magma_hound',
+      'bombardier',
+      'ash_herald',
+      'cinder_hound',
+      'ember_squire',
+    ],
     boss: 'cinder_warden',
     roomCount: 10,
     finale: false,
@@ -286,7 +433,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   {
     depth: 6,
     biome: 'foundry',
-    roster: ['cog_hound', 'solder_wisp', 'bombardier'],
+    roster: ['cog_hound', 'solder_wisp', 'bombardier', 'slag_golem'],
     boss: 'clockwork_regent',
     roomCount: 10,
     finale: false,
@@ -294,6 +441,16 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
   },
   {
     depth: 7,
+    biome: 'tide',
+    roster: ['tide_reaver', 'brine_hulk', 'harbor_gunner', 'siren_caller', 'drowned'],
+    boss: 'drowned_blademaster',
+    roomCount: 10,
+    finale: false,
+    layout: 'atoll',
+    trialName: 'The Sunken Tideways',
+  },
+  {
+    depth: 8,
     biome: 'abyss',
     roster: ['drowned', 'tide_caller', 'cinder_wisp'],
     boss: 'leviathan',
@@ -302,25 +459,40 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     layout: 'ring',
   },
   {
-    depth: 8,
+    depth: 9,
     biome: 'void',
-    roster: ['void_walker', 'prism_entity', 'shadow', 'void_cantor', 'void_herald', 'lost_self'],
+    roster: [
+      'void_walker',
+      'prism_entity',
+      'shadow',
+      'void_cantor',
+      'void_herald',
+      'lost_self',
+      'null_hound',
+    ],
     boss: 'forgotten',
     roomCount: 11,
     finale: false,
     layout: 'spine',
   },
   {
-    depth: 9,
+    depth: 10,
     biome: 'frost',
-    roster: ['frost_stalker', 'glass_sentinel', 'drowned', 'frost_oracle', 'rime_duelist'],
+    roster: [
+      'frost_stalker',
+      'glass_sentinel',
+      'drowned',
+      'frost_oracle',
+      'rime_duelist',
+      'pale_blademaster',
+    ],
     boss: 'frost_warden',
     roomCount: 11,
     finale: false,
     layout: 'terrace',
   },
   {
-    depth: 10,
+    depth: 11,
     biome: 'void',
     roster: [],
     boss: 'hollow_behemoth',
@@ -331,16 +503,16 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     trialName: 'Echo Trial: The Nameless',
   },
   {
-    depth: 11,
+    depth: 12,
     biome: 'mire',
-    roster: ['bog_leech', 'plague_caster', 'drowned', 'mire_lurker'],
+    roster: ['bog_leech', 'plague_caster', 'drowned', 'mire_lurker', 'mire_halberdier'],
     boss: 'mire_sovereign',
     roomCount: 12,
     finale: false,
     layout: 'branch',
   },
   {
-    depth: 12,
+    depth: 13,
     biome: 'bloom',
     roster: ['bloom_crawler', 'petal_witch', 'frost_stalker', 'bloom_sentinel', 'petal_stalker'],
     boss: 'thorn_matriarch',
@@ -349,25 +521,35 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     layout: 'ring',
   },
   {
-    depth: 13,
+    depth: 14,
+    biome: 'storm',
+    roster: ['storm_squire', 'gale_archer', 'thunder_brute', 'tempest_oracle', 'cinder_wisp'],
+    boss: 'storm_warlord',
+    roomCount: 12,
+    finale: false,
+    layout: 'spire',
+    trialName: 'The Howling Spire',
+  },
+  {
+    depth: 15,
     biome: 'hive',
-    roster: ['hive_drone', 'hive_guard', 'cinder_wisp', 'hive_slinger'],
+    roster: ['hive_drone', 'hive_guard', 'hive_oracle', 'hive_slinger'],
     boss: 'hive_queen',
     roomCount: 12,
     finale: false,
     layout: 'diamond',
   },
   {
-    depth: 14,
+    depth: 16,
     biome: 'catacomb',
-    roster: ['bone_knight', 'catacomb_archer', 'hive_guard', 'grave_hound', 'grave_warden'],
+    roster: ['bone_knight', 'catacomb_archer', 'ossuary_chanter', 'grave_hound', 'grave_warden'],
     boss: 'bone_tyrant',
     roomCount: 13,
     finale: false,
     layout: 'cross',
   },
   {
-    depth: 15,
+    depth: 17,
     biome: 'void',
     roster: [],
     boss: 'mirror_self',
@@ -378,7 +560,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     trialName: 'Echo Trial: The Mirror of Self',
   },
   {
-    depth: 16,
+    depth: 18,
     biome: 'ruins',
     roster: ['bone_knight', 'phase_stalker', 'scavenger', 'void_stalker'],
     boss: 'dread_champion',
@@ -388,9 +570,9 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     trialName: 'Echo Arena: The Sunken Colosseum',
   },
   {
-    depth: 17,
+    depth: 19,
     biome: 'ash',
-    roster: ['cinder_hound', 'magma_hound', 'phase_stalker', 'ash_herald'],
+    roster: ['cinder_hound', 'magma_hound', 'phase_stalker', 'ash_herald', 'obsidian_reaver'],
     boss: 'ruin_warlord',
     roomCount: 13,
     finale: false,
@@ -398,9 +580,21 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     trialName: 'The Obsidian Ramparts',
   },
   {
-    depth: 18,
+    depth: 20,
+    biome: 'tide',
+    roster: [],
+    boss: 'abyssal_revenant',
+    roomCount: 1,
+    finale: false,
+    layout: 'grid',
+    bossOnly: true,
+    trialName: 'Echo Trial: The Drowned Court',
+  },
+  {
+    depth: 21,
     biome: 'sanctuary',
     roster: [
+      'first_echo',
       'void_walker',
       'memory_echo',
       'prism_entity',
@@ -410,10 +604,20 @@ export const FLOOR_PLANS: readonly FloorPlan[] = [
     ],
     boss: 'keeper',
     roomCount: 5,
-    finale: true,
+    finale: false,
     layout: 'branch',
   },
-];
+  {
+    depth: 22,
+    biome: 'void',
+    roster: ['first_echo', 'obsidian_reaver', 'void_walker', 'memory_echo'],
+    boss: 'first_memory',
+    roomCount: 6,
+    finale: true,
+    layout: 'ring',
+    trialName: 'The First Remembering',
+  },
+]);
 
 interface RawEnemy {
   id: string;
@@ -444,7 +648,8 @@ function toEnemyDef(raw: RawEnemy, asBoss: boolean): EnemyDef {
     attackCooldown: raw.ai.attackCooldown / ENEMY_ATTACK_SPEED_SCALE,
     xp: raw.stats.xpValue,
     sprite: SPRITE_KEYS[raw.id] ?? raw.id,
-    displayHeight: Math.max(48, raw.sprite.height) * (asBoss ? 1.5 : 1),
+    displayHeight:
+      Math.max(48, raw.sprite.height) * (asBoss ? 1.5 : 1) * (ENEMY_SCALE_OVERRIDES[raw.id] ?? 1),
     tint: ENEMY_TINTS[raw.id],
   };
 }
@@ -470,7 +675,7 @@ export function biomeInfo(id: BiomeId): BiomeInfo {
 }
 
 export function floorPlan(depth: number): FloorPlan {
-  return FLOOR_PLANS[Math.min(depth, FLOOR_PLANS.length - 1)];
+  return FLOOR_PLANS[Math.max(0, Math.min(depth, FLOOR_PLANS.length - 1))];
 }
 
 export const FINAL_DEPTH = FLOOR_PLANS.length - 1;
@@ -481,7 +686,11 @@ export const FINAL_DEPTH = FLOOR_PLANS.length - 1;
  */
 export function arenaBossFor(depth: number): string {
   const pool = FLOOR_PLANS.filter(
-    (plan, index) => plan.boss !== 'keeper' && plan.boss !== 'mirror_self' && index !== depth
+    (plan, index) =>
+      plan.boss !== 'keeper' &&
+      plan.boss !== 'mirror_self' &&
+      plan.boss !== 'first_memory' &&
+      index !== depth
   );
   return pool[(depth * 5 + 3) % pool.length].boss;
 }

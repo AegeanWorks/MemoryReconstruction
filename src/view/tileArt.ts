@@ -44,9 +44,12 @@ function toTexture(el: HTMLCanvasElement): Texture {
 
 /** Lightens (amount > 0) or darkens (amount < 0) a '#rrggbb' colour. */
 export function shade(color: string, amount: number): string {
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) throw new Error(`shade expects '#rrggbb', got '${color}'`);
+  if (!Number.isFinite(amount)) throw new Error(`shade amount must be finite, got '${amount}'`);
+  const t = Math.min(1, Math.max(-1, amount));
+  const clamp = (c: number): number => Math.min(255, Math.max(0, Math.round(c)));
+  const mix = (c: number): number => clamp(t >= 0 ? c + (255 - c) * t : c * (1 + t));
   const n = parseInt(color.slice(1), 16);
-  const mix = (c: number): number =>
-    Math.round(amount >= 0 ? c + (255 - c) * amount : c * (1 + amount));
   const r = mix((n >> 16) & 255);
   const g = mix((n >> 8) & 255);
   const b = mix(n & 255);
@@ -92,7 +95,13 @@ function paintFloor(art: BiomeArt, rng: Rng, variant: number): Texture {
       if (variant === 1) ctx.fillRect(16, 1, 1, T - 1);
       if (variant === 3) ctx.fillRect(1, 16, T - 1, 1);
       ctx.globalAlpha = 1;
-      speckle(ctx, rng, base, 45);
+      speckle(ctx, rng, base, 60);
+      // A worn highlight along the slab's lit edge keeps large stone floors
+      // from reading as flat fill at a distance.
+      ctx.fillStyle = shade(base, 0.14);
+      ctx.globalAlpha = 0.5;
+      ctx.fillRect(2, 2, T - 3, 1);
+      ctx.globalAlpha = 1;
       break;
     }
     case 'grass': {
@@ -129,7 +138,13 @@ function paintFloor(art: BiomeArt, rng: Rng, variant: number): Texture {
         );
         ctx.fill();
       }
-      speckle(ctx, rng, base, 50, 0.16);
+      speckle(ctx, rng, base, 64, 0.16);
+      // A pale chip on the largest blotch catches the light so cave floors
+      // keep depth at a distance instead of flattening to noise.
+      ctx.fillStyle = shade(base, 0.16);
+      ctx.globalAlpha = 0.5;
+      ctx.fillRect(rng.int(4, 20), rng.int(4, 20), 3, 1);
+      ctx.globalAlpha = 1;
       break;
     }
     case 'facets': {
@@ -149,7 +164,13 @@ function paintFloor(art: BiomeArt, rng: Rng, variant: number): Texture {
       ctx.stroke();
       ctx.strokeRect(0.5, 0.5, T - 1, T - 1);
       ctx.globalAlpha = 1;
-      speckle(ctx, rng, base, 25);
+      speckle(ctx, rng, base, 36);
+      // A glint on the lit facet: crystal floors should sparkle, and the
+      // darkened frost palette needs one bright anchor per tile.
+      ctx.fillStyle = art.accent;
+      ctx.globalAlpha = 0.55;
+      ctx.fillRect(rng.int(5, 22), rng.int(2, 10), 2, 1);
+      ctx.globalAlpha = 1;
       break;
     }
     case 'tiles': {
@@ -162,6 +183,13 @@ function paintFloor(art: BiomeArt, rng: Rng, variant: number): Texture {
       ctx.globalAlpha = 1;
       ctx.fillStyle = shade(base, 0.12);
       ctx.fillRect(1, 1, T - 1, 1);
+      // Lit lower-right rim so void/sanctuary/ash tile floors hold volume
+      // at a distance like the slab floors do.
+      ctx.fillStyle = shade(base, -0.14);
+      ctx.globalAlpha = 0.55;
+      ctx.fillRect(2, T - 2, T - 3, 1);
+      ctx.fillRect(T - 2, 2, 1, T - 3);
+      ctx.globalAlpha = 1;
       if (variant === 0) {
         ctx.strokeStyle = shade(art.accent, -0.5);
         ctx.globalAlpha = 0.35;
@@ -228,14 +256,16 @@ function paintWallFace(art: BiomeArt, rng: Rng, variant: number): Texture {
 
 function paintOcclusion(direction: 'north' | 'west' | 'east'): Texture {
   const { el, ctx } = canvas();
-  const depth = direction === 'north' ? 14 : 8;
+  const depth = direction === 'north' ? 16 : 9;
   const gradient =
     direction === 'north'
       ? ctx.createLinearGradient(0, 0, 0, depth)
       : direction === 'west'
         ? ctx.createLinearGradient(0, 0, depth, 0)
         : ctx.createLinearGradient(T, 0, T - depth, 0);
-  gradient.addColorStop(0, `rgba(0,0,0,${direction === 'north' ? 0.55 : 0.35})`);
+  // Deepened slightly so rooms read as enclosed volumes on bright floors
+  // (frost, sanctuary) without banding on dark ones.
+  gradient.addColorStop(0, `rgba(0,0,0,${direction === 'north' ? 0.6 : 0.38})`);
   gradient.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, T, T);

@@ -7,6 +7,8 @@ import { circlesTouch, inArc, type Arena, type DamageSource } from './combat';
 import {
   arenaBossFor,
   ENEMY_COUNT_SCALE,
+  ENEMY_DAMAGE_DEPTH_SCALE,
+  ENEMY_XP_SCALE,
   enemyDef,
   fragmentsForFloor,
   floorPlan,
@@ -23,7 +25,14 @@ import {
   spotToPixels,
   type SanctuaryBuilding,
 } from './sanctuary';
-import { createEnemy, killEnemy, staggerEnemy, updateBossPhase, updateEnemy } from './enemies';
+import {
+  createEnemy,
+  killEnemy,
+  MINE_RADIUS,
+  staggerEnemy,
+  updateBossPhase,
+  updateEnemy,
+} from './enemies';
 import {
   equipmentDef,
   INVENTORY_SLOTS,
@@ -31,7 +40,7 @@ import {
   rollEquipment,
   type EquipmentItem,
 } from './equipment';
-import { NPCS } from './quests';
+import { FERRYMAN_LINES, NPCS, WAYFARER_LINES } from './quests';
 import type {
   Blast,
   Bomb,
@@ -50,6 +59,7 @@ import { moveAndCollide, separate } from './physics';
 import { refreshStats, updatePlayer } from './player';
 import { Rng, floorSeed } from './rng';
 import {
+  activeModifier,
   applyChoice,
   grantXp,
   resonanceMultiplier,
@@ -57,7 +67,8 @@ import {
   RESONANCE_WINDOW,
   type RunState,
 } from './run';
-import { TILE_SIZE } from './tiles';
+import { Tile, TILE_SIZE } from './tiles';
+import { ENGAGEMENT_TUNING, enemyWaveCap } from './tuning';
 import { rollChoices } from './upgrades';
 
 export type RoomPhase = 'dormant' | 'active' | 'cleared';
@@ -73,20 +84,22 @@ export interface RoomState {
   spawnDelay: number;
   /** A room that has already sprung its surprise ambush. */
   ambushed?: boolean;
+  /** A room that has already spawned its memory-storm surprise. */
+  stormed?: boolean;
 }
 
 const INTERACT_RADIUS = 44;
 /** Seconds between flow-field refreshes; the player moves under two tiles in that time. */
 const FLOW_REFRESH = 0.2;
 const HURT_IFRAMES = 0.75;
-/** Shards refunded per graze, and dash charge restored. */
-const GRAZE_MANA = 8;
-const GRAZE_DASH = 0.25;
-/** Near-miss margin for enemy projectiles. */
-const GRAZE_SHOT = 18;
-/** Variable-ratio shard rolls: jackpot below this, rich below the second. */
-const SURGE_JACKPOT = 0.06;
-const SURGE_RICH = 0.24;
+/** Shards refunded per graze, and dash charge restored (tunable, see tuning.ts). */
+const GRAZE_MANA = ENGAGEMENT_TUNING.grazeMana;
+const GRAZE_DASH = ENGAGEMENT_TUNING.grazeDash;
+/** Near-miss margin for enemy projectiles (tunable). */
+const GRAZE_SHOT = ENGAGEMENT_TUNING.grazeShot;
+/** Variable-ratio shard rolls: jackpot below this, rich below the second (tunable). */
+const SURGE_JACKPOT = ENGAGEMENT_TUNING.surgeJackpot;
+const SURGE_RICH = ENGAGEMENT_TUNING.surgeRich;
 
 const isBreakable = (kind: HazardKind): boolean =>
   kind === 'barrel' || kind === 'crate' || kind === 'crystal' || kind === 'urn';
@@ -161,9 +174,9 @@ export class World implements Arena {
     return this.stalkerArmed;
   }
   /**
-   * Hunter pressure: every third cleared combat room arms a stalker that joins
-   * the next fight as an elite. Resets per floor so each section escalates on
-   * its own.
+   * Hunter pressure (cyberpulse ADR-016, grid-lite): every third cleared
+   * hostile room arms a stalker that joins the next fight as an elite.
+   * Resets per floor so each section escalates on its own.
    */
   private stalkerClock = 0;
   private stalkerArmed = false;
@@ -213,7 +226,10 @@ export class World implements Arena {
     });
     this.rng = new Rng(seed ^ 0x5bd1e995);
     this.rooms = this.floor.rooms.map((r) => ({
-      phase: r.kind === 'combat' || r.kind === 'boss' || r.kind === 'arena' ? 'dormant' : 'cleared',
+      phase:
+        r.kind === 'combat' || r.kind === 'boss' || r.kind === 'arena' || r.kind === 'colosseum'
+          ? 'dormant'
+          : 'cleared',
       wavesLeft: 0,
       spawnDelay: 0,
     }));
@@ -254,6 +270,19 @@ export class World implements Arena {
   /** The room the player is standing in, if any. */
   currentRoom(): Room | undefined {
     return roomAt(this.floor, this.player.x, this.player.y);
+  }
+
+  /** Interior rectangle of the room containing a pixel point, if any. */
+  roomBoundsAt(x: number, y: number): { x: number; y: number; w: number; h: number } | undefined {
+    const room = roomAt(this.floor, x, y);
+    return room
+      ? {
+          x: room.x * TILE_SIZE,
+          y: room.y * TILE_SIZE,
+          w: room.w * TILE_SIZE,
+          h: room.h * TILE_SIZE,
+        }
+      : undefined;
   }
 
   /** The interactable in reach, for the UI's prompt. */
@@ -348,8 +377,8 @@ export class World implements Arena {
     this.emit({ type: 'graze', x, y });
 
     // Behavioral Psychology (Clark et al., 2009): Near-Miss Clutch Surge
-    // In critical peril (< 30% max HP), grazing triggers an adrenaline clutch comeback.
-    const isCritical = p.health <= p.stats.maxHealth * 0.3;
+    // In critical peril, grazing triggers an adrenaline clutch comeback.
+    const isCritical = p.health <= p.stats.maxHealth * ENGAGEMENT_TUNING.clutchThreshold;
     if (isCritical && !p.clutchUsed) {
       p.clutchUsed = true;
       p.dashCharges = Math.min(p.stats.dashCharges, p.dashCharges + 1.0);
@@ -362,7 +391,8 @@ export class World implements Arena {
   /** Optional full-clear objective, surfaced by the HUD and the map. */
   floorObjectives(): FloorObjectives {
     const rooms = this.floor.rooms.filter(
-      (r) => r.kind === 'combat' || r.kind === 'boss' || r.kind === 'arena'
+      (r) =>
+        r.kind === 'combat' || r.kind === 'boss' || r.kind === 'arena' || r.kind === 'colosseum'
     );
     const cleared = rooms.filter((r) => this.rooms[r.id].phase === 'cleared').length;
     const chest = this.interactables.filter((i) => i.kind === 'chest');
@@ -385,9 +415,9 @@ export class World implements Arena {
     };
   }
 
-  /** Shards a choice reroll costs on this floor. */
+  /** Shards a choice reroll costs on this floor (tunable). */
   rerollCost(): number {
-    return 20 + 10 * this.run.depth;
+    return ENGAGEMENT_TUNING.rerollBase + ENGAGEMENT_TUNING.rerollPerDepth * this.run.depth;
   }
 
   /** Buys a fresh set of options for the pending choice. Returns false when unaffordable. */
@@ -413,6 +443,11 @@ export class World implements Arena {
     knockback: number
   ): number {
     if (enemy.state === 'spawning' || enemy.state === 'dying') return 0;
+    // Difficulty sets the walker's edge: story strikes 25% harder, nightmare
+    // strikes 10% softer. The Keen Edge twist (daily or omen) sharpens every strike.
+    if (activeModifier(this.run) === 'keen_edge') amount = Math.round(amount * 1.15);
+    if (this.run.difficulty === 'story') amount = Math.round(amount * 1.25);
+    else if (this.run.difficulty === 'nightmare') amount = Math.round(amount * 0.9);
     // Finisher: a melee hit on a wounded enemy (below 30% health) deals +50%
     // damage and restores a sliver of mana, rewarding aggressive cleanup.
     if (source === 'melee' && enemy.health > 0 && enemy.health <= enemy.maxHealth * 0.3) {
@@ -446,7 +481,7 @@ export class World implements Arena {
     });
     if (source === 'melee' && p.stats.lifesteal > 0) {
       p.health = Math.min(p.stats.maxHealth, p.health + dealt * p.stats.lifesteal);
-      if (p.health > p.stats.maxHealth * 0.3) p.clutchUsed = false;
+      if (p.health > p.stats.maxHealth * ENGAGEMENT_TUNING.clutchThreshold) p.clutchUsed = false;
     }
     if (enemy.health <= 0) {
       this.onEnemyKilled(enemy);
@@ -496,7 +531,13 @@ export class World implements Arena {
       if (grazeable && p.dashTime > 0) this.graze(fromX, fromY);
       return;
     }
-    const taken = Math.max(1, Math.round(amount * (1 - p.stats.damageReduction)));
+    // Difficulty sets how much of a blow lands: story softens the world,
+    // nightmare sharpens it. The walker hits back with the inverse.
+    // The Heavy Air twist (daily or omen) sharpens every blow a little further.
+    if (activeModifier(this.run) === 'heavy_air') amount = Math.round(amount * 1.15);
+    const incoming =
+      this.run.difficulty === 'story' ? 0.7 : this.run.difficulty === 'nightmare' ? 1.35 : 1;
+    const taken = Math.max(1, Math.round(amount * incoming * (1 - p.stats.damageReduction)));
     p.health = Math.max(0, p.health - taken);
     p.invulnerable = HURT_IFRAMES;
     p.hurtFlash = 0.25;
@@ -518,14 +559,27 @@ export class World implements Arena {
     });
     this.emit({ type: 'playerHurt', amount: taken });
     this.emit({ type: 'shake', strength: 6 });
-    this.hitstop(0.06);
-    // Second wind: a soul anchor shatters instead of the walker, once
-    // per anchor, and refuses death.
+    // Heavy blows stagger: the swing is interrupted and the walker stumbles.
+    // Anything over ~12% of max health, or a hard shove, earns a stagger.
+    const heavy = taken >= p.stats.maxHealth * 0.12 || knockback >= 260;
+    if (heavy && p.health > 0) {
+      p.stagger = Math.max(p.stagger, 0.45);
+      p.swingTime = -1;
+      p.comboWindow = 0;
+      if (p.action === 'attack') p.action = 'idle';
+      this.emit({ type: 'notice', text: 'Staggered!' });
+      this.hitstop(0.12);
+    } else {
+      this.hitstop(0.06);
+    }
+    // Second wind (cyberpulse ADR-033 dead man's switch): a soul anchor
+    // shatters instead of the walker, once per anchor, and refuses death.
     if (p.health <= 0 && p.equipment.trinket?.defId === 'soul_anchor') {
       p.equipment.trinket = null;
       refreshStats(p);
       p.health = Math.round(p.stats.maxHealth * 0.4);
       p.invulnerable = Math.max(p.invulnerable, 2);
+      p.stagger = 0;
       this.emit({ type: 'soulAnchor', x: p.x, y: p.y });
       this.emit({ type: 'notice', text: 'The soul anchor shatters — death refused.' });
       this.emit({ type: 'shake', strength: 12 });
@@ -536,6 +590,10 @@ export class World implements Arena {
       p.action = 'dead';
       p.swingTime = -1;
       p.dashTime = 0;
+      // Death recap for the legacy screen: where the run fell.
+      const room = this.currentRoom();
+      if (room) this.run.deathRoom = room.kind;
+      this.run.deathSection = this.run.depth + 1;
       this.emit({ type: 'playerDied' });
     }
   }
@@ -546,8 +604,16 @@ export class World implements Arena {
 
   spawnEnemy(defId: string, x: number, y: number, roomId: number, asBoss = false): Enemy {
     const depth = this.run.depth;
-    const scale = { health: 1 + 0.22 * depth, damage: 1 + 0.08 * depth };
-    const elite = !asBoss && depth > 0 && this.rng.chance(0.06 + 0.03 * depth);
+    const nightmare = this.run.difficulty === 'nightmare';
+    const story = this.run.difficulty === 'story';
+    // Incoming damage is scaled once in damagePlayer; here difficulty only
+    // thickens enemy hides (and breeds more elites below).
+    const scale = {
+      health: (1 + 0.22 * depth) * (nightmare ? 1.25 : story ? 0.85 : 1),
+      damage: 1 + ENEMY_DAMAGE_DEPTH_SCALE * depth,
+    };
+    const elite =
+      !asBoss && depth > 0 && this.rng.chance(0.06 + 0.03 * depth + (nightmare ? 0.08 : 0));
     const enemy = createEnemy(this.nextId++, enemyDef(defId, asBoss), x, y, roomId, scale, elite);
     // The mirror fights with your numbers: it has watched you grow. The cap
     // keeps a three-swing combo from deleting a fresh checkpoint player.
@@ -560,6 +626,35 @@ export class World implements Arena {
 
   // ----- floor flow -----
 
+  /**
+   * Clamps a desired pixel to a walkable tile inside the room. Fixed offsets
+   * (cache, merchant, library furniture) can otherwise land in walls or
+   * outside small/non-rect rooms; this spirals out to the nearest open floor.
+   */
+  private clampToRoomInterior(room: Room, x: number, y: number): { x: number; y: number } {
+    const loX = room.x + 1;
+    const hiX = room.x + room.w - 2;
+    const loY = room.y + 1;
+    const hiY = room.y + room.h - 2;
+    let tx = Math.max(loX, Math.min(hiX, Math.floor(x / TILE_SIZE)));
+    let ty = Math.max(loY, Math.min(hiY, Math.floor(y / TILE_SIZE)));
+    if (!this.grid.isSolid(tx, ty)) return { x: (tx + 0.5) * TILE_SIZE, y: (ty + 0.5) * TILE_SIZE };
+    for (let r = 1; r <= 4; r++) {
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+          const cx = tx + dx;
+          const cy = ty + dy;
+          if (cx < loX || cx > hiX || cy < loY || cy > hiY) continue;
+          if (!this.grid.isSolid(cx, cy))
+            return { x: (cx + 0.5) * TILE_SIZE, y: (cy + 0.5) * TILE_SIZE };
+        }
+      }
+    }
+    const c = roomCentrePx(room);
+    return { x: c.x, y: c.y };
+  }
+
   private placeInteractables(): void {
     for (const room of this.floor.rooms) {
       const c = roomCentrePx(room);
@@ -567,21 +662,86 @@ export class World implements Arena {
         const chest = this.addInteractable('chest', c.x, c.y, 0);
         // A mimic is a chest that fights back; the chance is visible as a risk.
         if (this.rng.chance(0.12)) chest.mimic = true;
-        if (this.rng.chance(0.35))
-          this.addInteractable('merchant', c.x - 72, c.y + 24, 35 + 8 * this.run.depth);
+        // Every vault keeps a sealed cache beside its chest: double loot for
+        // whoever dares break it, so the gamble is always on the table.
+        const cache = this.clampToRoomInterior(room, c.x + 76, c.y - 20);
+        this.addInteractable('cache', cache.x, cache.y, 0, { roomId: room.id });
+        if (this.rng.chance(0.35)) {
+          const merchant = this.clampToRoomInterior(room, c.x - 72, c.y + 24);
+          this.addInteractable('merchant', merchant.x, merchant.y, 35 + 8 * this.run.depth);
+        }
       }
       if (room.kind === 'shrine')
         this.addInteractable('shrine', c.x, c.y, 25 + 15 * this.run.depth);
       if (room.kind === 'start') this.addInteractable('fountain', c.x, c.y, 0);
       if (room.kind === 'library') {
         this.addInteractable('archive', c.x, c.y, 0);
+        const shelfL = this.clampToRoomInterior(room, c.x - 64, c.y - 52);
+        const shelfR = this.clampToRoomInterior(room, c.x + 64, c.y - 52);
+        const table = this.clampToRoomInterior(room, c.x, c.y + 64);
         this.decor.push(
-          { x: c.x - 64, y: c.y - 52, prop: 'furn_shelf', size: 56 },
-          { x: c.x + 64, y: c.y - 52, prop: 'furn_shelf', size: 56 },
-          { x: c.x, y: c.y + 64, prop: 'furn_table', size: 54 }
+          { x: shelfL.x, y: shelfL.y, prop: 'furn_shelf', size: 56 },
+          { x: shelfR.x, y: shelfR.y, prop: 'furn_shelf', size: 56 },
+          { x: table.x, y: table.y, prop: 'furn_table', size: 54 }
         );
       }
     }
+    const start = this.floor.rooms[this.floor.startRoom];
+    const startCentre = roomCentrePx(start);
+    const waystone = this.clampToRoomInterior(start, startCentre.x - 64, startCentre.y + 48);
+    this.addInteractable('waystone', waystone.x, waystone.y, 0, { label: 'Waystone' });
+    const wayfarer = this.clampToRoomInterior(start, startCentre.x + 64, startCentre.y - 48);
+    this.addInteractable('wayfarer', wayfarer.x, wayfarer.y, 0, { label: 'Wayfarer' });
+    const ferryRoom =
+      this.floor.rooms.find((r) => r.kind === 'shrine') ??
+      this.floor.rooms.find((r) => r.kind === 'treasure');
+    if (ferryRoom) {
+      const ferryCentre = roomCentrePx(ferryRoom);
+      const ferryman = this.clampToRoomInterior(ferryRoom, ferryCentre.x + 64, ferryCentre.y + 24);
+      this.addInteractable('ferryman', ferryman.x, ferryman.y, 40 + 12 * this.run.depth, {
+        label: 'Ferryman',
+      });
+    }
+    const vault = this.floor.rooms.find((r) => r.kind === 'vault');
+    if (vault) {
+      // The lever lives in a room the walker has to reach, not at the entrance.
+      const host =
+        this.floor.rooms.find(
+          (r) => r.id !== vault.id && r.kind !== 'vault' && r.kind !== 'boss' && r.distance >= 1
+        ) ?? start;
+      const hostCentre = roomCentrePx(host);
+      const lever = this.findWallLeverSpot(host) ?? {
+        x: hostCentre.x,
+        y: hostCentre.y + TILE_SIZE * 2,
+      };
+      this.addInteractable('lever', lever.x, lever.y, 0, {
+        roomId: vault.id,
+        label: 'Sealed vault',
+      });
+    }
+  }
+
+  /** Shared chest loot: caches pay it double when their seal is broken. */
+  private giveChestLoot(target: Interactable, mult: number): void {
+    const surge = this.rollSurge();
+    const baseShards = (8 + 4 * this.run.depth) * mult;
+    const shards = Math.round(baseShards * surge.factor);
+    this.dropFragment(target.x + 40, target.y);
+    this.dropShards(target.x, target.y, shards);
+    if (surge.kind) {
+      this.run.stats.surges++;
+      this.emit({
+        type: 'lootSurge',
+        x: target.x,
+        y: target.y,
+        kind: surge.kind,
+        amount: shards,
+      });
+    }
+    this.dropPickup('bomb', target.x - 38, target.y + 10, mult);
+    if (this.rng.chance(0.5)) this.dropPickup('trap', target.x - 46, target.y - 8, mult);
+    if (this.rng.chance(0.6)) this.dropEquipment(target.x - 30, target.y);
+    if (mult > 1 && this.rng.chance(0.6)) this.dropEquipment(target.x + 30, target.y);
   }
 
   private addInteractable(
@@ -632,26 +792,42 @@ export class World implements Arena {
       interior: true,
     });
   }
-  /** Scatters traps and breakables through combat rooms, plus levers to disarm them. */
+  /** Scatters traps and breakables; every room gets breakable crystals. */
   private placeHazards(): void {
     if (this.plan.bossOnly) return;
     for (const room of this.floor.rooms) {
-      if (room.kind !== 'combat' && room.kind !== 'boss') continue;
+      const hostile =
+        room.kind === 'combat' ||
+        room.kind === 'boss' ||
+        room.kind === 'arena' ||
+        room.kind === 'colosseum';
       // The lever goes in first so props can keep their distance from it.
       // Levers are mounted on walls away from doorways and gates.
-      if (this.rng.chance(0.45)) {
+      if (hostile && this.rng.chance(0.45)) {
         const spot = this.findWallLeverSpot(room);
         if (spot) this.addInteractable('lever', spot.x, spot.y, 0, { roomId: room.id });
       }
-      const count = 1 + (this.run.depth >= 4 ? 1 : 0) + this.rng.int(0, 1);
-      const kinds: HazardKind[] = ['spike', 'flame', 'poison', 'rockfall', 'barrel'];
-      for (let i = 0; i < count; i++) this.spawnHazard(room, this.rng.pick(kinds));
+      if (hostile) {
+        const count = 1 + (this.run.depth >= 4 ? 1 : 0) + this.rng.int(0, 1);
+        const kinds: HazardKind[] = ['spike', 'flame', 'poison', 'rockfall', 'barrel'];
+        for (let i = 0; i < count; i++) this.spawnHazard(room, this.rng.pick(kinds));
+      }
 
-      // Scatter breakable environment items (crates, crystals, urns, barrels)
-      const breakableCount = this.rng.int(2, 4);
-      const breakables: HazardKind[] = ['crate', 'crystal', 'urn', 'barrel'];
-      for (let i = 0; i < breakableCount; i++) {
-        this.spawnHazard(room, this.rng.pick(breakables));
+      // Every crystal in every room is breakable: guaranteed crystal
+      // clusters (more in crystal caverns and the colosseum), plus a few
+      // assorted breakables in rooms that see fighting.
+      let crystals = 2 + this.rng.int(0, 1);
+      if (this.plan.biome === 'crystal') crystals += 2;
+      if (room.kind === 'colosseum') crystals += 2;
+      for (let i = 0; i < crystals; i++) this.spawnHazard(room, 'crystal');
+      if (hostile) {
+        const breakableCount = this.rng.int(2, 4);
+        const breakables: HazardKind[] = ['crate', 'crystal', 'urn', 'barrel'];
+        for (let i = 0; i < breakableCount; i++) {
+          this.spawnHazard(room, this.rng.pick(breakables));
+        }
+      } else if (room.kind !== 'start') {
+        this.spawnHazard(room, this.rng.pick(['crate', 'crystal', 'urn'] as const));
       }
     }
   }
@@ -792,36 +968,90 @@ export class World implements Arena {
         source: 'chest',
         options: rollChoices(this.rng, p.upgrades, 3, 'generous'),
       });
-      const surge = this.rollSurge();
-      const baseShards = 8 + 4 * this.run.depth;
-      const shards = Math.round(baseShards * surge.factor);
-      this.dropFragment(target.x + 40, target.y);
-      this.dropShards(target.x, target.y, shards);
-      if (surge.kind) {
-        this.run.stats.surges++;
-        this.emit({
-          type: 'lootSurge',
-          x: target.x,
-          y: target.y,
-          kind: surge.kind,
-          amount: shards,
-        });
-      }
-      this.dropPickup('bomb', target.x - 38, target.y + 10, 1);
-      if (this.rng.chance(0.5)) this.dropPickup('trap', target.x - 46, target.y - 8, 1);
-      if (this.rng.chance(0.6)) this.dropEquipment(target.x - 30, target.y);
+      this.giveChestLoot(target, 1);
       this.emit({ type: 'interact', kind: 'chest', x: target.x, y: target.y });
       // The guardian may already be down: the last chest still closes the goal.
       if (this.floorObjectives().complete) this.claimFloorBonus({ x: target.x, y: target.y + 24 });
+    } else if (target.kind === 'cache') {
+      // Push-your-luck (cyberpulse ADR-002/019): the seal strains on the
+      // first touch with the price stated up front. Walking away is free;
+      // breaking it pays double and something in the dark notices.
+      if (!target.armed) {
+        target.armed = true;
+        this.emit({
+          type: 'notice',
+          text: 'The seal strains. Break it (E) for double loot — it will cost blood and company.',
+        });
+        this.emit({ type: 'shake', strength: 3 });
+        return;
+      }
+      target.used = true;
+      const cost = Math.max(1, Math.round(p.stats.maxHealth * ENGAGEMENT_TUNING.cacheHealthCost));
+      p.health = Math.max(1, p.health - cost);
+      p.invulnerable = Math.max(p.invulnerable, 0.5);
+      this.giveChestLoot(target, 2);
+      this.emit({ type: 'interact', kind: 'chest', x: target.x, y: target.y });
+      for (let i = 0; i < 2; i++) {
+        const elite = this.spawnEnemy(
+          this.rng.pick(this.plan.roster),
+          target.x,
+          target.y,
+          target.roomId ?? -1
+        );
+        elite.state = 'chase';
+        elite.elite = true;
+        elite.health = elite.maxHealth = Math.round(elite.maxHealth * 1.5);
+      }
+      this.emit({ type: 'notice', text: 'The seal breaks. The dark sends collectors.' });
+      this.emit({ type: 'shake', strength: 10 });
+      if (this.floorObjectives().complete) this.claimFloorBonus({ x: target.x, y: target.y + 24 });
     } else if (target.kind === 'lever') {
       target.used = true;
-      this.disableHazards(target.roomId);
-      this.emit({ type: 'notice', text: 'The old lever answers. The room falls quiet.' });
+      const room = target.roomId === undefined ? undefined : this.floor.rooms[target.roomId];
+      if (room?.kind === 'vault' && room.sealed) {
+        this.openVault(room);
+      } else {
+        this.disableHazards(target.roomId);
+        this.emit({ type: 'notice', text: 'The old lever answers. The room falls quiet.' });
+      }
       this.emit({ type: 'interact', kind: 'lever', x: target.x, y: target.y });
+    } else if (target.kind === 'wayfarer') {
+      target.used = true;
+      this.run.pendingChoices.push({
+        source: 'wayfarer',
+        options: rollChoices(this.rng, p.upgrades, 3, 'generous'),
+      });
+      this.emit({ type: 'notice', text: this.rng.pick(WAYFARER_LINES) });
+      this.emit({ type: 'interact', kind: 'wayfarer', x: target.x, y: target.y });
+    } else if (target.kind === 'waystone') {
+      this.useWaystone(target);
+    } else if (target.kind === 'ferryman') {
+      const boss = this.floor.rooms[this.floor.bossRoom];
+      if (this.currentRoom()?.id === boss.id) {
+        this.emit({ type: 'notice', text: 'The Ferryman is already at the far bank.' });
+        return;
+      }
+      if (p.shards < target.cost) {
+        this.emit({ type: 'notice', text: `The Ferryman wants ${target.cost} shards` });
+        return;
+      }
+      p.shards -= target.cost;
+      target.used = true;
+      const centre = roomCentrePx(boss);
+      const spot = this.clampToRoomInterior(boss, centre.x, centre.y + TILE_SIZE * 2);
+      const fromX = p.x;
+      const fromY = p.y;
+      p.x = spot.x;
+      p.y = spot.y;
+      p.invulnerable = Math.max(p.invulnerable, 1);
+      this.visited[boss.id] = true;
+      this.emit({ type: 'blink', x: fromX, y: fromY, toX: spot.x, toY: spot.y });
+      this.emit({ type: 'notice', text: this.rng.pick(FERRYMAN_LINES) });
+      this.emit({ type: 'interact', kind: 'ferryman', x: target.x, y: target.y });
     } else if (target.kind === 'fountain') {
       target.used = true;
       p.health = Math.min(p.stats.maxHealth, p.health + p.stats.maxHealth * 0.35);
-      if (p.health > p.stats.maxHealth * 0.3) p.clutchUsed = false;
+      if (p.health > p.stats.maxHealth * ENGAGEMENT_TUNING.clutchThreshold) p.clutchUsed = false;
       this.emit({ type: 'notice', text: 'The fountain still remembers clean water.' });
       this.emit({ type: 'interact', kind: 'fountain', x: target.x, y: target.y });
     } else if (target.kind === 'merchant') {
@@ -864,7 +1094,7 @@ export class World implements Arena {
       p.shards -= target.cost;
       target.used = true;
       p.health = Math.min(p.stats.maxHealth, p.health + p.stats.maxHealth * 0.5);
-      if (p.health > p.stats.maxHealth * 0.3) p.clutchUsed = false;
+      if (p.health > p.stats.maxHealth * ENGAGEMENT_TUNING.clutchThreshold) p.clutchUsed = false;
       p.potions = p.stats.maxPotions;
       this.run.pendingChoices.push({
         source: 'shrine',
@@ -935,6 +1165,17 @@ export class World implements Arena {
       this.emit({ type: 'bossIntro', name: enemyDef(boss).name });
       if (room.kind === 'arena')
         this.emit({ type: 'notice', text: 'An echo guardian holds the arena alone.' });
+    } else if (room.kind === 'colosseum') {
+      // The colosseum is the floor's centrepiece: six-plus waves with the
+      // count always shown, so the crowd knows how long the show runs.
+      state.wavesLeft = Math.min(
+        10,
+        6 + (this.run.depth >= 3 ? 1 : 0) + (this.rng.chance(0.5) ? 1 : 0)
+      );
+      state.totalWaves = state.wavesLeft;
+      state.hideWaveCount = false;
+      state.spawnDelay = 0.5;
+      this.emit({ type: 'notice', text: 'The colosseum hungers for a champion.' });
     } else {
       const area = room.w * room.h;
       const depth = this.run.depth;
@@ -964,6 +1205,7 @@ export class World implements Arena {
       state.totalWaves = waves;
       state.hideWaveCount = this.rng.chance(0.42);
       state.spawnDelay = 0.35;
+      // The stalker cashes in here: an elite joins the opening wave.
       this.spawnStalker(room);
     }
   }
@@ -1001,10 +1243,16 @@ export class World implements Arena {
       return;
     }
     // Wave size grows with the section, so late rooms are crowded rather than
-    // just longer.
-    const count = Math.round(
-      (3 + Math.floor(this.run.depth * 0.85) + this.rng.int(0, 2)) * ENEMY_COUNT_SCALE
-    );
+    // just longer. Colosseum waves pour in at more than double the rate to
+    // fill a chamber six times the size of a grand hall.
+    // The Restless Dead twist (daily or omen) sends one extra enemy with every wave.
+    const restless = activeModifier(this.run) === 'restless_dead' ? 1 : 0;
+    const baseCount =
+      room.kind === 'colosseum'
+        ? 7 + Math.floor(this.run.depth * 1.6) + this.rng.int(0, 3)
+        : 3 + Math.floor(this.run.depth * 0.85) + this.rng.int(0, 2);
+    const cap = enemyWaveCap(room.w * room.h, room.kind === 'colosseum');
+    const count = Math.min(cap, Math.max(1, Math.round(baseCount * ENEMY_COUNT_SCALE) + restless));
     for (let i = 0; i < count; i++) {
       let spot: { x: number; y: number } | undefined;
       const enemyDefId = this.rng.pick(this.plan.roster);
@@ -1023,18 +1271,6 @@ export class World implements Arena {
     }
   }
 
-  /**
-   * A gate mouth the player is not standing next to. Gates are fixed points, so
-   * without this check a wave could materialise on top of a player camping one.
-   */
-  private gateSpawn(room: Room): { x: number; y: number } | undefined {
-    const p = this.player;
-    const open = room.gates?.filter((g) => Math.hypot(g.spawnX - p.x, g.spawnY - p.y) >= 140);
-    if (!open || open.length === 0) return undefined;
-    const gate = this.rng.pick(open);
-    return { x: gate.spawnX, y: gate.spawnY };
-  }
-
   /** Spends the armed hunter pressure: an elite stalker joins this fight. */
   private spawnStalker(room: Room): void {
     if (!this.stalkerArmed) return;
@@ -1049,6 +1285,18 @@ export class World implements Arena {
     stalker.state = 'chase';
     this.emit({ type: 'notice', text: 'A stalker has picked up your scent.' });
     this.emit({ type: 'shake', strength: 6 });
+  }
+
+  /**
+   * A gate mouth the player is not standing next to. Gates are fixed points, so
+   * without this check a wave could materialise on top of a player camping one.
+   */
+  private gateSpawn(room: Room): { x: number; y: number } | undefined {
+    const p = this.player;
+    const open = room.gates?.filter((g) => Math.hypot(g.spawnX - p.x, g.spawnY - p.y) >= 140);
+    if (!open || open.length === 0) return undefined;
+    const gate = this.rng.pick(open);
+    return { x: gate.spawnX, y: gate.spawnY };
   }
 
   /** A random open spot in the room, kept away from the player. */
@@ -1068,7 +1316,12 @@ export class World implements Arena {
   private clearRoom(room: Room): void {
     const state = this.rooms[room.id];
     // Surprise: a cleared room occasionally reveals a second, elite wave.
-    if (!state.ambushed && room.kind === 'combat' && this.run.depth >= 1 && this.rng.chance(0.12)) {
+    if (
+      !state.ambushed &&
+      (room.kind === 'combat' || room.kind === 'colosseum') &&
+      this.run.depth >= 1 &&
+      this.rng.chance(room.kind === 'colosseum' ? 0.35 : 0.12)
+    ) {
       state.ambushed = true;
       state.wavesLeft = 1;
       state.totalWaves = (state.totalWaves ?? 1) + 1;
@@ -1083,20 +1336,52 @@ export class World implements Arena {
       this.emit({ type: 'shake', strength: 6 });
       return;
     }
+    // Surprise: a late room can break into a short memory storm after its
+    // last wave. The pack is capped at three so the room stays readable.
+    if (
+      !state.stormed &&
+      this.run.depth >= 10 &&
+      (room.kind === 'combat' || room.kind === 'colosseum') &&
+      this.plan.roster.length > 0 &&
+      this.rng.chance(0.08)
+    ) {
+      state.stormed = true;
+      state.wavesLeft = 0;
+      state.spawnDelay = 0;
+      const pack = Math.min(3, this.plan.roster.length);
+      for (let i = 0; i < pack; i++) {
+        const spot = this.spawnPoint(room);
+        if (!spot) continue;
+        const enemy = this.spawnEnemy(this.rng.pick(this.plan.roster), spot.x, spot.y, room.id);
+        enemy.state = 'chase';
+        enemy.elite = i === 0;
+      }
+      this.emit({ type: 'notice', text: 'A memory storm breaks over the room.' });
+      this.emit({ type: 'shake', strength: 7 });
+      return;
+    }
     state.phase = 'cleared';
     this.setRoomLocked(room, false);
     this.run.stats.roomsCleared++;
-    this.emit({ type: 'roomCleared', roomId: room.id });
-    // Hunter pressure: every third cleared combat room arms a stalker for the
-    // next one, so loud runs escalate on their own.
-    if (room.kind === 'combat') {
+    // Flow carry: a streak earned in this room survives the walk to the next
+    // one. Tops a decayed window back to the graze floor (1.5s) without
+    // extending a fresh one.
+    if (this.player.resonance > 0)
+      this.player.resonanceTime = Math.max(this.player.resonanceTime, RESONANCE_WINDOW * 0.5);
+    this.run.stats.onboarding |= 32;
+    if (room.kind === 'colosseum') this.run.stats.colosseumsWon++;
+    // Hunter pressure: every third cleared fighting room arms a stalker for
+    // the next one, so loud runs escalate on their own (cyberpulse ADR-016).
+    if (room.kind === 'combat' || room.kind === 'colosseum') {
       this.stalkerClock++;
       if (this.stalkerClock % 3 === 0) this.stalkerArmed = true;
     }
+    this.emit({ type: 'roomCleared', roomId: room.id });
     const c = roomCentrePx(room);
     // Untouched health is its own reward: finishing a room clean pays extra.
     if (this.roomDamage === 0) {
-      const shards = 6 + 3 * this.run.depth;
+      const shards =
+        ENGAGEMENT_TUNING.flawlessBase + ENGAGEMENT_TUNING.flawlessPerDepth * this.run.depth;
       this.dropShards(c.x, c.y, shards);
       this.emit({ type: 'flawlessRoom', roomId: room.id, shards });
     }
@@ -1115,6 +1400,15 @@ export class World implements Arena {
       this.dropShards(c.x, c.y, 40 + this.run.depth * 6);
       this.dropPickup('potion', c.x, c.y - 24, 1);
       this.emit({ type: 'notice', text: 'The echo guardian falls. The arena yields.' });
+      return;
+    }
+    if (room.kind === 'colosseum') {
+      // Surviving six-plus waves pays like a boss: a relic, a shard cache
+      // scaled to the fight, and a potion for the road.
+      this.dropEquipment(c.x, c.y - 20);
+      this.dropShards(c.x, c.y, 50 + this.run.depth * 8);
+      this.dropPickup('potion', c.x, c.y + 24, 1);
+      this.emit({ type: 'notice', text: 'Champion of the colosseum! The crowd showers you.' });
       return;
     }
     if (this.rng.chance(0.35)) this.dropPickup('health', c.x, c.y, 15);
@@ -1141,7 +1435,8 @@ export class World implements Arena {
     }
     this.bonusClaimed = true;
     this.run.stats.floorsRestored++;
-    const shards = 40 + 10 * this.run.depth;
+    const shards =
+      ENGAGEMENT_TUNING.floorBonusBase + ENGAGEMENT_TUNING.floorBonusPerDepth * this.run.depth;
     this.dropShards(c.x, c.y, shards);
     this.dropPickup('potion', c.x - 30, c.y, 1);
     this.emit({ type: 'objectiveComplete', shards });
@@ -1156,7 +1451,26 @@ export class World implements Arena {
     killEnemy(enemy);
     const run = this.run;
     run.stats.kills++;
-    this.emit({ type: 'enemyDied', id: enemy.id, x: enemy.x, y: enemy.y, boss: enemy.isBoss });
+    // Near-miss comeback (cyberpulse ADR-019): a kill landed while the walker
+    // is near death pays guts bonus shards on the spot.
+    if (
+      this.player.health > 0 &&
+      this.player.health < this.player.stats.maxHealth * ENGAGEMENT_TUNING.clutchKillThreshold
+    ) {
+      run.stats.clutchKills++;
+      const bonus =
+        ENGAGEMENT_TUNING.clutchBase + this.run.depth * ENGAGEMENT_TUNING.clutchPerDepth;
+      this.dropShards(enemy.x, enemy.y, bonus);
+      this.emit({ type: 'notice', text: `Clutch! +${bonus} shards` });
+    }
+    this.emit({
+      type: 'enemyDied',
+      id: enemy.id,
+      x: enemy.x,
+      y: enemy.y,
+      boss: enemy.isBoss,
+      defId: enemy.def.id,
+    });
     this.emit({ type: 'shake', strength: enemy.isBoss ? 14 : 3 });
     if (enemy.isBoss) {
       this.hitstop(0.25);
@@ -1181,7 +1495,9 @@ export class World implements Arena {
     const flow = resonanceMultiplier(p.resonance);
     this.emit({ type: 'resonance', count: p.resonance, multiplier: flow });
 
-    const xp = Math.round(enemy.def.xp * (1 + 0.1 * run.depth) * (enemy.elite ? 2 : 1) * flow);
+    const xp = Math.round(
+      enemy.def.xp * (1 + 0.1 * run.depth) * (enemy.elite ? 2 : 1) * flow * ENEMY_XP_SCALE
+    );
     const levels = grantXp(run, xp, () => rollChoices(this.rng, p.upgrades));
     if (levels > 0) this.emit({ type: 'levelUp', level: p.level });
 
@@ -1227,6 +1543,7 @@ export class World implements Arena {
     p.equipment[def.slot] = item;
     if (previous) p.inventory.push(previous);
     refreshStats(p);
+    this.run.stats.onboarding |= 16;
     return true;
   }
 
@@ -1332,12 +1649,14 @@ export class World implements Arena {
   /** One variable-ratio roll: mostly normal, sometimes rich, rarely a jackpot. */
   private rollSurge(): { kind?: 'rich' | 'jackpot'; factor: number } {
     const roll = this.rng.next();
-    if (roll < SURGE_JACKPOT) return { kind: 'jackpot', factor: 5 };
-    if (roll < SURGE_RICH) return { kind: 'rich', factor: 2.5 };
+    if (roll < SURGE_JACKPOT) return { kind: 'jackpot', factor: ENGAGEMENT_TUNING.jackpotFactor };
+    if (roll < SURGE_RICH) return { kind: 'rich', factor: ENGAGEMENT_TUNING.richFactor };
     return { factor: 1 };
   }
 
   private dropShards(x: number, y: number, total: number): void {
+    // Ember Tide (daily or omen) fences every drop a little richer.
+    if (activeModifier(this.run) === 'ember_tide') total = Math.round(total * 1.25);
     // Several small shards scatter and then home in, which reads better than one big drop.
     const pieces = Math.min(total, 8);
     for (let i = 0; i < pieces; i++) {
@@ -1600,7 +1919,13 @@ export class World implements Arena {
     this.emit({ type: 'bombExploded', x: b.x, y: b.y, radius: b.radius });
     this.emit({ type: 'shake', strength: 8 });
     if (Math.hypot(p.x - b.x, p.y - b.y) <= b.radius + p.radius)
-      this.damagePlayer(Math.round(b.damage * (b.owner === 'player' ? 0.65 : 1)), b.x, b.y, 260);
+      this.damagePlayer(
+        Math.round(b.damage * (b.owner === 'player' ? 0.65 : 1)),
+        b.x,
+        b.y,
+        260,
+        b.owner === 'enemy'
+      );
     for (const e of this.enemies)
       if (e.state !== 'dying' && Math.hypot(e.x - b.x, e.y - b.y) <= b.radius + e.radius)
         this.damageEnemy(
@@ -1772,11 +2097,11 @@ export class World implements Arena {
       const close = m.arm <= 0 && Math.hypot(p.x - m.x, p.y - m.y) < 58;
       if (!close && m.life > 0) continue;
       this.mines.splice(i, 1);
-      this.emit({ type: 'blast', x: m.x, y: m.y, radius: 62 });
-      if (Math.hypot(p.x - m.x, p.y - m.y) <= 62 + p.radius)
+      this.emit({ type: 'blast', x: m.x, y: m.y, radius: MINE_RADIUS });
+      if (Math.hypot(p.x - m.x, p.y - m.y) <= MINE_RADIUS + p.radius)
         this.damagePlayer(m.damage, m.x, m.y, 180, true);
       for (const e of this.enemies)
-        if (e.state !== 'dying' && Math.hypot(e.x - m.x, e.y - m.y) <= 62 + e.radius)
+        if (e.state !== 'dying' && Math.hypot(e.x - m.x, e.y - m.y) <= MINE_RADIUS + e.radius)
           this.damageEnemy(e, Math.round(m.damage * 0.5), 'hazard', false, 60);
     }
   }
@@ -1785,6 +2110,56 @@ export class World implements Arena {
   disableHazards(roomId?: number): void {
     for (const h of this.hazards)
       if (!isBreakable(h.kind) && (roomId === undefined || h.roomId === roomId)) h.disabled = true;
+  }
+
+  /** Opens a sealed vault: its doorway becomes a real door and the room is revealed. */
+  private openVault(room: Room): void {
+    if (!room.sealed) return;
+    room.sealed = false;
+    for (const t of room.secretTiles ?? []) this.grid.set(t.x, t.y, t.tile);
+    room.secretTiles = undefined;
+    for (const door of room.doors)
+      for (const t of door.tiles) {
+        this.grid.set(t.x, t.y, Tile.Door);
+        this.grid.setDoorLocked(t.x, t.y, false);
+      }
+    const centre = roomCentrePx(room);
+    this.addInteractable('chest', centre.x, centre.y, 0);
+    this.emit({ type: 'secretOpened', roomId: room.id });
+    this.emit({ type: 'notice', text: 'The wall remembers a door. A sealed vault opens.' });
+    this.emit({ type: 'shake', strength: 5 });
+  }
+
+  /** One-way fast travel: return to the entrance, or from the entrance to the deep. */
+  private useWaystone(target: Interactable): void {
+    const start = this.floor.rooms[this.floor.startRoom];
+    const current = this.currentRoom();
+    const visited = this.floor.rooms
+      .filter((r) => this.visited[r.id] && r.id !== start.id && r.kind !== 'vault')
+      .sort((a, b) => b.distance - a.distance);
+    const targetRoom = current && current.id !== start.id ? start : visited[0];
+    if (!targetRoom || targetRoom.id === current?.id) {
+      this.emit({ type: 'notice', text: 'The waystone has nowhere to lead yet.' });
+      return;
+    }
+    const centre = roomCentrePx(targetRoom);
+    const spot = this.clampToRoomInterior(targetRoom, centre.x, centre.y + TILE_SIZE);
+    const fromX = this.player.x;
+    const fromY = this.player.y;
+    this.player.x = spot.x;
+    this.player.y = spot.y;
+    this.player.invulnerable = Math.max(this.player.invulnerable, 1);
+    this.visited[targetRoom.id] = true;
+    target.used = true;
+    this.emit({ type: 'blink', x: fromX, y: fromY, toX: spot.x, toY: spot.y });
+    this.emit({
+      type: 'notice',
+      text:
+        current?.id === start.id
+          ? 'The waystone remembers the deep road.'
+          : 'The waystone carries you back to the entrance.',
+    });
+    this.emit({ type: 'interact', kind: 'waystone', x: target.x, y: target.y });
   }
 
   private updatePickups(dt: number): void {
@@ -1865,7 +2240,7 @@ export class World implements Arena {
           break;
         }
         p.health = Math.min(p.stats.maxHealth, p.health + item.amount);
-        if (p.health > p.stats.maxHealth * 0.3) p.clutchUsed = false;
+        if (p.health > p.stats.maxHealth * ENGAGEMENT_TUNING.clutchThreshold) p.clutchUsed = false;
         break;
       case 'potion':
         if (p.potions >= p.stats.maxPotions) {

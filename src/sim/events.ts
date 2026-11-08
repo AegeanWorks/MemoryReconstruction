@@ -40,7 +40,7 @@ export type SimEvent =
   | { type: 'enemySpawned'; id: number; x: number; y: number }
   | { type: 'enemyWindup'; id: number; attack: AttackKind }
   | { type: 'enemyAttack'; id: number; attack: AttackKind; x: number; y: number }
-  | { type: 'enemyDied'; id: number; x: number; y: number; boss: boolean }
+  | { type: 'enemyDied'; id: number; x: number; y: number; boss: boolean; defId: string }
   | { type: 'playerHurt'; amount: number }
   | { type: 'playerDied' }
   | { type: 'soulAnchor'; x: number; y: number }
@@ -80,6 +80,8 @@ export type SimEvent =
   | { type: 'hook'; x: number; y: number; toX: number; toY: number }
   | { type: 'roomLocked'; roomId: number }
   | { type: 'roomCleared'; roomId: number }
+  /** A lever opened a sealed vault; the view rebuilds the floor to show it. */
+  | { type: 'secretOpened'; roomId: number }
   | { type: 'bossIntro'; name: string }
   | { type: 'bossPhase'; phase: number }
   | { type: 'fragmentFound'; fragmentId: string }

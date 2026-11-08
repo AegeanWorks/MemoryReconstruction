@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CORE_MEMORIES, MEMORY_FRAGMENTS } from '../src/sim/content';
 
@@ -19,5 +21,10 @@ describe('memory lore completeness', () => {
   it('gives every core memory a distinct title', () => {
     const titles = CORE_MEMORIES.map((core) => core.title);
     expect(new Set(titles).size).toBe(titles.length);
+  });
+
+  it('keeps the assets lore mirror in sync with the runtime copy', () => {
+    const read = (path: string): unknown => JSON.parse(readFileSync(join(__dirname, path), 'utf8'));
+    expect(read('../assets/data/lore.json')).toEqual(read('../src/data/lore.json'));
   });
 });

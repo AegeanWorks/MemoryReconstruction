@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { NO_INPUT } from '../../src/sim/entities';
-import { mineOffsets } from '../../src/sim/enemies';
+import { MINE_DISTANCE, MINE_RADIUS, mineOffsets } from '../../src/sim/enemies';
 import { createRun } from '../../src/sim/run';
 import { World } from '../../src/sim/world';
 
@@ -27,9 +27,24 @@ describe('mine telegraph', () => {
 
     const offsets = mineOffsets(boss);
     for (let i = 0; i < 3; i++) {
-      expect(w.mines[i].x).toBeCloseTo(p.x + Math.cos(offsets[i]) * 56, 5);
-      expect(w.mines[i].y).toBeCloseTo(p.y + Math.sin(offsets[i]) * 56, 5);
+      expect(w.mines[i].x).toBeCloseTo(p.x + Math.cos(offsets[i]) * MINE_DISTANCE, 5);
+      expect(w.mines[i].y).toBeCloseTo(p.y + Math.sin(offsets[i]) * MINE_DISTANCE, 5);
     }
+  });
+
+  it('shares one lethal radius between the blast and the warning', () => {
+    const w = new World(createRun(20261107, []));
+    const p = w.player;
+    p.invulnerable = 9999;
+    w.spawnMine(p.x + 200, p.y, 10);
+    w.mines[0].arm = 0;
+    w.mines[0].life = 0.001;
+    const events = w.step(NO_INPUT, DT);
+    const blast = events.find((event) => event.type === 'blast');
+    expect(blast && 'radius' in blast ? blast.radius : 0).toBe(MINE_RADIUS);
+    const view = readFileSync(join(__dirname, '../../src/view/ActorView.ts'), 'utf8');
+    const start = view.indexOf("case 'mines'");
+    expect(view.slice(start, start + 500)).toContain('MINE_RADIUS');
   });
 
   it('draws the warning from the same shared layout', () => {

@@ -1,7 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { NO_INPUT } from '../../src/sim/entities';
 import { generateFloor, roomCentrePx } from '../../src/sim/dungeon';
-import { createRun } from '../../src/sim/run';
+import { createRun, restoreRun } from '../../src/sim/run';
+import { featProgress, flowMilestone } from '../../src/sim/feats';
+import { dailyModifier } from '../../src/save/SaveStore';
+import {
+  applyQuestClaim,
+  applyTribute,
+  bountyForDay,
+  claimDailyBounty,
+  dailyBounty,
+  questDef,
+  rushMinutesLeft,
+  trustBonus,
+  trustLevel,
+} from '../../src/sim/quests';
 import { World } from '../../src/sim/world';
 import {
   applyEquipment,
@@ -29,6 +42,17 @@ function world(depth = 0, seed = 7): World {
 /** A world as the player actually meets it: from the matching checkpoint. */
 function checkpointWorld(depth: number, seed = 7): World {
   return new World(createExpedition(seed, [], depth, { echoes: 0, restorations: {}, checkpoint: 0 }));
+}
+
+/**
+ * Traps and blasts stagger anything they touch, so mechanics tests clear the
+ * ground around their subject first. This tests the behaviour, not the room.
+ */
+function clearHazardsAround(w: World, x: number, y: number, radius = 220): void {
+  for (let i = w.hazards.length - 1; i >= 0; i--) {
+    const h = w.hazards[i];
+    if (Math.hypot(h.x - x, h.y - y) < radius) w.hazards.splice(i, 1);
+  }
 }
 
 describe('equipment', () => {
@@ -449,7 +473,7 @@ describe('map layouts', () => {
   it('builds a boss-only echo episode as one arena and activates immediately on entry', () => {
     for (const [depth, expectedBoss] of [
       [5, 'choir_hierophant'],
-      [10, 'hollow_behemoth'],
+      [11, 'hollow_behemoth'],
     ] as const) {
       const run = createRun(77, []);
       run.depth = depth;
@@ -550,6 +574,41 @@ describe('duellists', () => {
     expect(enemyDef('lost_self').archetype).toBe('duelist');
   });
 
+  // Traps and blasts stagger anything they touch, so mechanics tests clear
+  // the ground around their subject first.
+  function clearHazardsNear(w: World, x: number, y: number, radius = 220): void {
+    for (let i = w.hazards.length - 1; i >= 0; i--) {
+      const h = w.hazards[i];
+      if (Math.hypot(h.x - x, h.y - y) < radius) w.hazards.splice(i, 1);
+    }
+  }
+
+  // Dungeon layouts shift as room kinds are added, so far spawn offsets can
+  // land inside a wall. The behaviour under test needs open ground, not a
+  // specific tile: nudge the spawn to the nearest open pixel with a clear
+  // 80px runway to the west, so dashes and bolts never start inside stone.
+  function spawnDuelist(w: World, x: number, y: number) {
+    const clear = (sx: number, sy: number): boolean => {
+      for (let d = 0; d <= 80; d += 16) {
+        if (w.grid.isSolidAtPixel(sx - d, sy)) return false;
+      }
+      return true;
+    };
+    let best = { x, y };
+    let bestDist = !w.grid.isSolidAtPixel(x, y) && clear(x, y) ? 0 : Infinity;
+    for (let oy = -128; oy <= 128 && bestDist > 0; oy += 16) {
+      for (let ox = -128; ox <= 128 && bestDist > 0; ox += 16) {
+        if (w.grid.isSolidAtPixel(x + ox, y + oy) || !clear(x + ox, y + oy)) continue;
+        const d = Math.hypot(ox, oy);
+        if (d < bestDist) {
+          bestDist = d;
+          best = { x: x + ox, y: y + oy };
+        }
+      }
+    }
+    return w.spawnEnemy('rime_duelist', best.x, best.y, -1);
+  }
+
   it('opens with a player-style attack at sword range', () => {
     const w = world(9);
     const duelist = w.spawnEnemy('rime_duelist', w.player.x + 60, w.player.y, -1);
@@ -564,6 +623,8 @@ describe('duellists', () => {
     const w = world(9);
     const p = w.player;
     const duelist = w.spawnEnemy('rime_duelist', p.x + 40, p.y, -1);
+    // Traps stagger attackers, which tests the dungeon rather than the combo.
+    clearHazardsNear(w, duelist.x, duelist.y);
     duelist.state = 'windup';
     duelist.attack = 'combo';
     duelist.stateTime = 0;
@@ -572,7 +633,10 @@ describe('duellists', () => {
     p.invulnerable = 0;
     const before = p.health;
     const slashes: number[] = [];
-    for (let i = 0; i < 45; i++)
+    // 60 steps: a heavy arc staggers the walker with a longer hitstop freeze,
+    // stretching the combo past the old 45-step window. The arcs asserted
+    // are unchanged.
+    for (let i = 0; i < 60; i++)
       for (const event of w.step(NO_INPUT, DT))
         if (event.type === 'enemySlash') slashes.push(event.combo);
     expect(slashes).toEqual([0, 1, 2]);
@@ -599,6 +663,7 @@ describe('duellists', () => {
     const w = checkpointWorld(9);
     const p = w.player;
     const duelist = w.spawnEnemy('rime_duelist', p.x + 40, p.y, -1);
+    clearHazardsNear(w, duelist.x, duelist.y);
     duelist.state = 'windup';
     duelist.attack = 'combo';
     duelist.stateTime = 0;
@@ -611,7 +676,7 @@ describe('duellists', () => {
 
   it('fires a thin bolt of its own', () => {
     const w = world(9);
-    const duelist = w.spawnEnemy('rime_duelist', w.player.x + 240, w.player.y, -1);
+    const duelist = spawnDuelist(w, w.player.x + 240, w.player.y);
     duelist.state = 'windup';
     duelist.attack = 'bolt';
     duelist.stateTime = 0;
@@ -624,7 +689,10 @@ describe('duellists', () => {
   it('closes the gap with a dash strike', () => {
     const w = world(9);
     const p = w.player;
-    const duelist = w.spawnEnemy('rime_duelist', p.x + 170, p.y, -1);
+    // Spawn beside the player, where sibling tests prove the floor is open:
+    // far offsets can sit a body-radius from a pillar and end the dash on
+    // the first step, which tests the dungeon rather than the dash.
+    const duelist = w.spawnEnemy('rime_duelist', p.x + 60, p.y, -1);
     duelist.state = 'windup';
     duelist.attack = 'dashStrike';
     duelist.stateTime = 0;
@@ -673,7 +741,7 @@ describe('duellists', () => {
 
 describe('the mirror of self', () => {
   it('opens its pattern with a player-style swing', () => {
-    const w = world(15);
+    const w = world(17);
     const boss = w.spawnEnemy('mirror_self', w.player.x + 120, w.player.y, -1, true);
     boss.state = 'chase';
     boss.cooldown = 0;
@@ -683,7 +751,7 @@ describe('the mirror of self', () => {
   });
 
   it('grows stronger as the player levels', () => {
-    const w = world(15);
+    const w = world(17);
     const low = w.spawnEnemy('mirror_self', w.player.x + 40, w.player.y, -1, true);
     w.player.level = 20;
     const high = w.spawnEnemy('mirror_self', w.player.x + 60, w.player.y, -1, true);
@@ -691,9 +759,10 @@ describe('the mirror of self', () => {
   });
 
   it('cannot one-combo a player who reaches its trial', () => {
-    const w = checkpointWorld(15);
+    const w = checkpointWorld(17);
     const p = w.player;
     const boss = w.spawnEnemy('mirror_self', p.x + 56, p.y, -1, true);
+    clearHazardsAround(w, boss.x, boss.y);
     boss.state = 'windup';
     boss.attack = 'combo';
     boss.stateTime = 0;
@@ -705,7 +774,7 @@ describe('the mirror of self', () => {
   });
 
   it('wears the player sheet in the mirror trial', () => {
-    const w = world(15);
+    const w = world(17);
     expect(w.plan.boss).toBe('mirror_self');
     expect(w.plan.bossOnly).toBe(true);
     expect(enemyDef('mirror_self', true).sprite).toBe('mirror');
@@ -713,11 +782,12 @@ describe('the mirror of self', () => {
 
   it('swings whichever stance the player holds', () => {
     for (const weapon of ['sword', 'spear', 'greatsword'] as const) {
-      const w = world(15);
+      const w = world(17);
       const p = w.player;
       p.weapon = weapon;
       p.invulnerable = 9999;
       const boss = w.spawnEnemy('mirror_self', p.x + 50, p.y, -1, true);
+      clearHazardsAround(w, boss.x, boss.y);
       boss.state = 'windup';
       boss.attack = 'combo';
       boss.stateTime = 0;
@@ -737,6 +807,7 @@ describe('the mirror of self', () => {
     p.weapon = 'greatsword';
     p.invulnerable = 9999;
     const duelist = w.spawnEnemy('rime_duelist', p.x + 40, p.y, -1);
+    clearHazardsAround(w, duelist.x, duelist.y);
     duelist.state = 'windup';
     duelist.attack = 'combo';
     duelist.stateTime = 0;
@@ -750,11 +821,17 @@ describe('the mirror of self', () => {
   });
 
   it('melee bosses swing heavy greatswords with shockwaves', () => {
-    for (const bossId of ['dread_champion', 'ruin_warlord']) {
+    for (const bossId of [
+      'dread_champion',
+      'ruin_warlord',
+      'drowned_blademaster',
+      'storm_warlord',
+    ]) {
       const w = world(16);
       const p = w.player;
       p.invulnerable = 9999;
       const boss = w.spawnEnemy(bossId, p.x + 40, p.y, -1, true);
+      clearHazardsAround(w, boss.x, boss.y);
       boss.state = 'windup';
       boss.attack = 'combo';
       boss.stateTime = 0;
@@ -872,6 +949,224 @@ describe('the mirror of self', () => {
   });
 });
 
+describe('player stagger', () => {
+  it('heavy blows interrupt swings and slow the walker', () => {
+    const w = world(0);
+    const p = w.player;
+    p.swingTime = 0.2;
+    p.action = 'attack';
+    p.invulnerable = 0;
+    // A 260-knockback hit is always heavy, whatever the damage.
+    w.damagePlayer(5, p.x + 10, p.y, 300);
+    expect(p.stagger).toBeGreaterThan(0);
+    expect(p.swingTime).toBeLessThan(0);
+    expect(p.action).toBe('idle');
+  });
+
+  it('light blows do not stagger', () => {
+    const w = world(0);
+    const p = w.player;
+    p.invulnerable = 0;
+    w.damagePlayer(1, p.x + 10, p.y, 50);
+    expect(p.stagger).toBe(0);
+  });
+
+  it('staggered walkers cannot start swings until they recover', () => {
+    const w = world(0);
+    const p = w.player;
+    p.invulnerable = 9999;
+    p.stagger = 0.4;
+    w.step({ ...NO_INPUT, attack: true }, DT);
+    expect(p.swingTime).toBeLessThan(0);
+    p.stagger = 0;
+    w.step({ ...NO_INPUT, attack: true }, DT);
+    expect(p.swingTime).toBeGreaterThanOrEqual(0);
+  });
+});
+
+describe('engagement mechanics', () => {
+  it('pays clutch shards for kills landed near death', () => {
+    const w = world(0);
+    const p = w.player;
+    p.invulnerable = 0;
+    p.health = Math.round(p.stats.maxHealth * 0.2);
+    const foe = w.spawnEnemy('scavenger', p.x + 40, p.y, -1);
+    foe.state = 'chase';
+    w.damageEnemy(foe, 99999, 'melee', false, 0);
+    expect(w.run.stats.clutchKills).toBe(1);
+    // The comeback pays out as dropped shards at the kill site.
+    expect(w.pickups.some((it) => it.kind === 'shard' && Math.hypot(it.x - foe.x, it.y - foe.y) < 120)).toBe(true);
+  });
+
+  it('no clutch bonus when the walker is healthy', () => {
+    const w = world(0);
+    const p = w.player;
+    p.invulnerable = 0;
+    p.health = p.stats.maxHealth;
+    const foe = w.spawnEnemy('scavenger', p.x + 40, p.y, -1);
+    foe.state = 'chase';
+    w.damageEnemy(foe, 99999, 'melee', false, 0);
+    expect(w.run.stats.clutchKills).toBe(0);
+  });
+
+  it('a soul anchor shatters instead of the walker, once', () => {
+    const w = world(0);
+    const p = w.player;
+    p.invulnerable = 0;
+    p.equipment.trinket = { uid: 4242, defId: 'soul_anchor' };
+    w.damagePlayer(99999, p.x + 10, p.y, 0);
+    expect(p.health).toBeGreaterThan(0);
+    expect(p.equipment.trinket).toBeNull();
+    expect(p.invulnerable).toBeGreaterThan(0);
+    // Spent: the next lethal blow lands (after the anchor's iframes fade).
+    p.invulnerable = 0;
+    w.damagePlayer(99999, p.x + 10, p.y, 0);
+    expect(p.health).toBe(0);
+  });
+
+  it('a sealed cache warns first, then pays double for blood and company', () => {
+    const w = world(0);
+    const p = w.player;
+    p.invulnerable = 0;
+    const cache = w.interactables.find((i) => i.kind === 'cache');
+    expect(cache).toBeDefined();
+    p.x = cache!.x;
+    p.y = cache!.y + 30;
+    const foesBefore = w.enemies.length;
+    w.step({ ...NO_INPUT, interact: true }, DT);
+    expect(cache!.used).toBe(false);
+    expect(cache!.armed).toBe(true);
+    expect(w.enemies.length).toBe(foesBefore);
+    w.step({ ...NO_INPUT, interact: true }, DT);
+    expect(cache!.used).toBe(true);
+    expect(w.enemies.length).toBe(foesBefore + 2);
+    expect(p.health).toBeLessThan(p.stats.maxHealth);
+  });
+
+  it('tracks the field-manual checklist as the walker acts', () => {
+    const w = world(0);
+    const p = w.player;
+    p.invulnerable = 9999;
+    expect(w.run.stats.onboarding).toBe(0);
+    w.step({ ...NO_INPUT, attack: true }, DT);
+    expect(w.run.stats.onboarding & 1).toBe(1);
+    w.step({ ...NO_INPUT, bolt: true }, DT);
+    expect(w.run.stats.onboarding & 2).toBe(2);
+    w.step({ ...NO_INPUT, dash: true, moveX: 1, moveY: 0 }, DT);
+    expect(w.run.stats.onboarding & 4).toBe(4);
+    w.step({ ...NO_INPUT, potion: true }, DT);
+    expect(w.run.stats.onboarding & 8).toBe(8);
+  });
+});
+
+describe('trust and the friends share', () => {
+  it('starts strangers at zero and caps at three hearts', () => {
+    expect(trustLevel({ trust: {} }, 'smith')).toBe(0);
+    expect(trustLevel({ trust: { smith: 2 } }, 'smith')).toBe(2);
+    expect(trustLevel({ trust: { smith: 9 } }, 'smith')).toBe(3);
+    expect(trustBonus(70, 0)).toBe(0);
+    expect(trustBonus(70, 2)).toBe(35);
+  });
+
+  it('settles claims with bonus, relic, claim and deeper trust', () => {
+    const quest = questDef('edges')!;
+    const after = applyQuestClaim(
+      { echoes: 0, vault: [], trust: {}, trustGifted: [], quests: { accepted: ['edges'], claimed: [], acceptedAt: {} } },
+      'smith',
+      quest
+    );
+    expect(after.echoes).toBe(50);
+    expect(after.vault).toEqual(['echo_dagger']);
+    expect(after.quests.claimed).toEqual(['edges']);
+    expect(after.trust).toEqual({ smith: 1 });
+    const again = applyQuestClaim({ echoes: 0, vault: ['echo_dagger'], trust: { smith: 1 }, trustGifted: [], quests: { accepted: [], claimed: [], acceptedAt: {} } }, 'smith', quest);
+    expect(again.echoes).toBe(50 + 13);
+    expect(again.vault).toEqual(['echo_dagger']);
+    expect(again.trust).toEqual({ smith: 2 });
+  });
+
+  it('pays a rush bonus for fast claims, nothing for slow ones', () => {
+    const quest = questDef('edges')!;
+    const base = { echoes: 0, vault: [], trust: {}, trustGifted: [] };
+    const quick = applyQuestClaim(
+      { ...base, quests: { accepted: ['edges'], claimed: [], acceptedAt: { edges: 1_000_000 } } },
+      'smith',
+      quest,
+      1_000_000 + 10 * 60 * 1000
+    );
+    expect(quick.rush).toBe(25);
+    expect(quick.echoes).toBe(50 + 25);
+    const slow = applyQuestClaim(
+      { ...base, quests: { accepted: ['edges'], claimed: [], acceptedAt: { edges: 1_000_000 } } },
+      'smith',
+      quest,
+      1_000_000 + 31 * 60 * 1000
+    );
+    expect(slow.rush).toBe(0);
+    expect(slow.echoes).toBe(50);
+    const never = applyQuestClaim(
+      { ...base, quests: { accepted: ['edges'], claimed: [], acceptedAt: {} } },
+      'smith',
+      quest
+    );
+    expect(never.rush).toBe(0);
+    expect(rushMinutesLeft(undefined)).toBe(0);
+    expect(rushMinutesLeft(1_000_000, 1_000_000 + 29 * 60 * 1000)).toBe(1);
+  });
+
+  it('trades echoes for trust, one heart at a time', () => {
+    const base = { echoes: 500, vault: [], trust: {}, trustGifted: [] };
+    const once = applyTribute(base, 'smith')!;
+    expect(once.echoes).toBe(400);
+    expect(once.trust).toEqual({ smith: 1 });
+    expect(once.gift).toBeUndefined();
+    const broke = applyTribute({ ...base, echoes: 50 }, 'smith');
+    expect(broke).toBeUndefined();
+    const maxed = applyTribute({ ...base, trust: { smith: 3 } }, 'smith');
+    expect(maxed).toBeUndefined();
+  });
+
+  it('hands a one-time parting gift at full trust', () => {
+    const quest = questDef('edges')!;
+    const third = applyQuestClaim({ echoes: 0, vault: [], trust: { smith: 2 }, trustGifted: [], quests: { accepted: ['edges'], claimed: [], acceptedAt: {} } }, 'smith', quest);
+    expect(third.trust).toEqual({ smith: 3 });
+    expect(third.gift).toBeDefined();
+    expect(third.vault).toContain(third.gift);
+    expect(third.trustGifted).toEqual(['smith']);
+    // One per resident: the next claim brings no second gift.
+    const fourth = applyQuestClaim({ echoes: 0, vault: third.vault, trust: { smith: 3 }, trustGifted: ['smith'], quests: { accepted: [], claimed: [], acceptedAt: {} } }, 'smith', quest);
+    expect(fourth.gift).toBeUndefined();
+  });
+});
+
+describe('daily mark', () => {
+  it('names the same mark for a key and varies across days', () => {
+    expect(dailyBounty('2026-11-02').defId).toBe(dailyBounty('2026-11-02').defId);
+    const ids = new Set(
+      ['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08', '2026-11-09'].map(
+        (k) => dailyBounty(k).defId
+      )
+    );
+    expect(ids.size).toBeGreaterThan(1);
+    expect(dailyBounty('2026-11-02').target).toBe(12);
+  });
+
+  it('claims once per day at full progress and resets on a new key', () => {
+    const contract = dailyBounty('2026-11-02');
+    const meta = { echoes: 0, dailyBounty: { key: '2026-11-02', kills: 12, claimed: false } };
+    const settled = claimDailyBounty(meta, '2026-11-02');
+    expect(settled?.echoes).toBe(contract.reward);
+    expect(settled?.dailyBounty.claimed).toBe(true);
+    expect(claimDailyBounty({ echoes: 0, dailyBounty: { key: '2026-11-02', kills: 12, claimed: true } }, '2026-11-02')).toBeUndefined();
+    expect(claimDailyBounty({ echoes: 0, dailyBounty: { key: '2026-11-02', kills: 11, claimed: false } }, '2026-11-02')).toBeUndefined();
+    expect(bountyForDay({ key: '2026-11-02', kills: 12, claimed: true }, '2026-11-03')).toEqual({
+      key: '2026-11-03',
+      kills: 0,
+      claimed: false,
+    });
+  });
+});
+
 describe('hunter pressure', () => {
   it('sends an elite stalker into the room after every third clear', () => {
     const w = world(9);
@@ -964,5 +1259,110 @@ describe('hunter pressure', () => {
     expect(w.isStalked).toBe(false);
     expect(w.enemies.some((e) => e.elite && !e.isBoss && e.roomId === bossRoom.id)).toBe(true);
     expect(seen.some((t) => t.toLowerCase().includes('stalker'))).toBe(true);
+  });
+});
+
+describe('daily twists', () => {
+  it('picks the same twist for a key and varies across days', () => {
+    expect(dailyModifier('2026-11-02').id).toBe(dailyModifier('2026-11-02').id);
+    const ids = new Set(['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05'].map((k) => dailyModifier(k).id));
+    expect(ids.size).toBeGreaterThan(1);
+  });
+
+  it('heavy air sharpens incoming blows and keen edge sharpens outgoing ones', () => {
+    const heavy = new World(createRun(7, []));
+    heavy.run.dailyMod = 'heavy_air';
+    const plain = new World(createRun(7, []));
+    for (const w of [heavy, plain]) w.player.invulnerable = 0;
+    heavy.damagePlayer(30, heavy.player.x + 10, heavy.player.y, 0);
+    plain.damagePlayer(30, plain.player.x + 10, plain.player.y, 0);
+    expect(heavy.player.health).toBeLessThan(plain.player.health);
+
+    const keen = new World(createRun(7, []));
+    keen.run.dailyMod = 'keen_edge';
+    const foeK = keen.spawnEnemy('scavenger', keen.player.x + 60, keen.player.y, -1);
+    foeK.state = 'chase';
+    const foeP = plain.spawnEnemy('scavenger', plain.player.x + 60, plain.player.y, -1);
+    foeP.state = 'chase';
+    const hp = foeK.health;
+    keen.damageEnemy(foeK, 20, 'melee', false, 0);
+    plain.damageEnemy(foeP, 20, 'melee', false, 0);
+    expect(hp - foeK.health).toBeGreaterThan(hp - foeP.health);
+  });
+});
+
+describe('death recap and feat progress', () => {
+  it('records where the run fell', () => {
+    const w = world(0);
+    const p = w.player;
+    p.invulnerable = 0;
+    w.damagePlayer(99999, p.x + 10, p.y, 0);
+    expect(w.run.deathSection).toBe(1);
+    expect(typeof w.run.deathRoom === 'string' || w.run.deathRoom === undefined).toBe(true);
+  });
+
+  it('previews unfinished countable feats', () => {
+    expect(featProgress('slayer', { kills: 320, bestDepth: 0, bestResonance: 0, victories: 0 })).toEqual({ current: 320, target: 500 });
+    expect(featProgress('delver', { kills: 0, bestDepth: 12, bestResonance: 0, victories: 0 })).toEqual({ current: 8, target: 8 });
+    expect(featProgress('victor', { kills: 0, bestDepth: 0, bestResonance: 0, victories: 3 })).toEqual({ current: 1, target: 1 });
+    expect(featProgress('executioner', { kills: 0, bestDepth: 0, bestResonance: 0, victories: 0 })).toBeUndefined();
+  });
+});
+
+describe('flow milestones', () => {
+  it('names streaks at widening milestones and stays quiet otherwise', () => {
+    expect(flowMilestone(4)).toBeUndefined();
+    expect(flowMilestone(5)).toContain('x5');
+    expect(flowMilestone(10)).toContain('x10');
+    expect(flowMilestone(15)).toContain('x15');
+    expect(flowMilestone(19)).toBeUndefined();
+    expect(flowMilestone(20)).toContain('x20');
+    expect(flowMilestone(30)).toContain('x30');
+  });
+});
+
+describe('difficulty', () => {
+  function diffWorld(difficulty: 'story' | 'normal' | 'nightmare'): World {
+    const run = createRun(7, [], difficulty);
+    return new World(run);
+  }
+
+  it('story softens incoming blows and sharpens outgoing ones', () => {
+    const story = diffWorld('story');
+    const normal = diffWorld('normal');
+    story.player.invulnerable = 0;
+    normal.player.invulnerable = 0;
+    const px = story.player.x;
+    const py = story.player.y;
+    story.damagePlayer(100, px + 10, py, 0);
+    normal.damagePlayer(100, px + 10, py, 0);
+    expect(story.player.health).toBeGreaterThan(normal.player.health);
+    const foe = story.spawnEnemy('scavenger', px + 60, py, -1);
+    const foeN = normal.spawnEnemy('scavenger', px + 60, py, -1);
+    const hp = foe.health;
+    story.damageEnemy(foe, 100, 'melee', false, 0);
+    normal.damageEnemy(foeN, 100, 'melee', false, 0);
+    expect(hp - foe.health).toBeGreaterThan(hp - foeN.health);
+  });
+
+  it('nightmare sharpens incoming blows and thickens enemy hides', () => {
+    const hard = diffWorld('nightmare');
+    const normal = diffWorld('normal');
+    hard.player.invulnerable = 0;
+    normal.player.invulnerable = 0;
+    const px = hard.player.x;
+    hard.damagePlayer(30, px + 10, hard.player.y, 0);
+    normal.damagePlayer(30, px + 10, normal.player.y, 0);
+    expect(hard.player.health).toBeLessThan(normal.player.health);
+    const foe = hard.spawnEnemy('scavenger', px + 60, hard.player.y, -1);
+    const foeN = normal.spawnEnemy('scavenger', px + 60, normal.player.y, -1);
+    expect(foe.maxHealth).toBeGreaterThan(foeN.maxHealth);
+  });
+
+  it('defaults old saves without a difficulty to normal', () => {
+    const run = createRun(7, []);
+    delete (run as { difficulty?: unknown }).difficulty;
+    const restored = restoreRun(JSON.parse(JSON.stringify(run)))!;
+    expect(restored.difficulty).toBe('normal');
   });
 });

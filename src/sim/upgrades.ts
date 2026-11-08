@@ -293,6 +293,11 @@ export function upgradeDef(id: string): UpgradeDef {
   return def;
 }
 
+/** Trust boundary for save data: the choice screen always calls `upgradeDef`. */
+export function upgradeExists(id: string): boolean {
+  return BY_ID.has(id);
+}
+
 export function computeStats(taken: Readonly<Record<string, number>>): PlayerStats {
   const stats: PlayerStats = { ...BASE_STATS };
   for (const def of UPGRADES) {

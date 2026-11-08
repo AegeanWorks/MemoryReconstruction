@@ -55,7 +55,9 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Archive',
     role: 'Lorekeeper',
     facade: 'building_archive',
-    blurb: 'Shelves of salvaged pages, and a table kept clear for you.',
+    blurb:
+      'Shelves of salvaged pages, and a table kept clear for you. The Archivist can tell which expedition ' +
+      'a scrap came from by the smell of it — ash, brine, ozone — and files them all the same.',
     theme: 'crystal',
     cardProp: 'furn_shelf',
     decor: [
@@ -78,6 +80,8 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       { prop: 'furn_desk', tx: 12, ty: 3, size: 66 },
       { prop: 'furn_strings', tx: 8, ty: 3, size: 70 },
       { prop: 'furn_strings', tx: 16, ty: 3, size: 70 },
+      { prop: 'furn_chandelier', tx: 12, ty: 2, size: 72 },
+      { prop: 'furn_tapestry', tx: 3, ty: 5, size: 58 },
     ],
   },
   {
@@ -85,7 +89,9 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Forge',
     role: 'Weaponsmith',
     facade: 'building_forge',
-    blurb: 'Heat, hammer and a rack of half-finished blades.',
+    blurb:
+      'Heat, hammer and a rack of half-finished blades. The Smith quenches every edge in well water and ' +
+      'tests it on silence — if the ring sounds true, it is ready for the deep.',
     theme: 'foundry',
     cardProp: 'furn_anvil',
     decor: [
@@ -104,6 +110,8 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       { prop: 'furn_weapon_rack', tx: 3, ty: 12, size: 60 },
       { prop: 'furn_cauldron', tx: 14, ty: 12, size: 54 },
       { prop: 'furn_strings', tx: 12, ty: 3, size: 66 },
+      { prop: 'furn_chandelier', tx: 12, ty: 2, size: 72 },
+      { prop: 'furn_tapestry', tx: 20, ty: 5, size: 58 },
     ],
   },
   {
@@ -111,7 +119,9 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Garden House',
     role: 'Grower',
     facade: 'building_garden',
-    blurb: 'Green things that survived the dark, and a bench to sit on.',
+    blurb:
+      'Green things that survived the dark, and a bench to sit on. The Gardener grafts cuttings from every ' +
+      'section — frost moss beside bloom petals — to prove the Sanctuary can hold them all at once.',
     theme: 'forest',
     cardProp: 'ancient_tree',
     decor: [
@@ -131,6 +141,8 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       { prop: 'furn_stool', tx: 9, ty: 11, size: 38 },
       { prop: 'furn_cauldron', tx: 12, ty: 3, size: 56 },
       { prop: 'furn_desk', tx: 6, ty: 12, size: 64 },
+      { prop: 'furn_chandelier', tx: 12, ty: 2, size: 72 },
+      { prop: 'furn_tapestry', tx: 20, ty: 8, size: 58 },
     ],
   },
   {
@@ -138,7 +150,9 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Barracks',
     role: 'Warden',
     facade: 'building_barracks',
-    blurb: 'A drill mat, a shield on the wall, and no dust anywhere.',
+    blurb:
+      'A drill mat, a shield on the wall, and no dust anywhere. The Warden runs the same three forms every ' +
+      'morning and insists the walkers do likewise — the deep rewards the rehearsed.',
     theme: 'frost',
     cardProp: 'station_bulwark',
     decor: [
@@ -157,6 +171,8 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       { prop: 'furn_desk', tx: 12, ty: 3, size: 66 },
       { prop: 'furn_strings', tx: 8, ty: 3, size: 70 },
       { prop: 'furn_strings', tx: 16, ty: 3, size: 70 },
+      { prop: 'furn_chandelier', tx: 12, ty: 2, size: 72 },
+      { prop: 'furn_tapestry', tx: 3, ty: 10, size: 58 },
     ],
   },
   {
@@ -164,7 +180,9 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Lamp House',
     role: 'Lamplighter',
     facade: 'building_lamphouse',
-    blurb: 'Every lamp in the Sanctuary is trimmed from this one room.',
+    blurb:
+      'Every lamp in the Sanctuary is trimmed from this one room. The workbench smells of oil and hot glass, ' +
+      'and the candle by the door is never allowed to go out — it is the first light every expedition sees coming home.',
     theme: 'catacomb',
     cardProp: 'furn_lantern',
     decor: [
@@ -184,6 +202,40 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       { prop: 'furn_strings', tx: 6, ty: 3, size: 76 },
       { prop: 'furn_strings', tx: 12, ty: 3, size: 76 },
       { prop: 'furn_strings', tx: 18, ty: 3, size: 76 },
+      { prop: 'furn_chandelier', tx: 12, ty: 2, size: 72 },
+      { prop: 'furn_tapestry', tx: 20, ty: 12, size: 58 },
+    ],
+  },
+  {
+    id: 'hearthkeeper',
+    name: 'The Hearth',
+    role: 'Hearthkeeper',
+    facade: 'building_hearth',
+    blurb:
+      'Soup, stories and a chair by the fire for walkers between descents. The Hearthkeeper remembers every ' +
+      'expedition by what it ordered, and swears the stew tastes of whichever section you survived.',
+    theme: 'bloom',
+    cardProp: 'furn_brazier',
+    decor: [
+      { prop: 'furn_cauldron', tx: 12, ty: 4, size: 60 },
+      { prop: 'furn_brazier', tx: 6, ty: 4, size: 52 },
+      { prop: 'furn_brazier', tx: 18, ty: 4, size: 52 },
+      { prop: 'furn_table', tx: 8, ty: 8, size: 68 },
+      { prop: 'furn_chair', tx: 8, ty: 10, size: 42 },
+      { prop: 'furn_chair', tx: 6, ty: 8, size: 42 },
+      { prop: 'furn_table', tx: 16, ty: 8, size: 68 },
+      { prop: 'furn_chair', tx: 16, ty: 10, size: 42 },
+      { prop: 'furn_chair', tx: 18, ty: 8, size: 42 },
+      { prop: 'furn_bench', tx: 5, ty: 12, size: 62 },
+      { prop: 'furn_rug', tx: 12, ty: 9, size: 76, layer: 'ground' },
+      { prop: 'furn_candle', tx: 10, ty: 6, size: 40 },
+      { prop: 'furn_candle', tx: 14, ty: 6, size: 40 },
+      { prop: 'furn_shelf', tx: 20, ty: 6, size: 62 },
+      { prop: 'furn_stool', tx: 19, ty: 11, size: 38 },
+      { prop: 'furn_strings', tx: 6, ty: 3, size: 76 },
+      { prop: 'furn_strings', tx: 18, ty: 3, size: 76 },
+      { prop: 'furn_chandelier', tx: 12, ty: 2, size: 72 },
+      { prop: 'furn_tapestry', tx: 3, ty: 8, size: 58 },
     ],
   },
 ];

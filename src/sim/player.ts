@@ -7,6 +7,7 @@ import { moveAndCollide } from './physics';
 import { applyAspect } from './aspects';
 import { applyEquipment, emptyEquipment, type EquipmentSlots } from './equipment';
 import { computeStats } from './upgrades';
+import { ENGAGEMENT_TUNING } from './tuning';
 import { WEAPON_ART_IMPACT, WEAPONS, weaponDef } from './weapons';
 
 /** Fraction of a swing at which its hit lands. */
@@ -22,8 +23,8 @@ const BOLT_COOLDOWN = 0.3;
 const BOLT_SPREAD = 0.2;
 const POTION_HEAL = 0.45;
 const SHOCKWAVE_RADIUS = 90;
-/** Extra reach beyond the bodies for a dash to count as a near miss. */
-const GRAZE_REACH = 24;
+/** Extra reach beyond the bodies for a dash to count as a near miss (tunable). */
+const GRAZE_REACH = ENGAGEMENT_TUNING.grazeReach;
 
 export function createPlayer(x: number, y: number): Player {
   const stats = computeStats({});
@@ -63,6 +64,7 @@ export function createPlayer(x: number, y: number): Player {
     resonance: 0,
     resonanceTime: 0,
     boltCooldown: 0,
+    stagger: 0,
     invulnerable: 0,
     knockX: 0,
     knockY: 0,
@@ -96,6 +98,7 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
   const s = p.stats;
 
   p.invulnerable = Math.max(0, p.invulnerable - dt);
+  p.stagger = Math.max(0, p.stagger - dt);
   p.hurtFlash = Math.max(0, p.hurtFlash - dt);
   p.boltCooldown = Math.max(0, p.boltCooldown - dt);
   p.artCooldown = Math.max(0, p.artCooldown - dt);
@@ -116,25 +119,38 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
     moveY /= len;
   }
 
-  if (input.weapon >= 0 && input.weapon < WEAPONS.length) switchWeapon(arena, input.weapon);
-  if (input.bomb) throwBomb(arena);
-  if (input.trap) placeTrap(arena);
-  if (input.art) useWeaponArt(arena);
-  if (input.potion) drinkPotion(arena);
-  if (input.dash && p.dashCharges >= 1 && p.dashTime <= 0)
+  // Staggered walkers can only stumble: no swings, bolts, arts or dashes
+  // until they find their feet, and movement drags at under half speed.
+  const staggered = p.stagger > 0;
+  if (input.weapon >= 0 && input.weapon < WEAPONS.length && !staggered)
+    switchWeapon(arena, input.weapon);
+  if (input.bomb && !staggered) throwBomb(arena);
+  if (input.trap && !staggered) placeTrap(arena);
+  if (input.art && !staggered) useWeaponArt(arena);
+  if (input.potion) {
+    arena.run.stats.onboarding |= 8;
+    drinkPotion(arena);
+  }
+  if (input.dash && !staggered && p.dashCharges >= 1 && p.dashTime <= 0) {
+    arena.run.stats.onboarding |= 4;
     startDash(arena, len > 1e-6 ? moveX : Math.cos(p.aim), len > 1e-6 ? moveY : Math.sin(p.aim));
+  }
 
   if (p.dashTime > 0) {
     // A strike pressed mid-dash waits for the dash to finish instead of
     // being swallowed by it.
-    if (input.attack) p.attackBuffer = ATTACK_BUFFER;
+    if (input.attack && !staggered) p.attackBuffer = ATTACK_BUFFER;
     updateDash(arena, dt);
     return;
   }
 
-  if (input.bolt) fireBolt(arena);
-  if (input.attack) {
+  if (input.bolt && !staggered) {
+    arena.run.stats.onboarding |= 2;
+    fireBolt(arena);
+  }
+  if (input.attack && !staggered) {
     if (p.swingTime < 0) {
+      arena.run.stats.onboarding |= 1;
       startSwing(arena);
       p.attackBuffer = 0;
     } else {
@@ -144,12 +160,14 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
     }
   }
   if (p.swingTime >= 0) updateSwing(arena, dt);
-  if (p.swingTime < 0 && p.attackBuffer > 0) {
+  if (p.swingTime < 0 && p.attackBuffer > 0 && !staggered) {
     p.attackBuffer = 0;
+    arena.run.stats.onboarding |= 1;
     startSwing(arena);
   }
 
-  const speed = s.moveSpeed * (p.swingTime >= 0 ? weaponDef(p.weapon).moveFactor : 1);
+  const slow = (p.swingTime >= 0 ? weaponDef(p.weapon).moveFactor : 1) * (staggered ? 0.45 : 1);
+  const speed = s.moveSpeed * slow;
   moveAndCollide(arena.grid, p, (moveX * speed + p.knockX) * dt, (moveY * speed + p.knockY) * dt);
   const decay = Math.exp(-12 * dt);
   p.knockX *= decay;
@@ -167,7 +185,7 @@ function drinkPotion(arena: Arena): void {
   );
   p.potions--;
   p.health += healed;
-  if (p.health > p.stats.maxHealth * 0.3) p.clutchUsed = false;
+  if (p.health > p.stats.maxHealth * ENGAGEMENT_TUNING.clutchThreshold) p.clutchUsed = false;
   arena.emit({ type: 'potion', healed });
 }
 

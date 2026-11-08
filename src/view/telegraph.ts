@@ -1,5 +1,5 @@
 import type { Room } from '../sim/dungeon';
-import { MORTAR_OFFSETS, QUAKE_RADIUS } from '../sim/enemies';
+import { MORTAR_OFFSETS, QUAKE_RADIUS, wallGapCenter } from '../sim/enemies';
 import { TILE_SIZE } from '../sim/tiles';
 
 /**
@@ -55,11 +55,38 @@ export function quakeRingPoints(
   );
 }
 
-/** Mortar landing rings that stay inside the arena. */
+/**
+ * The cyan "dive through here" tick of the wall telegraph, centered on the
+ * true gap the sim leaves open. Keeping the segment here lets the test pin
+ * the drawn lane instead of only the helper's math.
+ */
+export function wallGapGuideSegment(
+  x: number,
+  y: number,
+  angle: number,
+  enemyId: number
+): { fromX: number; fromY: number; toX: number; toY: number } {
+  const nx = Math.cos(angle + Math.PI / 2);
+  const ny = Math.sin(angle + Math.PI / 2);
+  const centre = wallGapCenter(enemyId);
+  return {
+    fromX: x + nx * (centre - 20),
+    fromY: y + ny * (centre - 20),
+    toX: x + nx * (centre + 20),
+    toY: y + ny * (centre + 20),
+  };
+}
+
+/**
+ * Mortar landing rings whose blast reaches into the arena. A centre just
+ * outside the wall still has a 40-52px radius, so a boss ring can hit a
+ * walker near the wall; the telegraph layer's room mask clips the overhang.
+ */
 export function mortarRingPoints(
   x: number,
   y: number,
   perp: number,
+  radius: number,
   room: Room | undefined
 ): Array<{ x: number; y: number }> {
   const points = MORTAR_OFFSETS.map((offset) => ({
@@ -71,5 +98,7 @@ export function mortarRingPoints(
   const y0 = room.y * TILE_SIZE;
   const x1 = (room.x + room.w) * TILE_SIZE;
   const y1 = (room.y + room.h) * TILE_SIZE;
-  return points.filter((p) => p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1);
+  return points.filter(
+    (p) => p.x + radius >= x0 && p.x - radius <= x1 && p.y + radius >= y0 && p.y - radius <= y1
+  );
 }

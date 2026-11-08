@@ -1,718 +1,1849 @@
 {
-  "biomes": [
+ "biomes": [
+  {
+   "id": "ruins",
+   "name": "Forgotten Ruins",
+   "description": "The shattered remains of the first civilization. Stone structures half-buried in memory dust.",
+   "theme": "Melancholy exploration",
+   "colorPalette": {
+    "primary": "#8B7355",
+    "secondary": "#6B5B4A",
+    "accent": "#A08A6E",
+    "dark": "#4A3F35",
+    "light": "#D4C4B0",
+    "hazard": "#C0392B"
+   },
+   "musicTheme": "exploration",
+   "ambientSounds": [
+    "wind_ruins",
+    "distant_echoes",
+    "falling_debris"
+   ],
+   "tilesets": [
+    "tileset_ruins"
+   ],
+   "structureTypes": [
     {
-      "id": "ruins",
-      "name": "Forgotten Ruins",
-      "description": "The shattered remains of the first civilization. Stone structures half-buried in memory dust.",
-      "theme": "Melancholy exploration",
-      "colorPalette": {
-        "primary": "#8B7355",
-        "secondary": "#6B5B4A",
-        "accent": "#A08A6E",
-        "dark": "#4A3F35",
-        "light": "#D4C4B0",
-        "hazard": "#C0392B"
-      },
-      "musicTheme": "exploration",
-      "ambientSounds": ["wind_ruins", "distant_echoes", "falling_debris"],
-      "tilesets": ["tileset_ruins"],
-      "structureTypes": [
-        { "name": "collapsed_hall", "weight": 30, "size": "large" },
-        { "name": "memory_fountain", "weight": 10, "size": "medium", "special": "heal_zone" },
-        { "name": "statue_garden", "weight": 15, "size": "medium" },
-        { "name": "archive_chamber", "weight": 8, "size": "small", "special": "lore" },
-        { "name": "bridge_span", "weight": 12, "size": "large" },
-        { "name": "tower_base", "weight": 5, "size": "large", "vertical": true }
-      ],
-      "enemyDistribution": {
-        "scavenger": { "weight": 50, "minDepth": 0, "maxDepth": 20 },
-        "guardian": { "weight": 20, "minDepth": 5, "maxDepth": 30 },
-        "memoryEcho": { "weight": 30, "minDepth": 0, "maxDepth": 50 }
-      },
-      "lootModifiers": {
-        "memoryFragmentRate": 1.0,
-        "weaponChance": 0.1,
-        "armorChance": 0.15
-      },
-      "environmentalHazards": [
-        { "type": "memory_gas", "damage": 5, "interval": 2, "visual": "purple_mist" },
-        { "type": "unstable_floor", "trigger": "weight", "effect": "collapse", "damage": 20 }
-      ],
-      "secrets": [
-        { "type": "hidden_chamber", "chance": 0.05, "reward": "core_memory" },
-        { "type": "memory_cache", "chance": 0.1, "reward": "fragments_10_20" },
-        { "type": "ancient_terminal", "chance": 0.02, "reward": "lore_entry" }
-      ],
-      "boss": {
-        "id": "guardian",
-        "variant": "Awakened Guardian",
-        "depth": 25,
-        "arena": "grand_hall"
-      }
+     "name": "collapsed_hall",
+     "weight": 30,
+     "size": "large"
     },
     {
-      "id": "forest",
-      "name": "Whispering Forest",
-      "description": "Ancient woodland where trees remember every footstep. The canopy filters memory-light into emerald shafts.",
-      "theme": "Natural mystery",
-      "colorPalette": {
-        "primary": "#2D5016",
-        "secondary": "#3D6B1F",
-        "accent": "#4E7B2A",
-        "dark": "#1B3A0F",
-        "light": "#7FC45A",
-        "hazard": "#E74C3C"
-      },
-      "musicTheme": "exploration",
-      "ambientSounds": ["forest_ambience", "bird_calls", "rustling_leaves", "distant_water"],
-      "tilesets": ["tileset_forest"],
-      "structureTypes": [
-        { "name": "ancient_grove", "weight": 25, "size": "large", "special": "mana_regen" },
-        { "name": "root_bridge", "weight": 20, "size": "medium" },
-        { "name": "hollow_tree", "weight": 15, "size": "small", "special": "secret" },
-        { "name": "crystal_pool", "weight": 10, "size": "medium", "special": "heal_zone" },
-        { "name": "standing_stones", "weight": 8, "size": "small", "special": "lore" },
-        { "name": "canopy_walk", "weight": 12, "size": "large", "vertical": true },
-        { "name": "burrow_network", "weight": 10, "size": "large", "underground": true }
-      ],
-      "enemyDistribution": {
-        "wildling": { "weight": 45, "minDepth": 0, "maxDepth": 25 },
-        "spirit": { "weight": 25, "minDepth": 10, "maxDepth": 40 },
-        "ancientTree": { "weight": 5, "minDepth": 20, "maxDepth": 60 },
-        "memoryEcho": { "weight": 25, "minDepth": 0, "maxDepth": 50 }
-      },
-      "lootModifiers": {
-        "memoryFragmentRate": 1.2,
-        "consumableChance": 0.2,
-        "accessoryChance": 0.1
-      },
-      "environmentalHazards": [
-        { "type": "thorn_vines", "damage": 8, "slow": 0.5, "visual": "green_thorns" },
-        {
-          "type": "spore_cloud",
-          "damage": 3,
-          "poison": true,
-          "interval": 1,
-          "visual": "green_spores"
-        },
-        { "type": "quicksand", "trigger": "stand", "effect": "sink", "damage": 10 }
-      ],
-      "secrets": [
-        { "type": "druid_circle", "chance": 0.04, "reward": "ability_unlock" },
-        { "type": "spirit_shrine", "chance": 0.06, "reward": "blessing" },
-        { "type": "root_chest", "chance": 0.08, "reward": "gear" }
-      ],
-      "boss": { "id": "spirit", "variant": "Elder Spirit", "depth": 35, "arena": "heart_grove" }
+     "name": "memory_fountain",
+     "weight": 10,
+     "size": "medium",
+     "special": "heal_zone"
     },
     {
-      "id": "caves",
-      "name": "Echoing Caves",
-      "description": "Subterranean labyrinth where sound becomes memory. Crystals grow in rhythm with forgotten heartbeats.",
-      "theme": "Claustrophobic wonder",
-      "colorPalette": {
-        "primary": "#2C2C3A",
-        "secondary": "#3A3A4E",
-        "accent": "#4A4A6A",
-        "dark": "#1E1E28",
-        "light": "#8A8A9E",
-        "hazard": "#FF6B35"
-      },
-      "musicTheme": "combat",
-      "ambientSounds": ["cave_drips", "crystal_chimes", "deep_resonance", "distant_roars"],
-      "tilesets": ["tileset_caves"],
-      "structureTypes": [
-        { "name": "crystal_cavern", "weight": 20, "size": "large", "special": "mana_regen" },
-        { "name": "underground_river", "weight": 15, "size": "large", "water": true },
-        { "name": "fungus_garden", "weight": 15, "size": "medium" },
-        { "name": "mining_tunnel", "weight": 20, "size": "large" },
-        { "name": "geode_chamber", "weight": 10, "size": "small", "special": "crystal_farm" },
-        { "name": "vertical_shaft", "weight": 10, "size": "large", "vertical": true },
-        { "name": "memory_vein", "weight": 10, "size": "medium", "special": "high_fragments" }
-      ],
-      "enemyDistribution": {
-        "caveDweller": { "weight": 40, "minDepth": 0, "maxDepth": 30 },
-        "crystalGolem": { "weight": 15, "minDepth": 15, "maxDepth": 50 },
-        "shadow": { "weight": 25, "minDepth": 10, "maxDepth": 60 },
-        "memoryEcho": { "weight": 20, "minDepth": 0, "maxDepth": 50 }
-      },
-      "lootModifiers": {
-        "memoryFragmentRate": 1.5,
-        "weaponChance": 0.15,
-        "crystalChance": 0.2
-      },
-      "environmentalHazards": [
-        { "type": "crystal_spikes", "damage": 15, "bleed": true, "visual": "sharp_crystals" },
-        {
-          "type": "toxic_gas",
-          "damage": 5,
-          "poison": true,
-          "interval": 1.5,
-          "visual": "purple_gas"
-        },
-        { "type": "cave_in", "trigger": "noise", "effect": "collapse", "damage": 30, "radius": 100 }
-      ],
-      "secrets": [
-        { "type": "crystal_heart", "chance": 0.03, "reward": "crystal_ability" },
-        { "type": "miner_stash", "chance": 0.07, "reward": "resources" },
-        { "type": "memory_geode", "chance": 0.05, "reward": "fragments_20_40" }
-      ],
-      "boss": {
-        "id": "crystalGolem",
-        "variant": "Prismatic Colossus",
-        "depth": 40,
-        "arena": "grand_geode"
-      }
+     "name": "statue_garden",
+     "weight": 15,
+     "size": "medium"
     },
     {
-      "id": "crystal",
-      "name": "Prism Gardens",
-      "description": "Gardens of living crystal where memories refract into infinite colors. Beautiful and deadly.",
-      "theme": "Transcendent beauty",
-      "colorPalette": {
-        "primary": "#8A2BE2",
-        "secondary": "#9932CC",
-        "accent": "#DA70D6",
-        "dark": "#4B0082",
-        "light": "#E6E6FA",
-        "hazard": "#FF1493"
-      },
-      "musicTheme": "combat",
-      "ambientSounds": [
-        "crystal_hum",
-        "refracting_light",
-        "harmonic_resonance",
-        "shattering_echoes"
-      ],
-      "tilesets": ["tileset_crystal"],
-      "structureTypes": [
-        { "name": "prism_arboretum", "weight": 20, "size": "large" },
-        { "name": "reflection_pool", "weight": 15, "size": "medium", "special": "scry" },
-        { "name": "harmonic_spire", "weight": 10, "size": "large", "vertical": true },
-        { "name": "fractal_maze", "weight": 15, "size": "large", "special": "puzzle" },
-        { "name": "prism_bridge", "weight": 12, "size": "medium" },
-        { "name": "memory_lens", "weight": 8, "size": "small", "special": "vision" },
-        { "name": "chorus_chamber", "weight": 10, "size": "large", "special": "buff_zone" },
-        { "name": "shard_field", "weight": 10, "size": "medium", "hazard": "shards" }
-      ],
-      "enemyDistribution": {
-        "crystalGuardian": { "weight": 35, "minDepth": 10, "maxDepth": 40 },
-        "prismEntity": { "weight": 30, "minDepth": 15, "maxDepth": 50 },
-        "memoryEcho": { "weight": 25, "minDepth": 0, "maxDepth": 60 },
-        "shadow": { "weight": 10, "minDepth": 20, "maxDepth": 50 }
-      },
-      "lootModifiers": {
-        "memoryFragmentRate": 2.0,
-        "weaponChance": 0.2,
-        "accessoryChance": 0.25,
-        "crystalChance": 0.3
-      },
-      "environmentalHazards": [
-        { "type": "focused_light", "damage": 20, "interval": 3, "visual": "intense_beam" },
-        {
-          "type": "resonance_field",
-          "damage": 10,
-          "manaBurn": 5,
-          "interval": 2,
-          "visual": "rippling_air"
-        },
-        { "type": "fractal_trap", "trigger": "proximity", "effect": "teleport", "disorient": true }
-      ],
-      "secrets": [
-        { "type": "prism_altar", "chance": 0.04, "reward": "prism_ability" },
-        { "type": "reflection_secret", "chance": 0.05, "reward": "duplicate_item" },
-        { "type": "harmonic_cache", "chance": 0.06, "reward": "sound_memory" }
-      ],
-      "boss": {
-        "id": "prismEntity",
-        "variant": "Prism Avatar",
-        "depth": 45,
-        "arena": "infinite_reflection"
-      }
+     "name": "archive_chamber",
+     "weight": 8,
+     "size": "small",
+     "special": "lore"
     },
     {
-      "id": "void",
-      "name": "The Void Between",
-      "description": "The space where forgotten memories go to die. Reality is thin here. Nothing is what it seems.",
-      "theme": "Cosmic horror",
-      "colorPalette": {
-        "primary": "#0A0A0F",
-        "secondary": "#1A1A2E",
-        "accent": "#16213E",
-        "dark": "#050508",
-        "light": "#4A5568",
-        "hazard": "#FF0000"
-      },
-      "musicTheme": "boss",
-      "ambientSounds": ["void_silence", "whispering_void", "reality_tearing", "memory_screams"],
-      "tilesets": ["tileset_void"],
-      "structureTypes": [
-        { "name": "memory_graveyard", "weight": 20, "size": "large" },
-        { "name": "reality_rift", "weight": 15, "size": "large", "special": "dimension_shift" },
-        { "name": "forgotten_monument", "weight": 15, "size": "medium" },
-        { "name": "void_corridor", "weight": 20, "size": "large" },
-        { "name": "erasure_chamber", "weight": 10, "size": "small", "special": "permanent_loss" },
-        { "name": "paradox_room", "weight": 8, "size": "small", "special": "time_loop" },
-        { "name": "memory_black_hole", "weight": 7, "size": "large", "special": "gravity" },
-        { "name": "final_threshold", "weight": 5, "size": "large", "boss_arena": true }
-      ],
-      "enemyDistribution": {
-        "voidWalker": { "weight": 30, "minDepth": 30, "maxDepth": 100 },
-        "forgotten": { "weight": 10, "minDepth": 40, "maxDepth": 100 },
-        "shadow": { "weight": 25, "minDepth": 20, "maxDepth": 80 },
-        "memoryEcho": { "weight": 20, "minDepth": 10, "maxDepth": 80 },
-        "prismEntity": { "weight": 15, "minDepth": 25, "maxDepth": 60 }
-      },
-      "lootModifiers": {
-        "memoryFragmentRate": 3.0,
-        "weaponChance": 0.25,
-        "armorChance": 0.2,
-        "legendaryChance": 0.05
-      },
-      "environmentalHazards": [
-        {
-          "type": "void_touch",
-          "damage": 25,
-          "erasure": true,
-          "interval": 1,
-          "visual": "reality_cracks"
-        },
-        {
-          "type": "memory_drain_field",
-          "damage": 0,
-          "memoryLoss": 2,
-          "interval": 0.5,
-          "visual": "gray_aura"
-        },
-        {
-          "type": "time_dilation",
-          "trigger": "enter",
-          "effect": "slow",
-          "playerSpeed": 0.3,
-          "duration": 5
-        },
-        { "type": "reality_glitch", "trigger": "random", "effect": "teleport", "damage": 15 }
-      ],
-      "secrets": [
-        { "type": "void_cache", "chance": 0.02, "reward": "void_item" },
-        { "type": "forgotten_diary", "chance": 0.03, "reward": "lore_core" },
-        { "type": "primordial_fragment", "chance": 0.01, "reward": "primordial_memory" }
-      ],
-      "boss": { "id": "forgotten", "variant": "The Forgotten", "depth": 80, "arena": "void_heart" }
+     "name": "bridge_span",
+     "weight": 12,
+     "size": "large"
     },
     {
-      "id": "sanctuary",
-      "name": "Sanctuary of Reconstruction",
-      "description": "The place where memory becomes reality. The final destination. Peaceful, radiant, and terrifying.",
-      "theme": "Transcendent peace",
-      "colorPalette": {
-        "primary": "#FFD700",
-        "secondary": "#FFA500",
-        "accent": "#FF8C00",
-        "dark": "#B8860B",
-        "light": "#FFFFE0",
-        "hazard": "#FFFFFF"
-      },
-      "musicTheme": "victory",
-      "ambientSounds": [
-        "sanctuary_peace",
-        "celestial_choir",
-        "reconstruction_hum",
-        "memory_chorus"
-      ],
-      "tilesets": ["tileset_sanctuary"],
-      "structureTypes": [
-        {
-          "name": "reconstruction_altar",
-          "weight": 1,
-          "size": "large",
-          "unique": true,
-          "special": "ending"
-        },
-        { "name": "memory_garden", "weight": 20, "size": "large", "special": "fragment_synthesis" },
-        { "name": "hall_of_echoes", "weight": 15, "size": "large", "special": "memory_review" },
-        { "name": "keeper_quarters", "weight": 10, "size": "medium", "npc": "keeper" },
-        {
-          "name": "timeline_observatory",
-          "weight": 10,
-          "size": "large",
-          "special": "view_timelines"
-        },
-        { "name": "genesis_chamber", "weight": 5, "size": "large", "special": "world_creation" },
-        { "name": "peace_garden", "weight": 20, "size": "large", "safe": true },
-        {
-          "name": "ascension_spire",
-          "weight": 10,
-          "size": "large",
-          "vertical": true,
-          "final": true
-        }
-      ],
-      "enemyDistribution": {
-        "keeper": { "weight": 1, "minDepth": 0, "maxDepth": 10, "unique": true },
-        "memoryEcho": { "weight": 50, "minDepth": 0, "maxDepth": 50, "peaceful": true }
-      },
-      "lootModifiers": {
-        "memoryFragmentRate": 5.0,
-        "coreMemoryRate": 2.0,
-        "primordialChance": 0.1
-      },
-      "environmentalHazards": [],
-      "secrets": [
-        { "type": "true_ending", "chance": 1.0, "condition": "all_memories", "reward": "ending" },
-        { "type": "memory_synthesis", "chance": 1.0, "reward": "combine_fragments" },
-        { "type": "timeline_choice", "chance": 1.0, "reward": "choose_ending" }
-      ],
-      "boss": {
-        "id": "keeper",
-        "variant": "The Keeper",
-        "depth": 0,
-        "arena": "reconstruction_altar"
-      }
-    },
-    {
-      "id": "ash",
-      "name": "Ashfall Reach",
-      "description": "A forge district buried under its own cinders. Every step raises the dust of something that used to be whole.",
-      "theme": "Burnout and aftermath",
-      "colorPalette": {
-        "primary": "#4A3A36",
-        "secondary": "#3E302C",
-        "accent": "#8A5A44",
-        "dark": "#221916",
-        "light": "#C9A084",
-        "hazard": "#FF6B35"
-      },
-      "musicTheme": "combat",
-      "ambientSounds": ["ember_crackle", "ash_wind", "distant_forge"],
-      "tilesets": ["tileset_ash"],
-      "structureTypes": [
-        { "name": "cold_forge", "weight": 20, "size": "large" },
-        { "name": "cinder_hall", "weight": 18, "size": "large" },
-        { "name": "slag_pit", "weight": 15, "size": "medium", "hazard": "embers" },
-        { "name": "burnt_archive", "weight": 10, "size": "small", "special": "lore" }
-      ],
-      "enemyDistribution": {
-        "cinder_wisp": { "weight": 35, "minDepth": 30, "maxDepth": 80 },
-        "magma_hound": { "weight": 40, "minDepth": 30, "maxDepth": 80 },
-        "shadow": { "weight": 25, "minDepth": 20, "maxDepth": 80 }
-      },
-      "lootModifiers": { "memoryFragmentRate": 2.2, "weaponChance": 0.22, "crystalChance": 0.25 },
-      "environmentalHazards": [
-        { "type": "ember_rain", "damage": 12, "interval": 3, "visual": "falling_embers" }
-      ],
-      "secrets": [{ "type": "forge_cache", "chance": 0.05, "reward": "resources" }],
-      "boss": {
-        "id": "cinder_warden",
-        "variant": "The Cinder Warden",
-        "depth": 55,
-        "arena": "cold_forge"
-      }
-    },
-    {
-      "id": "abyss",
-      "name": "Drowned Abyss",
-      "description": "A flooded library where every book became water. The memories here sink instead of fading.",
-      "theme": "Submerged grief",
-      "colorPalette": {
-        "primary": "#233B4A",
-        "secondary": "#1C3140",
-        "accent": "#2F5F73",
-        "dark": "#0A1418",
-        "light": "#8FC7D9",
-        "hazard": "#3FE0C5"
-      },
-      "musicTheme": "boss",
-      "ambientSounds": ["deep_current", "water_echo", "sinking_pages"],
-      "tilesets": ["tileset_abyss"],
-      "structureTypes": [
-        { "name": "sunken_stacks", "weight": 20, "size": "large" },
-        { "name": "flooded_atrium", "weight": 18, "size": "large" },
-        { "name": "tide_well", "weight": 12, "size": "medium", "special": "mana_regen" },
-        { "name": "drowned_archive", "weight": 10, "size": "small", "special": "lore" }
-      ],
-      "enemyDistribution": {
-        "drowned": { "weight": 40, "minDepth": 40, "maxDepth": 100 },
-        "tide_caller": { "weight": 30, "minDepth": 40, "maxDepth": 100 },
-        "cinder_wisp": { "weight": 15, "minDepth": 30, "maxDepth": 90 },
-        "shadow": { "weight": 15, "minDepth": 20, "maxDepth": 90 }
-      },
-      "lootModifiers": { "memoryFragmentRate": 2.6, "weaponChance": 0.24, "accessoryChance": 0.2 },
-      "environmentalHazards": [
-        { "type": "undertow", "trigger": "stand", "effect": "pull", "damage": 10 }
-      ],
-      "secrets": [{ "type": "drowned_diary", "chance": 0.04, "reward": "lore_entry" }],
-      "boss": {
-        "id": "leviathan",
-        "variant": "The Drowned Leviathan",
-        "depth": 65,
-        "arena": "flooded_atrium"
-      }
-    },
-    {
-      "id": "frost",
-      "name": "Frostbound Archive",
-      "description": "The archive where memories were kept cold to survive. The cold survived better than the memories.",
-      "theme": "Preserved stillness",
-      "colorPalette": {
-        "primary": "#8FA6B8",
-        "secondary": "#7F97A9",
-        "accent": "#B6CBD9",
-        "dark": "#3C4C5C",
-        "light": "#EAF6FF",
-        "hazard": "#BFE9FF"
-      },
-      "musicTheme": "exploration",
-      "ambientSounds": ["ice_crack", "cold_wind", "frozen_pages"],
-      "tilesets": ["tileset_frost"],
-      "structureTypes": [
-        { "name": "frozen_stacks", "weight": 20, "size": "large" },
-        { "name": "glass_gallery", "weight": 18, "size": "large" },
-        { "name": "ice_well", "weight": 12, "size": "medium", "special": "heal_zone" },
-        { "name": "sealed_reading_room", "weight": 10, "size": "small", "special": "lore" }
-      ],
-      "enemyDistribution": {
-        "frost_stalker": { "weight": 35, "minDepth": 55, "maxDepth": 120 },
-        "glass_sentinel": { "weight": 30, "minDepth": 55, "maxDepth": 120 },
-        "drowned": { "weight": 20, "minDepth": 40, "maxDepth": 110 },
-        "void_walker": { "weight": 15, "minDepth": 50, "maxDepth": 120 }
-      },
-      "lootModifiers": { "memoryFragmentRate": 3.0, "weaponChance": 0.26, "accessoryChance": 0.24 },
-      "environmentalHazards": [
-        { "type": "black_ice", "trigger": "stand", "effect": "slide", "damage": 8 }
-      ],
-      "secrets": [{ "type": "frozen_letter", "chance": 0.04, "reward": "lore_entry" }],
-      "boss": {
-        "id": "frost_warden",
-        "variant": "The Frost Warden",
-        "depth": 75,
-        "arena": "glass_gallery"
-      }
-    },
-    {
-      "id": "bloom",
-      "name": "Blooming Remnant",
-      "description": "The first garden grown from recovered memories. It is beautiful, and it is still growing through the ruins.",
-      "theme": "Rebirth, unasked for",
-      "colorPalette": {
-        "primary": "#4A3A4F",
-        "secondary": "#42344A",
-        "accent": "#8A5F8C",
-        "dark": "#1A1320",
-        "light": "#D49AD4",
-        "hazard": "#FF9AD8"
-      },
-      "musicTheme": "victory",
-      "ambientSounds": ["petal_rustle", "growth_creak", "memory_chorus"],
-      "tilesets": ["tileset_bloom"],
-      "structureTypes": [
-        { "name": "memory_garden", "weight": 20, "size": "large", "special": "heal_zone" },
-        { "name": "root_hall", "weight": 18, "size": "large" },
-        {
-          "name": "blooming_altar",
-          "weight": 12,
-          "size": "medium",
-          "special": "fragment_synthesis"
-        },
-        { "name": "quiet_grove", "weight": 10, "size": "small", "safe": true }
-      ],
-      "enemyDistribution": {
-        "bloom_crawler": { "weight": 35, "minDepth": 70, "maxDepth": 130 },
-        "petal_witch": { "weight": 30, "minDepth": 70, "maxDepth": 130 },
-        "frost_stalker": { "weight": 20, "minDepth": 55, "maxDepth": 120 },
-        "void_walker": { "weight": 15, "minDepth": 50, "maxDepth": 130 }
-      },
-      "lootModifiers": { "memoryFragmentRate": 3.5, "weaponChance": 0.28, "legendaryChance": 0.04 },
-      "environmentalHazards": [
-        { "type": "thorn_vines", "damage": 12, "slow": 0.5, "visual": "green_thorns" }
-      ],
-      "secrets": [{ "type": "first_bloom", "chance": 0.05, "reward": "blessing" }],
-      "boss": {
-        "id": "thorn_matriarch",
-        "variant": "The Thorn Matriarch",
-        "depth": 85,
-        "arena": "memory_garden"
-      }
-    },
-    {
-      "id": "foundry",
-      "name": "The Sleepless Foundry",
-      "description": "A clockwork works that kept producing a world after the world was gone. The belts still turn.",
-      "theme": "Mechanical persistence",
-      "colorPalette": {
-        "primary": "#4A4038",
-        "secondary": "#3E352E",
-        "accent": "#C08A3E",
-        "dark": "#1C1712",
-        "light": "#E0B96A",
-        "hazard": "#FFB347"
-      },
-      "musicTheme": "combat",
-      "ambientSounds": ["gear_grind", "steam_vent", "distant_bell"],
-      "tilesets": ["tileset_foundry"],
-      "structureTypes": [
-        { "name": "assembly_line", "weight": 20, "size": "large" },
-        { "name": "boiler_hall", "weight": 18, "size": "large", "hazard": "steam" },
-        { "name": "foreman_office", "weight": 10, "size": "small", "special": "lore" }
-      ],
-      "enemyDistribution": {
-        "cog_hound": { "weight": 40, "minDepth": 50, "maxDepth": 110 },
-        "solder_wisp": { "weight": 35, "minDepth": 50, "maxDepth": 110 },
-        "shadow": { "weight": 25, "minDepth": 20, "maxDepth": 100 }
-      },
-      "lootModifiers": { "memoryFragmentRate": 3.0, "weaponChance": 0.3, "crystalChance": 0.3 },
-      "environmentalHazards": [
-        { "type": "steam_vent", "damage": 14, "interval": 3.5, "visual": "steam" }
-      ],
-      "secrets": [{ "type": "foreman_key", "chance": 0.05, "reward": "equipment" }],
-      "boss": {
-        "id": "clockwork_regent",
-        "variant": "The Clockwork Regent",
-        "depth": 95,
-        "arena": "assembly_line"
-      }
-    },
-    {
-      "id": "mire",
-      "name": "The Whispering Mire",
-      "description": "A swamp fed by every memory that was buried instead of grieved. It repeats names back to you.",
-      "theme": "Buried names",
-      "colorPalette": {
-        "primary": "#33463A",
-        "secondary": "#2C3D32",
-        "accent": "#6F8F4E",
-        "dark": "#131C16",
-        "light": "#A9C482",
-        "hazard": "#B8E06A"
-      },
-      "musicTheme": "exploration",
-      "ambientSounds": ["bog_bubble", "reed_whisper", "deep_plop"],
-      "tilesets": ["tileset_mire"],
-      "structureTypes": [
-        { "name": "sunken_grove", "weight": 20, "size": "large" },
-        { "name": "reed_chapel", "weight": 16, "size": "medium", "special": "lore" },
-        { "name": "whispering_pool", "weight": 14, "size": "medium", "hazard": "poison" }
-      ],
-      "enemyDistribution": {
-        "bog_leech": { "weight": 38, "minDepth": 60, "maxDepth": 120 },
-        "plague_caster": { "weight": 32, "minDepth": 60, "maxDepth": 120 },
-        "drowned": { "weight": 30, "minDepth": 40, "maxDepth": 110 }
-      },
-      "lootModifiers": {
-        "memoryFragmentRate": 3.8,
-        "accessoryChance": 0.3,
-        "legendaryChance": 0.05
-      },
-      "environmentalHazards": [
-        { "type": "poison_bog", "damage": 10, "interval": 1.2, "visual": "bubbles" }
-      ],
-      "secrets": [{ "type": "drowned_name", "chance": 0.05, "reward": "lore_entry" }],
-      "boss": {
-        "id": "mire_sovereign",
-        "variant": "The Mire Sovereign",
-        "depth": 100,
-        "arena": "sunken_grove"
-      }
-    },
-    {
-      "id": "hive",
-      "name": "The Hollow Hive",
-      "description": "A settlement built from wax and borrowed bone. Something in the comb still hums a work song.",
-      "theme": "Belonging, gone wrong",
-      "colorPalette": {
-        "primary": "#4A3520",
-        "secondary": "#3E2C1B",
-        "accent": "#C08A3E",
-        "dark": "#1A1108",
-        "light": "#E8C070",
-        "hazard": "#FFB347"
-      },
-      "musicTheme": "combat",
-      "ambientSounds": ["comb_hum", "wing_drone", "wax_crack"],
-      "tilesets": ["tileset_hive"],
-      "structureTypes": [
-        { "name": "brood_comb", "weight": 20, "size": "large" },
-        { "name": "nursery", "weight": 18, "size": "large" },
-        { "name": "queens_hall", "weight": 10, "size": "huge", "special": "lore" }
-      ],
-      "enemyDistribution": {
-        "hive_drone": { "weight": 40, "minDepth": 80, "maxDepth": 140 },
-        "hive_guard": { "weight": 35, "minDepth": 80, "maxDepth": 140 },
-        "cinder_wisp": { "weight": 25, "minDepth": 30, "maxDepth": 120 }
-      },
-      "lootModifiers": { "memoryFragmentRate": 4.0, "weaponChance": 0.32, "accessoryChance": 0.3 },
-      "environmentalHazards": [{ "type": "sticky_wax", "trigger": "stand", "effect": "slow" }],
-      "secrets": [{ "type": "royal_jelly", "chance": 0.06, "reward": "heal" }],
-      "boss": {
-        "id": "hive_queen",
-        "variant": "The Hive Queen",
-        "depth": 110,
-        "arena": "queens_hall"
-      }
-    },
-    {
-      "id": "catacomb",
-      "name": "The Bone Catacombs",
-      "description": "The sanctuary's older foundations, stacked with everyone who was remembered here first. They still keep rank.",
-      "theme": "The weight of the remembered",
-      "colorPalette": {
-        "primary": "#3E4446",
-        "secondary": "#343A3C",
-        "accent": "#7E8C8A",
-        "dark": "#141A1B",
-        "light": "#D8D2B8",
-        "hazard": "#8FD8C8"
-      },
-      "musicTheme": "exploration",
-      "ambientSounds": ["bone_click", "cold_drip", "distant_chant"],
-      "tilesets": ["tileset_catacomb"],
-      "structureTypes": [
-        { "name": "ossuary", "weight": 20, "size": "large" },
-        { "name": "barrow_hall", "weight": 18, "size": "large" },
-        { "name": "sealed_crypt", "weight": 10, "size": "small", "special": "lore" }
-      ],
-      "enemyDistribution": {
-        "bone_knight": { "weight": 40, "minDepth": 100, "maxDepth": 150 },
-        "catacomb_archer": { "weight": 35, "minDepth": 100, "maxDepth": 150 },
-        "hive_guard": { "weight": 25, "minDepth": 80, "maxDepth": 140 }
-      },
-      "lootModifiers": { "memoryFragmentRate": 4.4, "weaponChance": 0.34, "legendaryChance": 0.06 },
-      "environmentalHazards": [{ "type": "bone_dust", "damage": 12, "interval": 2.5 }],
-      "secrets": [{ "type": "first_name", "chance": 0.06, "reward": "lore_entry" }],
-      "boss": {
-        "id": "bone_tyrant",
-        "variant": "The Bone Tyrant",
-        "depth": 120,
-        "arena": "barrow_hall"
-      }
+     "name": "tower_base",
+     "weight": 5,
+     "size": "large",
+     "vertical": true
     }
-  ],
-  "globalSettings": {
-    "baseChunkSize": 512,
-    "transitionZones": {
-      "ruins-forest": { "width": 2, "blend": "organic" },
-      "forest-caves": { "width": 3, "blend": "roots" },
-      "caves-crystal": { "width": 2, "blend": "crystalline" },
-      "crystal-void": { "width": 4, "blend": "fractured" },
-      "void-sanctuary": { "width": 1, "blend": "sudden" }
+   ],
+   "enemyDistribution": {
+    "scavenger": {
+     "weight": 50,
+     "minDepth": 0,
+     "maxDepth": 20
     },
-    "depthScaling": {
-      "healthMult": 1.08,
-      "damageMult": 1.06,
-      "speedMult": 1.02,
-      "xpMult": 1.1,
-      "memoryMult": 1.12,
-      "eliteChance": 0.005
+    "guardian": {
+     "weight": 20,
+     "minDepth": 5,
+     "maxDepth": 30
     },
-    "runStructure": {
-      "earlyGame": { "biomes": ["ruins"], "depthRange": [0, 15] },
-      "midGame": { "biomes": ["ruins", "forest", "caves"], "depthRange": [10, 35] },
-      "lateGame": { "biomes": ["forest", "caves", "crystal"], "depthRange": [30, 60] },
-      "endGame": { "biomes": ["crystal", "void"], "depthRange": [50, 100] },
-      "postGame": {
-        "biomes": ["sanctuary"],
-        "depthRange": [0, 10],
-        "requires": "all_bosses_defeated"
-      }
+    "memoryEcho": {
+     "weight": 30,
+     "minDepth": 0,
+     "maxDepth": 50
     }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 1.0,
+    "weaponChance": 0.1,
+    "armorChance": 0.15
+   },
+   "environmentalHazards": [
+    {
+     "type": "memory_gas",
+     "damage": 5,
+     "interval": 2,
+     "visual": "purple_mist"
+    },
+    {
+     "type": "unstable_floor",
+     "trigger": "weight",
+     "effect": "collapse",
+     "damage": 20
+    }
+   ],
+   "secrets": [
+    {
+     "type": "hidden_chamber",
+     "chance": 0.05,
+     "reward": "core_memory"
+    },
+    {
+     "type": "memory_cache",
+     "chance": 0.1,
+     "reward": "fragments_10_20"
+    },
+    {
+     "type": "ancient_terminal",
+     "chance": 0.02,
+     "reward": "lore_entry"
+    }
+   ],
+   "boss": {
+    "id": "guardian",
+    "variant": "Awakened Guardian",
+    "depth": 25,
+    "arena": "grand_hall"
+   }
+  },
+  {
+   "id": "forest",
+   "name": "Whispering Forest",
+   "description": "Ancient woodland where trees remember every footstep. The canopy filters memory-light into emerald shafts.",
+   "theme": "Natural mystery",
+   "colorPalette": {
+    "primary": "#2D5016",
+    "secondary": "#3D6B1F",
+    "accent": "#4E7B2A",
+    "dark": "#1B3A0F",
+    "light": "#7FC45A",
+    "hazard": "#E74C3C"
+   },
+   "musicTheme": "exploration",
+   "ambientSounds": [
+    "forest_ambience",
+    "bird_calls",
+    "rustling_leaves",
+    "distant_water"
+   ],
+   "tilesets": [
+    "tileset_forest"
+   ],
+   "structureTypes": [
+    {
+     "name": "ancient_grove",
+     "weight": 25,
+     "size": "large",
+     "special": "mana_regen"
+    },
+    {
+     "name": "root_bridge",
+     "weight": 20,
+     "size": "medium"
+    },
+    {
+     "name": "hollow_tree",
+     "weight": 15,
+     "size": "small",
+     "special": "secret"
+    },
+    {
+     "name": "crystal_pool",
+     "weight": 10,
+     "size": "medium",
+     "special": "heal_zone"
+    },
+    {
+     "name": "standing_stones",
+     "weight": 8,
+     "size": "small",
+     "special": "lore"
+    },
+    {
+     "name": "canopy_walk",
+     "weight": 12,
+     "size": "large",
+     "vertical": true
+    },
+    {
+     "name": "burrow_network",
+     "weight": 10,
+     "size": "large",
+     "underground": true
+    }
+   ],
+   "enemyDistribution": {
+    "wildling": {
+     "weight": 45,
+     "minDepth": 0,
+     "maxDepth": 25
+    },
+    "spirit": {
+     "weight": 25,
+     "minDepth": 10,
+     "maxDepth": 40
+    },
+    "ancientTree": {
+     "weight": 5,
+     "minDepth": 20,
+     "maxDepth": 60
+    },
+    "memoryEcho": {
+     "weight": 25,
+     "minDepth": 0,
+     "maxDepth": 50
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 1.2,
+    "consumableChance": 0.2,
+    "accessoryChance": 0.1
+   },
+   "environmentalHazards": [
+    {
+     "type": "thorn_vines",
+     "damage": 8,
+     "slow": 0.5,
+     "visual": "green_thorns"
+    },
+    {
+     "type": "spore_cloud",
+     "damage": 3,
+     "poison": true,
+     "interval": 1,
+     "visual": "green_spores"
+    },
+    {
+     "type": "quicksand",
+     "trigger": "stand",
+     "effect": "sink",
+     "damage": 10
+    }
+   ],
+   "secrets": [
+    {
+     "type": "druid_circle",
+     "chance": 0.04,
+     "reward": "ability_unlock"
+    },
+    {
+     "type": "spirit_shrine",
+     "chance": 0.06,
+     "reward": "blessing"
+    },
+    {
+     "type": "root_chest",
+     "chance": 0.08,
+     "reward": "gear"
+    }
+   ],
+   "boss": {
+    "id": "spirit",
+    "variant": "Elder Spirit",
+    "depth": 35,
+    "arena": "heart_grove"
+   }
+  },
+  {
+   "id": "caves",
+   "name": "Echoing Caves",
+   "description": "Subterranean labyrinth where sound becomes memory. Crystals grow in rhythm with forgotten heartbeats.",
+   "theme": "Claustrophobic wonder",
+   "colorPalette": {
+    "primary": "#2C2C3A",
+    "secondary": "#3A3A4E",
+    "accent": "#4A4A6A",
+    "dark": "#1E1E28",
+    "light": "#8A8A9E",
+    "hazard": "#FF6B35"
+   },
+   "musicTheme": "combat",
+   "ambientSounds": [
+    "cave_drips",
+    "crystal_chimes",
+    "deep_resonance",
+    "distant_roars"
+   ],
+   "tilesets": [
+    "tileset_caves"
+   ],
+   "structureTypes": [
+    {
+     "name": "crystal_cavern",
+     "weight": 20,
+     "size": "large",
+     "special": "mana_regen"
+    },
+    {
+     "name": "underground_river",
+     "weight": 15,
+     "size": "large",
+     "water": true
+    },
+    {
+     "name": "fungus_garden",
+     "weight": 15,
+     "size": "medium"
+    },
+    {
+     "name": "mining_tunnel",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "geode_chamber",
+     "weight": 10,
+     "size": "small",
+     "special": "crystal_farm"
+    },
+    {
+     "name": "vertical_shaft",
+     "weight": 10,
+     "size": "large",
+     "vertical": true
+    },
+    {
+     "name": "memory_vein",
+     "weight": 10,
+     "size": "medium",
+     "special": "high_fragments"
+    }
+   ],
+   "enemyDistribution": {
+    "caveDweller": {
+     "weight": 40,
+     "minDepth": 0,
+     "maxDepth": 30
+    },
+    "crystalGolem": {
+     "weight": 15,
+     "minDepth": 15,
+     "maxDepth": 50
+    },
+    "shadow": {
+     "weight": 25,
+     "minDepth": 10,
+     "maxDepth": 60
+    },
+    "memoryEcho": {
+     "weight": 20,
+     "minDepth": 0,
+     "maxDepth": 50
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 1.5,
+    "weaponChance": 0.15,
+    "crystalChance": 0.2
+   },
+   "environmentalHazards": [
+    {
+     "type": "crystal_spikes",
+     "damage": 15,
+     "bleed": true,
+     "visual": "sharp_crystals"
+    },
+    {
+     "type": "toxic_gas",
+     "damage": 5,
+     "poison": true,
+     "interval": 1.5,
+     "visual": "purple_gas"
+    },
+    {
+     "type": "cave_in",
+     "trigger": "noise",
+     "effect": "collapse",
+     "damage": 30,
+     "radius": 100
+    }
+   ],
+   "secrets": [
+    {
+     "type": "crystal_heart",
+     "chance": 0.03,
+     "reward": "crystal_ability"
+    },
+    {
+     "type": "miner_stash",
+     "chance": 0.07,
+     "reward": "resources"
+    },
+    {
+     "type": "memory_geode",
+     "chance": 0.05,
+     "reward": "fragments_20_40"
+    }
+   ],
+   "boss": {
+    "id": "crystalGolem",
+    "variant": "Prismatic Colossus",
+    "depth": 40,
+    "arena": "grand_geode"
+   }
+  },
+  {
+   "id": "crystal",
+   "name": "Prism Gardens",
+   "description": "Gardens of living crystal where memories refract into infinite colors. Beautiful and deadly.",
+   "theme": "Transcendent beauty",
+   "colorPalette": {
+    "primary": "#8A2BE2",
+    "secondary": "#9932CC",
+    "accent": "#DA70D6",
+    "dark": "#4B0082",
+    "light": "#E6E6FA",
+    "hazard": "#FF1493"
+   },
+   "musicTheme": "combat",
+   "ambientSounds": [
+    "crystal_hum",
+    "refracting_light",
+    "harmonic_resonance",
+    "shattering_echoes"
+   ],
+   "tilesets": [
+    "tileset_crystal"
+   ],
+   "structureTypes": [
+    {
+     "name": "prism_arboretum",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "reflection_pool",
+     "weight": 15,
+     "size": "medium",
+     "special": "scry"
+    },
+    {
+     "name": "harmonic_spire",
+     "weight": 10,
+     "size": "large",
+     "vertical": true
+    },
+    {
+     "name": "fractal_maze",
+     "weight": 15,
+     "size": "large",
+     "special": "puzzle"
+    },
+    {
+     "name": "prism_bridge",
+     "weight": 12,
+     "size": "medium"
+    },
+    {
+     "name": "memory_lens",
+     "weight": 8,
+     "size": "small",
+     "special": "vision"
+    },
+    {
+     "name": "chorus_chamber",
+     "weight": 10,
+     "size": "large",
+     "special": "buff_zone"
+    },
+    {
+     "name": "shard_field",
+     "weight": 10,
+     "size": "medium",
+     "hazard": "shards"
+    }
+   ],
+   "enemyDistribution": {
+    "crystalGuardian": {
+     "weight": 35,
+     "minDepth": 10,
+     "maxDepth": 40
+    },
+    "prismEntity": {
+     "weight": 30,
+     "minDepth": 15,
+     "maxDepth": 50
+    },
+    "memoryEcho": {
+     "weight": 25,
+     "minDepth": 0,
+     "maxDepth": 60
+    },
+    "shadow": {
+     "weight": 10,
+     "minDepth": 20,
+     "maxDepth": 50
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 2.0,
+    "weaponChance": 0.2,
+    "accessoryChance": 0.25,
+    "crystalChance": 0.3
+   },
+   "environmentalHazards": [
+    {
+     "type": "focused_light",
+     "damage": 20,
+     "interval": 3,
+     "visual": "intense_beam"
+    },
+    {
+     "type": "resonance_field",
+     "damage": 10,
+     "manaBurn": 5,
+     "interval": 2,
+     "visual": "rippling_air"
+    },
+    {
+     "type": "fractal_trap",
+     "trigger": "proximity",
+     "effect": "teleport",
+     "disorient": true
+    }
+   ],
+   "secrets": [
+    {
+     "type": "prism_altar",
+     "chance": 0.04,
+     "reward": "prism_ability"
+    },
+    {
+     "type": "reflection_secret",
+     "chance": 0.05,
+     "reward": "duplicate_item"
+    },
+    {
+     "type": "harmonic_cache",
+     "chance": 0.06,
+     "reward": "sound_memory"
+    }
+   ],
+   "boss": {
+    "id": "prismEntity",
+    "variant": "Prism Avatar",
+    "depth": 45,
+    "arena": "infinite_reflection"
+   }
+  },
+  {
+   "id": "void",
+   "name": "The Void Between",
+   "description": "The space where forgotten memories go to die. Reality is thin here. Nothing is what it seems.",
+   "theme": "Cosmic horror",
+   "colorPalette": {
+    "primary": "#0A0A0F",
+    "secondary": "#1A1A2E",
+    "accent": "#16213E",
+    "dark": "#050508",
+    "light": "#4A5568",
+    "hazard": "#FF0000"
+   },
+   "musicTheme": "boss",
+   "ambientSounds": [
+    "void_silence",
+    "whispering_void",
+    "reality_tearing",
+    "memory_screams"
+   ],
+   "tilesets": [
+    "tileset_void"
+   ],
+   "structureTypes": [
+    {
+     "name": "memory_graveyard",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "reality_rift",
+     "weight": 15,
+     "size": "large",
+     "special": "dimension_shift"
+    },
+    {
+     "name": "forgotten_monument",
+     "weight": 15,
+     "size": "medium"
+    },
+    {
+     "name": "void_corridor",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "erasure_chamber",
+     "weight": 10,
+     "size": "small",
+     "special": "permanent_loss"
+    },
+    {
+     "name": "paradox_room",
+     "weight": 8,
+     "size": "small",
+     "special": "time_loop"
+    },
+    {
+     "name": "memory_black_hole",
+     "weight": 7,
+     "size": "large",
+     "special": "gravity"
+    },
+    {
+     "name": "final_threshold",
+     "weight": 5,
+     "size": "large",
+     "boss_arena": true
+    }
+   ],
+   "enemyDistribution": {
+    "voidWalker": {
+     "weight": 30,
+     "minDepth": 30,
+     "maxDepth": 100
+    },
+    "forgotten": {
+     "weight": 10,
+     "minDepth": 40,
+     "maxDepth": 100
+    },
+    "shadow": {
+     "weight": 25,
+     "minDepth": 20,
+     "maxDepth": 80
+    },
+    "memoryEcho": {
+     "weight": 20,
+     "minDepth": 10,
+     "maxDepth": 80
+    },
+    "prismEntity": {
+     "weight": 15,
+     "minDepth": 25,
+     "maxDepth": 60
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 3.0,
+    "weaponChance": 0.25,
+    "armorChance": 0.2,
+    "legendaryChance": 0.05
+   },
+   "environmentalHazards": [
+    {
+     "type": "void_touch",
+     "damage": 25,
+     "erasure": true,
+     "interval": 1,
+     "visual": "reality_cracks"
+    },
+    {
+     "type": "memory_drain_field",
+     "damage": 0,
+     "memoryLoss": 2,
+     "interval": 0.5,
+     "visual": "gray_aura"
+    },
+    {
+     "type": "time_dilation",
+     "trigger": "enter",
+     "effect": "slow",
+     "playerSpeed": 0.3,
+     "duration": 5
+    },
+    {
+     "type": "reality_glitch",
+     "trigger": "random",
+     "effect": "teleport",
+     "damage": 15
+    }
+   ],
+   "secrets": [
+    {
+     "type": "void_cache",
+     "chance": 0.02,
+     "reward": "void_item"
+    },
+    {
+     "type": "forgotten_diary",
+     "chance": 0.03,
+     "reward": "lore_core"
+    },
+    {
+     "type": "primordial_fragment",
+     "chance": 0.01,
+     "reward": "primordial_memory"
+    }
+   ],
+   "boss": {
+    "id": "forgotten",
+    "variant": "The Forgotten",
+    "depth": 80,
+    "arena": "void_heart"
+   }
+  },
+  {
+   "id": "sanctuary",
+   "name": "Sanctuary of Reconstruction",
+   "description": "The place where memory becomes reality. The final destination. Peaceful, radiant, and terrifying.",
+   "theme": "Transcendent peace",
+   "colorPalette": {
+    "primary": "#FFD700",
+    "secondary": "#FFA500",
+    "accent": "#FF8C00",
+    "dark": "#B8860B",
+    "light": "#FFFFE0",
+    "hazard": "#FFFFFF"
+   },
+   "musicTheme": "victory",
+   "ambientSounds": [
+    "sanctuary_peace",
+    "celestial_choir",
+    "reconstruction_hum",
+    "memory_chorus"
+   ],
+   "tilesets": [
+    "tileset_sanctuary"
+   ],
+   "structureTypes": [
+    {
+     "name": "reconstruction_altar",
+     "weight": 1,
+     "size": "large",
+     "unique": true,
+     "special": "ending"
+    },
+    {
+     "name": "memory_garden",
+     "weight": 20,
+     "size": "large",
+     "special": "fragment_synthesis"
+    },
+    {
+     "name": "hall_of_echoes",
+     "weight": 15,
+     "size": "large",
+     "special": "memory_review"
+    },
+    {
+     "name": "keeper_quarters",
+     "weight": 10,
+     "size": "medium",
+     "npc": "keeper"
+    },
+    {
+     "name": "timeline_observatory",
+     "weight": 10,
+     "size": "large",
+     "special": "view_timelines"
+    },
+    {
+     "name": "genesis_chamber",
+     "weight": 5,
+     "size": "large",
+     "special": "world_creation"
+    },
+    {
+     "name": "peace_garden",
+     "weight": 20,
+     "size": "large",
+     "safe": true
+    },
+    {
+     "name": "ascension_spire",
+     "weight": 10,
+     "size": "large",
+     "vertical": true,
+     "final": true
+    }
+   ],
+   "enemyDistribution": {
+    "keeper": {
+     "weight": 1,
+     "minDepth": 0,
+     "maxDepth": 10,
+     "unique": true
+    },
+    "memoryEcho": {
+     "weight": 50,
+     "minDepth": 0,
+     "maxDepth": 50,
+     "peaceful": true
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 5.0,
+    "coreMemoryRate": 2.0,
+    "primordialChance": 0.1
+   },
+   "environmentalHazards": [],
+   "secrets": [
+    {
+     "type": "true_ending",
+     "chance": 1.0,
+     "condition": "all_memories",
+     "reward": "ending"
+    },
+    {
+     "type": "memory_synthesis",
+     "chance": 1.0,
+     "reward": "combine_fragments"
+    },
+    {
+     "type": "timeline_choice",
+     "chance": 1.0,
+     "reward": "choose_ending"
+    }
+   ],
+   "boss": {
+    "id": "keeper",
+    "variant": "The Keeper",
+    "depth": 0,
+    "arena": "reconstruction_altar"
+   }
+  },
+  {
+   "id": "ash",
+   "name": "Ashfall Reach",
+   "description": "A forge district buried under its own cinders. Every step raises the dust of something that used to be whole.",
+   "theme": "Burnout and aftermath",
+   "colorPalette": {
+    "primary": "#4A3A36",
+    "secondary": "#3E302C",
+    "accent": "#8A5A44",
+    "dark": "#221916",
+    "light": "#C9A084",
+    "hazard": "#FF6B35"
+   },
+   "musicTheme": "combat",
+   "ambientSounds": [
+    "ember_crackle",
+    "ash_wind",
+    "distant_forge"
+   ],
+   "tilesets": [
+    "tileset_ash"
+   ],
+   "structureTypes": [
+    {
+     "name": "cold_forge",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "cinder_hall",
+     "weight": 18,
+     "size": "large"
+    },
+    {
+     "name": "slag_pit",
+     "weight": 15,
+     "size": "medium",
+     "hazard": "embers"
+    },
+    {
+     "name": "burnt_archive",
+     "weight": 10,
+     "size": "small",
+     "special": "lore"
+    }
+   ],
+   "enemyDistribution": {
+    "cinder_wisp": {
+     "weight": 35,
+     "minDepth": 30,
+     "maxDepth": 80
+    },
+    "magma_hound": {
+     "weight": 40,
+     "minDepth": 30,
+     "maxDepth": 80
+    },
+    "shadow": {
+     "weight": 25,
+     "minDepth": 20,
+     "maxDepth": 80
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 2.2,
+    "weaponChance": 0.22,
+    "crystalChance": 0.25
+   },
+   "environmentalHazards": [
+    {
+     "type": "ember_rain",
+     "damage": 12,
+     "interval": 3,
+     "visual": "falling_embers"
+    }
+   ],
+   "secrets": [
+    {
+     "type": "forge_cache",
+     "chance": 0.05,
+     "reward": "resources"
+    }
+   ],
+   "boss": {
+    "id": "cinder_warden",
+    "variant": "The Cinder Warden",
+    "depth": 55,
+    "arena": "cold_forge"
+   }
+  },
+  {
+   "id": "abyss",
+   "name": "Drowned Abyss",
+   "description": "A flooded library where every book became water. The memories here sink instead of fading.",
+   "theme": "Submerged grief",
+   "colorPalette": {
+    "primary": "#233B4A",
+    "secondary": "#1C3140",
+    "accent": "#2F5F73",
+    "dark": "#0A1418",
+    "light": "#8FC7D9",
+    "hazard": "#3FE0C5"
+   },
+   "musicTheme": "boss",
+   "ambientSounds": [
+    "deep_current",
+    "water_echo",
+    "sinking_pages"
+   ],
+   "tilesets": [
+    "tileset_abyss"
+   ],
+   "structureTypes": [
+    {
+     "name": "sunken_stacks",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "flooded_atrium",
+     "weight": 18,
+     "size": "large"
+    },
+    {
+     "name": "tide_well",
+     "weight": 12,
+     "size": "medium",
+     "special": "mana_regen"
+    },
+    {
+     "name": "drowned_archive",
+     "weight": 10,
+     "size": "small",
+     "special": "lore"
+    }
+   ],
+   "enemyDistribution": {
+    "drowned": {
+     "weight": 40,
+     "minDepth": 40,
+     "maxDepth": 100
+    },
+    "tide_caller": {
+     "weight": 30,
+     "minDepth": 40,
+     "maxDepth": 100
+    },
+    "cinder_wisp": {
+     "weight": 15,
+     "minDepth": 30,
+     "maxDepth": 90
+    },
+    "shadow": {
+     "weight": 15,
+     "minDepth": 20,
+     "maxDepth": 90
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 2.6,
+    "weaponChance": 0.24,
+    "accessoryChance": 0.2
+   },
+   "environmentalHazards": [
+    {
+     "type": "undertow",
+     "trigger": "stand",
+     "effect": "pull",
+     "damage": 10
+    }
+   ],
+   "secrets": [
+    {
+     "type": "drowned_diary",
+     "chance": 0.04,
+     "reward": "lore_entry"
+    }
+   ],
+   "boss": {
+    "id": "leviathan",
+    "variant": "The Drowned Leviathan",
+    "depth": 65,
+    "arena": "flooded_atrium"
+   }
+  },
+  {
+   "id": "frost",
+   "name": "Frostbound Archive",
+   "description": "The archive where memories were kept cold to survive. The cold survived better than the memories.",
+   "theme": "Preserved stillness",
+   "colorPalette": {
+    "primary": "#8FA6B8",
+    "secondary": "#7F97A9",
+    "accent": "#B6CBD9",
+    "dark": "#3C4C5C",
+    "light": "#EAF6FF",
+    "hazard": "#BFE9FF"
+   },
+   "musicTheme": "exploration",
+   "ambientSounds": [
+    "ice_crack",
+    "cold_wind",
+    "frozen_pages"
+   ],
+   "tilesets": [
+    "tileset_frost"
+   ],
+   "structureTypes": [
+    {
+     "name": "frozen_stacks",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "glass_gallery",
+     "weight": 18,
+     "size": "large"
+    },
+    {
+     "name": "ice_well",
+     "weight": 12,
+     "size": "medium",
+     "special": "heal_zone"
+    },
+    {
+     "name": "sealed_reading_room",
+     "weight": 10,
+     "size": "small",
+     "special": "lore"
+    }
+   ],
+   "enemyDistribution": {
+    "frost_stalker": {
+     "weight": 35,
+     "minDepth": 55,
+     "maxDepth": 120
+    },
+    "glass_sentinel": {
+     "weight": 30,
+     "minDepth": 55,
+     "maxDepth": 120
+    },
+    "drowned": {
+     "weight": 20,
+     "minDepth": 40,
+     "maxDepth": 110
+    },
+    "void_walker": {
+     "weight": 15,
+     "minDepth": 50,
+     "maxDepth": 120
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 3.0,
+    "weaponChance": 0.26,
+    "accessoryChance": 0.24
+   },
+   "environmentalHazards": [
+    {
+     "type": "black_ice",
+     "trigger": "stand",
+     "effect": "slide",
+     "damage": 8
+    }
+   ],
+   "secrets": [
+    {
+     "type": "frozen_letter",
+     "chance": 0.04,
+     "reward": "lore_entry"
+    }
+   ],
+   "boss": {
+    "id": "frost_warden",
+    "variant": "The Frost Warden",
+    "depth": 75,
+    "arena": "glass_gallery"
+   }
+  },
+  {
+   "id": "bloom",
+   "name": "Blooming Remnant",
+   "description": "The first garden grown from recovered memories. It is beautiful, and it is still growing through the ruins.",
+   "theme": "Rebirth, unasked for",
+   "colorPalette": {
+    "primary": "#4A3A4F",
+    "secondary": "#42344A",
+    "accent": "#8A5F8C",
+    "dark": "#1A1320",
+    "light": "#D49AD4",
+    "hazard": "#FF9AD8"
+   },
+   "musicTheme": "victory",
+   "ambientSounds": [
+    "petal_rustle",
+    "growth_creak",
+    "memory_chorus"
+   ],
+   "tilesets": [
+    "tileset_bloom"
+   ],
+   "structureTypes": [
+    {
+     "name": "memory_garden",
+     "weight": 20,
+     "size": "large",
+     "special": "heal_zone"
+    },
+    {
+     "name": "root_hall",
+     "weight": 18,
+     "size": "large"
+    },
+    {
+     "name": "blooming_altar",
+     "weight": 12,
+     "size": "medium",
+     "special": "fragment_synthesis"
+    },
+    {
+     "name": "quiet_grove",
+     "weight": 10,
+     "size": "small",
+     "safe": true
+    }
+   ],
+   "enemyDistribution": {
+    "bloom_crawler": {
+     "weight": 35,
+     "minDepth": 70,
+     "maxDepth": 130
+    },
+    "petal_witch": {
+     "weight": 30,
+     "minDepth": 70,
+     "maxDepth": 130
+    },
+    "frost_stalker": {
+     "weight": 20,
+     "minDepth": 55,
+     "maxDepth": 120
+    },
+    "void_walker": {
+     "weight": 15,
+     "minDepth": 50,
+     "maxDepth": 130
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 3.5,
+    "weaponChance": 0.28,
+    "legendaryChance": 0.04
+   },
+   "environmentalHazards": [
+    {
+     "type": "thorn_vines",
+     "damage": 12,
+     "slow": 0.5,
+     "visual": "green_thorns"
+    }
+   ],
+   "secrets": [
+    {
+     "type": "first_bloom",
+     "chance": 0.05,
+     "reward": "blessing"
+    }
+   ],
+   "boss": {
+    "id": "thorn_matriarch",
+    "variant": "The Thorn Matriarch",
+    "depth": 85,
+    "arena": "memory_garden"
+   }
+  },
+  {
+   "id": "foundry",
+   "name": "The Sleepless Foundry",
+   "description": "A clockwork works that kept producing a world after the world was gone. The belts still turn.",
+   "theme": "Mechanical persistence",
+   "colorPalette": {
+    "primary": "#4A4038",
+    "secondary": "#3E352E",
+    "accent": "#C08A3E",
+    "dark": "#1C1712",
+    "light": "#E0B96A",
+    "hazard": "#FFB347"
+   },
+   "musicTheme": "combat",
+   "ambientSounds": [
+    "gear_grind",
+    "steam_vent",
+    "distant_bell"
+   ],
+   "tilesets": [
+    "tileset_foundry"
+   ],
+   "structureTypes": [
+    {
+     "name": "assembly_line",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "boiler_hall",
+     "weight": 18,
+     "size": "large",
+     "hazard": "steam"
+    },
+    {
+     "name": "foreman_office",
+     "weight": 10,
+     "size": "small",
+     "special": "lore"
+    }
+   ],
+   "enemyDistribution": {
+    "cog_hound": {
+     "weight": 40,
+     "minDepth": 50,
+     "maxDepth": 110
+    },
+    "solder_wisp": {
+     "weight": 35,
+     "minDepth": 50,
+     "maxDepth": 110
+    },
+    "shadow": {
+     "weight": 25,
+     "minDepth": 20,
+     "maxDepth": 100
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 3.0,
+    "weaponChance": 0.3,
+    "crystalChance": 0.3
+   },
+   "environmentalHazards": [
+    {
+     "type": "steam_vent",
+     "damage": 14,
+     "interval": 3.5,
+     "visual": "steam"
+    }
+   ],
+   "secrets": [
+    {
+     "type": "foreman_key",
+     "chance": 0.05,
+     "reward": "equipment"
+    }
+   ],
+   "boss": {
+    "id": "clockwork_regent",
+    "variant": "The Clockwork Regent",
+    "depth": 95,
+    "arena": "assembly_line"
+   }
+  },
+  {
+   "id": "mire",
+   "name": "The Whispering Mire",
+   "description": "A swamp fed by every memory that was buried instead of grieved. It repeats names back to you.",
+   "theme": "Buried names",
+   "colorPalette": {
+    "primary": "#33463A",
+    "secondary": "#2C3D32",
+    "accent": "#6F8F4E",
+    "dark": "#131C16",
+    "light": "#A9C482",
+    "hazard": "#B8E06A"
+   },
+   "musicTheme": "exploration",
+   "ambientSounds": [
+    "bog_bubble",
+    "reed_whisper",
+    "deep_plop"
+   ],
+   "tilesets": [
+    "tileset_mire"
+   ],
+   "structureTypes": [
+    {
+     "name": "sunken_grove",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "reed_chapel",
+     "weight": 16,
+     "size": "medium",
+     "special": "lore"
+    },
+    {
+     "name": "whispering_pool",
+     "weight": 14,
+     "size": "medium",
+     "hazard": "poison"
+    }
+   ],
+   "enemyDistribution": {
+    "bog_leech": {
+     "weight": 38,
+     "minDepth": 60,
+     "maxDepth": 120
+    },
+    "plague_caster": {
+     "weight": 32,
+     "minDepth": 60,
+     "maxDepth": 120
+    },
+    "drowned": {
+     "weight": 30,
+     "minDepth": 40,
+     "maxDepth": 110
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 3.8,
+    "accessoryChance": 0.3,
+    "legendaryChance": 0.05
+   },
+   "environmentalHazards": [
+    {
+     "type": "poison_bog",
+     "damage": 10,
+     "interval": 1.2,
+     "visual": "bubbles"
+    }
+   ],
+   "secrets": [
+    {
+     "type": "drowned_name",
+     "chance": 0.05,
+     "reward": "lore_entry"
+    }
+   ],
+   "boss": {
+    "id": "mire_sovereign",
+    "variant": "The Mire Sovereign",
+    "depth": 100,
+    "arena": "sunken_grove"
+   }
+  },
+  {
+   "id": "hive",
+   "name": "The Hollow Hive",
+   "description": "A settlement built from wax and borrowed bone. Something in the comb still hums a work song.",
+   "theme": "Belonging, gone wrong",
+   "colorPalette": {
+    "primary": "#4A3520",
+    "secondary": "#3E2C1B",
+    "accent": "#C08A3E",
+    "dark": "#1A1108",
+    "light": "#E8C070",
+    "hazard": "#FFB347"
+   },
+   "musicTheme": "combat",
+   "ambientSounds": [
+    "comb_hum",
+    "wing_drone",
+    "wax_crack"
+   ],
+   "tilesets": [
+    "tileset_hive"
+   ],
+   "structureTypes": [
+    {
+     "name": "brood_comb",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "nursery",
+     "weight": 18,
+     "size": "large"
+    },
+    {
+     "name": "queens_hall",
+     "weight": 10,
+     "size": "huge",
+     "special": "lore"
+    }
+   ],
+   "enemyDistribution": {
+    "hive_drone": {
+     "weight": 40,
+     "minDepth": 80,
+     "maxDepth": 140
+    },
+    "hive_guard": {
+     "weight": 35,
+     "minDepth": 80,
+     "maxDepth": 140
+    },
+    "cinder_wisp": {
+     "weight": 25,
+     "minDepth": 30,
+     "maxDepth": 120
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 4.0,
+    "weaponChance": 0.32,
+    "accessoryChance": 0.3
+   },
+   "environmentalHazards": [
+    {
+     "type": "sticky_wax",
+     "trigger": "stand",
+     "effect": "slow"
+    }
+   ],
+   "secrets": [
+    {
+     "type": "royal_jelly",
+     "chance": 0.06,
+     "reward": "heal"
+    }
+   ],
+   "boss": {
+    "id": "hive_queen",
+    "variant": "The Hive Queen",
+    "depth": 110,
+    "arena": "queens_hall"
+   }
+  },
+  {
+   "id": "catacomb",
+   "name": "The Bone Catacombs",
+   "description": "The sanctuary's older foundations, stacked with everyone who was remembered here first. They still keep rank.",
+   "theme": "The weight of the remembered",
+   "colorPalette": {
+    "primary": "#3E4446",
+    "secondary": "#343A3C",
+    "accent": "#7E8C8A",
+    "dark": "#141A1B",
+    "light": "#D8D2B8",
+    "hazard": "#8FD8C8"
+   },
+   "musicTheme": "exploration",
+   "ambientSounds": [
+    "bone_click",
+    "cold_drip",
+    "distant_chant"
+   ],
+   "tilesets": [
+    "tileset_catacomb"
+   ],
+   "structureTypes": [
+    {
+     "name": "ossuary",
+     "weight": 20,
+     "size": "large"
+    },
+    {
+     "name": "barrow_hall",
+     "weight": 18,
+     "size": "large"
+    },
+    {
+     "name": "sealed_crypt",
+     "weight": 10,
+     "size": "small",
+     "special": "lore"
+    }
+   ],
+   "enemyDistribution": {
+    "bone_knight": {
+     "weight": 40,
+     "minDepth": 100,
+     "maxDepth": 150
+    },
+    "catacomb_archer": {
+     "weight": 35,
+     "minDepth": 100,
+     "maxDepth": 150
+    },
+    "hive_guard": {
+     "weight": 25,
+     "minDepth": 80,
+     "maxDepth": 140
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 4.4,
+    "weaponChance": 0.34,
+    "legendaryChance": 0.06
+   },
+   "environmentalHazards": [
+    {
+     "type": "bone_dust",
+     "damage": 12,
+     "interval": 2.5
+    }
+   ],
+   "secrets": [
+    {
+     "type": "first_name",
+     "chance": 0.06,
+     "reward": "lore_entry"
+    }
+   ],
+   "boss": {
+    "id": "bone_tyrant",
+    "variant": "The Bone Tyrant",
+    "depth": 120,
+    "arena": "barrow_hall"
+   }
+  },
+  {
+   "id": "tide",
+   "name": "Sunken Tideways",
+   "description": "A drowned harbor where the sea took the streets back. Lanterns burn green under black water, and the blademaster still drills his drowned guard.",
+   "theme": "Sorrowful siege",
+   "colorPalette": {
+    "primary": "#2E5A66",
+    "secondary": "#22444D",
+    "accent": "#7FD4C1",
+    "dark": "#0E2229",
+    "light": "#BFE8DD",
+    "hazard": "#FF5A5A"
+   },
+   "musicTheme": "tide",
+   "ambientSounds": [
+    "lapping_water",
+    "foghorn_far",
+    "creaking_pilings"
+   ],
+   "tilesets": [
+    "tileset_tide"
+   ],
+   "structureTypes": [
+    {
+     "name": "collapsed_hall",
+     "weight": 30,
+     "size": "large"
+    },
+    {
+     "name": "memory_fountain",
+     "weight": 10,
+     "size": "medium",
+     "special": "heal_zone"
+    },
+    {
+     "name": "statue_garden",
+     "weight": 15,
+     "size": "medium"
+    },
+    {
+     "name": "archive_chamber",
+     "weight": 8,
+     "size": "small",
+     "special": "lore"
+    },
+    {
+     "name": "bridge_span",
+     "weight": 12,
+     "size": "large"
+    },
+    {
+     "name": "tower_base",
+     "weight": 5,
+     "size": "large",
+     "vertical": true
+    }
+   ],
+   "enemyDistribution": {
+    "scavenger": {
+     "weight": 50,
+     "minDepth": 0,
+     "maxDepth": 20
+    },
+    "guardian": {
+     "weight": 20,
+     "minDepth": 5,
+     "maxDepth": 30
+    },
+    "memoryEcho": {
+     "weight": 30,
+     "minDepth": 0,
+     "maxDepth": 50
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 1.0,
+    "weaponChance": 0.1,
+    "armorChance": 0.15
+   },
+   "environmentalHazards": [
+    {
+     "type": "memory_gas",
+     "damage": 5,
+     "interval": 2,
+     "visual": "purple_mist"
+    },
+    {
+     "type": "unstable_floor",
+     "trigger": "weight",
+     "effect": "collapse",
+     "damage": 20
+    }
+   ],
+   "secrets": [
+    {
+     "type": "hidden_chamber",
+     "chance": 0.05,
+     "reward": "core_memory"
+    },
+    {
+     "type": "memory_cache",
+     "chance": 0.1,
+     "reward": "fragments_10_20"
+    },
+    {
+     "type": "ancient_terminal",
+     "chance": 0.02,
+     "reward": "lore_entry"
+    }
+   ],
+   "boss": {
+    "id": "drowned_blademaster",
+    "variant": "Drowned Blademaster",
+    "depth": 25,
+    "arena": "grand_hall"
+   }
+  },
+  {
+   "id": "storm",
+   "name": "Howling Spire",
+   "description": "A militant order's mountain fastness, lashed by endless gale. The warlord's vanguard drills on the ramparts and does not ask twice.",
+   "theme": "Defiant ascent",
+   "colorPalette": {
+    "primary": "#5A6B8C",
+    "secondary": "#44506B",
+    "accent": "#C9D8FF",
+    "dark": "#1B2233",
+    "light": "#E4ECFF",
+    "hazard": "#FFB347"
+   },
+   "musicTheme": "storm",
+   "ambientSounds": [
+    "howling_wind",
+    "distant_thunder",
+    "snapping_banners"
+   ],
+   "tilesets": [
+    "tileset_storm"
+   ],
+   "structureTypes": [
+    {
+     "name": "collapsed_hall",
+     "weight": 30,
+     "size": "large"
+    },
+    {
+     "name": "memory_fountain",
+     "weight": 10,
+     "size": "medium",
+     "special": "heal_zone"
+    },
+    {
+     "name": "statue_garden",
+     "weight": 15,
+     "size": "medium"
+    },
+    {
+     "name": "archive_chamber",
+     "weight": 8,
+     "size": "small",
+     "special": "lore"
+    },
+    {
+     "name": "bridge_span",
+     "weight": 12,
+     "size": "large"
+    },
+    {
+     "name": "tower_base",
+     "weight": 5,
+     "size": "large",
+     "vertical": true
+    }
+   ],
+   "enemyDistribution": {
+    "scavenger": {
+     "weight": 50,
+     "minDepth": 0,
+     "maxDepth": 20
+    },
+    "guardian": {
+     "weight": 20,
+     "minDepth": 5,
+     "maxDepth": 30
+    },
+    "memoryEcho": {
+     "weight": 30,
+     "minDepth": 0,
+     "maxDepth": 50
+    }
+   },
+   "lootModifiers": {
+    "memoryFragmentRate": 1.0,
+    "weaponChance": 0.1,
+    "armorChance": 0.15
+   },
+   "environmentalHazards": [
+    {
+     "type": "memory_gas",
+     "damage": 5,
+     "interval": 2,
+     "visual": "purple_mist"
+    },
+    {
+     "type": "unstable_floor",
+     "trigger": "weight",
+     "effect": "collapse",
+     "damage": 20
+    }
+   ],
+   "secrets": [
+    {
+     "type": "hidden_chamber",
+     "chance": 0.05,
+     "reward": "core_memory"
+    },
+    {
+     "type": "memory_cache",
+     "chance": 0.1,
+     "reward": "fragments_10_20"
+    },
+    {
+     "type": "ancient_terminal",
+     "chance": 0.02,
+     "reward": "lore_entry"
+    }
+   ],
+   "boss": {
+    "id": "storm_warlord",
+    "variant": "Storm Warlord",
+    "depth": 25,
+    "arena": "grand_hall"
+   }
   }
+ ],
+ "globalSettings": {
+  "baseChunkSize": 512,
+  "transitionZones": {
+   "ruins-forest": {
+    "width": 2,
+    "blend": "organic"
+   },
+   "forest-caves": {
+    "width": 3,
+    "blend": "roots"
+   },
+   "caves-crystal": {
+    "width": 2,
+    "blend": "crystalline"
+   },
+   "crystal-void": {
+    "width": 4,
+    "blend": "fractured"
+   },
+   "void-sanctuary": {
+    "width": 1,
+    "blend": "sudden"
+   }
+  },
+  "depthScaling": {
+   "healthMult": 1.08,
+   "damageMult": 1.06,
+   "speedMult": 1.02,
+   "xpMult": 1.1,
+   "memoryMult": 1.12,
+   "eliteChance": 0.005
+  },
+  "runStructure": {
+   "earlyGame": {
+    "biomes": [
+     "ruins"
+    ],
+    "depthRange": [
+     0,
+     15
+    ]
+   },
+   "midGame": {
+    "biomes": [
+     "ruins",
+     "forest",
+     "caves"
+    ],
+    "depthRange": [
+     10,
+     35
+    ]
+   },
+   "lateGame": {
+    "biomes": [
+     "forest",
+     "caves",
+     "crystal"
+    ],
+    "depthRange": [
+     30,
+     60
+    ]
+   },
+   "endGame": {
+    "biomes": [
+     "crystal",
+     "void"
+    ],
+    "depthRange": [
+     50,
+     100
+    ]
+   },
+   "postGame": {
+    "biomes": [
+     "sanctuary"
+    ],
+    "depthRange": [
+     0,
+     10
+    ],
+    "requires": "all_bosses_defeated"
+   }
+  }
+ }
 }

@@ -113,9 +113,47 @@ describe('SaveStore', () => {
     expect(meta.startingWeapon).toBe('sword');
     expect(meta.boon).toBeNull();
     expect(meta.vault).toEqual([]);
-    expect(meta.quests).toEqual({ accepted: [], claimed: [] });
+    expect(meta.quests).toEqual({ accepted: [], claimed: [], acceptedAt: {} });
   });
 
+  it('keeps progress when settings are partial (pre-volume saves)', () => {
+    const storage = memoryStorage();
+    const store = new SaveStore(storage);
+    storage.data.set(
+      'memory-reconstruction.meta.v1',
+      JSON.stringify({
+        version: 1,
+        fragments: ['fragment_001'],
+        runs: 3,
+        victories: 1,
+        bestDepth: 2,
+        settings: { masterVolume: 0.8, musicVolume: 0.5 },
+      })
+    );
+    const meta = store.loadMeta();
+    expect(meta.fragments).toEqual(['fragment_001']);
+    expect(meta.runs).toBe(3);
+    expect(meta.settings.masterVolume).toBe(0.8);
+    expect(meta.settings.musicVolume).toBe(0.5);
+    expect(meta.settings.sfxVolume).toBe(0.8);
+    expect(meta.settings.screenShake).toBe(true);
+  });
+
+  it('drops an attuned relic that is not in the vault', () => {
+    const storage = memoryStorage();
+    const store = new SaveStore(storage);
+    storage.data.set(
+      'memory-reconstruction.meta.v1',
+      JSON.stringify({
+        ...defaultMeta(),
+        vault: ['rusted_edge'],
+        attunedRelic: 'echo_dagger',
+      })
+    );
+    const meta = store.loadMeta();
+    expect(meta.vault).toEqual(['rusted_edge']);
+    expect(meta.attunedRelic).toBeNull();
+  });
 
   it('drops phantom relic ids from the vault instead of loading a crashing kit', () => {
     const storage = memoryStorage();
@@ -165,5 +203,53 @@ describe('SaveStore', () => {
     expect(meta.runs).toBe(1);
     expect(meta.bestDepth).toBe(3);
     expect(recordRun(meta, run, true).victories).toBe(1);
+  });
+
+  it('unlocks feats, records a best score and keeps the daily streak', () => {
+    const run = createRun(3, []);
+    run.depth = 7;
+    run.stats.bossKills = 4;
+    run.stats.floorsRestored = 1;
+    run.stats.grazes = 30;
+    run.stats.surges = 3;
+    run.stats.clutchKills = 3;
+    run.stats.colosseumsWon = 1;
+    run.stats.bestResonance = 12;
+    run.stats.bestResonance = 10;
+    const first = recordRun(defaultMeta(), run, false);
+    for (const feat of ['first_steps', 'delver', 'executioner', 'restorer', 'champion', 'flow_master', 'grazer', 'surge_rider', 'comeback']) {
+      expect(first.feats).toContain(feat);
+    }
+    expect(first.victories).toBe(0);
+    expect(first.feats).not.toContain('victor');
+    expect(first.bestScore).toBeGreaterThan(0);
+    expect(first.bestResonance).toBe(run.stats.bestResonance);
+    expect(first.lastRun).toEqual({ depth: run.depth, score: first.bestScore, won: false, feats: first.feats });
+    expect(first.runHistory).toHaveLength(1);
+    expect(first.runHistory[0]).toMatchObject({ depth: run.depth, score: first.bestScore, won: false });
+    expect(first.runHistory[0].seed).toBe(run.seed >>> 0);
+    const capped = recordRun(
+      { ...defaultMeta(), runHistory: Array.from({ length: 12 }, (_, i) => ({ depth: i, score: i, won: false, date: '2026-01-01' })) },
+      run,
+      false
+    );
+    expect(capped.runHistory).toHaveLength(12);
+    expect(capped.runHistory[11].score).toBe(first.bestScore);
+    // Idempotent: re-settling the same run changes nothing.
+    const again = recordRun({ ...first, runs: 0 }, run, false);
+    expect(again.feats).toEqual(first.feats);
+    expect(again.bestScore).toBe(first.bestScore);
+
+    // Daily: first day starts the streak, same day is idempotent, next day grows it.
+    const day1 = recordRun(defaultMeta(), { ...run, dailyKey: '2026-11-02' }, false);
+    expect(day1.daily.streak).toBe(1);
+    const same = recordRun({ ...day1, runs: 0 }, { ...run, dailyKey: '2026-11-02' }, false);
+    expect(same.daily.streak).toBe(1);
+    expect(same.daily.best['2026-11-02']).toBe(day1.daily.best['2026-11-02']);
+    const day2 = recordRun({ ...same, runs: 0 }, { ...run, dailyKey: '2026-11-03' }, false);
+    expect(day2.daily.streak).toBe(2);
+    expect(day2.daily.bestStreak).toBe(2);
+    const gap = recordRun({ ...day2, runs: 0 }, { ...run, dailyKey: '2026-11-10' }, false);
+    expect(gap.daily.streak).toBe(1);
   });
 });

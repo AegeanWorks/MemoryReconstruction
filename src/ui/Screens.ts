@@ -3,14 +3,25 @@
  * a time on top of the HUD.
  */
 import { CORE_MEMORIES, FLOOR_PLANS, MEMORY_FRAGMENTS, biomeInfo } from '../sim/content';
+import { FEATS, featProgress, type FeatDef } from '../sim/feats';
 import {
   EQUIPMENT_SLOTS,
   INVENTORY_SLOTS,
+  applyEquipment,
   equipmentDef,
+  equipmentScore,
   relicSellShards,
+  type EquipmentItem,
   type EquipmentSlot,
 } from '../sim/equipment';
-import { NPCS, QUESTS, questProgress, questsForNpc, type QuestSnapshot } from '../sim/quests';
+import {
+  NPCS,
+  QUESTS,
+  questProgress,
+  questsForNpc,
+  type DailyBounty,
+  type QuestSnapshot,
+} from '../sim/quests';
 import {
   ASPECTS,
   CAIRN_COST,
@@ -34,10 +45,10 @@ import {
 } from '../sim/hub';
 import { resonanceMultiplier, type RunState, type UpgradeChoice } from '../sim/run';
 import { SANCTUARY_BUILDINGS, SANCTUARY_STATIONS } from '../sim/sanctuary';
-import { upgradeDef } from '../sim/upgrades';
+import { computeStats, upgradeDef, type PlayerStats } from '../sim/upgrades';
 import { WEAPONS, weaponDef } from '../sim/weapons';
 import type { World } from '../sim/world';
-import type { Meta, Settings } from '../save/SaveStore';
+import { dailyModifier, type Meta, type Settings } from '../save/SaveStore';
 import { assetUrl, button, h } from './dom';
 import { drawMap } from './Minimap';
 import { reliquaryCaption } from './reliquary';
@@ -86,6 +97,7 @@ export function titleScreen(opts: {
   onMemories: () => void;
   onSettings: () => void;
   onControls: () => void;
+  onPrologue: () => void;
 }): HTMLElement {
   const { meta } = opts;
   const recovered = meta.fragments.length;
@@ -106,6 +118,7 @@ export function titleScreen(opts: {
         button('Enter the Sanctuary', opts.onNew, 'btn primary'),
         continueBtn,
         button(`Memories  ${recovered}/${MEMORY_FRAGMENTS.length}`, opts.onMemories),
+        button('Prologue', opts.onPrologue),
         button('Settings', opts.onSettings),
         button('Controls', opts.onControls)
       )
@@ -130,6 +143,64 @@ export function titleScreen(opts: {
 
 function hubProgress(meta: Meta): SanctuaryProgress {
   return { echoes: meta.echoes, restorations: meta.restorations, checkpoint: meta.checkpoint };
+}
+
+/**
+ * The opening story, told by the Keeper before the first descent. Walkers
+ * learn why the world broke, what they carry back, and how to survive the
+ * first rooms — then begin with the controls fresh in mind.
+ */
+export function prologueScreen(onBegin: () => void, onBack: () => void): HTMLElement {
+  const beats: Array<[string, string]> = [
+    [
+      'The Breaking',
+      'The world did not end in fire. It ended in forgetting. One by one the names went out of the index — ' +
+        'a street, a harbour, a mountain order — until whole sections of the world simply stopped being remembered, and stopped being.',
+    ],
+    [
+      'The Keeper',
+      '“I keep what the world drops,” the Keeper says, pressing a lantern into your hands. “Walk down. Find what was lost. ' +
+        'Bring me names, and I will write them back into the index. Bring me echoes, and the Sanctuary grows.”',
+    ],
+    [
+      'The Walker',
+      'You are a memory walker: the only kind of soul that can enter a forgotten section and come back. Strike with your blade, ' +
+        'spend mana on bolts, dash through what would kill you, and drink from the flask when the red closes in.',
+    ],
+    [
+      'The Road',
+      'Rooms wake when you step deep inside — doors seal, waves come, crystals shatter for shards. Clear every hostile room, ' +
+        'open the chest, and take the gate down. Die, and the run ends — but the Sanctuary, and everything you rebuilt, remains.',
+    ],
+  ];
+  return h(
+    'div',
+    { class: 'screen' },
+    h('div', { class: 'heading' }, 'Prologue'),
+    h(
+      'div',
+      { class: 'subtitle' },
+      'What the Keeper tells every walker, before the first descent.'
+    ),
+    h(
+      'div',
+      { class: 'panel' },
+      ...beats.map(([title, text]) =>
+        h('div', { class: 'memory' }, h('h5', {}, title), h('p', {}, text))
+      ),
+      h(
+        'div',
+        { class: 'gear-note' },
+        'Move WASD · Strike LMB · Bolt RMB · Dash Space · Flask Q · Interact E · Relics I · Map Tab · Pause Esc'
+      )
+    ),
+    h(
+      'div',
+      { class: 'menu' },
+      button('Begin the descent', onBegin, 'btn primary'),
+      button('Back', onBack)
+    )
+  );
 }
 
 /** The rest place between expeditions: rebuild it with echoes, then set out. */
@@ -250,13 +321,35 @@ export function sanctuaryScreen(opts: {
   onSettings: () => void;
   onControls: () => void;
   onTitle: () => void;
+  onReplay: (seed: number) => void;
 }): HTMLElement {
   const { meta } = opts;
   const progress = hubProgress(meta);
   const restored = restoredLevels(progress);
 
-  const cards = SANCTUARY_BUILDINGS.map((building) =>
-    h(
+  const snapshot: QuestSnapshot = {
+    fragments: meta.fragments.length,
+    kills: meta.kills,
+    restored: restoredLevels(hubProgress(meta)),
+    depth: meta.bestDepth,
+    bosses: meta.bossKills,
+  };
+  const cards = SANCTUARY_BUILDINGS.map((building) => {
+    const npc = NPCS[building.id];
+    const quest = questsForNpc(building.id);
+    const accepted = !!quest && meta.quests.accepted.includes(quest.id);
+    const claimed = !!quest && meta.quests.claimed.includes(quest.id);
+    const progress = quest ? questProgress(quest, snapshot) : 0;
+    const badge = !quest
+      ? null
+      : claimed
+        ? h('span', { class: 'quest-badge done' }, 'Completed')
+        : accepted && progress >= quest.target
+          ? h('span', { class: 'quest-badge ready' }, 'Ready to claim')
+          : accepted
+            ? h('span', { class: 'quest-badge active' }, `${progress}/${quest.target}`)
+            : h('span', { class: 'quest-badge new' }, 'New task');
+    return h(
       'div',
       { class: 'building-card', 'data-building': building.id },
       h(
@@ -274,18 +367,28 @@ export function sanctuaryScreen(opts: {
           alt: '',
           loading: 'lazy',
           draggable: 'false',
-        })
+        }),
+        npc
+          ? h('img', {
+              class: 'building-portrait',
+              src: assetUrl(`sprites/props/npc_${building.id}.png`),
+              alt: npc.name,
+              loading: 'lazy',
+              draggable: 'false',
+            })
+          : null
       ),
       h(
         'div',
         { class: 'building-copy' },
         h('div', { class: 'building-name' }, building.name),
         h('div', { class: 'building-role' }, building.role),
-        h('div', { class: 'building-blurb' }, building.blurb)
+        h('div', { class: 'building-blurb' }, building.blurb),
+        badge
       ),
       button('Enter', () => opts.onEnter(building.id), 'btn small primary building-enter')
-    )
-  );
+    );
+  });
 
   const stationActions: Record<string, () => void> = {
     restoration: opts.onRestoration,
@@ -337,7 +440,19 @@ export function sanctuaryScreen(opts: {
           'Memories ',
           h('b', {}, `${meta.fragments.length}/${MEMORY_FRAGMENTS.length}`)
         ),
-        h('span', {}, 'Checkpoint ', h('b', {}, `Section ${sectionNumber(meta.checkpoint)}`))
+        h('span', {}, 'Checkpoint ', h('b', {}, `Section ${sectionNumber(meta.checkpoint)}`)),
+        h('span', {}, 'Best ', h('b', {}, `${meta.bestScore}`)),
+        h('span', {}, 'Best flow ', h('b', {}, `x${meta.bestResonance}`)),
+        h(
+          'span',
+          {},
+          'Daily streak ',
+          h(
+            'b',
+            {},
+            `${meta.daily.streak}${meta.daily.bestStreak > meta.daily.streak ? ` (best ${meta.daily.bestStreak})` : ''}`
+          )
+        )
       ),
       h(
         'div',
@@ -350,6 +465,67 @@ export function sanctuaryScreen(opts: {
     ),
     h('div', { class: 'section-label' }, 'Residents'),
     h('div', { class: 'building-grid' }, ...cards),
+    h('div', { class: 'section-label' }, `Feats · ${meta.feats.length}/${FEATS.length}`),
+    h(
+      'div',
+      { class: 'panel feats-panel' },
+      ...FEATS.map((feat) => {
+        if (meta.feats.includes(feat.id))
+          return h('span', { class: 'feat unlocked', title: feat.text }, feat.name);
+        const progress = featProgress(feat.id, {
+          kills: meta.kills,
+          bestDepth: meta.bestDepth,
+          bestResonance: meta.bestResonance,
+          victories: meta.victories,
+        });
+        return h(
+          'span',
+          { class: 'feat locked', title: feat.text },
+          progress ? `${feat.name} · ${progress.current}/${progress.target}` : '···'
+        );
+      })
+    ),
+    meta.lastRun
+      ? h(
+          'div',
+          { class: 'meta-line' },
+          `Last expedition · Section ${meta.lastRun.depth + 1} · score ${meta.lastRun.score} · ${
+            meta.lastRun.won ? 'the world remembers' : 'forgotten — the deep keeps the rest'
+          }`
+        )
+      : null,
+    meta.runHistory.length > 1
+      ? h(
+          'div',
+          { class: 'panel feats-panel' },
+          h('div', { class: 'gear-name' }, 'Past expeditions'),
+          ...[...meta.runHistory]
+            .slice(-8)
+            .reverse()
+            .map((entry) =>
+              h(
+                'span',
+                { class: 'history-entry' },
+                h(
+                  'span',
+                  { class: entry.won ? 'feat unlocked' : 'feat locked', title: entry.date },
+                  `S${entry.depth + 1} · ${entry.score} ${entry.won ? '✓' : ''}`
+                ),
+                entry.seed !== undefined
+                  ? (() => {
+                      const replay = button(
+                        'Replay',
+                        () => opts.onReplay(entry.seed!),
+                        'btn small'
+                      );
+                      replay.title = 'Run it back on the same seed';
+                      return replay;
+                    })()
+                  : null
+              )
+            )
+        )
+      : null,
     h(
       'div',
       { class: 'hub-lower' },
@@ -747,9 +923,12 @@ export function expeditionScreen(opts: {
   meta: Meta;
   saved?: { depth: number; health: number; maxHealth: number };
   restCost: number;
+  dailyKey: string;
   onContinue?: () => void;
   onRest?: () => void;
   onStart: (depth: number) => void;
+  onDaily: () => void;
+  onDifficulty: () => void;
   onSellRelic: (defId: string) => void;
   onBack: () => void;
 }): HTMLElement {
@@ -831,6 +1010,8 @@ export function expeditionScreen(opts: {
         )
       );
     });
+  const dailyBest = opts.meta.daily.best[opts.dailyKey];
+  const mod = dailyModifier(opts.dailyKey);
   return h(
     'div',
     { class: 'screen hub' },
@@ -839,6 +1020,46 @@ export function expeditionScreen(opts: {
       'div',
       { class: 'subtitle' },
       'Every checkpoint reached is kept. Choose where this expedition begins.'
+    ),
+    h(
+      'div',
+      { class: 'panel daily-panel' },
+      h(
+        'div',
+        { class: 'daily-copy' },
+        h(
+          'div',
+          { class: 'gear-name' },
+          `Difficulty · ${opts.meta.settings.difficulty[0].toUpperCase()}${opts.meta.settings.difficulty.slice(1)}`
+        ),
+        h(
+          'div',
+          { class: 'gear-desc' },
+          opts.meta.settings.difficulty === 'story'
+            ? 'Softer enemies, harder walker. For the tale.'
+            : opts.meta.settings.difficulty === 'nightmare'
+              ? '+35% incoming, tougher hides, more elites.'
+              : 'The deep as remembered.'
+        )
+      ),
+      button('Change', opts.onDifficulty, 'btn small')
+    ),
+    h(
+      'div',
+      { class: 'panel daily-panel' },
+      h(
+        'div',
+        { class: 'daily-copy' },
+        h('div', { class: 'gear-name' }, `Daily Descent · ${opts.dailyKey}`),
+        h(
+          'div',
+          { class: 'gear-desc' },
+          `One shared seed for everyone, today only. Streak ${opts.meta.daily.streak}${
+            dailyBest !== undefined ? ` best ${dailyBest}` : ''
+          }. Twist: ${mod.name} — ${mod.text}`
+        )
+      ),
+      button('Begin the daily', opts.onDaily, 'btn small primary')
     ),
     saved
       ? h(
@@ -904,8 +1125,14 @@ export function dialogueScreen(opts: {
   progress: number;
   accepted: boolean;
   claimed: boolean;
+  trust: number;
+  trustBonus: number;
+  tributeCost: number | undefined;
+  rushMinutes: number | undefined;
+  stories: readonly string[];
   onAccept: () => void;
   onClaim: () => void;
+  onTribute: () => void;
   onClose: () => void;
 }): HTMLElement {
   const npc = NPCS[opts.npcId] ?? { name: 'A quiet resident', role: '', greeting: '...' };
@@ -932,7 +1159,26 @@ export function dialogueScreen(opts: {
         'div',
         { class: 'dialogue-titles' },
         h('div', { class: 'subtitle' }, npc.role),
-        h('div', { class: 'title small' }, npc.name)
+        h('div', { class: 'title small' }, npc.name),
+        h(
+          'div',
+          { class: 'trust-line' },
+          `Trust ${'♥'.repeat(opts.trust)}${'♡'.repeat(3 - opts.trust)}`,
+          opts.trustBonus > 0
+            ? h('span', {}, ` · +${opts.trustBonus} echo friends' share on claims`)
+            : null
+        ),
+        opts.tributeCost !== undefined
+          ? (() => {
+              const tribute = button(
+                `Offer tribute · ${opts.tributeCost} echoes`,
+                opts.onTribute,
+                'btn small'
+              );
+              tribute.title = 'A gift of echoes deepens trust. Full trust earns a parting gift.';
+              return tribute;
+            })()
+          : null
       )
     ),
     h('div', { class: 'panel dialogue-panel' }, h('p', { class: 'dialogue-line' }, npc.greeting)),
@@ -945,7 +1191,14 @@ export function dialogueScreen(opts: {
           h(
             'div',
             { class: 'cp-note' },
-            `${Math.min(opts.progress, quest.target)} / ${quest.target} · reward ${quest.rewardEchoes} echoes${quest.rewardItem ? ' + a relic' : ''}`
+            `${Math.min(opts.progress, quest.target)} / ${quest.target} · reward ${quest.rewardEchoes} echoes${quest.rewardItem ? ' + a relic' : ''}${
+              opts.accepted &&
+              !opts.claimed &&
+              opts.rushMinutes !== undefined &&
+              opts.rushMinutes > 0
+                ? ` · rush: claim within ${opts.rushMinutes}m for +50%`
+                : ''
+            }`
           ),
           h(
             'div',
@@ -958,6 +1211,14 @@ export function dialogueScreen(opts: {
               : null,
             opts.claimed ? h('span', { class: 'echo-chip' }, 'Completed') : null
           )
+        )
+      : null,
+    opts.stories.length > 0
+      ? h(
+          'div',
+          { class: 'panel dialogue-panel' },
+          h('div', { class: 'gear-name' }, 'Stories & remarks'),
+          ...opts.stories.map((line) => h('p', { class: 'dialogue-line' }, `“${line}”`))
         )
       : null,
     h('div', { class: 'menu' }, button('Step away', opts.onClose, 'btn primary'))
@@ -991,11 +1252,70 @@ export function sanctuaryMenuScreen(opts: {
 }
 
 /** Relics carried and worn, with click-to-equip rows, live stats and safe selling. */
+/** Bag slot filter; module scope so it survives the re-render after every change. */
+let bagFilter: 'all' | EquipmentSlot = 'all';
+
+/** Short labels for stats an item can modify, used in comparison chips. */
+const STAT_LABEL: Partial<Record<keyof PlayerStats, string>> = {
+  maxHealth: 'HP',
+  maxMana: 'Mana',
+  manaRegen: 'Regen',
+  moveSpeed: 'Move',
+  meleeDamage: 'Melee',
+  attackSpeed: 'AtkSpd',
+  critChance: 'Crit',
+  critMultiplier: 'CritDmg',
+  dashCharges: 'Dash',
+  dashRecharge: 'DashRec',
+  boltDamage: 'Bolt',
+  boltCost: 'BoltCost',
+  boltCount: 'Bolts',
+  boltPierce: 'Pierce',
+  lifesteal: 'Lifesteal',
+  damageReduction: 'Armor',
+  pickupRadius: 'Pickup',
+  maxPotions: 'Flasks',
+  manaOnKill: 'ManaKill',
+};
+/**
+ * How a stat delta reads: flat points, percentage points (fraction stats
+ * like 0.03 = 3%), or relative percent for the multiplicative speed stats.
+ */
+const DELTA_FORMAT: Partial<Record<keyof PlayerStats, 'flat' | 'pp' | 'rel'>> = {
+  damageReduction: 'pp',
+  critChance: 'pp',
+  lifesteal: 'pp',
+  moveSpeed: 'flat',
+  attackSpeed: 'rel',
+};
+
+/** A green/red chip for one stat's worn → candidate delta, or null when tied. */
+function deltaChip(key: string, before: number, after: number): HTMLElement | null {
+  const format = DELTA_FORMAT[key as keyof PlayerStats] ?? 'flat';
+  const d = after - before;
+  if (format === 'rel') {
+    const pct = before !== 0 ? (d / Math.abs(before)) * 100 : 0;
+    if (Math.abs(pct) < 0.05) return null;
+    const text = `${STAT_LABEL[key as keyof PlayerStats] ?? key} ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+    return h('span', { class: pct >= 0 ? 'delta-up' : 'delta-down' }, text);
+  }
+  const mag = format === 'pp' ? d * 100 : d;
+  if (Math.abs(mag) < (format === 'pp' ? 0.05 : 0.005)) return null;
+  const flat =
+    Number.isInteger(before) && Number.isInteger(after) ? `${Math.round(mag)}` : mag.toFixed(1);
+  const text = `${STAT_LABEL[key as keyof PlayerStats] ?? key} ${mag >= 0 ? '+' : ''}${format === 'pp' ? `${mag.toFixed(1)}pp` : flat}`;
+  return h('span', { class: mag >= 0 ? 'delta-up' : 'delta-down' }, text);
+}
+
+function itemName(item: EquipmentItem): string {
+  return `${equipmentDef(item.defId).name}${item.rank ? ` +${item.rank}` : ''}`;
+}
+
 export function inventoryScreen(
   world: World,
   onClose: () => void,
   onChanged: (message?: string) => void,
-  status = 'Click a carried relic to equip it, or sell what you will not wear.'
+  status = 'Click a carried relic to equip it, ↑↓ to browse, or sell what you will not wear.'
 ): HTMLElement {
   const p = world.player;
   const s = p.stats;
@@ -1011,7 +1331,7 @@ export function inventoryScreen(
       h(
         'div',
         { class: 'gear-copy' },
-        h('div', { class: 'gear-name' }, def?.name ?? 'Empty'),
+        h('div', { class: 'gear-name' }, item ? itemName(item) : 'Empty'),
         h('div', { class: 'gear-desc' }, def?.description ?? 'No relic worn')
       ),
       def
@@ -1030,10 +1350,28 @@ export function inventoryScreen(
         : null
     );
   });
-  const bagRows = p.inventory.map((item) => {
+  // Best first within each slot: the top row is usually the right choice.
+  const slotOrder = (item: EquipmentItem): number =>
+    EQUIPMENT_SLOTS.indexOf(equipmentDef(item.defId).slot);
+  const sortedBag = [...p.inventory].sort(
+    (a, b) => slotOrder(a) - slotOrder(b) || equipmentScore(b) - equipmentScore(a)
+  );
+  const visibleBag =
+    bagFilter === 'all'
+      ? sortedBag
+      : sortedBag.filter((i) => equipmentDef(i.defId).slot === bagFilter);
+  // Stats with the candidate swapped in, so each row can show worn → new deltas.
+  const baseStats = computeStats(p.upgrades);
+  const bagRows = visibleBag.map((item) => {
     const def = equipmentDef(item.defId);
     const worn = p.equipment[def.slot];
     const wornDef = worn ? equipmentDef(worn.defId) : undefined;
+    const hypo = applyEquipment(baseStats, { ...p.equipment, [def.slot]: item });
+    const deltas = worn
+      ? (Object.keys(def.mods) as Array<keyof PlayerStats>)
+          .map((key) => deltaChip(key, s[key] as number, hypo[key] as number))
+          .filter((chip): chip is HTMLElement => chip !== null)
+      : [];
     const equip = (): void => {
       world.equipItem(item.uid);
       onChanged(
@@ -1069,6 +1407,30 @@ export function inventoryScreen(
       'btn small'
     );
     sell.title = `Sell for ${price} shards`;
+    let discardArmed = false;
+    const discard = button(
+      'Discard',
+      () => {
+        if (!discardArmed) {
+          discardArmed = true;
+          discard.textContent = 'Confirm';
+          discard.classList.add('danger');
+          window.setTimeout(() => {
+            if (!discard.isConnected) return;
+            discardArmed = false;
+            discard.textContent = 'Discard';
+            discard.classList.remove('danger');
+          }, 2600);
+          return;
+        }
+        const ok = world.discardItem(item.uid);
+        onChanged(ok ? `Discarded ${def.name}.` : 'That relic is no longer carried.');
+      },
+      'btn small'
+    );
+    discard.title = 'Destroy this relic for nothing (frees a bag slot)';
+    // Score hint: Upgrade only when the candidate beats what is worn.
+    const better = !worn || equipmentScore(item) > equipmentScore(worn);
     const row = h(
       'div',
       {
@@ -1081,19 +1443,21 @@ export function inventoryScreen(
       h(
         'div',
         { class: 'gear-copy' },
-        h('div', { class: 'gear-name' }, def.name),
+        h('div', { class: 'gear-name' }, itemName(item)),
         h(
           'div',
           { class: 'gear-desc' },
           def.description,
-          wornDef ? h('span', { class: 'gear-swap' }, ` · swaps with ${wornDef.name}`) : null
-        )
+          wornDef ? h('span', { class: 'gear-swap' }, ` · swaps with ${itemName(worn!)}`) : null
+        ),
+        deltas.length > 0 ? h('div', { class: 'gear-deltas' }, ...deltas) : null
       ),
       h(
         'div',
         { class: 'gear-actions' },
-        button(worn ? 'Swap' : 'Equip', equip, 'btn small primary'),
-        sell
+        button(worn ? (better ? 'Upgrade' : 'Swap') : 'Equip', equip, 'btn small primary'),
+        sell,
+        discard
       )
     );
     row.addEventListener('click', (event) => {
@@ -1108,95 +1472,193 @@ export function inventoryScreen(
     });
     return row;
   });
-  const emptyRows = Array.from(
-    { length: Math.max(0, INVENTORY_SLOTS - p.inventory.length) },
-    (_, index) =>
+  const emptyRows =
+    bagFilter === 'all'
+      ? Array.from({ length: Math.max(0, INVENTORY_SLOTS - p.inventory.length) }, (_, index) =>
+          h(
+            'div',
+            { class: 'gear-row empty' },
+            h('span', { class: 'gear-slot' }, `${p.inventory.length + index + 1}`),
+            h(
+              'div',
+              { class: 'gear-copy' },
+              h('div', { class: 'gear-name' }, 'Empty slot'),
+              h('div', { class: 'gear-desc' }, 'Relics picked up fill the next open slot.')
+            )
+          )
+        )
+      : [];
+  const bagFull = p.inventory.length >= INVENTORY_SLOTS;
+  const commons = p.inventory.filter((i) => equipmentDef(i.defId).rarity === 'common');
+  let junkArmed = false;
+  const junkButton =
+    commons.length > 0
+      ? (() => {
+          const btn = button(
+            `Sell ${commons.length} common${commons.length === 1 ? '' : 's'}`,
+            () => {
+              if (!junkArmed) {
+                junkArmed = true;
+                btn.textContent = 'Confirm sale';
+                btn.classList.add('danger');
+                window.setTimeout(() => {
+                  if (!btn.isConnected) return;
+                  junkArmed = false;
+                  btn.textContent = `Sell ${p.inventory.filter((i) => equipmentDef(i.defId).rarity === 'common').length} commons`;
+                  btn.classList.remove('danger');
+                }, 2600);
+                return;
+              }
+              let gained = 0;
+              let sold = 0;
+              for (const item of [...p.inventory]) {
+                if (equipmentDef(item.defId).rarity !== 'common') continue;
+                const price = world.sellItem(item.uid);
+                if (price !== undefined) {
+                  gained += price;
+                  sold++;
+                }
+              }
+              onChanged(
+                sold > 0
+                  ? `Sold ${sold} common relics for ${gained} shards.`
+                  : 'Nothing left to sell.'
+              );
+            }
+          );
+          btn.title = 'Sell every common relic in the bag at once';
+          return h('div', { class: 'gear-filters' }, btn);
+        })()
+      : null;
+  const filterOptions: Array<'all' | EquipmentSlot> = ['all', ...EQUIPMENT_SLOTS];
+  const filterRow = h(
+    'div',
+    { class: 'gear-filters' },
+    ...filterOptions.map((f) => {
+      const count =
+        f === 'all'
+          ? p.inventory.length
+          : p.inventory.filter((i) => equipmentDef(i.defId).slot === f).length;
+      const chip = button(`${f === 'all' ? 'All' : f} · ${count}`, () => {
+        bagFilter = f;
+        onChanged();
+      });
+      chip.className = `btn small filter-chip${bagFilter === f ? ' active' : ''}`;
+      return chip;
+    })
+  );
+  // Grouped by slot when unfiltered, so the best weapon/armor/trinket each
+  // sit at the top of their own section.
+  const bagSection: HTMLElement[] = [];
+  if (bagFilter === 'all') {
+    for (const slot of EQUIPMENT_SLOTS) {
+      const group = bagRows.filter((_, i) => equipmentDef(visibleBag[i].defId).slot === slot);
+      if (group.length === 0) continue;
+      bagSection.push(h('div', { class: 'gear-group' }, `${slot} · best first`));
+      bagSection.push(...group);
+    }
+  } else {
+    bagSection.push(...bagRows);
+  }
+  if (visibleBag.length === 0) {
+    bagSection.push(
       h(
         'div',
-        { class: 'gear-row empty' },
-        h('span', { class: 'gear-slot' }, `${p.inventory.length + index + 1}`),
+        { class: 'gear-note' },
+        bagFilter === 'all'
+          ? 'The bag is empty. Relics picked up fill the open slots.'
+          : `No carried ${bagFilter} relics.`
+      )
+    );
+  }
+  const panel = h(
+    'div',
+    { class: 'panel gear-panel' },
+    h(
+      'div',
+      { class: 'gear-stats' },
+      statChip('Melee', `${s.meleeDamage}`),
+      statChip('Bolt', `${s.boltDamage}`),
+      statChip('Armor', `${Math.round(s.damageReduction * 100)}%`),
+      statChip('Crit', `${Math.round(s.critChance * 100)}%`),
+      statChip('Lifesteal', `${Math.round(s.lifesteal * 100)}%`),
+      statChip('Move', `${Math.round(s.moveSpeed)}`),
+      statChip('AtkSpd', `${s.attackSpeed.toFixed(2)}x`),
+      statChip('Mana', `${s.maxMana}`)
+    ),
+    h('div', { class: 'gear-title' }, 'Active Weapon & Stance'),
+    h(
+      'div',
+      { class: 'gear-row weapon-stance-row' },
+      h('img', {
+        class: 'gear-weapon-icon',
+        src: assetUrl(`sprites/ui/weapon_${p.weapon}.png`),
+        alt: weaponDef(p.weapon).name,
+      }),
+      h(
+        'div',
+        { class: 'gear-copy' },
         h(
           'div',
-          { class: 'gear-copy' },
-          h('div', { class: 'gear-name' }, 'Empty slot'),
-          h('div', { class: 'gear-desc' }, 'Relics picked up fill the next open slot.')
+          { class: 'gear-name' },
+          `${weaponDef(p.weapon).name} `,
+          h(
+            'span',
+            { class: 'gear-slot' },
+            `[${p.weapon === 'sword' ? '1' : p.weapon === 'spear' ? '2' : '3'}]`
+          )
+        ),
+        h('div', { class: 'gear-desc' }, weaponDef(p.weapon).blurb)
+      ),
+      h(
+        'div',
+        { class: 'gear-weapon-stats' },
+        h(
+          'span',
+          { class: 'gear-stat' },
+          h('b', {}, `${weaponDef(p.weapon).steps.length}-hit`),
+          ' combo'
         )
       )
+    ),
+    h('div', { class: 'gear-title' }, 'Worn'),
+    ...slotRows,
+    h('div', { class: 'gear-title' }, `Carried · ${p.inventory.length}/${INVENTORY_SLOTS}`),
+    filterRow,
+    junkButton,
+    ...bagSection,
+    ...emptyRows,
+    bagFull && bagRows.length > 0
+      ? h('div', { class: 'gear-note' }, 'The bag is full — relics found now are sold for shards.')
+      : null,
+    h('div', { class: 'gear-title' }, 'Supplies'),
+    h(
+      'div',
+      { class: 'supplies-grid' },
+      supplyRow('Memory Flasks', `${p.potions}/${s.maxPotions}`, 'Q — drink'),
+      supplyRow('Bombs', `${p.bombs}`, 'G — throw'),
+      supplyRow('Traps', `${p.traps}`, 'T — place')
+    )
   );
-  const bagFull = p.inventory.length >= INVENTORY_SLOTS;
+  // Arrow keys walk the bag rows; Enter/Space on a row still equips.
+  panel.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    const rows = [...panel.querySelectorAll('.gear-row.clickable')] as HTMLElement[];
+    if (rows.length === 0) return;
+    const current = rows.indexOf(document.activeElement as HTMLElement);
+    event.preventDefault();
+    const next =
+      event.key === 'ArrowDown'
+        ? (rows[current + 1] ?? rows[0])
+        : (rows[current - 1] ?? rows[rows.length - 1]);
+    next?.focus();
+  });
   return h(
     'div',
     { class: 'screen' },
     h('div', { class: 'heading' }, 'Relics'),
     h('div', { class: 'subtitle' }, 'Worn relics shape this expedition. They are lost on death.'),
-    h(
-      'div',
-      { class: 'panel gear-panel' },
-      h(
-        'div',
-        { class: 'gear-stats' },
-        statChip('Melee', `${s.meleeDamage}`),
-        statChip('Bolt', `${s.boltDamage}`),
-        statChip('Armor', `${Math.round(s.damageReduction * 100)}%`),
-        statChip('Crit', `${Math.round(s.critChance * 100)}%`),
-        statChip('Lifesteal', `${Math.round(s.lifesteal * 100)}%`)
-      ),
-      h('div', { class: 'gear-title' }, 'Active Weapon & Stance'),
-      h(
-        'div',
-        { class: 'gear-row weapon-stance-row' },
-        h('img', {
-          class: 'gear-weapon-icon',
-          src: assetUrl(`sprites/ui/weapon_${p.weapon}.png`),
-          alt: weaponDef(p.weapon).name,
-        }),
-        h(
-          'div',
-          { class: 'gear-copy' },
-          h(
-            'div',
-            { class: 'gear-name' },
-            `${weaponDef(p.weapon).name} `,
-            h(
-              'span',
-              { class: 'gear-slot' },
-              `[${p.weapon === 'sword' ? '1' : p.weapon === 'spear' ? '2' : '3'}]`
-            )
-          ),
-          h('div', { class: 'gear-desc' }, weaponDef(p.weapon).blurb)
-        ),
-        h(
-          'div',
-          { class: 'gear-weapon-stats' },
-          h(
-            'span',
-            { class: 'gear-stat' },
-            h('b', {}, `${weaponDef(p.weapon).steps.length}-hit`),
-            ' combo'
-          )
-        )
-      ),
-      h('div', { class: 'gear-title' }, 'Worn'),
-      ...slotRows,
-      h('div', { class: 'gear-title' }, `Carried · ${p.inventory.length}/${INVENTORY_SLOTS}`),
-      ...bagRows,
-      ...emptyRows,
-      bagFull && bagRows.length > 0
-        ? h(
-            'div',
-            { class: 'gear-note' },
-            'The bag is full — relics found now are sold for shards.'
-          )
-        : null,
-      h('div', { class: 'gear-title' }, 'Supplies'),
-      h(
-        'div',
-        { class: 'supplies-grid' },
-        supplyRow('Memory Flasks', `${p.potions}/${s.maxPotions}`, 'Q — drink'),
-        supplyRow('Bombs', `${p.bombs}`, 'G — throw'),
-        supplyRow('Traps', `${p.traps}`, 'T — place')
-      )
-    ),
+    panel,
     h('div', { class: 'gear-status' }, status),
     h('div', { class: 'menu' }, button('Close', onClose, 'btn primary'))
   );
@@ -1308,6 +1770,8 @@ export function meditationScreen(
 export function questLogScreen(
   meta: Meta,
   snapshot: QuestSnapshot,
+  daily: { contract: DailyBounty; progress: { kills: number; claimed: boolean } },
+  opts: { onClaimDaily: () => void },
   onBack: () => void
 ): HTMLElement {
   const rows = QUESTS.map((quest) => {
@@ -1340,12 +1804,44 @@ export function questLogScreen(
       )
     );
   });
+  const ready = !daily.progress.claimed && daily.progress.kills >= daily.contract.target;
+  const dailyCard = h(
+    'div',
+    { class: `restoration${ready || daily.progress.claimed ? ' lit' : ''}` },
+    h(
+      'div',
+      { class: 'rest-head' },
+      h('span', { class: 'rest-name' }, `Daily mark · ${daily.contract.name}`),
+      h(
+        'span',
+        { class: 'rest-level' },
+        daily.progress.claimed ? 'Claimed' : ready ? 'Ready to claim' : 'Hunting'
+      )
+    ),
+    h(
+      'p',
+      { class: 'rest-desc' },
+      `Put down ${daily.contract.target} ${daily.contract.name.toLowerCase()} before the day turns. Same mark for everyone.`
+    ),
+    h(
+      'p',
+      { class: 'rest-lore' },
+      `${Math.min(daily.progress.kills, daily.contract.target)}/${daily.contract.target} · reward ${daily.contract.reward} echoes`
+    ),
+    ready
+      ? h(
+          'div',
+          { class: 'gear-actions' },
+          button('Claim the mark', opts.onClaimDaily, 'btn small primary')
+        )
+      : null
+  );
   return h(
     'div',
     { class: 'screen clear hub' },
     h('div', { class: 'heading' }, 'Quests'),
     h('div', { class: 'subtitle' }, 'Talk to a resident in the Sanctuary to accept or claim.'),
-    h('div', { class: 'hub-grid' }, ...rows),
+    h('div', { class: 'hub-grid' }, dailyCard, ...rows),
     h('div', { class: 'menu' }, button('Back', onBack, 'btn primary'))
   );
 }
@@ -1420,6 +1916,7 @@ const SOURCE_TITLES: Record<UpgradeChoice['source'], string> = {
   level: 'Choose an Echo',
   chest: 'The Chest Remembers',
   shrine: 'The Well Answers',
+  wayfarer: 'The Wayfarer Remembers',
 };
 
 function upgradeEmblem(id: string): string {
@@ -1546,10 +2043,33 @@ function runStats(run: RunState): HTMLElement {
   return h('dl', { class: 'stats' }, ...rows.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]));
 }
 
+/** One settled run's legacy: score, best and freshly earned feats. */
+function legacyLines(score: number, best: number, newFeats: readonly FeatDef[]): HTMLElement[] {
+  const rows: HTMLElement[] = [
+    h('div', { class: 'legacy-score' }, `Score ${score}`, h('span', {}, ` · best ${best}`)),
+  ];
+  if (newFeats.length > 0)
+    rows.push(
+      h(
+        'div',
+        { class: 'legacy-feats' },
+        h('span', { class: 'gear-name' }, 'Feats earned: '),
+        ...newFeats.flatMap((feat, i) => [
+          ...(i > 0 ? [h('span', {}, ' · ')] : []),
+          h('span', { class: 'feat unlocked', title: feat.text }, feat.name),
+        ])
+      )
+    );
+  return rows;
+}
+
 export function deathScreen(
   run: RunState,
   opts: {
     echoes: number;
+    score: number;
+    best: number;
+    newFeats: readonly FeatDef[];
     checkpoint: number;
     onRetry: () => void;
     onBeginning: () => void;
@@ -1567,7 +2087,21 @@ export function deathScreen(
         ? 'But what you recovered stays with you.'
         : 'The world fades. Try again.'
     ),
-    h('div', { class: 'panel stats-panel' }, runStats(run)),
+    h(
+      'div',
+      { class: 'panel stats-panel' },
+      runStats(run),
+      ...legacyLines(opts.score, opts.best, opts.newFeats)
+    ),
+    run.deathRoom !== undefined || run.deathSection !== undefined
+      ? h(
+          'div',
+          { class: 'meta-line' },
+          `Fell${run.deathRoom ? ` in the ${run.deathRoom} room` : ''}${
+            run.deathSection !== undefined ? ` · Section ${run.deathSection}` : ''
+          }. The Sanctuary keeps what you carried.`
+        )
+      : null,
     h('div', { class: 'echo-earned' }, `Echoes banked · +${opts.echoes}`),
     h(
       'div',
@@ -1581,14 +2115,35 @@ export function deathScreen(
 
 export function victoryScreen(
   run: RunState,
-  opts: { echoes: number; onSanctuary: () => void }
+  opts: {
+    echoes: number;
+    score: number;
+    best: number;
+    victories: number;
+    newFeats: readonly FeatDef[];
+    onSanctuary: () => void;
+  }
 ): HTMLElement {
+  // Run epilogue (cyberpulse ADR-012): the ending reads back how many dawns
+  // the walker has already brought home.
+  const epilogue =
+    opts.victories <= 1
+      ? 'The first dawn. The First Memory writes it down twice, in case.'
+      : opts.victories <= 4
+        ? `Dawn number ${opts.victories}. The Sanctuary lights a lamp for each one now.`
+        : `Dawn number ${opts.victories}. Walkers tell the story of the one who kept winning.`;
   return h(
     'div',
     { class: 'screen' },
     h('div', { class: 'title' }, 'The World Remembers'),
-    h('div', { class: 'subtitle' }, 'The Keeper is still. The Sanctuary is whole again.'),
-    h('div', { class: 'panel stats-panel' }, runStats(run)),
+    h('div', { class: 'subtitle' }, 'The First Memory is remembered. The world begins again.'),
+    h('div', { class: 'meta-line' }, epilogue),
+    h(
+      'div',
+      { class: 'panel stats-panel' },
+      runStats(run),
+      ...legacyLines(opts.score, opts.best, opts.newFeats)
+    ),
     h('div', { class: 'echo-earned' }, `Echoes banked · +${opts.echoes}`),
     h('div', { class: 'menu' }, button('Return to Sanctuary', opts.onSanctuary, 'btn primary'))
   );
@@ -1653,23 +2208,61 @@ export function settingsScreen(
     });
     return h('label', { class: 'setting' }, label, input, value);
   };
-  const shake = h('input', { type: 'checkbox' });
-  shake.checked = current.screenShake;
-  shake.addEventListener('change', () => {
-    current.screenShake = shake.checked;
-    onChange({ ...current });
-  });
+  const checkbox = (
+    label: string,
+    hint: string,
+    key: 'screenShake' | 'damageNumbers' | 'autoPause' | 'screenFlash'
+  ): HTMLElement => {
+    const box = h('input', { type: 'checkbox' });
+    box.checked = current[key];
+    box.addEventListener('change', () => {
+      current[key] = box.checked;
+      onChange({ ...current });
+    });
+    return h('label', { class: 'setting' }, label, box, h('span', { class: 'setting-hint' }, hint));
+  };
+  const difficulties: Array<Settings['difficulty']> = ['story', 'normal', 'nightmare'];
+  const difficultyHints: Record<Settings['difficulty'], string> = {
+    story: 'Softer enemies, harder walker.',
+    normal: 'The deep as remembered.',
+    nightmare: '+35% incoming, tougher hides, more elites.',
+  };
   return h(
     'div',
     { class: 'screen' },
     h('div', { class: 'heading' }, 'Settings'),
+    h('div', { class: 'subtitle' }, 'Difficulty applies to the next expedition you set out on.'),
     h(
       'div',
       { class: 'panel' },
       slider('Master volume', 'masterVolume'),
       slider('Music', 'musicVolume'),
       slider('Effects', 'sfxVolume'),
-      h('label', { class: 'setting' }, 'Screen shake', shake, h('span'))
+      h(
+        'div',
+        { class: 'setting' },
+        h('span', {}, 'Difficulty'),
+        h(
+          'div',
+          { class: 'setting-options' },
+          ...difficulties.map((d) => {
+            const b = button(
+              d[0].toUpperCase() + d.slice(1),
+              () => {
+                current.difficulty = d;
+                onChange({ ...current });
+              },
+              current.difficulty === d ? 'btn small primary' : 'btn small'
+            );
+            b.title = difficultyHints[d];
+            return b;
+          })
+        )
+      ),
+      checkbox('Screen shake', 'Camera kick on hits and blasts.', 'screenShake'),
+      checkbox('Damage numbers', 'Floating hit amounts in combat.', 'damageNumbers'),
+      checkbox('Hurt flash', 'Red screen edge when wounded.', 'screenFlash'),
+      checkbox('Auto-pause', 'Pause when the tab hides or loses focus.', 'autoPause')
     ),
     h('div', { class: 'menu' }, button('Back', onBack))
   );

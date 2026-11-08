@@ -13,6 +13,8 @@ import {
 } from '../../src/sim/sanctuary';
 import { Tile, TILE_SIZE } from '../../src/sim/tiles';
 import { World } from '../../src/sim/world';
+import { NPCS, QUESTS, questDef, questsForNpc } from '../../src/sim/quests';
+import { equipmentDef } from '../../src/sim/equipment';
 
 const DT = 1 / 60;
 
@@ -25,8 +27,8 @@ function pixel(spot: { tx: number; ty: number }): { x: number; y: number } {
 }
 
 describe('sanctuary rooms', () => {
-  it('describes five residents with a facade, a role and furniture', () => {
-    expect(SANCTUARY_BUILDINGS).toHaveLength(5);
+  it('describes six residents with a facade, a role and furniture', () => {
+    expect(SANCTUARY_BUILDINGS).toHaveLength(6);
     for (const building of SANCTUARY_BUILDINGS) {
       expect(building.facade.startsWith('building_'), building.id).toBe(true);
       expect(building.role.length).toBeGreaterThan(0);
@@ -162,5 +164,19 @@ describe('sanctuary rooms', () => {
   it('converts tile spots to tile centres', () => {
     const p = spotToPixels({ tx: 2, ty: 3 });
     expect(p).toEqual({ x: 2.5 * TILE_SIZE, y: 3.5 * TILE_SIZE });
+  });
+
+  it('houses a hearthkeeper with a quest and a valid reward', () => {
+    const hearth = buildingById('hearthkeeper')!;
+    expect(hearth.name).toBe('The Hearth');
+    expect(NPCS.hearthkeeper.name).toBe('The Hearthkeeper');
+    const quest = questsForNpc('hearthkeeper')!;
+    expect(questDef(quest.id)).toBe(quest);
+    expect(quest.kind).toBe('depth');
+    if (quest.rewardItem) expect(equipmentDef(quest.rewardItem).id).toBe(quest.rewardItem);
+    for (const npcId of SANCTUARY_BUILDINGS.map((b) => b.id)) {
+      expect(NPCS[npcId]?.greeting.length ?? 0).toBeGreaterThan(0);
+      expect(questsForNpc(npcId)?.target ?? 0).toBeGreaterThan(0);
+    }
   });
 });

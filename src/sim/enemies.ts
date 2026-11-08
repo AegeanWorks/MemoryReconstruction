@@ -37,6 +37,9 @@ const WINDUP: Record<AttackKind, number> = {
   bolt: 0.3,
 };
 
+/** Seconds the sweep beam takes to cross its arc. */
+export const SWEEP_ACTIVE = 0.7;
+
 /** Seconds the attack phase lasts. */
 const ACTIVE: Record<AttackKind, number> = {
   strike: 0.15,
@@ -58,7 +61,7 @@ const ACTIVE: Record<AttackKind, number> = {
   hook: 0.15,
   quake: 0.15,
   fan: 0.1,
-  sweep: 0.7,
+  sweep: SWEEP_ACTIVE,
   wall: 0.15,
   pillars: 0.15,
   /** A three-swing player-style chain. */
@@ -117,6 +120,10 @@ const BOSS_PATTERNS: Record<string, AttackKind[]> = {
   ruin_warlord: ['sweep', 'charge', 'combo', 'slam', 'dashStrike', 'quake'],
   keeper: ['ring', 'beam', 'bomb', 'quake', 'blink', 'summon'],
   mirror_self: ['combo', 'dashStrike', 'bolt', 'ring', 'combo', 'dashStrike'],
+  drowned_blademaster: ['combo', 'dashStrike', 'sweep', 'slam', 'dashStrike', 'combo'],
+  storm_warlord: ['charge', 'sweep', 'slam', 'combo', 'charge', 'sweep'],
+  abyssal_revenant: ['charge', 'volley', 'mines', 'spiral'],
+  first_memory: ['ring', 'beam', 'summon', 'quake', 'blink', 'spiral'],
 };
 
 /**
@@ -428,7 +435,13 @@ function chase(arena: Arena, enemy: Enemy, dt: number): void {
  */
 function slashWeapon(arena: Arena, enemy: Enemy): 'sword' | 'spear' | 'greatsword' {
   if (enemy.def.id === 'mirror_self') return arena.player.weapon;
-  if (enemy.def.id === 'dread_champion' || enemy.def.id === 'ruin_warlord') return 'greatsword';
+  if (
+    enemy.def.id === 'dread_champion' ||
+    enemy.def.id === 'ruin_warlord' ||
+    enemy.def.id === 'drowned_blademaster' ||
+    enemy.def.id === 'storm_warlord'
+  )
+    return 'greatsword';
   return 'sword';
 }
 
@@ -437,34 +450,52 @@ function summonCount(arena: Arena, boss: Enemy): number {
     .length;
 }
 
+/** A blink may only land on open floor inside the room the fight is in. */
+function validBlinkLanding(arena: Arena, x: number, y: number): boolean {
+  return !arena.grid.isSolidAtPixel(x, y) && arena.roomBoundsAt(x, y) !== undefined;
+}
+
+/**
+ * Lock the blink landing near the player without letting the stalker slip
+ * through a locked door into a corridor it can never be reached from.
+ */
+export function blinkLanding(arena: Arena, enemy: Enemy): { x: number; y: number } {
+  const p = arena.player;
+  let a = arena.rng.range(0, Math.PI * 2);
+  let tx = p.x + Math.cos(a) * 58;
+  let ty = p.y + Math.sin(a) * 58;
+  for (let i = 0; i < 8 && !validBlinkLanding(arena, tx, ty); i++) {
+    a = arena.rng.range(0, Math.PI * 2);
+    tx = p.x + Math.cos(a) * 58;
+    ty = p.y + Math.sin(a) * 58;
+  }
+  if (!validBlinkLanding(arena, tx, ty)) return { x: enemy.x, y: enemy.y };
+  return { x: tx, y: ty };
+}
+
+/** Exact windup seconds for an enemy's current attack and boss phase. */
+export function windupDuration(enemy: Enemy): number {
+  return (
+    (WINDUP[enemy.attack] / ENEMY_WINDUP_SCALE) *
+    (enemy.isBoss ? Math.max(0.75, PHASES[enemy.phase].cooldown) : 1)
+  );
+}
+
 function beginWindup(arena: Arena, enemy: Enemy, kind: AttackKind): void {
   const p = arena.player;
   const angle = angleBetween(enemy.x, enemy.y, p.x, p.y);
   enemy.state = 'windup';
   enemy.attack = kind;
-  enemy.stateTime =
-    (WINDUP[kind] / ENEMY_WINDUP_SCALE) *
-    (enemy.isBoss ? Math.max(0.75, PHASES[enemy.phase].cooldown) : 1);
+  enemy.stateTime = windupDuration(enemy);
   enemy.dirX = Math.cos(angle);
   enemy.dirY = Math.sin(angle);
   enemy.attackLanded = false;
   if (kind === 'blink') {
     // Lock the landing point now so the ground tell can mark the real strike
     // zone instead of a circle around the player that the landing can outgrow.
-    let a = arena.rng.range(0, Math.PI * 2);
-    let tx = p.x + Math.cos(a) * 58;
-    let ty = p.y + Math.sin(a) * 58;
-    for (let i = 0; i < 8 && arena.grid.isSolidAtPixel(tx, ty); i++) {
-      a = arena.rng.range(0, Math.PI * 2);
-      tx = p.x + Math.cos(a) * 58;
-      ty = p.y + Math.sin(a) * 58;
-    }
-    if (arena.grid.isSolidAtPixel(tx, ty)) {
-      tx = enemy.x;
-      ty = enemy.y;
-    }
-    enemy.blinkX = tx;
-    enemy.blinkY = ty;
+    const landing = blinkLanding(arena, enemy);
+    enemy.blinkX = landing.x;
+    enemy.blinkY = landing.y;
   }
   arena.emit({ type: 'enemyWindup', id: enemy.id, attack: kind });
 }
@@ -505,6 +536,13 @@ export const SWEEP_RANGE = 520;
 export const QUAKE_RADIUS = 40;
 export const PILLARS_RADIUS = 38;
 
+/** The rotating beam's angle; sim resolution and the view beam share it. */
+export function sweepBeamAngle(enemy: Pick<Enemy, 'dirX' | 'dirY' | 'stateTime'>): number {
+  const base = Math.atan2(enemy.dirY, enemy.dirX);
+  const progress = 1 - enemy.stateTime / SWEEP_ACTIVE;
+  return base - SWEEP_SPAN / 2 + progress * SWEEP_SPAN;
+}
+
 /**
  * Mortar spread: three blasts across the walker's launch-time position, on
  * the perpendicular axis. One source of truth for the sim landing pattern
@@ -521,6 +559,10 @@ export function mineOffsets(enemy: Enemy): readonly number[] {
   const base = enemy.patternIndex * 0.7 + enemy.phase * 1.3;
   return [0, 1, 2].map((i) => base + (i / 3) * Math.PI * 2);
 }
+
+/** Mine landing distance from the walker and its lethal blast radius. */
+export const MINE_DISTANCE = 56;
+export const MINE_RADIUS = 62;
 
 /** The spiral bullet angles, shared by the sim and the ground telegraph. */
 export function spiralAngles(enemy: Enemy): readonly number[] {
@@ -611,8 +653,8 @@ function launch(arena: Arena, enemy: Enemy): void {
     case 'mines':
       for (const a of mineOffsets(enemy))
         arena.spawnMine(
-          p.x + Math.cos(a) * 56,
-          p.y + Math.sin(a) * 56,
+          p.x + Math.cos(a) * MINE_DISTANCE,
+          p.y + Math.sin(a) * MINE_DISTANCE,
           Math.round(def.damage * 0.9)
         );
       break;
@@ -624,13 +666,13 @@ function launch(arena: Arena, enemy: Enemy): void {
       let tx = enemy.blinkX;
       let ty = enemy.blinkY;
       if (tx === undefined || ty === undefined) {
-        const a = arena.rng.range(0, Math.PI * 2);
-        tx = p.x + Math.cos(a) * 58;
-        ty = p.y + Math.sin(a) * 58;
+        const landing = blinkLanding(arena, enemy);
+        tx = landing.x;
+        ty = landing.y;
       }
       const oldX = enemy.x;
       const oldY = enemy.y;
-      if (!arena.grid.isSolidAtPixel(tx, ty)) {
+      if (validBlinkLanding(arena, tx, ty)) {
         enemy.x = tx;
         enemy.y = ty;
         arena.emit({ type: 'blink', x: oldX, y: oldY, toX: tx, toY: ty });
@@ -873,10 +915,7 @@ function attack(arena: Arena, enemy: Enemy, dt: number): void {
     }
   } else if (enemy.attack === 'sweep') {
     // A rotating beam: one clean hit per sweep, telegraphed by the full arc.
-    const span = SWEEP_SPAN;
-    const base = Math.atan2(enemy.dirY, enemy.dirX);
-    const progress = 1 - enemy.stateTime / ACTIVE.sweep;
-    const angle = base - span / 2 + progress * span;
+    const angle = sweepBeamAngle(enemy);
     const ex = enemy.x + Math.cos(angle) * SWEEP_RANGE;
     const ey = enemy.y + Math.sin(angle) * SWEEP_RANGE;
     const width = enemy.isBoss ? 30 : 22;

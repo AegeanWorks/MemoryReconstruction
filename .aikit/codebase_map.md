@@ -6,20 +6,34 @@
 ---
 
 ## 📊 Codebase Metrics
-- **Total Python Modules**: `4`
+- **Total Python Modules**: `5`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `62`
+- **Total Top-Level Functions**: `67`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `3934`
+- **Total Source Lines**: `4365`
 
 ---
 
 ## 📦 Modules & Exported Symbols
 
+### [`scripts/audit_commit_ranges.py`](scripts/audit_commit_ranges.py)
+> *Generate the cumulative commit-range inventory used by the audit.*
+
+**Size**: `130` lines (`4753` bytes)
+
+**Functions:**
+- `def git(*args)` - *Run a git command in the project root with a hard timeout.*
+- `def commit_rows()` - *Return `(short hash, subject)` for every commit, oldest first.*
+- `def deep_dive_ranges()` - *Ranges with a narrative section in the curated audit report.*
+- `def build_inventory()`
+- `def main()`
+
+---
+
 ### [`scripts/generate_art_assets.py`](scripts/generate_art_assets.py)
 > *Generate the Memory Reconstruction art set.*
 
-**Size**: `3520` lines (`193265` bytes)
+**Size**: `3821` lines (`205740` bytes)
 
 **Functions:**
 - `def rgba(color, alpha)`

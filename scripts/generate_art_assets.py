@@ -462,6 +462,162 @@ ENEMY_STYLES = {
         "eye": (255, 228, 246, 255),
         "scale": 1.0,
     },
+    # --- Sunken Tideways: drowned press gangs in teal steel and brine ---
+    "tideReaver": {
+        "kind": "duelist",
+        "body": (52, 84, 96, 255),
+        "light": (140, 200, 210, 255),
+        "cloth": (28, 48, 58, 255),
+        "accent": (127, 212, 193, 255),
+        "eye": (230, 255, 250, 255),
+        "scale": 1.0,
+    },
+    "brineHulk": {
+        "kind": "beast",
+        "slug": True,
+        "body": (58, 88, 78, 255),
+        "light": (130, 180, 150, 255),
+        "cloth": (36, 58, 50, 255),
+        "accent": (140, 230, 190, 255),
+        "eye": (240, 255, 220, 255),
+        "scale": 1.12,
+    },
+    "harborGunner": {
+        "kind": "archer",
+        "body": (56, 72, 84, 255),
+        "light": (130, 170, 185, 255),
+        "cloth": (32, 44, 54, 255),
+        "accent": (127, 212, 193, 255),
+        "eye": (220, 255, 245, 255),
+        "scale": 1.0,
+        "eyes": "slits",
+    },
+    "sirenCaller": {
+        "kind": "witch",
+        "body": (44, 66, 88, 255),
+        "light": (120, 180, 205, 255),
+        "cloth": (24, 40, 56, 255),
+        "accent": (140, 235, 255, 255),
+        "eye": (235, 252, 255, 255),
+        "scale": 1.05,
+    },
+    # --- Howling Spire: the militant order in stormplate and grey ---
+    "stormSquire": {
+        "kind": "scavenger",
+        "body": (84, 96, 122, 255),
+        "light": (168, 188, 216, 255),
+        "cloth": (58, 70, 96, 255),
+        "accent": (201, 216, 255, 255),
+        "eye": (255, 220, 120, 255),
+        "scale": 0.95,
+    },
+    "galeArcher": {
+        "kind": "archer",
+        "body": (70, 82, 110, 255),
+        "light": (150, 172, 205, 255),
+        "cloth": (44, 54, 76, 255),
+        "accent": (201, 216, 255, 255),
+        "eye": (240, 246, 255, 255),
+        "scale": 1.0,
+        "eyes": "slits",
+    },
+    "thunderBrute": {
+        "kind": "beast",
+        "body": (72, 80, 108, 255),
+        "light": (150, 168, 205, 255),
+        "cloth": (48, 56, 78, 255),
+        "accent": (255, 215, 130, 255),
+        "eye": (255, 240, 190, 255),
+        "scale": 1.08,
+    },
+    "tempestOracle": {
+        "kind": "oracle",
+        "storm": True,
+        "body": (58, 70, 100, 255),
+        "light": (160, 182, 220, 255),
+        "cloth": (36, 46, 68, 255),
+        "accent": (201, 216, 255, 255),
+        "eye": (245, 250, 255, 255),
+        "scale": 1.0,
+    },
+    # --- Melee bosses: full duelist/warden rigs at boss scale ---
+    "drownedBlademaster": {
+        "kind": "duelist",
+        "body": (40, 70, 84, 255),
+        "light": (130, 195, 205, 255),
+        "cloth": (22, 42, 52, 255),
+        "accent": (127, 255, 220, 255),
+        "eye": (235, 255, 250, 255),
+        "scale": 1.0,
+    },
+    "stormWarlord": {
+        "kind": "warden",
+        "storm": True,
+        "body": (66, 76, 104, 255),
+        "light": (170, 190, 225, 255),
+        "cloth": (44, 52, 74, 255),
+        "accent": (255, 200, 110, 255),
+        "eye": (255, 236, 180, 255),
+        "scale": 1.25,
+    },
+    # --- Second wave: deepen the early and middle rosters ---
+    "gutterRunner": {
+        "kind": "scavenger",
+        "body": (96, 78, 58, 255),
+        "light": (178, 150, 112, 255),
+        "cloth": (66, 54, 42, 255),
+        "accent": (255, 196, 120, 255),
+        "eye": (255, 230, 170, 255),
+        "scale": 0.9,
+        "eyes": "slits",
+    },
+    "briarWolf": {
+        "kind": "beast",
+        "body": (58, 92, 52, 255),
+        "light": (130, 180, 110, 255),
+        "cloth": (40, 64, 38, 255),
+        "accent": (170, 255, 150, 255),
+        "eye": (255, 240, 170, 255),
+        "scale": 1.0,
+    },
+    "gloomStalker": {
+        "kind": "scavenger",
+        "body": (48, 56, 84, 255),
+        "light": (110, 126, 168, 255),
+        "cloth": (32, 38, 58, 255),
+        "accent": (150, 180, 255, 255),
+        "eye": (200, 225, 255, 255),
+        "scale": 0.95,
+        "eyes": "slits",
+    },
+    "prismWisp": {
+        "kind": "wisp",
+        "body": (128, 92, 150, 255),
+        "light": (225, 175, 240, 255),
+        "cloth": (88, 60, 110, 255),
+        "accent": (150, 240, 255, 255),
+        "eye": (255, 240, 255, 255),
+        "scale": 1.0,
+    },
+    "nullHound": {
+        "kind": "hound",
+        "grave": True,
+        "body": (38, 34, 52, 255),
+        "light": (110, 100, 140, 255),
+        "cloth": (26, 24, 38, 255),
+        "accent": (184, 156, 255, 255),
+        "eye": (220, 200, 255, 255),
+        "scale": 1.02,
+    },
+    "slagGolem": {
+        "kind": "construct",
+        "body": (84, 62, 48, 255),
+        "light": (168, 120, 88, 255),
+        "cloth": (60, 44, 36, 255),
+        "accent": (255, 150, 70, 255),
+        "eye": (255, 200, 130, 255),
+        "scale": 1.1,
+    },
 }
 
 BIOME_ART = {
@@ -509,6 +665,60 @@ BIOME_ART = {
         "hazard": (255, 58, 92, 255),
         "water": (38, 42, 78, 255),
         "foliage": (62, 56, 96, 255),
+    },
+    "tide": {
+        "dark": (14, 34, 41, 255),
+        "base": (46, 90, 102, 255),
+        "light": (116, 178, 188, 255),
+        "accent": (127, 212, 193, 255),
+        "hazard": (255, 90, 90, 255),
+        "water": (30, 80, 95, 255),
+        "foliage": (110, 190, 170, 255),
+    },
+    "storm": {
+        "dark": (27, 34, 51, 255),
+        "base": (90, 107, 140, 255),
+        "light": (186, 202, 232, 255),
+        "accent": (201, 216, 255, 255),
+        "hazard": (255, 179, 71, 255),
+        "water": (70, 90, 130, 255),
+        "foliage": (170, 190, 220, 255),
+    },
+    "ash": {
+        "dark": (36, 26, 22, 255),
+        "base": (102, 66, 52, 255),
+        "light": (178, 128, 96, 255),
+        "accent": (255, 138, 76, 255),
+        "hazard": (255, 92, 58, 255),
+        "water": (96, 64, 48, 255),
+        "foliage": (200, 140, 80, 255),
+    },
+    "abyss": {
+        "dark": (16, 28, 36, 255),
+        "base": (44, 74, 96, 255),
+        "light": (110, 170, 196, 255),
+        "accent": (111, 231, 255, 255),
+        "hazard": (255, 90, 106, 255),
+        "water": (30, 70, 90, 255),
+        "foliage": (86, 190, 180, 255),
+    },
+    "frost": {
+        "dark": (52, 66, 82, 255),
+        "base": (128, 152, 172, 255),
+        "light": (214, 230, 242, 255),
+        "accent": (191, 233, 255, 255),
+        "hazard": (255, 107, 107, 255),
+        "water": (140, 180, 210, 255),
+        "foliage": (220, 240, 250, 255),
+    },
+    "bloom": {
+        "dark": (34, 22, 36, 255),
+        "base": (100, 66, 102, 255),
+        "light": (196, 140, 196, 255),
+        "accent": (255, 154, 216, 255),
+        "hazard": (255, 90, 150, 255),
+        "water": (110, 90, 140, 255),
+        "foliage": (140, 220, 160, 255),
     },
     "sanctuary": {
         "dark": (112, 86, 36, 255),
@@ -572,6 +782,8 @@ BACKGROUND_ART = {
     "mire": dict(top=(6, 12, 10), bottom=(42, 68, 48), silhouette=(18, 32, 24), accent=(180, 230, 110)),
     "hive": dict(top=(10, 6, 3), bottom=(92, 64, 28), silhouette=(40, 26, 10), accent=(255, 196, 96)),
     "catacomb": dict(top=(4, 6, 6), bottom=(54, 62, 62), silhouette=(20, 26, 26), accent=(143, 216, 200)),
+    "tide": dict(top=(4, 14, 18), bottom=(26, 74, 88), silhouette=(10, 36, 44), accent=(127, 212, 193)),
+    "storm": dict(top=(10, 14, 26), bottom=(74, 92, 128), silhouette=(32, 40, 58), accent=(201, 216, 255)),
 }
 
 
@@ -726,8 +938,11 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
         bob = cycle * 0.008
     else:
         bob = abs(cycle) * 0.012
-    lean = 0.035 if state == "dash" else 0.0
+    lean = 0.06 if state == "dash" else 0.0
+    # Walk stride was 1.6px at gameplay size and read as gliding; 0.05 puts
+    # a visible 3px lead on each alternating foot.
     step = math.sin(t * math.tau) if state == "walk" else 0.0
+    stride = 0.05 if state == "walk" else 0.025
     hem = math.sin(t * math.tau + 0.7) * (0.016 if state == "walk" else 0.007)
     main_scarf, short_scarf = player_scarf(state, t, bob)
 
@@ -747,8 +962,8 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
         line(draw, cell, points[: len(tail)], pal["scarf"], 1)
 
     # Legs and boots.
-    left_x = 0.43 + step * 0.025
-    right_x = 0.55 - step * 0.025
+    left_x = 0.43 + step * stride
+    right_x = 0.55 - step * stride
     if state == "dash":
         left_x, right_x = 0.39, 0.49
     rect(draw, cell, left_x - 0.045, 0.66 + bob, left_x + 0.035, 0.85, fill=pal["cloak_dark"], outline=pal["outline"], width=2, radius=0.02)
@@ -842,7 +1057,10 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
             if attacking and t > 0.1:
                 alpha = int(230 * max(0.0, 1.0 - abs(t - 0.42) * 1.5))
                 streak = (tip[0] + dx * 0.14, tip[1] + dy * 0.14)
-                line(draw, cell, [hand, streak], rgba(pal["scarf"][:3], max(40, alpha)), 3)
+                # Core streak plus a soft halo: the old lone 3px line read as
+                # a scratch at gameplay size instead of a thrust.
+                line(draw, cell, [hand, streak], rgba(pal["scarf"][:3], max(50, alpha // 2)), 6)
+                line(draw, cell, [hand, streak], rgba((255, 255, 255), max(60, alpha)), 2)
         else:
             heavy = weapon == "greatsword"
             length = (0.48 if heavy else 0.34) if attacking else (0.42 if heavy else 0.32)
@@ -920,11 +1138,16 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
                     draw.arc(box, start=-104 + t * 80, end=8 + t * 60, fill=pal["scarf"],
                              width=max(1, 2 * SS))
 
-    # Dash afterimages.
+    # Dash afterimages. The old 2px strokes downsampled to half a pixel and
+    # vanished; these are full-width ribbons with a bright core so the dash
+    # reads as a blur at 64px gameplay size.
     if state == "dash":
-        for i, alpha in enumerate((120, 80, 45)):
-            line(draw, cell, [(0.36 - i * 0.07, 0.42 + i * 0.04), (0.08 - i * 0.04, 0.45 + i * 0.05)],
-                 rgba(pal["scarf"][:3], alpha), 2)
+        for i, alpha in enumerate((200, 140, 90)):
+            y0 = 0.40 + i * 0.07
+            line(draw, cell, [(0.40 - i * 0.06, y0), (0.04 - i * 0.03, y0 + 0.03)],
+                 rgba(pal["scarf"][:3], alpha), 5)
+            line(draw, cell, [(0.38 - i * 0.06, y0), (0.08 - i * 0.03, y0 + 0.02)],
+                 rgba((255, 255, 255), max(60, alpha - 60)), 2)
 
     return img
 
@@ -936,13 +1159,26 @@ def player_frame(state: str, frame: int, frames: int, weapon: str = "sword") -> 
 
 def _enemy_common(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, frame: int, t: float) -> tuple[float, float]:
     cycle = math.sin(t * math.tau)
-    bob = cycle * 0.008
+    # Idle breathes visibly (2px at 96px cell); walk bounces twice as hard
+    # with an alternating lateral step so consecutive frames never match.
+    if row == 1:
+        bob = abs(cycle) * 0.028
+    else:
+        bob = cycle * 0.016
     if row == 3:
         bob += (frame + 1) / 4 * 0.16
-    lunge = 0.05 if row == 2 and t > 0.35 else 0.0
-    # A full unit of step would shift the body off the cell on odd walk
-    # frames; the sway is deliberately small and layered on the runtime bob.
-    step = math.sin(t * math.tau) * 0.05 if row == 1 else 0.0
+    # Attack: windup crouch on frame 0, then a committed lunge that grows
+    # through the strip so the hit frame reads at gameplay size.
+    if row == 2:
+        lunge = (-0.03 if frame == 0 else 0.02 + frame * 0.035) if t > 0.2 else 0.0
+        bob += -0.018 if frame == 0 else 0.008 * frame
+    else:
+        lunge = 0.0
+    if row == 1:
+        # Alternate which foot leads: even frames push right, odd push left.
+        step = (0.055 if frame % 2 == 0 else -0.055) * (0.6 + 0.4 * abs(cycle))
+    else:
+        step = 0.0
     ellipse(draw, cell, 0.24, 0.86, 0.76, 0.95, fill=Shadow)
     return bob, step + lunge
 
@@ -1001,13 +1237,26 @@ def _construct(draw: ImageDraw.ImageDraw, cell: int, style: dict, row: int, fram
                 spread=0.040, r=0.016)
     # Core.
     ellipse(draw, cell, 0.44 + lean, top + 0.30, 0.56 + lean, top + 0.42, fill=accent, outline=Outline, width=2)
-    # Arms.
-    swing = march * 0.04
+    # Arms swing against the stride on walk frames; the attack row raises
+    # the right arm for a visible overhead hit.
+    if row == 1:
+        swing = 0.05 if frame % 2 == 0 else -0.05
+    elif row == 2:
+        swing = -0.06 + frame * 0.045
+    else:
+        swing = march * 0.04
+    raise_r = -0.10 if row == 2 and frame >= 1 else 0.0
     rect(draw, cell, left - 0.075, top + 0.23 - swing, left + 0.015, top + 0.60, fill=dark, outline=Outline, width=2, radius=0.025)
-    rect(draw, cell, right - 0.015, top + 0.23 + swing, right + 0.075, top + 0.60, fill=dark, outline=Outline, width=2, radius=0.025)
-    # Legs.
-    rect(draw, cell, 0.39, bottom - 0.12, 0.48, bottom + 0.05 + abs(march) * 0.02, fill=dark, outline=Outline, width=2, radius=0.02)
-    rect(draw, cell, 0.52, bottom - 0.12, 0.61, bottom + 0.05, fill=dark, outline=Outline, width=2, radius=0.02)
+    rect(draw, cell, right - 0.015, top + 0.23 + swing + raise_r, right + 0.075, top + 0.60, fill=dark, outline=Outline, width=2, radius=0.025)
+    # Legs alternate: one plants while the other lifts, so walk never looks
+    # like a static statue sliding across the floor.
+    if row == 1:
+        lift_l = 0.05 if frame % 2 == 0 else 0.0
+        lift_r = 0.05 if frame % 2 == 1 else 0.0
+    else:
+        lift_l = lift_r = 0.0
+    rect(draw, cell, 0.39, bottom - 0.12, 0.48, bottom + 0.05 + abs(march) * 0.02 - lift_l, fill=dark, outline=Outline, width=2, radius=0.02)
+    rect(draw, cell, 0.52, bottom - 0.12, 0.61, bottom + 0.05 - lift_r, fill=dark, outline=Outline, width=2, radius=0.02)
     # Cracks.
     line(draw, cell, [(0.48 + lean, top + 0.20), (0.54 + lean, top + 0.28), (0.50 + lean, top + 0.38)], style["accent"], 1)
     if style.get("crystals"):
@@ -2394,6 +2643,8 @@ def prop_image(kind: str) -> Image.Image:
         "building_garden": ((34, 50, 34), (112, 148, 96), (168, 240, 150)),
         "building_barracks": ((46, 46, 52), (140, 142, 158), (196, 214, 255)),
         "building_lamphouse": ((50, 40, 26), (162, 128, 78), (255, 214, 130)),
+        "building_hearth": ((52, 40, 30), (158, 118, 78), (255, 190, 110)),
+        "npc_hearthkeeper": ((60, 42, 28), (190, 140, 88), (255, 196, 120)),
         "furn_books": ((46, 34, 44), (168, 132, 96), (206, 178, 120)),
         "furn_candle": ((42, 36, 30), (196, 186, 160), (255, 214, 130)),
         "furn_anvil": ((40, 40, 46), (108, 112, 126), (255, 150, 70)),
@@ -2405,6 +2656,8 @@ def prop_image(kind: str) -> Image.Image:
         "furn_desk": ((44, 34, 26), (150, 116, 78), (240, 226, 190)),
         "furn_cauldron": ((34, 34, 38), (94, 98, 106), (150, 240, 170)),
         "furn_strings": ((46, 38, 26), (168, 138, 84), (255, 220, 140)),
+        "furn_chandelier": ((40, 34, 30), (150, 130, 100), (255, 214, 140)),
+        "furn_tapestry": ((48, 36, 44), (148, 116, 140), (255, 214, 150)),
         "cairn_stack": ((40, 38, 36), (118, 116, 112), (255, 196, 110)),
     }[kind]
     dark, light, accent = palette
@@ -2453,10 +2706,16 @@ def prop_image(kind: str) -> Image.Image:
                 poly(draw, cell, [(x0, 0.90), (x0 + 0.05, 0.96), (x0 + 0.10, 0.90)], fill=dark)
         elif kind == "building_lamphouse":
             rect(draw, cell, 0.50, 0.02, 0.54, 0.12, fill=dark, outline=Outline, width=1)
-            ellipse(draw, cell, 0.44, 0.05, 0.60, 0.14, fill=win, outline=Outline, width=1)
+            ellipse(draw, cell, 0.44, 0.05, 0.60, 0.14, fill=win, outline=accent, width=1)
             for x0 in (0.28, 0.68):
                 rect(draw, cell, x0, 0.54, x0 + 0.04, 0.60, fill=dark, outline=Outline, width=1)
                 ellipse(draw, cell, x0 - 0.02, 0.50, x0 + 0.06, 0.58, fill=win, outline=accent, width=1)
+        elif kind == "building_hearth":
+            # A steaming bowl on the hanging sign, and smoke from the chimney.
+            ellipse(draw, cell, 0.44, 0.472, 0.56, 0.492, fill=win, outline=Outline, width=1)
+            line(draw, cell, [(0.50, 0.468), (0.50, 0.455)], mix(accent, (255, 255, 255), 0.5), 1)
+            for i, (sx, wob) in enumerate(((0.76, 0.0), (0.79, 0.02), (0.73, -0.02))):
+                line(draw, cell, [(sx, 0.08 - i * 0.03), (sx + wob, 0.03 - i * 0.03)], mix(light, accent, 0.4), 1)
         glow(
             img,
             lambda d: ellipse(d, cell, 0.14, 0.46, 0.86, 0.72, fill=(255, 206, 130, 46)),
@@ -2826,12 +3085,35 @@ def prop_image(kind: str) -> Image.Image:
         rect(draw, cell, 0.12, 0.30, 0.88, 0.38, fill=dark, outline=Outline, width=2)
         for x in (0.22, 0.50, 0.78):
             rect(draw, cell, x - 0.03, 0.32, x + 0.03, 0.36, fill=accent)
-    elif kind == "furn_lantern":
+    elif     kind == "furn_lantern":
         line(draw, cell, [(0.50, 0.94), (0.50, 0.42)], dark, 4)
         poly(draw, cell, [(0.34, 0.42), (0.66, 0.42), (0.60, 0.16), (0.40, 0.16)], fill=accent, outline=Outline, width=2)
         rect(draw, cell, 0.42, 0.22, 0.58, 0.38, fill=(255, 244, 200))
         ellipse(draw, cell, 0.30, 0.08, 0.70, 0.48, fill=(255, 220, 140, 60))
         rect(draw, cell, 0.34, 0.92, 0.66, 0.98, fill=dark)
+    elif kind == "furn_chandelier":
+        # A hanging candle ring: iron hoop, six lit candles, warm halo.
+        line(draw, cell, [(0.50, 0.02), (0.50, 0.30)], dark, 3)
+        ellipse(draw, cell, 0.14, 0.30, 0.86, 0.52, outline=dark, width=4)
+        ellipse(draw, cell, 0.14, 0.30, 0.86, 0.52, outline=mix(dark, light, 0.3), width=1)
+        line(draw, cell, [(0.20, 0.31), (0.50, 0.06)], dark, 2)
+        line(draw, cell, [(0.80, 0.31), (0.50, 0.06)], dark, 2)
+        for x in (0.22, 0.35, 0.48, 0.61, 0.74):
+            rect(draw, cell, x - 0.02, 0.24, x + 0.02, 0.38, fill=(240, 230, 200), outline=Outline, width=1)
+            ellipse(draw, cell, x - 0.02, 0.18, x + 0.02, 0.25, fill=(255, 244, 200))
+        ellipse(draw, cell, 0.08, 0.10, 0.92, 0.62, fill=(255, 216, 130, 46))
+    elif kind == "furn_tapestry":
+        # A wall hanging: rod, woven panel with the resident's accent emblem.
+        rect(draw, cell, 0.16, 0.10, 0.84, 0.16, fill=dark, outline=Outline, width=2)
+        ellipse(draw, cell, 0.12, 0.08, 0.18, 0.18, fill=accent, outline=Outline, width=1)
+        ellipse(draw, cell, 0.82, 0.08, 0.88, 0.18, fill=accent, outline=Outline, width=1)
+        rect(draw, cell, 0.22, 0.16, 0.78, 0.90, fill=light, outline=Outline, width=2)
+        rect(draw, cell, 0.26, 0.20, 0.74, 0.86, fill=mix(light, dark, 0.35))
+        poly(draw, cell, [(0.50, 0.30), (0.62, 0.48), (0.50, 0.66), (0.38, 0.48)], fill=accent, outline=Outline, width=1)
+        poly(draw, cell, [(0.50, 0.38), (0.56, 0.48), (0.50, 0.58), (0.44, 0.48)], fill=mix(accent, (255, 255, 255), 0.4))
+        line(draw, cell, [(0.26, 0.78), (0.74, 0.78)], mix(dark, light, 0.4), 1)
+        for x in (0.30, 0.42, 0.54, 0.66):
+            line(draw, cell, [(x, 0.86), (x, 0.94)], accent, 1)
     elif kind == "cairn_stack":
         # Four weathered stones balanced into a cairn, with a lit rune slot.
         ellipse(draw, cell, 0.12, 0.84, 0.88, 0.98, fill=Shadow)
@@ -3081,6 +3363,12 @@ def prop_image(kind: str) -> Image.Image:
             line(draw, cell, [(0.70, 0.30), (0.70, 0.52)], hem, 2)
             rect(draw, cell, 0.62, 0.50, 0.78, 0.66, fill=mix(accent, (255, 255, 255), 0.4), outline=Outline, width=2)
             ellipse(draw, cell, 0.655, 0.53, 0.745, 0.63, fill=(255, 244, 206))
+        elif kind == "npc_hearthkeeper":
+            # A wooden ladle over the shoulder and a steaming bowl at the hip.
+            line(draw, cell, [(0.70, 0.30), (0.78, 0.62)], mix(dark, (90, 70, 50), 0.4), 3)
+            ellipse(draw, cell, 0.74, 0.60, 0.82, 0.68, fill=mix(accent, (255, 255, 255), 0.4), outline=Outline, width=2)
+            ellipse(draw, cell, 0.26, 0.62, 0.36, 0.70, fill=mix(dark, light, 0.3), outline=Outline, width=2)
+            line(draw, cell, [(0.31, 0.60), (0.31, 0.54)], mix(accent, (255, 255, 255), 0.5), 1)
     return img
 
 
@@ -3321,7 +3609,7 @@ def build() -> None:
         "guardian", "spirit", "crystalGolem", "crystalGuardian", "cinderWarden",
         "clockworkRegent", "leviathan", "forgottenGiant", "frostWarden",
         "mireSovereign", "thornMatriarch", "hiveQueen", "boneTyrant", "keeper",
-        "choirHierophant", "hollowBehemoth",
+        "choirHierophant", "hollowBehemoth", "drownedBlademaster", "stormWarlord",
     }
     enemy_meta = {}
     for kind in ENEMY_STYLES:
@@ -3334,6 +3622,19 @@ def build() -> None:
         path = SPRITES / "enemies" / f"{kind}.png"
         path.parent.mkdir(parents=True, exist_ok=True)
         sheet.save(path)
+        kind_tag = ENEMY_STYLES[kind].get("kind", "")
+        # Heavies read weighty, skitterers read frantic: fps follows archetype,
+        # not a single global triplet that made every mob feel identical.
+        if kind_tag in ("construct", "warden", "tyrant", "regent", "matriarch", "queen", "giant", "behemoth", "sovereign", "hierophant"):
+            walk_fps, attack_fps = 7, 10
+        elif kind_tag in ("wisp", "cantor", "oracle", "herald", "witch"):
+            walk_fps, attack_fps = 10, 14
+        elif kind_tag in ("beast", "hound", "bombardier", "archer"):
+            walk_fps, attack_fps = 11, 13
+        else:
+            walk_fps, attack_fps = 9, 12
+        if cell == BOSS_CELL:
+            walk_fps = max(6, walk_fps - 1)
         enemy_meta[kind] = {
             "texture": f"sprites/enemies/{kind}.png",
             "frameWidth": cell,
@@ -3343,8 +3644,8 @@ def build() -> None:
             "origin": {"x": 0.5, "y": 0.90},
             "animations": {
                 "idle": {"row": 0, "frames": 4, "fps": 5, "loop": True},
-                "walk": {"row": 1, "frames": 4, "fps": 9, "loop": True},
-                "attack": {"row": 2, "frames": 4, "fps": 12, "loop": False},
+                "walk": {"row": 1, "frames": 4, "fps": walk_fps, "loop": True},
+                "attack": {"row": 2, "frames": 4, "fps": attack_fps, "loop": False},
                 "death": {"row": 3, "frames": 4, "fps": 6, "loop": False},
             },
         }
@@ -3392,9 +3693,9 @@ def build() -> None:
         "furn_rug", "furn_banner", "furn_bench", "furn_dais", "furn_column",
         "furn_books", "furn_candle", "furn_anvil", "furn_weapon_rack", "furn_stool",
         "furn_vines", "furn_brazier", "furn_herbs", "cairn_stack",
-        "furn_desk", "furn_cauldron", "furn_strings",
+        "furn_desk", "furn_cauldron", "furn_strings", "furn_chandelier", "furn_tapestry",
         "building_archive", "building_forge", "building_garden", "building_barracks",
-        "building_lamphouse",
+        "building_lamphouse", "building_hearth", "npc_hearthkeeper",
     ]
     prop_meta = {}
     for prop in props:

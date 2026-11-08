@@ -143,13 +143,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -180,13 +180,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 10,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -217,13 +217,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 11,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 13,
           "loop": false
         },
         "death": {
@@ -260,7 +260,7 @@
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -328,13 +328,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -365,13 +365,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 10,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -402,7 +402,7 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 8,
           "loop": true
         },
         "attack": {
@@ -439,13 +439,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 10,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -476,13 +476,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 10,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -513,13 +513,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 7,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -550,7 +550,7 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 8,
           "loop": true
         },
         "attack": {
@@ -587,13 +587,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 11,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 13,
           "loop": false
         },
         "death": {
@@ -624,13 +624,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 10,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -661,13 +661,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 11,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 13,
           "loop": false
         },
         "death": {
@@ -735,13 +735,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -772,13 +772,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -809,7 +809,7 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 8,
           "loop": true
         },
         "attack": {
@@ -846,13 +846,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -883,13 +883,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -920,13 +920,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -957,13 +957,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -994,13 +994,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 11,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 13,
           "loop": false
         },
         "death": {
@@ -1031,13 +1031,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 10,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -1105,13 +1105,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 11,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 13,
           "loop": false
         },
         "death": {
@@ -1179,13 +1179,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -1216,13 +1216,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -1253,13 +1253,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 11,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 13,
           "loop": false
         },
         "death": {
@@ -1290,13 +1290,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 10,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -1327,13 +1327,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -1364,13 +1364,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 6,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -1401,13 +1401,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 11,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 13,
           "loop": false
         },
         "death": {
@@ -1438,13 +1438,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 11,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 13,
           "loop": false
         },
         "death": {
@@ -1475,13 +1475,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 10,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -1512,13 +1512,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 10,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -1549,13 +1549,13 @@
         "walk": {
           "row": 1,
           "frames": 4,
-          "fps": 9,
+          "fps": 10,
           "loop": true
         },
         "attack": {
           "row": 2,
           "frames": 4,
-          "fps": 12,
+          "fps": 14,
           "loop": false
         },
         "death": {
@@ -1586,6 +1586,43 @@
         "walk": {
           "row": 1,
           "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 14,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "tideReaver": {
+      "texture": "sprites/enemies/tideReaver.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
           "fps": 9,
           "loop": true
         },
@@ -1593,6 +1630,561 @@
           "row": 2,
           "frames": 4,
           "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "brineHulk": {
+      "texture": "sprites/enemies/brineHulk.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 11,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 13,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "harborGunner": {
+      "texture": "sprites/enemies/harborGunner.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 11,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 13,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "sirenCaller": {
+      "texture": "sprites/enemies/sirenCaller.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 14,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "stormSquire": {
+      "texture": "sprites/enemies/stormSquire.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "galeArcher": {
+      "texture": "sprites/enemies/galeArcher.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 11,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 13,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "thunderBrute": {
+      "texture": "sprites/enemies/thunderBrute.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 11,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 13,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "tempestOracle": {
+      "texture": "sprites/enemies/tempestOracle.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 14,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "drownedBlademaster": {
+      "texture": "sprites/enemies/drownedBlademaster.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "stormWarlord": {
+      "texture": "sprites/enemies/stormWarlord.png",
+      "frameWidth": 192,
+      "frameHeight": 192,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 6,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 10,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "gutterRunner": {
+      "texture": "sprites/enemies/gutterRunner.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "briarWolf": {
+      "texture": "sprites/enemies/briarWolf.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 11,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 13,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "gloomStalker": {
+      "texture": "sprites/enemies/gloomStalker.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 9,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 12,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "prismWisp": {
+      "texture": "sprites/enemies/prismWisp.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 14,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "nullHound": {
+      "texture": "sprites/enemies/nullHound.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 11,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 13,
+          "loop": false
+        },
+        "death": {
+          "row": 3,
+          "frames": 4,
+          "fps": 6,
+          "loop": false
+        }
+      }
+    },
+    "slagGolem": {
+      "texture": "sprites/enemies/slagGolem.png",
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "columns": 4,
+      "rows": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 0.9
+      },
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 5,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 7,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 10,
           "loop": false
         },
         "death": {
@@ -1675,6 +2267,108 @@
     },
     "void": {
       "texture": "sprites/tilesets/void.png",
+      "tileSize": 32,
+      "columns": 4,
+      "rows": 9,
+      "rowMap": {
+        "empty": 0,
+        "floor": 1,
+        "wall": 2,
+        "platform": 3,
+        "hazard": 4,
+        "water": 5,
+        "ladder": 6,
+        "door": 7,
+        "secret": 8
+      }
+    },
+    "tide": {
+      "texture": "sprites/tilesets/tide.png",
+      "tileSize": 32,
+      "columns": 4,
+      "rows": 9,
+      "rowMap": {
+        "empty": 0,
+        "floor": 1,
+        "wall": 2,
+        "platform": 3,
+        "hazard": 4,
+        "water": 5,
+        "ladder": 6,
+        "door": 7,
+        "secret": 8
+      }
+    },
+    "storm": {
+      "texture": "sprites/tilesets/storm.png",
+      "tileSize": 32,
+      "columns": 4,
+      "rows": 9,
+      "rowMap": {
+        "empty": 0,
+        "floor": 1,
+        "wall": 2,
+        "platform": 3,
+        "hazard": 4,
+        "water": 5,
+        "ladder": 6,
+        "door": 7,
+        "secret": 8
+      }
+    },
+    "ash": {
+      "texture": "sprites/tilesets/ash.png",
+      "tileSize": 32,
+      "columns": 4,
+      "rows": 9,
+      "rowMap": {
+        "empty": 0,
+        "floor": 1,
+        "wall": 2,
+        "platform": 3,
+        "hazard": 4,
+        "water": 5,
+        "ladder": 6,
+        "door": 7,
+        "secret": 8
+      }
+    },
+    "abyss": {
+      "texture": "sprites/tilesets/abyss.png",
+      "tileSize": 32,
+      "columns": 4,
+      "rows": 9,
+      "rowMap": {
+        "empty": 0,
+        "floor": 1,
+        "wall": 2,
+        "platform": 3,
+        "hazard": 4,
+        "water": 5,
+        "ladder": 6,
+        "door": 7,
+        "secret": 8
+      }
+    },
+    "frost": {
+      "texture": "sprites/tilesets/frost.png",
+      "tileSize": 32,
+      "columns": 4,
+      "rows": 9,
+      "rowMap": {
+        "empty": 0,
+        "floor": 1,
+        "wall": 2,
+        "platform": 3,
+        "hazard": 4,
+        "water": 5,
+        "ladder": 6,
+        "door": 7,
+        "secret": 8
+      }
+    },
+    "bloom": {
+      "texture": "sprites/tilesets/bloom.png",
       "tileSize": 32,
       "columns": 4,
       "rows": 9,
@@ -1790,7 +2484,9 @@
     "foundry": "sprites/backgrounds/foundry.png",
     "mire": "sprites/backgrounds/mire.png",
     "hive": "sprites/backgrounds/hive.png",
-    "catacomb": "sprites/backgrounds/catacomb.png"
+    "catacomb": "sprites/backgrounds/catacomb.png",
+    "tide": "sprites/backgrounds/tide.png",
+    "storm": "sprites/backgrounds/storm.png"
   },
   "props": {
     "memory_fountain": "sprites/props/memory_fountain.png",
@@ -1847,11 +2543,15 @@
     "furn_desk": "sprites/props/furn_desk.png",
     "furn_cauldron": "sprites/props/furn_cauldron.png",
     "furn_strings": "sprites/props/furn_strings.png",
+    "furn_chandelier": "sprites/props/furn_chandelier.png",
+    "furn_tapestry": "sprites/props/furn_tapestry.png",
     "building_archive": "sprites/props/building_archive.png",
     "building_forge": "sprites/props/building_forge.png",
     "building_garden": "sprites/props/building_garden.png",
     "building_barracks": "sprites/props/building_barracks.png",
-    "building_lamphouse": "sprites/props/building_lamphouse.png"
+    "building_lamphouse": "sprites/props/building_lamphouse.png",
+    "building_hearth": "sprites/props/building_hearth.png",
+    "npc_hearthkeeper": "sprites/props/npc_hearthkeeper.png"
   },
   "ui": {
     "health": "sprites/ui/health.png",

@@ -30,7 +30,7 @@ export type EquipmentSlots = Record<EquipmentSlot, EquipmentItem | null>;
 
 export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'trinket'];
 /** Carried (unequipped) relics the bag holds before pickups start selling. */
-export const INVENTORY_SLOTS = 6;
+export const INVENTORY_SLOTS = 10;
 /** Each reforge rank multiplies a relic's numeric mods by this fraction. */
 export const REFORGE_STEP = 0.12;
 export const REFORGE_MAX = 3;
@@ -45,6 +45,7 @@ export function equipmentDef(id: string): EquipmentDef {
   if (!def) throw new Error(`Unknown equipment '${id}' (not in equipment.json)`);
   return def;
 }
+
 /**
  * Trust boundary for save data: every `equipmentDef` call site throws on an
  * unknown id, so snapshots are filtered through this at load and the twenty
@@ -53,7 +54,6 @@ export function equipmentDef(id: string): EquipmentDef {
 export function equipmentExists(defId: string): boolean {
   return BY_ID.has(defId);
 }
-
 
 export function emptyEquipment(): EquipmentSlots {
   return { weapon: null, armor: null, trinket: null };

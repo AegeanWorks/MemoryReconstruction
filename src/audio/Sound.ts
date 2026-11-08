@@ -132,6 +132,8 @@ const BIOME_ROOTS: Record<BiomeId, number> = {
   bloom: 138.59,
   hive: 110,
   catacomb: 87.31,
+  tide: 98,
+  storm: 164.81,
   sanctuary: 146.83,
 };
 const SCALE = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3, 2];

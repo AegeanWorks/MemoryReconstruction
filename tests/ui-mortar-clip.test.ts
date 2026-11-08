@@ -9,7 +9,7 @@ const py = 20 * TILE_SIZE - 20;
 
 describe('mortar telegraph clipping', () => {
   it('keeps only the mortar rings that land inside the arena', () => {
-    const points = mortarRingPoints(px, py, Math.PI / 2, room);
+    const points = mortarRingPoints(px, py, Math.PI / 2, 40, room);
     expect(points).toHaveLength(2);
     for (const p of points) {
       expect(p.y).toBeGreaterThanOrEqual(room.y * TILE_SIZE);
@@ -17,7 +17,13 @@ describe('mortar telegraph clipping', () => {
     }
   });
 
+  it('keeps a boss ring whose blast still reaches into the arena', () => {
+    const points = mortarRingPoints(px, py, Math.PI / 2, 52, room);
+    expect(points).toHaveLength(3);
+    expect(points[2].y).toBeGreaterThan((room.y + room.h) * TILE_SIZE);
+  });
+
   it('keeps all three rings outside a room', () => {
-    expect(mortarRingPoints(px, py, Math.PI / 2, undefined)).toHaveLength(3);
+    expect(mortarRingPoints(px, py, Math.PI / 2, 40, undefined)).toHaveLength(3);
   });
 });

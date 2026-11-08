@@ -31,6 +31,18 @@ function reachable(floor: FloorMap): Set<number> {
 
 const SEEDS = [1, 2, 3, 42, 1337, 98765, 4242424];
 
+describe('seed replay', () => {
+  it('regenerates the identical expedition from a history seed', () => {
+    for (const seed of [7, 42, 1337]) {
+      const a = generateFloor(seed, 4, { roomCount: 10 });
+      const b = generateFloor(seed, 4, { roomCount: 10 });
+      expect(b.rooms.map((r) => [r.x, r.y, r.w, r.h, r.kind])).toEqual(
+        a.rooms.map((r) => [r.x, r.y, r.w, r.h, r.kind])
+      );
+    }
+  });
+});
+
 describe('dungeon generation', () => {
   it('is deterministic for a seed', () => {
     const a = generateFloor(77, 0, { roomCount: 8 });
@@ -54,6 +66,28 @@ describe('dungeon generation', () => {
         if (floor.grid.isWalkable(x, y)) walkable++;
       }
     expect(seen.size).toBe(walkable);
+  });
+
+  it.each(['atoll', 'spire'] as const)('connects the whole %s map to its start', (layout) => {
+    for (const seed of SEEDS) {
+      const floor = generateFloor(seed, 2, { roomCount: 12, layout });
+      expect(floor.rooms.length).toBeGreaterThan(5);
+      const seen = reachable(floor);
+      let walkable = 0;
+      for (let y = 0; y < floor.grid.height; y++)
+        for (let x = 0; x < floor.grid.width; x++) {
+          if (floor.grid.isWalkable(x, y)) walkable++;
+        }
+      expect(seen.size, `${layout} seed ${seed}`).toBe(walkable);
+      // Every room centre is reachable, so no chamber is sealed off. A vault
+      // is the deliberate exception until its lever opens the wall.
+      for (const room of floor.rooms) {
+        if (room.sealed) continue;
+        const c = roomCentrePx(room);
+        const i = floor.grid.index(Math.floor(c.x / TILE_SIZE), Math.floor(c.y / TILE_SIZE));
+        expect(seen.has(i), `${layout} seed ${seed} room ${room.id}`).toBe(true);
+      }
+    }
   });
 
   it.each(SEEDS)('has one start, one boss, one treasure room (seed %i)', (seed) => {

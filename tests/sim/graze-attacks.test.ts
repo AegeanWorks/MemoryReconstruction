@@ -69,6 +69,27 @@ describe('graze consistency across attack types', () => {
     expect(p.health).toBe(health);
   });
 
+  it('rewards a dash through an enemy bomb explosion', () => {
+    const world = newWorld();
+    world.enemies.length = 0;
+    stageDash(world);
+    const p = world.player;
+    world.spawnBomb(p.x, p.y, 0, 0, 'enemy', 10, 0.001);
+    const events = world.step(NO_INPUT, DT);
+    expect(world.run.stats.grazes).toBe(1);
+    expect(events.some((event) => event.type === 'graze')).toBe(true);
+  });
+
+  it('does not pay a graze for the walker’s own bomb', () => {
+    const world = newWorld();
+    world.enemies.length = 0;
+    stageDash(world);
+    const p = world.player;
+    world.spawnBomb(p.x, p.y, 0, 0, 'player', 10, 0.001);
+    world.step(NO_INPUT, DT);
+    expect(world.run.stats.grazes).toBe(0);
+  });
+
   it('rewards a dash through a telegraphed blast at the shared radius', () => {
     const world = newWorld();
     world.enemies.length = 0;

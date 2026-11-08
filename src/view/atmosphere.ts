@@ -219,7 +219,9 @@ export const ATMOSPHERE: Record<BiomeId, AtmosphereProfile> = {
     layers: [layer(FLOAT, [0xb89cff, 0x6fe7ff], 28), layer(ASH, [0x6672a8], 8)],
   },
   frost: {
-    layers: [layer(SNOW, [0xffffff, 0xbfe9ff], 40), layer(FLOAT, [0xdff3ff], 8)],
+    // 48 motes turned snowfall into confetti over bright ice; 38 keeps the
+    // storm while telegraphs and pickups stay readable.
+    layers: [layer(SNOW, [0xffffff, 0xbfe9ff], 30), layer(FLOAT, [0xdff3ff], 8)],
   },
   mire: {
     layers: [
@@ -242,6 +244,12 @@ export const ATMOSPHERE: Record<BiomeId, AtmosphereProfile> = {
   },
   sanctuary: {
     layers: [layer(DUST, [0xffe2a0, 0xffd98a], 30), layer(FLOAT, [0xffffff, 0xfff4d0], 8)],
+  },
+  tide: {
+    layers: [layer(BUBBLE, [0x7fd4c1, 0xbfe8dd], 24), layer(FLOAT, [0x57d6c6, 0x3f9f96], 12)],
+  },
+  storm: {
+    layers: [layer(SNOW, [0xe4ecff, 0xc9d8ff], 26), layer(DUST, [0x9fb4dd], 10)],
   },
 };
 

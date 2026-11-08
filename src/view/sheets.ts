@@ -90,6 +90,15 @@ function strip(
   );
 }
 
+/**
+ * Walk-cycle speed follows the sim: a 120px/s skirmisher visibly cycles
+ * faster than a 40px/s brute, instead of every mob sharing one cadence.
+ * Clamped so telegraphs stay readable at the extremes.
+ */
+export function walkRateFor(speed: number): number {
+  return Math.max(0.75, Math.min(1.5, speed / 80));
+}
+
 async function loadTexture(path: string): Promise<Texture> {
   const texture = await Assets.load<Texture>(url(path));
   // Pixel art stays crisp: bilinear filtering was the main source of the

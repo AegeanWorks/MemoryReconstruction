@@ -1427,3 +1427,223 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: The depth-19 Obsidian Ramparts and its Ruin Warlord (seed 20261108, 1280x720) were played with real held W/A/S/D and LMB. The bestiary promises "obsidian spiked armor", but `SPRITE_KEYS` mapped `ruin_warlord` to `guardian` and `src/data/enemies.json` named `enemy_guardian`. The Guardian sheet is the depth-0 chest construct: the fight showed a black keyhole chest under the RUIN WARLORD health bar instead of an armored warlord. The new failing-first test reproduced it with `expected 'guardian' to be 'cinderWarden'`.
 - **Decision**: Map `ruin_warlord` to the tracked `cinderWarden` sheet, the ash-forged armored furnace body already in the atlas, and change the canonical `src/data/enemies.json` texture to `enemy_cinder_warden`. Keep the 64x64 logical sprite size, hitbox and the existing ash-red tint, so the boss's on-screen size and every attack are unchanged. The untracked `stormWarlord` sheet belongs to the co-mingled slice and is not used here.
 - **Consequences**: The depth-19 boss now reads as an armored, horned ash warlord with a furnace chest instead of a chest mimic, matching its bestiary and greatsword patterns. Visual proof: same seed, boss position and 1280x720 viewport - before docs/qa/cycle-ruin-warlord-before.png shows the Guardian chest/keyhole; after cycle-ruin-warlord-after.png shows the ash-forged warlord. The real-input pass is cycle-ruin-warlord-play-attack-sweep.png; across the play passes the boss reached phases 1 and 2 and cast sweep, charge, combo, slam, dashStrike and quake. The new test failed with guardian-versus-cinderWarden and passes after; 403 vitest pass (1 new, 67 files), 329 mechanics pass, typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies. No push was made. Note: `src/sim/content.ts` and `src/data/enemies.json` carry co-mingled uncommitted work; this commit stages HEAD-based files with only the mapping, the texture field and the test. The HEAD `assets/data/enemies.json` mirror predates the Ruin Warlord entry (and still contains invalid hex-color JSON), so only the canonical runtime copy is committed; the working-tree mirror is part of the pre-existing slice. Verified in a detached HEAD worktree with only these files and the test: 315 tests pass (58 files) and `tsc --noEmit` is clean - review before any push.
+
+## ADR-148: Frontier balance, the First Remembering, and in-run travel
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: slow leveling, toughen and thin the waves, then add stronger enemies, a new final section, story, in-run NPCs, travel, hidden rooms and surprises)
+- **Context**: Playing the Ashfall and late sections showed level-ups arriving too quickly, ~25 enemies packed into an 18x12 wave, and a run that ended at the Keeper with no in-run fast travel, no hidden reward room, and no reason to linger at the entrance. The user asked for a slower, more dangerous, less crowded run plus more enemies, levels, story, NPCs, travel, teleportation, lever-hidden rooms and surprises.
+- **Decision**:
+  - Balance: `xpForLevel` is now `42 * 1.42^(level-1)`; kill XP is multiplied by `ENEMY_XP_SCALE = 0.55`; `ENEMY_SPEED_SCALE` is 1.08 (from 1.15); `ENEMY_DAMAGE_SCALE` is 1.15 (from 0.98) and depth damage growth is 0.10 (from 0.08); `ENEMY_COUNT_SCALE` is 1.1 (from 1.25); every wave is capped by `enemyWaveCap(room area)` at `clamp(floor(area / 14), 4, 16)`.
+  - Content: add the Obsidian Reaver (ash brute) and First Echo (void caster) to the late rosters, and a 23rd section, **The First Remembering**, after the Keeper. Its boss, **The First Memory**, uses the Keeper sheet with a gold tint and the six-pattern rotation `ring, beam, summon, quake, blink, spiral`. The new fragment/core memory and two resident stories carry the story; the victory screen now names the First Memory.
+  - Systems: the entrance holds a **Wayfarer** (one generous choice, title "The Wayfarer Remembers") and a **waystone** (once-per-floor fast travel between the entrance and the deepest visited room). A dead-end chamber can be a **sealed vault**: it is a solid wall block until a lever elsewhere opens it, then its furnished tiles are restored and a memory chest appears. Late rooms have an 8% chance to break into a three-enemy **memory storm** after their last wave.
+- **Consequences**: The run levels more slowly, enemies hit harder but move slightly slower, and late waves fit their chambers. The new section and enemies extend the run; the Wayfarer, waystone, vault and memory storm add in-run decisions and surprises. Evidence: `docs/qa/cycle-frontier-wayfarer-choice.png`, `cycle-frontier-vault-before.png`, `cycle-frontier-vault-after.png`, `cycle-frontier-vault-inside.png`, `cycle-frontier-waystone-prompt.png`, `cycle-frontier-waystone-after.png`, `cycle-frontier-new-enemies.png`, `cycle-first-memory-floor.png`, `cycle-first-memory-phase0.png`, `cycle-first-memory-attack-beam.png`, `cycle-first-memory-victory.png`. Final gates: 414 vitest pass (70 files), 340 mechanics pass, typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push. Note: the project working tree carries a large pre-existing late-content slice; this ADR and the feature changes remain in that working tree rather than a HEAD-only commit that would omit the slice and fail to build.
+
+## ADR-149: The Ferryman sells the shortest road; the vault lever leaves the entrance
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: more in-run NPCs and travel, a real search for the hidden vault)
+- **Context**: The first frontier pass put the Wayfarer and waystone at the entrance and always mounted the vault lever there too. That made the sealed vault trivial to find and left the mid-floor rooms without a paid travel choice. The Ashfall run showed the entrance as a hub rather than a road.
+- **Decision**: Add the **Ferryman**, an in-run NPC in the floor's shrine (or treasure) room. He charges `40 + 12 × depth` shards and teleports the walker to the guardian room, marking it visited and emitting the usual blink/notice; he refuses if the walker is already there or cannot pay. Move the sealed-vault lever to the first non-vault, non-boss room at distance ≥ 1 (falling back to the entrance only if none exists). Add Ferryman art, a HUD prompt, four story lines and two tests (vault lever not at entrance; paid crossing lands in the boss room and deducts the fare).
+- **Consequences**: The entrance remains the Wayfarer/waystone hub, while the Ferryman gives shard-rich walkers a second route and the vault lever is now part of the floor search. Evidence: `docs/qa/cycle-frontier-ferryman-prompt.png`, `cycle-frontier-ferryman-after.png` (138 → 50 shards, boss room 7), and `cycle-frontier-vault-lever.png`. Final gates: 416 vitest pass (70 files), 342 mechanics pass, typecheck/lint clean, 8/8 AIKit gates pass. No new runtime dependencies and no push. The changes remain in the working tree alongside the pre-existing late-content slice.
+
+## ADR-150: Giant bosses pull the camera so their full silhouette stays visible
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: improve graphics by playing the First Memory finale)
+- **Context**: The First Memory at depth 22 used a 1.15 scale override on the Keeper sheet, producing a 220.8px sprite. In the real-input finale its halo and head clipped against the top of the screen and crowded the boss bar; reducing the scale alone still left the halo off-screen because the camera followed only the player.
+- **Decision**: Set the First Memory scale override to 1.0 (192px, the Keeper's display height) and add `cameraFocus(player, boss)` in `src/view/camera.ts`. While a dungeon boss is active, the renderer centres between the player and the boss's head/feet instead of following only the player. No boss damage, AI, patterns or hitboxes change.
+- **Consequences**: The full First Memory silhouette (halo, body, feet) is visible during the fight, and the same framing helps every giant boss. Evidence: `docs/qa/cycle-first-memory-framing-before.png` (220.8px, clipped halo) and `cycle-first-memory-framing-after.png` (192px, full halo). The new `tests/ui-boss-focus.test.ts` has three camera tests, and `frontier-content.test.ts` now asserts the boss display height is 180-200px. Final gates: 419 vitest pass (71 files), 342 mechanics pass, typecheck/lint clean, 8/8 AIKit gates pass. No new runtime dependencies and no push. The changes remain in the working tree alongside the pre-existing late-content slice.
+
+## ADR-151: Boss framing keeps the walker above the HUD
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: improve the boss-framing regression found while playing the First Memory)
+- **Context**: ADR-150's boss-aware camera fixed the clipped halo, but the First Memory frame showed the walker pushed to screen y≈500, under the bottom HUD, because the camera centred on the full boss/player span. The player must stay readable while the giant boss is framed.
+- **Decision**: Cap the vertical camera focus offset at `BOSS_FOCUS_PLAYER_OFFSET = 80` world pixels in `cameraFocus`. The midpoint between the boss head/feet and player is clamped to `player.y ± 80`; the boss head still stays inside the 520px view. The existing 192px First Memory scale and boss framing are unchanged. Four camera tests cover the head/feet midpoint, no-boss fallback, side pull, and the huge-boss-above-player clamp.
+- **Consequences**: The First Memory’s full silhouette remains visible and the walker stays above the HUD during the fight. Evidence: `docs/qa/cycle-first-memory-hud-before.png` (player at the HUD edge) and `cycle-first-memory-hud-after.png` (player above the HUD). Final gates: 420 vitest pass (71 files), 342 mechanics pass, typecheck/lint clean, 8/8 AIKit gates pass. No new runtime dependencies and no push. The changes remain in the working tree alongside the pre-existing late-content slice.
+
+## ADR-152: Phase Stalkers cannot blink outside a locked room
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: fix a room-clear stall found by playing depth-19 Ashfall)
+- **Context**: A real-input depth-19 Ashfall run cleared rooms 1–2, but room 3 stayed `active` with one enemy for 70 seconds and only cleared on a second fight. The remaining enemy was a Phase Stalker; `beginWindup` chose a blink landing 58px from the player and only rejected solid tiles, not corridor tiles outside the locked room. A player near a door could therefore blink the stalker through the wall, where the player could not follow.
+- **Decision**: Add `Arena.roomBoundsAt(x, y)` (implemented by `World` via `roomAt`) and a shared `blinkLanding(arena, enemy)` helper. A blink landing must be open floor **inside a room**; the helper retries eight angles and falls back to the enemy's current position. Both the windup lock and the attack-phase fallback use the same validation. No damage, cooldown, radius or blink distance changes.
+- **Consequences**: Phase Stalkers stay inside the arena, so a room cannot be left with an unreachable stalker behind a locked door. The new `tests/sim/blink-room.test.ts` failed first with `blinkLanding is not a function`, then covers an all-angles-through-the-door case and a normal inside landing. The same depth-19 route now clears room 3 in a single fight: `ROOM 3 phase cleared ... waves {"left":0,"total":2}`. Evidence: `docs/qa/cycle-ash19-fixed-room3-cleared.png`, `cycle-ash19-fixed-room3-fight.png`, `cycle-ash19-fixed-attack-phase_stalker-blink.png`. Final gates: 422 vitest pass (72 files), 344 mechanics pass, typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push. The changes remain in the working tree alongside the pre-existing late-content slice.
+
+## ADR-153: The Obsidian Reaver sweeps; the First Echo walls
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: improve fight mechanics and fun by playing the new late enemies)
+- **Context**: A depth-19 Ashfall room and a depth-22 First Remembering room were played with real input. The new Obsidian Reaver used the generic tank slam and the First Echo used the generic storm-caller fan, so the two new enemies did not feel like their bestiary identities. Their descriptions promised a blade-weight executioner and a returning sound.
+- **Decision**: Change the Obsidian Reaver's behavior to `sweeper` (caster archetype, rotating **sweep** telegraph/beam) and the First Echo's behavior to `wall_warden` (caster archetype, bolt **wall** with a visible dodge gap). Update both descriptions to name the sweep/wall. Health, damage, speed, cooldowns, sprites, tints and hitboxes are unchanged.
+- **Consequences**: The Reaver now turns a room-wide sweep and the Echo forces a lane choice through a bolt wall, giving the new roster distinct fight mechanics. Evidence: `docs/qa/cycle-signature-ash-attack-obsidian_reaver-sweep.png`, `cycle-signature-void-attack-first_echo-wall.png`, and the cleared-room logs (`ROOM 1 phase cleared ... waves {"left":0,...}`). The content test asserts the two behavior/archetype mappings. Final gates: 422 vitest pass (72 files), 344 mechanics pass, typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push. The changes remain in the working tree alongside the pre-existing late-content slice.
+
+## ADR-154: The Bloom Sentinel grows from the garden, not the Guardian chest
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: improve story and fight visuals by playing the Thorn Matriarch)
+- **Context**: The depth-13 Thorn Matriarch fight was played with real input. Its summon adds include Bloom Sentinels, but the summoned sentinel rendered as the Guardian's black keyhole chest. `SPRITE_KEYS` mapped `bloom_sentinel` to `guardian`, while its bestiary says "Roots hold it up; the flowers decide where it strikes." The mismatch was obvious inside a flower boss fight.
+- **Decision**: Map `bloom_sentinel` to the bloom-native `petalWitch` sheet and change both enemies.json copies' texture to `enemy_petal_witch`. Its green tint and 1.25 scale remain, so it reads as a larger green mushroom sentinel rather than the pink petal witch. Health, behavior (`pillar_warden`), damage, speed and hitbox are unchanged.
+- **Consequences**: The Thorn Matriarch's summons now match the Bloom bestiary. The new `tests/sim/bloom-sentinel-sprite.test.ts` failed first with `expected 'guardian' to be 'petalWitch'`, then passes. Evidence: `docs/qa/cycle-thorn-attack-volley.png` (chest sentinel before) and `cycle-thorn-sentinel-attack-volley.png` (bloom sentinel after). Final gates: 423 vitest pass (73 files), 345 mechanics pass, typecheck/lint clean, 8/8 AIKit gates pass. No new runtime dependencies and no push. The changes remain in the working tree alongside the pre-existing late-content slice.
+
+## ADR-155: The Hive Queen summons only her brood
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: improve story and fight mechanics by playing the Hive Queen)
+- **Context**: The depth-15 Hive Queen was played with real input. Her summon/swarm log read `cinder_wisp,hive_guard,hive_drone,hive_guard`; the cinder wisp is an ash-born enemy, not one of "her children." The floor roster included it, and both summon patterns draw from that roster.
+- **Decision**: Replace `cinder_wisp` in the depth-15 roster with a new hive caster, the **Hive Oracle** (`wall_warden`, a bolt wall with a dodge gap). It uses the `voidCantor` sheet with a gold tint and 1.05 scale; health 190, damage 34, speed 120, cooldown 1.9. The Hive Queen's summon and swarm now draw only `hive_drone`, `hive_guard`, `hive_slinger` and `hive_oracle`.
+- **Consequences**: The queen's brood is coherent and gains a new wall attack. The `tests/sim/hive-roster.test.ts` failed first because the roster contained `cinder_wisp`, then asserts the hive-only roster and the Oracle's behavior. Evidence: `docs/qa/cycle-hive-attack-swarm.png` (cinder wisp before), `cycle-hive-fixed-attack-swarm.png` (`hive_oracle,hive_guard` after) and `cycle-hive-oracle-wall.png`. Final gates: 424 vitest pass (74 files), 346 mechanics pass, typecheck/lint clean, 8/8 AIKit gates pass. No new runtime dependencies and no push. The changes remain in the working tree alongside the pre-existing late-content slice.
+
+## ADR-156: The Bone Catacombs field their own dead, not a Hive Guard
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: improve story and fight mechanics by playing the Bone Catacombs)
+- **Context**: A real-input depth-16 run cleared room 1 with the roster `bone_knight, catacomb_archer, hive_guard, grave_hound, grave_warden`. The Hive Guard's own bestiary says "A slab of wax and chitin that stands where the queen points" - but there is no queen in the catacombs, and the floor's story is about the first keeper's rank and burial roll. The fifth slot existed because the catacombs had only four non-boss enemies.
+- **Decision**: Add the **Ossuary Chanter**, a catacomb-native caster (`wall_warden`, a bolt wall with a dodge gap), and replace `hive_guard` in the depth-16 roster. It reuses the `voidCantor` sheet with a bone tint (`0xe0d8c8`) and 1.05 scale; health 280, damage 38, speed 104, armor 30, XP 185, cooldown 2.0. Its description names the gap: "It sings the burial roll in a voice the dead still answer. The gap in the hymn is where the living are meant to stand." The row is in both `src/data/enemies.json` (runtime source) and the `assets/data` mirror.
+- **Consequences**: The Bone Catacombs now field only catacomb-native enemies, and the fifth slot is a wall caster whose gap is a readable dodge decision. `tests/sim/catacomb-roster.test.ts` failed first (`expected [ 'bone_knight', ...(4) ] to not include 'hive_guard'` and `to include 'ossuary_chanter'`), then passes 2/2. Evidence: `docs/qa/cycle-catacomb-before-hive-guard.png` (Hive Guard in the same cleared room), `cycle-catacomb-after-ossuary-chanter.png` (Ossuary Chanter at the same spot), `cycle-catacomb-chanter-wall.png` (wall telegraph) and `cycle-catacomb-roster-wall.png` (the real wave). The real room-1 log read `ROSTER ENEMY ossuary_chanter`, `ATTACK FIRST ossuary_chanter wall`, `FINAL ... "room1":"cleared"`, zero console errors. Final gates: 426 vitest pass (75 files), 348 mechanics pass (51 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push. The changes remain in the working tree alongside the pre-existing late-content slice.
+
+## ADR-157: Partial settings must not reset the whole meta save
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 3; the deep-merge fix in commit 2 was lost in the rebuild)
+- **Context**: Commit `8099149` fixed `ConfigManager.patch` to deep-merge nested configs. Auditing that range against the current code found the same failure mode in `SaveStore`: `SettingsSchema` required `masterVolume`, `musicVolume`, `sfxVolume` and `screenShake`, while only the newer fields had zod defaults. A pre-volume save with `settings: { masterVolume, musicVolume }` failed `MetaSchema.safeParse`, so `loadMeta()` returned `defaultMeta()` and silently discarded every fragment, run, victory, echo and checkpoint.
+- **Decision**: Give every settings field a per-field zod default sourced from `DEFAULT_SETTINGS`. `SettingsSchema` now parses a partial object and fills the missing values; `MetaSchema`'s object-level default still covers a missing `settings` key.
+- **Consequences**: Pre-volume and hand-edited saves keep their progress. The new `tests/save.test.ts` case `keeps progress when settings are partial (pre-volume saves)` failed first with `expected [] to deeply equal [ 'fragment_001' ]`, then passes 11/11; it also asserts `sfxVolume` defaults to 0.8 and `screenShake` to true while the saved volumes survive. Full gates: 427 vitest pass (75 files), 348 mechanics pass (51 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push. The changes remain in the working tree alongside the pre-existing late-content slice.
+
+## ADR-158: The docs match the 23-section, six-resident game
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 15; the architecture and graphics docs drifted after the late-content expansion)
+- **Context**: The cumulative audit found stale counts in the living documentation. `docs/ARCHITECTURE.md` still said 16 sections and two Echo Trials (actual: 23 and four), five Sanctuary NPCs and ten stations (actual: six NPCs and eight places), up to four waves per room (actual: up to ten), and "a straight approach to the Keeper's arena" for the last floor (actual: a ring around the First Memory's arena). `docs/Graphics.md` said five hooded residents and listed five role props, omitting the Hearthkeeper's ladle and steaming bowl.
+- **Decision**: Correct the counts and the last-floor name/layout in `docs/ARCHITECTURE.md`, and the resident count/prop list in `docs/Graphics.md`. Add `docs/COMMIT_RANGE_AUDIT.md` with the cumulative range method, findings and gate evidence, and link it from the README documentation list.
+- **Consequences**: The docs now describe the game that ships: 23 sections, four Echo Trials, six residents, up to ten waves, and the First Memory finale. The audit report makes the remaining ranges (`1 -> 21` through `1 -> End`) repeatable. No code, balance or save behaviour changes in this ADR. Full gates: 427 vitest pass (75 files), 348 mechanics pass (51 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-159: Rest heals the saved run in place, with a regression test
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 51; the rest-resume fix had no dedicated test)
+- **Context**: Commit `66c8f28` fixed the hub so rest resumes the healed expedition instead of starting a fresh run. The heal logic lived in the private `App.restSavedRun` and was only covered indirectly by `tests/hub.test.ts`'s rest-cost test, so a regression could silently reset depth or seed without failing a unit test.
+- **Decision**: Extract `healRunForRest(run)` into `src/sim/hub.ts`; it refills health, mana and potions on the same `RunState` and returns it. `App.restSavedRun` now calls the helper, keeps the echo spend, saves the run and resumes it. `tests/hub.test.ts` adds `heals the saved run in place without changing its depth or seed`, asserting object identity, depth 9, seed 77, and full health/mana/potions.
+- **Consequences**: The heal half of the rest-resume fix is now covered in the DOM-free sim tier; the App still owns the price and the resume call. Full gates: 428 vitest pass (75 files), 348 mechanics pass (51 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-160: The shrine burns a memory flame, not a fountain pool
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 63; the shrine sprite replacement left the fountain's water effect behind)
+- **Context**: Commit `1334604` gave the shrine its own gabled wayside sprite so it would stop reading as a second fountain. The current `ActorView` still matched `it.kind === 'shrine'` in both the water-graphics creation branch and the per-frame ripple branch, so the gabled shrine kept a blue water ellipse and ripples under its memory flame. The before/after frames show the mismatch clearly.
+- **Decision**: Add `hasWaterEffect(kind, structureId)` in `src/view/propFx.ts`: true for `fountain` and `structure: wellspring`, false for `shrine` and everything else. Use it in both `ActorView` branches and remove the shrine-specific water colours. `tests/ui-shrine-water.test.ts` failed first with `Failed to load url ../src/view/propFx`, then passes 1/1 and also covers the fountain/wellspring positives.
+- **Consequences**: Shrines now read as a gabled wayside shrine with a memory flame and offerings, with no water pool; fountains and the wellspring keep their water. Evidence: `docs/qa/cycle-range63-shrine-before.png` (water and ripples) and `cycle-range63-shrine-after.png` (flame, no water), same depth-0 seed and viewport, zero console errors. Full gates: 429 vitest pass (76 files), 348 mechanics pass (51 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-161: Telegraph contours follow the real windup, not a fixed 0.8s
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 102; the charge contour used a hardcoded windup)
+- **Context**: Commit `ce62c4e` added advancing strike/slam contours, but `ActorView.drawTelegraph` computed both `urgency` and the contour progress with `1 - e.stateTime / 0.8`. Real windups range from 0.4s (lunge/blink) to 0.9s (sweep), scaled by `ENEMY_WINDUP_SCALE` and the boss phase cooldown, so a strike started its contour roughly two-thirds full and the fill no longer matched the attack.
+- **Decision**: Export `windupDuration(enemy)` from `src/sim/enemies.ts` (the exact `WINDUP / ENEMY_WINDUP_SCALE` times the boss phase floor), use it in `beginWindup`, and use it in `drawTelegraph` for the urgency, strike arc and slam ring progress. `tests/sim/windup-duration.test.ts` failed first with `windupDuration is not a function`, then passes 2/2, including the 0.75 boss-phase floor.
+- **Consequences**: Every telegraph contour starts at its intended 30%/20% and reaches 100% exactly when the attack fires, for normal, boss and short-windup attacks. Full gates: 434 vitest pass (78 files), 348 mechanics pass (51 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-162: The blink telegraph uses the real 0.4s windup too
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 120; the blink collapse/lock rings still used 0.8s)
+- **Context**: Commit `33c7519` added the blink singularity and landing-zone rings with `e.stateTime / 0.8`. The blink windup is 0.4s, so the collapse ring started half-collapsed and the landing lock ring started at 65% instead of 30%. ADR-161 had just moved the strike/slam contours to `windupDuration`.
+- **Decision**: Reuse the `progress` derived from `windupDuration(e)` for the blink `collapseR` and `lockR`; add a blink case to `tests/sim/windup-duration.test.ts` (`0.4 / 1.1`).
+- **Consequences**: The blink telegraph starts at full collapse and 30% lock, then reaches the real strike as the blink fires. Full gates: 435 vitest pass (78 files), 348 mechanics pass (51 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-163: Big chambers really land three stones, not just one
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 135; the big-room backstop only fired on fully bare rooms)
+- **Context**: Commit `914acd1` remapped `open` to `scatter` for rooms of area >= 200 and added a backstop that ADR-090 says "guarantees >= 3 stones when a big chamber still scans bare". The code guarded the retry with `countWalls() === 0`, so a scatter/crossing/ring layout that landed one or two stones skipped it. A census of 200 seeds x depths 0-10 found 475 big rooms with one or two interior walls (162 with one, 313 with two). The original `tests/sim/big-cover.test.ts` only asserted "not fully bare", so it passed.
+- **Decision**: Change the guard to `countWalls() < 3`; the existing retry loop already stops at three. Strengthen `tests/sim/big-cover.test.ts` to assert every combat/arena/colosseum room of area >= 200 has at least three interior walls. The strengthened test failed first with 27 thin rooms in the existing 60-seed x 3-depth sample, then passed.
+- **Consequences**: Big chambers now meet the documented three-stone floor; small rooms and the colosseum extra-scatter are unchanged. This is generation-only and saves store seed/depth rather than the grid, so resumed runs regenerate consistently. ADR-090's sentence saying `pillar()` returns a boolean is inaccurate (it still returns void); the backstop counts the walls that actually landed. Full gates: 435 vitest pass (78 files), 352 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-164: The wall-gap test pins the drawn guide, not just its math
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 138; the wall-gap regression test could not see the view regress)
+- **Context**: Commit `dc1867a` fixed the wall telegraph's cyan "dive through here" tick, which sat at a fixed +40..+80 lane while the sim leaves the gap at `gap*40-80` (`gap = id%4`). The fix made `WALL_BOLT_OFFSETS`, `wallGapIndex` and `wallGapCenter` the shared source and added `tests/sim/wall-gap.test.ts`. That test only exercised the helpers, so restoring the old fixed lane in `ActorView` would still pass; the original bug was exactly a view-only divergence. `8afb5dd` also corrected ADR-090's `pillar()`-returns-boolean wording.
+- **Decision**: Extract the drawn tick into `wallGapGuideSegment(x, y, angle, enemyId)` in `src/view/telegraph.ts`, centered on `wallGapCenter` with the same 40px span, and call it from `ActorView`'s `wall` telegraph. Extend `tests/sim/wall-gap.test.ts` with two failing-first cases: for ids 0-11 the segment midpoint equals `wallGapCenter` and the segment stays between the surviving bolts of the corridor; the old +60 center is explicitly rejected.
+- **Consequences**: A view regression now fails a test instead of only a screenshot review. The sim launch and the telegraph still read the same constants; damage, speeds, tracking and audio are untouched. The new cases failed first with `wallGapGuideSegment is not a function`, then the file passed 5/5. ADR-090's corrected "counts landed walls" wording is the current text; ADR-163's trailing note about a boolean is stale. Final gates: 437 vitest pass (78 files), 354 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-165: restoreRun repairs a missing player.stats block and NaN health
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 141; the corrupt-snapshot guard only covered the run-level stats block)
+- **Context**: Commit `bd08192` made `restoreRun` reject a snapshot without `run.stats` and refill missing `mana`/`dashCharges`, but `refreshStats` still dereferences `player.stats` before the vitals are repaired: a snapshot with no player-level stats block threw `TypeError` (reading `maxHealth`) instead of returning `undefined`, and `health` was only type-checked, so `NaN` passed the guard and loaded as a dead HUD. ADR-092 says non-finite vitals are refilled to full; health was not.
+- **Decision**: In `restoreRun`, rebuild a missing/non-object `player.stats` from `computeStats(player.upgrades)` before `refreshStats`, and refill non-finite health to `stats.maxHealth` like mana and dash. Add two failing-first cases to `tests/sim/restore-run.test.ts`.
+- **Consequences**: A stats-less player block now loads with recomputed stats and finite vitals instead of throwing, and a NaN health loads at full. Both new cases failed first (`expected 'threw' not to be 'threw'` and `expected true to be false`), then pass 8/8 in the file. Final gates: 439 vitest pass (78 files), 356 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-166: The live sweep beam shares the sim's duration and angle
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 144; the live beam still duplicated the sweep duration)
+- **Context**: Commit `f2201d0` made `SWEEP_SPAN`/`SWEEP_RANGE` the single source for the sweep telegraph and sim beam, but `ActorView.drawSweepBeam` still computed `progress = 1 - stateTime / 0.7` while the sim read `ACTIVE.sweep`. Both were 0.7, so current frames agreed, but any duration change would rotate the drawn beam at a different rate than the sim resolves it, and no test covered the beam's endpoints.
+- **Decision**: Export `SWEEP_ACTIVE` as the sweep phase duration (used by `ACTIVE.sweep`), add `sweepBeamAngle(enemy)` in `src/sim/enemies.ts` for the rotating angle, and use it from both the sim resolution and `ActorView.drawSweepBeam`. Add a failing-first `sweep-honesty` case asserting the beam starts at `base - SWEEP_SPAN/2`, crosses `base` at half duration, and ends at `base + SWEEP_SPAN/2`.
+- **Consequences**: The warning, live beam and hit resolution now share the duration, span and angle. The new case failed first with `sweepBeamAngle is not a function`, then `sweep-honesty` passed 4/4. Final gates: 440 vitest pass (78 files), 357 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-167: Pending upgrade choices pass the same phantom-id boundary
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 147; the relic trust boundary stopped at equipment)
+- **Context**: Commit `6f83240` added `equipmentExists()` and filtered phantom relic defIds in `restoreRun`, because `equipmentDef` throws at its render/sell/equip call sites. `pendingChoices` is also persisted run data, and `choiceScreen` calls `upgradeDef(id)` directly in `Screens.ts` with no catch; a corrupt or forward-incompatible save naming a removed upgrade would crash on Continue instead of degrading.
+- **Decision**: Add `upgradeExists()` to `src/sim/upgrades.ts` and sanitize every pending choice at the `restoreRun` boundary: drop non-object choices and non-array options, filter unknown ids, and keep an empty options list (the screen already renders a Continue button for it). Add a failing-first case to `tests/sim/restore-run.test.ts`.
+- **Consequences**: Every persisted id at the run boundary now passes an existence check, so the choice screen only sees known upgrades. The new case failed first (`expected [ ... ] to have a length of 2 but got 4`), then the file passed 9/9. Final gates: 441 vitest pass (78 files), 358 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-168: Mortar clipping is radius-aware, so boss rings that reach inside stay warned
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 150; the mortar clip assumed every outside ring was unreachable)
+- **Context**: Commit `4cce79c` made `MORTAR_OFFSETS`/`mortarRadius()` the single source and rings the landing zone. ADR-135 later added `mortarRingPoints` to hide rings whose centres fall outside the room, reasoning that "the sim blast outside is unreachable". That holds for the 40px non-boss radius (a ring 50px outside the wall reaches no interior point), but not for the 52px boss radius: a boss ring centred 50px outside still reaches 2px into the room, so a walker against the wall can be hit with no warning. The helper also diverged from `quakeRingPoints`, which already filters by circle intersection and lets the room mask clip the overhang.
+- **Decision**: Add a `radius` parameter to `mortarRingPoints` and filter by circle intersection (`p.x + radius >= x0`, etc.); `ActorView` passes `mortarRadius(e.isBoss)`. Add a failing-first boss-radius case to `tests/ui-mortar-clip.test.ts` and keep the 40px expectations.
+- **Consequences**: Boss mortar rings that can reach inside are drawn, and the telegraph room mask clips the overhang; non-boss rings 50px outside remain hidden. The new case failed first with the old signature (`expected [] to have length 3 but got 0`); the mortar tests now pass 5/5 across the clip and live-sim files. Final gates: 442 vitest pass (78 files), 358 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-169: Enemy bomb explosions pay the graze too
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 162; the universal-graze fix missed one enemy path)
+- **Context**: Commit `354a9a1` gave `damagePlayer` a `grazeable` flag and passed it from every enemy attack the audit found, so a dash through a strike, beam, hook, combo or blast pays a near miss instead of vanishing into i-frames. `World.explodeBomb` still called `damagePlayer` without the flag, so a dash through an enemy bomb explosion took no graze; the walker's own bomb should not pay one.
+- **Decision**: Pass `b.owner === 'enemy'` for the bomb explosion. Add two failing-first cases to `tests/sim/graze-attacks.test.ts`: an enemy bomb pays one graze and the walker's own bomb pays none.
+- **Consequences**: Every enemy damage path the sim exposes now honours the graze contract, while self-damage stays neutral. The enemy-bomb case failed first with `expected +0 to be 1`, then the file passed 6/6. Final gates: 444 vitest pass (78 files), 360 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-170: An attuned relic outside the vault is dropped at load
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 174; the Reliquary's honest empty state assumed a vault-consistent attuned id)
+- **Context**: Commit `067454c` made the Reliquary caption say "No relic waits" when none is attuned, and its helper's comment promises the copy never claims a relic when the vault is empty or nothing is attuned. `dropPhantomRelics` nulled an attuned relic only when its defId did not exist; a valid `attunedRelic` that was not in the vault passed through, so the caption claimed a relic waited while the Reliquary had no row for it. `createExpedition` and `vaultCarryPlan` already require `vault.includes(attuned)`, so the load boundary was the outlier.
+- **Decision**: In `dropPhantomRelics`, keep the attuned relic only when it exists and is in the filtered vault; otherwise null it. Add a failing-first save case with a valid `echo_dagger` attuned against a `rusted_edge` vault.
+- **Consequences**: The meta boundary and every consumer now agree, so the Reliquary caption and expedition plan cannot disagree about a non-vault relic. The new case failed first with `expected 'echo_dagger' to be null`, then the save/reliquary files passed 17/17. Final gates: 445 vitest pass (78 files), 360 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-171: The First Remembering reaches the assets mirror and README
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 177; the runtime lore and its mirror drifted)
+- **Context**: Commit `3920240` grouped the tide/storm fragments and `39b8ae6` renamed core 008 and set the README to 34 fragments / 10 cores. The working tree's later story slice added "The First Remembering" (`fragment_first`, `core_memory_011`, `lore_013`) to `src/data/lore.json` only. `content.ts` reads the runtime copy, so players saw 35 fragments / 11 cores while `assets/data/lore.json` and the README still said 34/10.
+- **Decision**: Add a mirror-parity case to `tests/lore-completeness.test.ts` (normalized JSON equality between the runtime and assets copies), sync `assets/data/lore.json` from the runtime file, and update the README to 35 fragments / 11 core memories, naming the First Remembering.
+- **Consequences**: The runtime lore, its distribution mirror and the living docs now agree, and a future one-sided edit fails the lore suite. The new case failed first (`entries` 12 vs 13), then the file passed 4/4. Final gates: 446 vitest pass (78 files), 360 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-172: The mine warning covers the real blast radius
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> 183; the mine warning fixed its positions but not its size)
+- **Context**: Commit `ff5062e` shared the three mine landing angles between the sim and the ground telegraph, but `ActorView` still drew a 28px ring while `World.updateMines` damages at 62px + player radius. A walker standing 40px from a mine centre read the warning as safe and took the blast.
+- **Decision**: Export `MINE_DISTANCE` (56) and `MINE_RADIUS` (62) next to `mineOffsets`; use them in the sim launch, the blast event/damage checks and the view ring. Extend `tests/sim/mine-telegraph.test.ts` with a shared-radius case (blast radius equals `MINE_RADIUS`, view reads it) and use the distance constant in the existing position case.
+- **Consequences**: The warning circle now matches the lethal circle, so the drawn gap cannot be safe-looking while damage reaches inside. The new case failed first because the constants did not exist; the file now passes 3/3. Final gates: 447 vitest pass (78 files), 361 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-173: The assets bestiary mirror catches up with the 83-enemy runtime
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: commit-range audit 1 -> End; the runtime bestiary and its mirror drifted)
+- **Context**: Commits `60e7db7` (Crystal Golem prism beam) and `6a72b36` (Ruin Warlord armor) touched `src/data/enemies.json`. The working tree's late-content slice added seven enemies (`ember_squire`, `first_echo`, `first_memory`, `hive_oracle`, `mire_halberdier`, `obsidian_reaver`, `pale_blademaster`) to the runtime copy only. `assets/data/enemies.json` stayed at 76 records while the runtime and README say 83; every shared record was identical, so the mirror was simply behind.
+- **Decision**: Add a bestiary mirror-parity case to `tests/sim/content.test.ts` (normalized JSON equality) and sync `assets/data/enemies.json` from `src/data/enemies.json`. The README already says eighty-three enemies, so no count edit was needed.
+- **Consequences**: The runtime bestiary, its distribution mirror and the README now agree, and a future one-sided edit fails the content suite. The new case failed first (76 vs 83 records), then `content` passed 18/18. Final gates: 448 vitest pass (78 files), 362 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+
+## ADR-174: The 18px combat bar stays, pinned by a CSS test
+
+- **Date**: 2026-11-08
+- **Status**: Accepted (goal: close the audit's unblessed `.bar` restyle)
+- **Context**: Commit `2918da8` bundled a `.bar` restyle (height 16px -> 18px, border/background changes) into a short-window hub commit and explicitly left it unblessed; the audit report carried it as the last open human-review item. The current UI and its screenshots use the 18px bar, and reverting would invalidate the verified short-window layout without a new visual pass.
+- **Decision**: Keep the 18px combat bar. Add `tests/ui-health-bar.test.ts` pinning `.bar` at 18px and `.bar.thin` at 5px so the restyle is deliberate and regression-guarded. Replace the open-review notes in `docs/COMMIT_RANGE_AUDIT.md`.
+- **Consequences**: The health-bar height is now a tested design decision rather than an accidental co-mingled hunk. The new file passes 2/2, and the audit has no open items. Final gates: 450 vitest pass (79 files), 362 mechanics pass (52 files), typecheck/lint/build clean, 8/8 AIKit gates pass. No new runtime dependencies and no push.
+- **Errata**: `tests/tmp-gates.test.ts` was renamed to `tests/sim/gate-spawn.test.ts` in the same slice, so the mechanics tier is now 363 tests (53 files); the full suite stays 450.

@@ -15,17 +15,46 @@ import {
   reforgeRelic,
   createExpedition,
   echoesEarned,
+  healRunForRest,
   restCost,
   purchaseOffering,
   purchaseRestoration,
   sectionNumber,
   sellRelic,
 } from '../sim/hub';
-import { NPCS, NPC_AMBIENT, questProgress, questsForNpc, questSnapshot } from '../sim/quests';
+import {
+  NPCS,
+  NPC_AMBIENT,
+  applyQuestClaim,
+  applyTribute,
+  bountyForDay,
+  claimDailyBounty,
+  dailyBounty,
+  npcStories,
+  questProgress,
+  questStateFor,
+  questsForNpc,
+  questSnapshot,
+  rushMinutesLeft,
+  tributeCost,
+  trustBonus,
+  trustLevel,
+} from '../sim/quests';
 import { createRun, type RunState } from '../sim/run';
+import { equipmentDef } from '../sim/equipment';
+import { FEATS, flowMilestone, scoreRun } from '../sim/feats';
 import { buildingById } from '../sim/sanctuary';
 import { World } from '../sim/world';
-import { SaveStore, recordRun, type Meta, type Settings } from '../save/SaveStore';
+import {
+  SaveStore,
+  DAILY_MODIFIERS,
+  dailyKey,
+  dailyModifier,
+  dailySeed,
+  recordRun,
+  type Meta,
+  type Settings,
+} from '../save/SaveStore';
 import { placeBalloon } from '../ui/balloon';
 import { h } from '../ui/dom';
 import { Hud } from '../ui/Hud';
@@ -40,6 +69,7 @@ import {
   expeditionScreen,
   floorBanner,
   hubScreen,
+  prologueScreen,
   inventoryScreen,
   mapScreen,
   meditationScreen,
@@ -92,6 +122,10 @@ export class App {
   private balloonNpc = '';
   private balloonLine = 0;
   private balloonTimer = 0;
+  /** First-expedition tutorial hints, each shown once per run. */
+  private tipRoom = false;
+  private tipHurt = false;
+  private tipFlask = false;
   private readonly sanctuaryName = h('div', { class: 'st-title' }, 'The Sanctuary');
   private sanctuaryNameText = 'The Sanctuary';
   private readonly sanctuaryTitle = h(
@@ -121,10 +155,10 @@ export class App {
     window.addEventListener('pointerdown', unlock);
     window.addEventListener('keydown', unlock);
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden && this.state === 'playing') this.pause();
+      if (document.hidden && this.state === 'playing' && this.meta.settings.autoPause) this.pause();
     });
     window.addEventListener('blur', () => {
-      if (this.state === 'playing') this.pause();
+      if (this.state === 'playing' && this.meta.settings.autoPause) this.pause();
     });
   }
 
@@ -219,10 +253,40 @@ export class App {
         case 'bossIntro':
           this.sound.playAmbience(world.plan.biome, true);
           break;
+        case 'secretOpened':
+          // The vault doorway changes from wall to door; rebuild the static floor.
+          this.renderer.showFloor(world);
+          break;
         case 'roomCleared':
           if (world.floor.rooms[e.roomId].kind === 'boss')
             this.sound.playAmbience(world.plan.biome);
           break;
+        case 'enemyDied': {
+          // Daily mark: every matching kill anywhere counts toward the board.
+          const key = dailyKey();
+          const contract = dailyBounty(key);
+          if (!e.boss && e.defId === contract.defId && !this.meta.dailyBounty.claimed) {
+            const progress =
+              this.meta.dailyBounty.key === key ? this.meta.dailyBounty.kills + 1 : 1;
+            this.meta = {
+              ...this.meta,
+              dailyBounty: { key, kills: progress, claimed: false },
+            };
+            this.store.saveMeta(this.meta);
+            if (progress === contract.target)
+              this.hud.toast(
+                `Daily mark complete: ${contract.name} ${progress}/${contract.target} — claim it in the quest log`
+              );
+          }
+          break;
+        }
+        case 'resonance': {
+          // Streak announcer (arcade juice, cyberpunk overdrive's quieter
+          // cousin): name the streak at milestones so long flows feel seen.
+          const call = flowMilestone(e.count);
+          if (call) this.hud.toast(call);
+          break;
+        }
         case 'playerDied':
           this.state = 'dead';
           this.deathTimer = DEATH_LINGER;
@@ -244,6 +308,29 @@ export class App {
       }
     }
     if (this.state === 'playing' && world.awaitingChoice) this.showChoice();
+    this.tutorialTips(events, world);
+  }
+
+  /**
+   * One-line combat lessons on the first expedition only: veterans already
+   * know, and toasts during a boss would be noise.
+   */
+  private tutorialTips(events: SimEvent[], world: World): void {
+    if (this.state !== 'playing' || this.meta.runs > 0) return;
+    for (const e of events) {
+      if (e.type === 'roomLocked' && !this.tipRoom) {
+        this.tipRoom = true;
+        this.hud.toast('Doors seal — clear every wave, then take the gate down.');
+      } else if (e.type === 'playerHurt' && !this.tipHurt) {
+        this.tipHurt = true;
+        this.hud.toast('Struck! Dash (Space) through attacks — you cannot be hit mid-dash.');
+      }
+    }
+    const p = world.player;
+    if (!this.tipFlask && p.health > 0 && p.health < p.stats.maxHealth * 0.3) {
+      this.tipFlask = true;
+      this.hud.toast('Low health — press Q to drink a flask.');
+    }
   }
 
   // ----- flow -----
@@ -271,6 +358,7 @@ export class App {
           this.click(() =>
             this.screens.show(memoriesScreen(this.meta.fragments, () => this.showTitle()))
           ),
+        onPrologue: () => this.click(() => this.showPrologue(() => this.showHub())),
         onSettings: () => this.click(() => this.showSettings(() => this.showTitle())),
         onControls: () =>
           this.click(() => this.screens.show(controlsScreen(() => this.showTitle()))),
@@ -332,6 +420,7 @@ export class App {
         onSettings: () => this.click(() => this.showSettings(() => this.showHub())),
         onControls: () => this.click(() => this.screens.show(controlsScreen(() => this.showHub()))),
         onTitle: () => this.click(() => this.showTitle()),
+        onReplay: (seed: number) => this.click(() => this.startExpedition(0, seed)),
       })
     );
   }
@@ -428,6 +517,17 @@ export class App {
               if (run) this.startRun(run);
             }),
           onStart: (depth) => this.click(() => this.startExpedition(depth)),
+          dailyKey: dailyKey(),
+          onDaily: () => this.click(() => this.startDailyExpedition()),
+          onDifficulty: () =>
+            this.click(() => {
+              const order = ['story', 'normal', 'nightmare'] as const;
+              const next = order[(order.indexOf(this.meta.settings.difficulty) + 1) % order.length];
+              this.meta = { ...this.meta, settings: { ...this.meta.settings, difficulty: next } };
+              this.applySettings(this.meta.settings);
+              this.store.saveMeta(this.meta);
+              render();
+            }),
           onSellRelic: (defId) => {
             const next = sellRelic(this.meta, defId);
             if (!next) return;
@@ -463,7 +563,29 @@ export class App {
   private showQuestLog(back: () => void): void {
     if (this.world?.mode === 'sanctuary') this.state = 'hub';
     this.input.releaseAll();
-    this.screens.show(questLogScreen(this.meta, this.questSnapshotNow(), () => this.click(back)));
+    const render = (): void => {
+      const key = dailyKey();
+      this.screens.show(
+        questLogScreen(
+          this.meta,
+          this.questSnapshotNow(),
+          { contract: dailyBounty(key), progress: bountyForDay(this.meta.dailyBounty, key) },
+          {
+            onClaimDaily: () => {
+              const settled = claimDailyBounty(this.meta, key);
+              if (!settled) return;
+              this.sound.click();
+              this.meta = { ...this.meta, ...settled };
+              this.store.saveMeta(this.meta);
+              this.hud.toast(`Daily mark claimed · +${settled.reward} echoes`);
+              render();
+            },
+          },
+          () => this.click(back)
+        )
+      );
+    };
+    render();
   }
 
   /** Pick the weapon every expedition starts with. */
@@ -520,18 +642,55 @@ export class App {
       const accepted = !!quest && this.meta.quests.accepted.includes(quest.id);
       const claimed = !!quest && this.meta.quests.claimed.includes(quest.id);
       const progress = quest ? questProgress(quest, snapshot) : 0;
+      const state = questStateFor(quest, accepted, claimed, progress);
+      const stories = npcStories(npcId, snapshot, this.meta.victories, state);
+      const trust = trustLevel(this.meta, npcId);
       this.screens.show(
         dialogueScreen({
           npcId,
           progress,
           accepted,
           claimed,
+          trust,
+          trustBonus: quest ? trustBonus(quest.rewardEchoes, trust) : 0,
+          rushMinutes:
+            quest && accepted && !claimed
+              ? rushMinutesLeft(this.meta.quests.acceptedAt[quest.id])
+              : undefined,
+          tributeCost:
+            trust < 3 && this.meta.echoes >= tributeCost(trust) ? tributeCost(trust) : undefined,
+          stories,
+          onTribute: () => {
+            const settled = applyTribute(this.meta, npcId);
+            if (!settled) return;
+            this.sound.click();
+            this.meta = { ...this.meta, ...settled };
+            this.hud.toast(`Tribute accepted · trust ${'♥'.repeat(trustLevel(this.meta, npcId))}`);
+            if (settled.gift) {
+              let name = settled.gift;
+              try {
+                name = equipmentDef(settled.gift).name;
+              } catch {
+                /* keep the raw id */
+              }
+              this.hud.toast(
+                `A parting gift from ${NPCS[npcId]?.name ?? 'an old friend'}: ${name}`,
+                true
+              );
+            }
+            this.store.saveMeta(this.meta);
+            render();
+          },
           onAccept: () => {
             if (!quest || accepted) return;
             this.sound.click();
             this.meta = {
               ...this.meta,
-              quests: { ...this.meta.quests, accepted: [...this.meta.quests.accepted, quest.id] },
+              quests: {
+                ...this.meta.quests,
+                accepted: [...this.meta.quests.accepted, quest.id],
+                acceptedAt: { ...this.meta.quests.acceptedAt, [quest.id]: Date.now() },
+              },
             };
             this.store.saveMeta(this.meta);
             render();
@@ -539,19 +698,27 @@ export class App {
           onClaim: () => {
             if (!quest || claimed || progress < quest.target) return;
             this.sound.click();
-            const vault =
-              quest.rewardItem && !this.meta.vault.includes(quest.rewardItem)
-                ? [...this.meta.vault, quest.rewardItem]
-                : this.meta.vault;
-            this.meta = {
-              ...this.meta,
-              echoes: this.meta.echoes + quest.rewardEchoes,
-              vault,
-              quests: {
-                ...this.meta.quests,
-                claimed: [...this.meta.quests.claimed, quest.id],
-              },
-            };
+            const trustBefore = trustLevel(this.meta, npcId);
+            const settled = applyQuestClaim(this.meta, npcId, quest);
+            this.meta = { ...this.meta, ...settled };
+            const bonus = trustBonus(quest.rewardEchoes, trustBefore);
+            const parts = [`+${quest.rewardEchoes} echoes`];
+            if (bonus > 0) parts.push(`+${bonus} friends' share`);
+            if (settled.rush > 0) parts.push(`+${settled.rush} rush bonus`);
+            this.hud.toast(`Task complete · ${parts.join(', ')}`);
+            if (settled.gift) {
+              const name = (() => {
+                try {
+                  return equipmentDef(settled.gift).name;
+                } catch {
+                  return settled.gift;
+                }
+              })();
+              this.hud.toast(
+                `A parting gift from ${NPCS[npcId]?.name ?? 'an old friend'}: ${name}`,
+                true
+              );
+            }
             this.store.saveMeta(this.meta);
             render();
           },
@@ -587,19 +754,29 @@ export class App {
   private restSavedRun(cost: number): RunState | undefined {
     const run = this.store.loadRun();
     if (!run || this.meta.echoes < cost) return undefined;
-    const p = run.player;
-    p.health = p.stats.maxHealth;
-    p.mana = p.stats.maxMana;
-    p.potions = p.stats.maxPotions;
+    healRunForRest(run);
     this.store.saveRun(run);
     this.meta = { ...this.meta, echoes: this.meta.echoes - cost };
     this.store.saveMeta(this.meta);
     return run;
   }
 
-  private startExpedition(startDepth: number): void {
-    const seed = Math.floor(Math.random() * 2 ** 31);
-    const run = createExpedition(seed, this.meta.fragments, startDepth, this.meta);
+  private startExpedition(startDepth: number, replaySeed?: number): void {
+    // First descent goes through the prologue: story first, controls fresh.
+    if (!this.meta.seenTutorial) {
+      this.meta = { ...this.meta, seenTutorial: true };
+      this.store.saveMeta(this.meta);
+      this.showPrologue(() => this.startExpedition(startDepth, replaySeed));
+      return;
+    }
+    const seed = replaySeed ?? Math.floor(Math.random() * 2 ** 31);
+    const run = createExpedition(
+      seed,
+      this.meta.fragments,
+      startDepth,
+      this.meta,
+      this.meta.settings.difficulty
+    );
     // The meditation boon and the Cairn's offerings are spent by this run.
     if (this.meta.boon !== null || this.meta.offerings > 0) {
       this.meta = { ...this.meta, boon: null, offerings: 0 };
@@ -810,11 +987,32 @@ export class App {
     this.balloon.style.top = `${placement.top}px`;
   }
 
+  /** The opening story. First-time walkers must pass through it; veterans can replay it. */
+  private showPrologue(onDone: () => void): void {
+    this.state = 'hub';
+    this.screens.show(
+      prologueScreen(
+        () => this.click(() => onDone()),
+        () => this.click(() => this.showTitle())
+      )
+    );
+  }
+
   private startRun(run: RunState): void {
     this.run = run;
+    this.tipRoom = false;
+    this.tipHurt = false;
+    this.tipFlask = false;
     this.screens.close();
     this.input.releaseAll();
     this.enterFloor();
+    if (run.dailyMod) {
+      const mod = DAILY_MODIFIERS.find((m) => m.id === run.dailyMod);
+      if (mod) this.hud.toast(`Today's twist: ${mod.name} — ${mod.text}`);
+    } else if (run.omen) {
+      const mod = DAILY_MODIFIERS.find((m) => m.id === run.omen);
+      if (mod) this.hud.toast(`Omen: ${mod.name} — ${mod.text}`);
+    }
   }
 
   /** Builds the world for the run's current depth and saves the run at its entrance. */
@@ -875,7 +1073,7 @@ export class App {
       if (inSanctuary) this.closeHubPanel();
       else this.resume();
     };
-    let status = 'Click a carried relic to equip it, or sell what you will not wear.';
+    let status = 'Click a carried relic to equip it, ↑↓ to browse, or sell what you will not wear.';
     const render = (): void => {
       this.screens.show(
         inventoryScreen(
@@ -926,10 +1124,28 @@ export class App {
     render();
   }
 
+  private startDailyExpedition(): void {
+    const key = dailyKey();
+    const seed = dailySeed(key);
+    const run = createExpedition(
+      seed,
+      this.meta.fragments,
+      0,
+      this.meta,
+      this.meta.settings.difficulty
+    );
+    run.dailyKey = key;
+    run.dailyMod = dailyModifier(key).id;
+    this.startRun(run);
+  }
+
   private endRun(won: boolean): void {
     const run = this.run!;
     const earned = echoesEarned(run, won);
+    const oldFeats = new Set(this.meta.feats);
+    const score = scoreRun(run, won);
     this.meta = recordRun(this.meta, run, won);
+    const freshFeats = FEATS.filter((f) => this.meta.feats.includes(f.id) && !oldFeats.has(f.id));
     this.store.saveMeta(this.meta);
     this.store.clearRun();
     this.state = won ? 'victory' : 'dead';
@@ -941,9 +1157,19 @@ export class App {
     const sanctuary = (): void => this.click(() => this.showHub());
     this.screens.show(
       won
-        ? victoryScreen(run, { echoes: earned, onSanctuary: sanctuary })
+        ? victoryScreen(run, {
+            echoes: earned,
+            score: score.total,
+            best: this.meta.bestScore,
+            victories: this.meta.victories,
+            newFeats: freshFeats,
+            onSanctuary: sanctuary,
+          })
         : deathScreen(run, {
             echoes: earned,
+            score: score.total,
+            best: this.meta.bestScore,
+            newFeats: freshFeats,
             checkpoint: sectionNumber(checkpoint),
             onRetry: () => this.click(() => this.startExpedition(checkpoint)),
             onBeginning: () => this.click(() => this.startExpedition(0)),
@@ -1004,6 +1230,8 @@ export class App {
 
   private applySettings(settings: Settings): void {
     this.sound.setVolumes(settings.masterVolume, settings.musicVolume, settings.sfxVolume);
+    this.renderer.setDamageNumbers(settings.damageNumbers);
+    this.renderer.setScreenFlash(settings.screenFlash);
   }
 
   private onMenu(action: MenuAction): void {

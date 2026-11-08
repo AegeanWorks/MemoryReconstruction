@@ -14,6 +14,8 @@ const KIND_COLOR: Record<Room['kind'], string> = {
   boss: '#ff4d5e',
   arena: '#ff9a5e',
   library: '#b8a4ff',
+  colosseum: '#ff6a3d',
+  vault: '#ffb347',
 };
 
 /** Rooms worth showing: visited ones and their direct neighbours. */
@@ -22,7 +24,11 @@ function knownRooms(world: World): Set<number> {
   world.floor.rooms.forEach((room, id) => {
     if (!world.visited[id]) return;
     known.add(id);
-    for (const door of room.doors) known.add(door.leadsTo);
+    for (const door of room.doors) {
+      const target = world.floor.rooms[door.leadsTo];
+      if (target?.kind === 'vault' && target.sealed) continue;
+      known.add(door.leadsTo);
+    }
   });
   return known;
 }

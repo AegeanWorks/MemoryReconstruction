@@ -66,6 +66,8 @@ describe('player clearance', () => {
           }
         }
         for (const room of floor.rooms) {
+          // A sealed vault is intentionally unreachable until its lever opens.
+          if (room.sealed) continue;
           const rx = Math.floor(((room.x + room.w / 2) * TILE_SIZE) / STEP);
           const ry = Math.floor(((room.y + room.h / 2) * TILE_SIZE) / STEP);
           let reachable = false;

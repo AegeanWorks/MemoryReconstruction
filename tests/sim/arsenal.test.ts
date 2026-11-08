@@ -147,7 +147,7 @@ describe('bombs and traps', () => {
   });
 
   it('boss patterns include the new bomb and quake attacks', () => {
-    const w = world(14, 31);
+    const w = world(16, 31);
     const room = w.floor.rooms.find((r) => r.kind === 'boss')!;
     w.player.x = (room.x + room.w / 2) * 32;
     w.player.y = (room.y + room.h / 2) * 32;

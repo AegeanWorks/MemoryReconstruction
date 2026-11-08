@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   CORE_MEMORIES,
@@ -9,6 +11,7 @@ import {
   enemyDef,
   fragmentsForFloor,
 } from '../../src/sim/content';
+import { equipmentDef } from '../../src/sim/equipment';
 import spriteAtlas from '../../src/data/sprite_atlas.json';
 
 describe('content', () => {
@@ -35,30 +38,49 @@ describe('content', () => {
     expect(enemyDef('guardian', true).maxHealth).toBeGreaterThan(enemyDef('guardian').maxHealth);
   });
 
-  it('grows the expedition to nineteen sections including echo trials and colosseum', () => {
-    expect(FLOOR_PLANS).toHaveLength(19);
-    expect(FLOOR_PLANS[18].finale).toBe(true);
-    expect(FLOOR_PLANS[14].roomCount).toBeGreaterThan(FLOOR_PLANS[0].roomCount);
-    expect(new Set(FLOOR_PLANS.map((plan) => plan.biome)).size).toBeGreaterThanOrEqual(14);
+  it('grows the expedition to twenty-three sections including echo trials and colosseum', () => {
+    expect(FLOOR_PLANS).toHaveLength(23);
+    expect(FLOOR_PLANS[21].finale).toBe(false);
+    expect(FLOOR_PLANS[22].finale).toBe(true);
+    expect(FLOOR_PLANS[22].boss).toBe('first_memory');
+    expect(FLOOR_PLANS[16].roomCount).toBeGreaterThan(FLOOR_PLANS[0].roomCount);
+    expect(new Set(FLOOR_PLANS.map((plan) => plan.biome)).size).toBeGreaterThanOrEqual(16);
     expect(FLOOR_PLANS[4].biome).toBe('ash');
     expect(FLOOR_PLANS[6].biome).toBe('foundry');
-    expect(FLOOR_PLANS[9].biome).toBe('frost');
-    expect(FLOOR_PLANS[11].biome).toBe('mire');
-    expect(FLOOR_PLANS[13].biome).toBe('hive');
-    expect(FLOOR_PLANS[14].biome).toBe('catacomb');
-    expect(FLOOR_PLANS[16].boss).toBe('dread_champion');
-    expect(FLOOR_PLANS[17].boss).toBe('ruin_warlord');
-    expect(FLOOR_PLANS.filter((plan) => plan.bossOnly)).toHaveLength(3);
+    expect(FLOOR_PLANS[7].biome).toBe('tide');
+    expect(FLOOR_PLANS[7].boss).toBe('drowned_blademaster');
+    expect(FLOOR_PLANS[10].biome).toBe('frost');
+    expect(FLOOR_PLANS[12].biome).toBe('mire');
+    expect(FLOOR_PLANS[14].biome).toBe('storm');
+    expect(FLOOR_PLANS[14].boss).toBe('storm_warlord');
+    expect(FLOOR_PLANS[15].biome).toBe('hive');
+    expect(FLOOR_PLANS[16].biome).toBe('catacomb');
+    expect(FLOOR_PLANS[18].boss).toBe('dread_champion');
+    expect(FLOOR_PLANS[19].boss).toBe('ruin_warlord');
+    expect(FLOOR_PLANS[20].boss).toBe('abyssal_revenant');
+    expect(FLOOR_PLANS.filter((plan) => plan.bossOnly)).toHaveLength(4);
     expect(FLOOR_PLANS.filter((plan) => plan.bossOnly).map((plan) => plan.boss)).toEqual([
       'choir_hierophant',
       'hollow_behemoth',
       'mirror_self',
+      'abyssal_revenant',
     ]);
+  });
+
+  it('stocks the soul anchor and colossus plate as rollable relics', () => {
+    expect(equipmentDef('soul_anchor').slot).toBe('trinket');
+    expect(equipmentDef('soul_anchor').rarity).toBe('rare');
+    expect(equipmentDef('colossus_plate').slot).toBe('armor');
+    expect(equipmentDef('colossus_plate').rarity).toBe('epic');
+    expect(equipmentDef('storm_dial').slot).toBe('trinket');
+    expect(equipmentDef('ember_core').slot).toBe('weapon');
   });
 
   it('defines melee attacking bosses and teleporting phase stalkers', () => {
     expect(enemyDef('dread_champion', true).archetype).toBe('boss');
     expect(enemyDef('ruin_warlord', true).archetype).toBe('boss');
+    expect(enemyDef('drowned_blademaster', true).archetype).toBe('boss');
+    expect(enemyDef('storm_warlord', true).archetype).toBe('boss');
     expect(enemyDef('phase_stalker').archetype).toBe('teleporter');
     expect(enemyDef('void_stalker').archetype).toBe('teleporter');
   });
@@ -117,6 +139,18 @@ describe('expanded bestiary', () => {
     'hive_slinger',
     'mire_lurker',
   ];
+  const tideStormIds = [
+    'tide_reaver',
+    'brine_hulk',
+    'harbor_gunner',
+    'siren_caller',
+    'storm_squire',
+    'gale_archer',
+    'thunder_brute',
+    'tempest_oracle',
+    'drowned_blademaster',
+    'storm_warlord',
+  ];
 
   it('adds ten new enemies with non-boss archetypes', () => {
     expect(allEnemyIds().length).toBeGreaterThanOrEqual(52);
@@ -134,9 +168,47 @@ describe('expanded bestiary', () => {
     const rosters = FLOOR_PLANS.flatMap((plan) => plan.roster);
     for (const id of newIds) expect(rosters).toContain(id);
   });
-});
 
-describe('choir trial roster', () => {
+  it('fills the early and middle rosters with a second wave of hunters', () => {
+    const secondWave = [
+      'gutter_runner',
+      'briar_wolf',
+      'gloom_stalker',
+      'prism_wisp',
+      'null_hound',
+      'slag_golem',
+    ];
+    expect(allEnemyIds().length).toBeGreaterThanOrEqual(74);
+    for (const id of secondWave) {
+      expect(allEnemyIds()).toContain(id);
+      expect(enemyDef(id).archetype).not.toBe('boss');
+    }
+    expect(enemyDef('briar_wolf').behavior).toBe('relentless');
+    expect(enemyDef('prism_wisp').behavior).toBe('storm_caller');
+    expect(enemyDef('slag_golem').behavior).toBe('tank');
+    const rosters = FLOOR_PLANS.flatMap((plan) => plan.roster);
+    for (const id of secondWave) expect(rosters).toContain(id);
+  });
+
+  it('fills the tide and storm sections with melee-led rosters and bosses', () => {
+    expect(allEnemyIds().length).toBeGreaterThanOrEqual(68);
+    for (const id of tideStormIds) expect(allEnemyIds()).toContain(id);
+    expect(enemyDef('tide_reaver').behavior).toBe('chase');
+    expect(enemyDef('brine_hulk').behavior).toBe('tank');
+    expect(enemyDef('storm_squire').behavior).toBe('chase');
+    expect(enemyDef('thunder_brute').behavior).toBe('relentless');
+    expect(enemyDef('drowned_blademaster', true).archetype).toBe('boss');
+    expect(enemyDef('storm_warlord', true).archetype).toBe('boss');
+    const rosters = FLOOR_PLANS.flatMap((plan) => plan.roster);
+    for (const id of tideStormIds) {
+      if (enemyDef(id).archetype === 'boss') {
+        expect(FLOOR_PLANS.map((plan) => plan.boss)).toContain(id);
+      } else {
+        expect(rosters).toContain(id);
+      }
+    }
+  });
+
   it('gives the Frozen Choir trial a frost roster for its statues', () => {
     const plan = FLOOR_PLANS[5];
     expect(plan.trialName).toBe('Echo Trial: The Frozen Choir');
@@ -144,5 +216,12 @@ describe('choir trial roster', () => {
     expect(plan.roster).not.toContain('scavenger');
     expect(plan.roster).toContain('frost_stalker');
     for (const id of plan.roster) expect(enemyDef(id).archetype).not.toBe('boss');
+  });
+});
+
+describe('bestiary mirrors', () => {
+  it('keeps the assets enemies mirror in sync with the runtime copy', () => {
+    const read = (path: string): unknown => JSON.parse(readFileSync(join(__dirname, path), 'utf8'));
+    expect(read('../../assets/data/enemies.json')).toEqual(read('../../src/data/enemies.json'));
   });
 });

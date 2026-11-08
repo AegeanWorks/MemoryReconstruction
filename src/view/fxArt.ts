@@ -26,6 +26,8 @@ export interface FxTextures {
   rune: Texture;
   /** Gradient comet tail for projectile wakes and dash ribbons. */
   comet: Texture;
+  /** Soft irregular dust puff for footsteps, landings and breakable debris. */
+  dust: Texture;
 }
 
 function paint(size: number, draw: (ctx: CanvasRenderingContext2D, size: number) => void): Texture {
@@ -205,6 +207,25 @@ export function fxTextures(): FxTextures {
       ctx.quadraticCurveTo(s * 0.6, cy + 2, hx, cy + 8);
       ctx.arc(hx, cy, 8, Math.PI * 0.5, Math.PI * 1.5);
       ctx.fill();
+    }),
+    dust: paint(32, (ctx, s) => {
+      // Three overlapping soft blobs: an irregular puff that never reads as
+      // a hard circle at 8-16px gameplay size.
+      const c = s / 2;
+      const blobs: Array<[number, number, number]> = [
+        [c - 4, c + 2, 9],
+        [c + 4, c + 1, 7],
+        [c, c - 4, 6],
+      ];
+      for (const [x, y, r] of blobs) {
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, 'rgba(255,255,255,0.5)');
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }),
   };
   return cached;

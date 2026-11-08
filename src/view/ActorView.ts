@@ -11,6 +11,8 @@ import type { Enemy, Hazard, Interactable, Pickup, Player, Projectile } from '..
 import {
   dashStrikeRange,
   lungeRange,
+  MINE_DISTANCE,
+  MINE_RADIUS,
   mineOffsets,
   mortarRadius,
   PILLARS_RADIUS,
@@ -19,19 +21,32 @@ import {
   spiralAngles,
   SWEEP_RANGE,
   SWEEP_SPAN,
-  wallGapCenter,
+  sweepBeamAngle,
   wallGapIndex,
   WALL_BOLT_OFFSETS,
+  windupDuration,
 } from '../sim/enemies';
 import { equipmentDef } from '../sim/equipment';
 import type { WeaponId } from '../sim/weapons';
 import { TILE_SIZE } from '../sim/tiles';
 import type { World } from '../sim/world';
 import { bossAuraTier } from './bossAura';
+import { hasWaterEffect } from './propFx';
 import { fxTextures } from './fxArt';
 import { BIOME_ART, hex } from './palette';
-import { clipLaneToRoom, mortarRingPoints, quakeRingPoints } from './telegraph';
-import { mirrorSheet, type ActorSheet, type Animation, type SpriteLibrary } from './sheets';
+import {
+  clipLaneToRoom,
+  mortarRingPoints,
+  quakeRingPoints,
+  wallGapGuideSegment,
+} from './telegraph';
+import {
+  mirrorSheet,
+  walkRateFor,
+  type ActorSheet,
+  type Animation,
+  type SpriteLibrary,
+} from './sheets';
 
 interface ActorSprite {
   root: Container;
@@ -40,6 +55,8 @@ interface ActorSprite {
   flash: AnimatedSprite;
   shadow: Graphics;
   current: Animation | undefined;
+  /** Last playback rate, so speed-scaled loops don't restart every frame. */
+  rate: number;
   baseScale: number;
 }
 
@@ -67,15 +84,16 @@ function makeActor(sheet: ActorSheet, displayHeight: number): ActorSprite {
   flash.alpha = 0;
   root.addChild(shadow, body, flash);
   const baseScale = displayHeight / sheet.frameHeight;
-  return { root, body, flash, shadow, current: undefined, baseScale };
+  return { root, body, flash, shadow, current: undefined, rate: 1, baseScale };
 }
 
-function play(actor: ActorSprite, anim: Animation): void {
-  if (actor.current === anim) return;
+function play(actor: ActorSprite, anim: Animation, rate = 1): void {
+  if (actor.current === anim && Math.abs(actor.rate - rate) < 0.01) return;
   actor.current = anim;
+  actor.rate = rate;
   for (const s of [actor.body, actor.flash]) {
     s.textures = anim.frames;
-    s.animationSpeed = anim.fps / 60;
+    s.animationSpeed = (anim.fps / 60) * rate;
     s.loop = anim.loop;
     s.gotoAndPlay(0);
   }
@@ -84,10 +102,16 @@ function play(actor: ActorSprite, anim: Animation): void {
 /** Which prop sheet (and glow) an interactable uses. */
 function interactableLook(it: Interactable): { prop: string; size: number; glow: number } {
   if (it.kind === 'chest') return { prop: 'memory_chest', size: 64, glow: 0xffd98a };
+  // A sealed cache: same chest, blood-red glow, because breaking it is a choice.
+  if (it.kind === 'cache')
+    return { prop: 'memory_chest', size: 64, glow: it.armed ? 0xff3b3b : 0xff8a5a };
   if (it.kind === 'lever') return { prop: 'lever', size: 48, glow: 0x9fd8ff };
   if (it.kind === 'shrine') return { prop: 'shrine', size: 76, glow: 0xffd98a };
   if (it.kind === 'archive') return { prop: 'furn_shelf', size: 70, glow: 0xb8a4ff };
   if (it.kind === 'merchant') return { prop: 'npc_smith', size: 58, glow: 0xffb060 };
+  if (it.kind === 'wayfarer') return { prop: 'npc_archivist', size: 58, glow: 0xffd98a };
+  if (it.kind === 'waystone') return { prop: 'station_wellspring', size: 70, glow: 0x6fe7ff };
+  if (it.kind === 'ferryman') return { prop: 'npc_lamplighter', size: 58, glow: 0x9df3ff };
   if (it.kind === 'gate') return { prop: 'ruins_door', size: 168, glow: 0xffd98a };
   // The doorway back out to the Sanctuary hub.
   if (it.kind === 'door') return { prop: 'ruins_door', size: 84, glow: 0xffd98a };
@@ -142,6 +166,7 @@ export class ActorView {
   /** Locator ring drawn above actors when a large body covers the walker. */
   private readonly playerLocator = new Graphics();
   private readonly afterimages: Array<{ sprite: Sprite; age: number; life: number }> = [];
+  private readonly sanctuaryLights: Array<{ sprite: Sprite; phase: number }> = [];
   private dashGhostTimer = 0;
   private readonly player: ActorSprite;
   private readonly playerLight: Sprite;
@@ -165,6 +190,9 @@ export class ActorView {
     private readonly world: World
   ) {
     this.actors.sortableChildren = true;
+    // Pickups live in `ground` but must still depth-sort against actors and
+    // props by feet position; otherwise loot renders on top of near walls.
+    this.ground.sortableChildren = true;
     this.accent = hex(BIOME_ART[world.plan.biome].accent);
     this.ground.addChild(this.bossAuras, this.playerAura, this.telegraphs, this.hazardsG);
     this.ground.addChild(this.telegraphMask);
@@ -193,15 +221,22 @@ export class ActorView {
         this.ground.addChildAt(sprite, 0);
         continue;
       }
+      const propRoot = new Container();
+      const shadow = makeShadow(item.size * 0.22);
+      shadow.position.set(0, 4);
+      propRoot.addChild(shadow);
       sprite.anchor.set(0.5, 0.86);
       sprite.width = sprite.height = item.size;
-      sprite.position.set(item.x, item.y + 4);
-      sprite.zIndex = item.y;
-      this.actors.addChild(sprite);
+      sprite.position.set(0, 4);
+      propRoot.addChild(sprite);
+      propRoot.position.set(item.x, item.y);
+      propRoot.zIndex = item.y;
+      this.actors.addChild(propRoot);
       if (item.prop === 'furn_lantern') {
         const glow = this.glow(0xffd98a, 110, 0.22);
         glow.position.set(item.x, item.y - 28);
         this.ground.addChild(glow);
+        this.sanctuaryLights.push({ sprite: glow, phase: item.x * 0.03 + item.y * 0.017 });
       }
     }
   }
@@ -265,6 +300,7 @@ export class ActorView {
     this.drawBlasts();
     this.drawBombs();
     this.updateLabels();
+    this.updateSanctuaryLights();
     this.updatePlayer(dt, alpha);
     this.drawPlayerLocator();
     this.syncEnemies(dt, alpha);
@@ -283,6 +319,14 @@ export class ActorView {
         continue;
       }
       g.sprite.alpha = 0.55 * (1 - g.age / g.life);
+    }
+  }
+
+  private updateSanctuaryLights(): void {
+    for (const light of this.sanctuaryLights) {
+      light.sprite.alpha = 0.18 + 0.06 * Math.sin(this.time * 2.8 + light.phase);
+      const scale = 1 + 0.08 * Math.sin(this.time * 2.1 + light.phase);
+      light.sprite.scale.set(scale);
     }
   }
 
@@ -362,9 +406,17 @@ export class ActorView {
       this.dashGhostTimer = 0;
     }
 
-    // Dynamic movement lean and idle breathing
+    // Dynamic movement lean and idle breathing. Attack motion stays on the
+    // aim axis only: a small forward nudge that eases out, never a vertical
+    // bob, squash or tilt pulsing back mid-swing.
     const moving = p.action === 'move';
     const lean = moving ? (pos.x - this.previousPlayer.x) * 0.03 : 0;
+    const swingProgress =
+      p.action === 'attack' && p.swingDuration > 0
+        ? Math.max(0, Math.min(1, p.swingTime / p.swingDuration))
+        : 0;
+    const swingDrive = p.action === 'attack' ? 1 - swingProgress : 0;
+    const swingOffset = p.action === 'attack' ? swingDrive * 3 : 0;
     a.body.rotation = Math.max(-0.15, Math.min(0.15, lean));
     a.flash.rotation = a.body.rotation;
 
@@ -372,7 +424,14 @@ export class ActorView {
     const facing = Math.cos(p.aim) < 0 ? -1 : 1;
     const squash = (p.action === 'dash' ? 0.88 : 1) * breathe;
     a.body.scale.set((a.baseScale * facing) / squash, a.baseScale * squash);
+    const shadowStretch = p.action === 'dash' ? 1.22 : 1;
+    a.shadow.scale.set(shadowStretch, p.action === 'dash' ? 0.72 : 1);
+    a.shadow.alpha = p.action === 'dash' ? 0.26 : 0.38;
+    a.body.x = Math.cos(p.aim) * swingOffset;
+    a.body.y = Math.sin(p.aim) * swingOffset;
     a.flash.scale.copyFrom(a.body.scale);
+    a.flash.x = a.body.x;
+    a.flash.y = a.body.y;
     a.flash.textures = a.body.textures;
     a.flash.currentFrame = a.body.currentFrame;
     // Hurt flash, then a blink while invulnerable.
@@ -572,18 +631,18 @@ export class ActorView {
           : moving
             ? sheet.walk
             : sheet.idle;
-    play(a, anim);
+    // Windup plays slightly slow (telegraphed weight), walk follows sim speed.
+    const rate = e.state === 'windup' ? 0.8 : moving ? walkRateFor(e.def.speed) : 1;
+    play(a, anim, rate);
     const facing = this.world.player.x < e.x ? -1 : 1;
     const bob = moving ? Math.abs(Math.sin(this.time * 9 + e.id)) * 0.06 : 0;
     // Windup: crouch and tremble; spawning: grow in; attack: lunging stretch.
     const windup = e.state === 'windup';
     const attacking = e.state === 'attack';
     const staggered = e.state === 'stagger';
-    // A forward pop over the first 0.28 s of the active phase. Clamped, so a
-    // long attack (sweep, beam) never reverse-stretches halfway through.
-    const lunge = attacking
-      ? Math.sin(Math.max(0, Math.min(1, 1 - e.stateTime / 0.28)) * Math.PI) * 0.14
-      : 0;
+    // A steady forward commitment for the whole active phase, so short and
+    // long attacks (strike vs sweep) never pulse back mid-swing.
+    const lunge = attacking ? 0.1 : 0;
     const tremble = windup
       ? Math.sin(this.time * 60) * 1.2
       : staggered
@@ -600,8 +659,9 @@ export class ActorView {
     a.body.rotation = Math.max(-0.24, Math.min(0.24, knockLean));
     a.flash.rotation = a.body.rotation;
     const deathProgress = e.state === 'dying' ? Math.max(0, 1 - e.stateTime / 0.5) : 0;
-    a.body.x = tremble;
-    a.body.y = -deathProgress * 8;
+    const attackReach = attacking ? lunge * 14 : 0;
+    a.body.x = tremble + e.dirX * attackReach;
+    a.body.y = e.dirY * attackReach - deathProgress * 8;
     a.body.tint = e.state === 'dying' ? 0xc8c0dc : (e.def.tint ?? 0xffffff);
     a.flash.scale.copyFrom(a.body.scale);
     a.flash.x = a.body.x;
@@ -613,6 +673,10 @@ export class ActorView {
       e.flash > 0 ? 0.9 : windup ? 0.25 + 0.25 * Math.sin(this.time * 30) : staggered ? 0.35 : 0;
     a.body.alpha =
       e.state === 'spawning' ? grow : e.state === 'dying' ? Math.max(0, e.stateTime / 0.5) : 1;
+    a.shadow.scale.set(
+      (attacking ? 1 + lunge * 0.5 : 1) * grow,
+      (windup ? 0.82 : attacking ? 0.9 : 1) * grow
+    );
     a.shadow.alpha = a.body.alpha;
 
     if (staggered) {
@@ -693,7 +757,8 @@ export class ActorView {
   /** Golden crest above elite enemies. */
   private drawEliteCrown(e: Enemy, x: number, y: number): void {
     const g = this.bars;
-    const top = y - e.def.displayHeight * 0.95 - 14;
+    const visualHeight = e.def.displayHeight * (e.elite ? 1.15 : 1);
+    const top = y - visualHeight * 0.95 - 14;
     const pulse = 0.75 + 0.25 * Math.sin(this.time * 4 + e.id);
     // 3-peak golden crown
     g.moveTo(x - 8, top + 6)
@@ -1107,7 +1172,11 @@ export class ActorView {
   private drawTelegraph(e: Enemy, x: number, y: number): void {
     const g = this.telegraphs;
     const angle = Math.atan2(e.dirY, e.dirX);
-    const urgency = 0.25 + 0.45 * Math.min(1, 1 - e.stateTime / 0.8);
+    // Floor lifted 0.25 -> 0.35: thin outlines disappeared on bright frost
+    // and sanctuary floors at the start of the windup, when the read matters.
+    const total = windupDuration(e);
+    const progress = Math.min(1, Math.max(0, 1 - e.stateTime / total));
+    const urgency = 0.35 + 0.45 * progress;
     switch (e.attack) {
       case 'strike': {
         const reach = e.def.attackRange + 14 + e.radius;
@@ -1116,9 +1185,9 @@ export class ActorView {
           .lineTo(x, y)
           .fill({ color: TELEGRAPH_COLOR, alpha: urgency * 0.45 });
         // Advancing arc contour as the swing readies
-        const progressReach = reach * (0.3 + 0.7 * Math.min(1, 1 - e.stateTime / 0.8));
+        const progressReach = reach * (0.3 + 0.7 * progress);
         g.arc(x, y, progressReach, angle - 0.95, angle + 0.95).stroke({
-          width: 2,
+          width: 3,
           color: 0xffa070,
           alpha: urgency * 0.9,
         });
@@ -1174,7 +1243,7 @@ export class ActorView {
         g.circle(x, y, r).fill({ color: TELEGRAPH_COLOR, alpha: urgency * 0.35 });
         g.circle(x, y, r).stroke({ width: 2, color: TELEGRAPH_COLOR, alpha: 0.8 });
         // Expanding inner shockwave indicator ring
-        const progressR = r * (0.2 + 0.8 * Math.min(1, 1 - e.stateTime / 0.8));
+        const progressR = r * (0.2 + 0.8 * progress);
         g.circle(x, y, progressR).stroke({ width: 1.5, color: 0xffe0a0, alpha: urgency * 0.85 });
         break;
       }
@@ -1198,7 +1267,7 @@ export class ActorView {
           alpha: urgency * 0.4,
         });
         g.poly([x + nx, y + ny, ex + nx, ey + ny, ex - nx, ey - ny, x - nx, y - ny]).stroke({
-          width: 1.5,
+          width: 2.5,
           color: 0xffa070,
           alpha: urgency * 0.8,
         });
@@ -1216,7 +1285,7 @@ export class ActorView {
           g.moveTo(x, y)
             .lineTo(x + dx * length, y + dy * length)
             .stroke({
-              width: e.attack === 'bolt' ? 1.5 : 2,
+              width: e.attack === 'bolt' ? 2 : 3,
               color: TELEGRAPH_COLOR,
               alpha: urgency * 0.8,
             });
@@ -1272,7 +1341,7 @@ export class ActorView {
         const aim = Math.atan2(p.y - y, p.x - x);
         const perp = aim + Math.PI / 2;
         const ring = mortarRadius(e.isBoss);
-        for (const point of mortarRingPoints(p.x, p.y, perp, this.world.currentRoom())) {
+        for (const point of mortarRingPoints(p.x, p.y, perp, ring, this.world.currentRoom())) {
           g.circle(point.x, point.y, ring).stroke({
             width: 2,
             color: TELEGRAPH_COLOR,
@@ -1286,7 +1355,11 @@ export class ActorView {
         // landing points the sim will use.
         const p = this.world.player;
         for (const a of mineOffsets(e)) {
-          g.circle(p.x + Math.cos(a) * 56, p.y + Math.sin(a) * 56, 28).stroke({
+          g.circle(
+            p.x + Math.cos(a) * MINE_DISTANCE,
+            p.y + Math.sin(a) * MINE_DISTANCE,
+            MINE_RADIUS
+          ).stroke({
             width: 2,
             color: 0xffb060,
             alpha: urgency,
@@ -1312,7 +1385,7 @@ export class ActorView {
       }
       case 'blink': {
         // 1. Collapsing void singularity at the caster's origin
-        const collapseR = Math.max(4, e.radius * 1.8 * Math.max(0.1, e.stateTime / 0.8));
+        const collapseR = Math.max(4, e.radius * 1.8 * Math.max(0.1, 1 - progress));
         g.circle(x, y, collapseR).stroke({
           width: 2,
           color: 0xbfa0ff,
@@ -1342,7 +1415,7 @@ export class ActorView {
           color: 0xbfa0ff,
           alpha: urgency * 0.85,
         });
-        const lockR = strikeR * (0.3 + 0.7 * Math.min(1, 1 - e.stateTime / 0.8));
+        const lockR = strikeR * (0.3 + 0.7 * progress);
         g.circle(tx, ty, lockR).stroke({
           width: 1.5,
           color: 0x9df3ff,
@@ -1408,7 +1481,6 @@ export class ActorView {
         const nx = Math.cos(angle + Math.PI / 2);
         const ny = Math.sin(angle + Math.PI / 2);
         const gap = wallGapIndex(e.id);
-        const gapC = wallGapCenter(e.id);
         for (let i = 0; i < WALL_BOLT_OFFSETS.length; i++) {
           if (i === gap || i === gap + 1) continue;
           const ox = x + nx * WALL_BOLT_OFFSETS[i];
@@ -1417,8 +1489,9 @@ export class ActorView {
             .lineTo(ox + Math.cos(angle) * 90, oy + Math.sin(angle) * 90)
             .stroke({ width: 10, color: 0xff8a5a, alpha: urgency * 0.35 });
         }
-        g.moveTo(x + nx * (gapC - 20), y + ny * (gapC - 20))
-          .lineTo(x + nx * (gapC + 20), y + ny * (gapC + 20))
+        const guide = wallGapGuideSegment(x, y, angle, e.id);
+        g.moveTo(guide.fromX, guide.fromY)
+          .lineTo(guide.toX, guide.toY)
           .stroke({ width: 2, color: 0x9df3ff, alpha: urgency * 0.8 });
         break;
       }
@@ -1457,10 +1530,7 @@ export class ActorView {
 
   /** The live rotating beam while a sweep resolves. */
   private drawSweepBeam(e: Enemy, x: number, y: number): void {
-    const span = SWEEP_SPAN;
-    const base = Math.atan2(e.dirY, e.dirX);
-    const progress = 1 - e.stateTime / 0.7;
-    const angle = base - span / 2 + progress * span;
+    const angle = sweepBeamAngle(e);
     const range = clipLaneToRoom(
       x,
       y,
@@ -1480,7 +1550,8 @@ export class ActorView {
 
   private drawHealthBar(e: Enemy, x: number, y: number): void {
     const w = Math.max(24, e.radius * 2.2);
-    const top = y - e.def.displayHeight * 0.95 - 6;
+    const visualHeight = e.def.displayHeight * (e.elite ? 1.15 : 1);
+    const top = y - visualHeight * 0.95 - 6;
     this.bars.rect(x - w / 2 - 1, top - 1, w + 2, 5).fill({ color: 0x000000, alpha: 0.7 });
     this.bars
       .rect(x - w / 2, top, w * (e.health / e.maxHealth), 3)
@@ -1583,11 +1654,13 @@ export class ActorView {
           if (texture) {
             const s = new Sprite(texture);
             s.anchor.set(0.5);
+            // Shards were 14px and vanished next to 30px fragments; 18px
+            // keeps the value hierarchy while staying pickup-readable.
             const size =
               item.kind === 'fragment'
                 ? 30
                 : item.kind === 'shard'
-                  ? 14
+                  ? 18
                   : item.kind === 'potion'
                     ? 22
                     : 16;
@@ -1609,6 +1682,8 @@ export class ActorView {
                   ? Math.sin(this.time * 2.8 + item.id) * 2.2
                   : Math.sin(this.time * 2.2 + item.id) * 1.2;
         root.position.set(item.x, item.y + bob);
+        // Feet-basis depth sort, matching actors/decor/interactables.
+        root.zIndex = item.y;
         if (item.kind === 'shard' || item.kind === 'equipment') {
           root.rotation = Math.sin(this.time * 2.2 + item.id) * 0.12;
         }
@@ -1650,21 +1725,18 @@ export class ActorView {
           root.addChild(runeOrbit);
         } else {
           const look = interactableLook(it);
-          root.addChild(makeShadow(26));
+          root.addChild(makeShadow(look.size * 0.4));
           root.addChild(this.glow(look.glow, 140, it.kind === 'chest' ? 0.45 : 0.3));
           const texture = (props as unknown as Record<string, Texture>)[look.prop];
           if (texture) {
             const s = new Sprite(texture);
-            s.anchor.set(0.5, 0.82);
+            // Feet-basis anchor shared with decor/props (0.5, 0.86) so
+            // y-close overlap sorts without a 2-10px pop.
+            s.anchor.set(0.5, 0.86);
             s.width = s.height = look.size;
             root.addChild(s);
           }
-          if (
-            it.kind === 'fountain' ||
-            it.kind === 'shrine' ||
-            it.kind === 'chest' ||
-            (it.kind === 'structure' && it.structureId === 'wellspring')
-          ) {
+          if (hasWaterEffect(it.kind, it.structureId) || it.kind === 'chest') {
             root.addChild(new Graphics());
           }
         }
@@ -1708,6 +1780,10 @@ export class ActorView {
             // Spent chests and wells go dark.
             root.children[1].alpha = it.used ? 0 : 0.3 + 0.12 * Math.sin(this.time * 2.5);
             root.children[2].alpha = it.used ? 0.55 : 1;
+            if (it.kind === 'npc' || it.kind === 'wayfarer' || it.kind === 'ferryman') {
+              const resident = root.children[2] as Sprite | undefined;
+              if (resident) resident.y = Math.sin(this.time * 2.2 + it.id) * 1.5;
+            }
           }
           if (it.kind === 'chest') {
             const fx = root.children[3] as Graphics | undefined;
@@ -1728,19 +1804,15 @@ export class ActorView {
               }
             }
           }
-          if (
-            it.kind === 'fountain' ||
-            it.kind === 'shrine' ||
-            (it.kind === 'structure' && it.structureId === 'wellspring')
-          ) {
+          if (hasWaterEffect(it.kind, it.structureId)) {
             const water = root.children[3] as Graphics | undefined;
             if (water && water instanceof Graphics) {
               water.clear();
               const wy = -18;
               const rx = 18;
               const ry = 8;
-              const waterColor = it.kind === 'shrine' ? 0x1d3e4d : 0x1b587a;
-              const waterRim = it.kind === 'shrine' ? 0x6fe7ff : 0x9df3ff;
+              const waterColor = 0x1b587a;
+              const waterRim = 0x9df3ff;
               const baseAlpha = it.used ? 0.4 : 0.85;
               water.ellipse(0, wy, rx, ry).fill({ color: waterColor, alpha: baseAlpha });
               if (!it.used) {

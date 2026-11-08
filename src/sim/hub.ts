@@ -11,7 +11,7 @@ import { FLOOR_PLANS } from './content';
 import { equipmentDef, INVENTORY_SLOTS, type EquipmentDef } from './equipment';
 import { refreshStats } from './player';
 import { Rng } from './rng';
-import { createRun, type RunState } from './run';
+import { createRun, rollOmen, type Difficulty, type RunState } from './run';
 import { isAspectId, type AspectId } from './aspects';
 import { rollChoices } from './upgrades';
 
@@ -147,6 +147,18 @@ export const CHECKPOINT_STEP = 3;
 /** Echoes to fully heal the saved expedition at a given depth. */
 export function restCost(depth: number): number {
   return 10 + Math.max(0, Math.floor(depth)) * 2;
+}
+
+/**
+ * Rest heals the expedition already in progress. It must not reset the run's
+ * depth, seed, fragments or upgrades; the App resumes this same object.
+ */
+export function healRunForRest(run: RunState): RunState {
+  const p = run.player;
+  p.health = p.stats.maxHealth;
+  p.mana = p.stats.maxMana;
+  p.potions = p.stats.maxPotions;
+  return run;
 }
 /** Echoes per shard offering at the Cairn. */
 export const CAIRN_COST = 20;
@@ -352,9 +364,10 @@ export function createExpedition(
   seed: number,
   knownFragments: readonly string[],
   startDepth: number,
-  progress: SanctuaryProgress
+  progress: SanctuaryProgress,
+  difficulty: Difficulty = 'normal'
 ): RunState {
-  const run = createRun(seed, knownFragments);
+  const run = createRun(seed, knownFragments, difficulty);
   run.depth = Math.max(0, Math.min(startDepth, FLOOR_PLANS.length - 1));
   const p = run.player;
 
@@ -407,5 +420,8 @@ export function createExpedition(
   p.resonance = 0;
   p.resonanceTime = 0;
   run.pendingChoices = [];
+  // Expedition omen: a daily-style twist rolled from the seed, so normal runs
+  // vary too. Daily runs override it with the date twist (see activeModifier).
+  run.omen = rollOmen(seed);
   return run;
 }

@@ -53,7 +53,8 @@ assets/
 - `tilesets[biome]` - legacy side-view tiles; the game paints its top-down
   tiles at runtime instead (see Runtime).
 - `props` - chests, wells, the exit rift, obstacle statues/trees/crystals and the
-  five hooded residents (archivist, smith, gardener, warden, lamplighter).
+  six hooded residents (archivist, smith, gardener, warden, lamplighter,
+  hearthkeeper).
 - `ui` - shard, fragment and potion icons used by the HUD and pickups.
 - `backgrounds` - the tiling backdrop drawn behind each biome's rooms.
 - `particles` - spark, smoke, blood and magic effect sheets.
@@ -68,12 +69,15 @@ The atlas is bundled at build time, while the images are served from the
   using the per-biome render palettes in `src/view/palette.ts`. Floors get
   subtle per-tile variants; walls show a lit brick face wherever floor lies to
   their south and a dark cap above it, which gives the 3/4 top-down depth.
-  Floors beside walls receive ambient-occlusion overlays.
+  Gate tiles get the same floor and threshold treatment as doors, so a
+  portcullis sits on a real floor. Floors beside walls receive
+  ambient-occlusion overlays.
 - **Actors** use the atlas sheets: the player's idle/walk/attack/dash strips
   (flipped by aim) and each enemy's idle/walk/attack/death rows. Enemy walk rows
   carry a small side-to-side body sway, and the view adds a vertical bob on top
   of it. Living enemy frames carry a soft top-left **rim light** derived from the
-  alpha edge, so silhouettes separate from dark tiles.
+  alpha edge, so silhouettes separate from dark tiles. Elites add a crown and a
+  pulsing amber floor ward; bosses add phase runic auras.
 - **Backdrop** is a `TilingSprite` of the biome's `backgrounds` texture at 55%
   alpha behind the tile chunks, so the void between rooms carries atmosphere
   instead of reading as flat black. The biome colour stays as the base fill.
@@ -81,12 +85,14 @@ The atlas is bundled at build time, while the images are served from the
   `src/view/atmosphere.ts`. Each biome mixes up to three layers with their own
   texture, tint, motion and lifetime: ruins dust and falling grit, forest
   spores and leaves, cave mineral dust, crystal float, ash embers and soot,
-  foundry embers, haze and ash, abyss bubbles, void drift, frost snow, mire
-  fireflies, spores and leaves, bloom petals and pollen, hive pollen, catacomb
-  dust, and sanctuary gold. The field is presentation only and recycles within
-  the camera view.
+  foundry embers, haze and ash, abyss bubbles, void drift, frost snow, tide
+  bubbles, storm sleet, mire fireflies, spores and leaves, bloom petals and
+  pollen, hive pollen, catacomb dust, and sanctuary gold. The field is
+  presentation only and recycles within the camera view.
 - **Lighting** is a screen-space darkness vignette centred on the player plus
   additive glows on the player, projectiles, pickups, glyphs and the rift.
+  Wall torches cast a wide ambient wash with drifting embers, and below 28%
+  health a pulsing red edge vignette grows with the missing health.
 - **Layers**, bottom to top: backdrop, tiles, ground (telegraphs, glows,
   pickups), depth-sorted actors and props, effects, overlay (projectiles,
   health bars), then the vignette and hurt flash.
@@ -99,28 +105,39 @@ The atlas is bundled at build time, while the images are served from the
 | Memory Walker | hood, shadowed face with glowing eyes, forked two-tail scarf, shard blade | bob, scarf sway, hem sway, walk, slash arc, dash streaks |
 | Scavenger | lean rags, bone mask, loot sack, one overlong claw arm | lope, lunge, rake |
 | Guardian | blocky stone, cyan core | heavy march, slam |
-| Memory Echo | floating tatters, two eyes | drift, pulse |
+| Memory Echo | floating orb, orbiting crystal | drift, pulse |
 | Wildling | antlered forest beast | prowl |
-| Spirit | antlered wisp | float |
+| Spirit | antlered ghost with trailing tail | float |
 | Cave Dweller | low wide body, huge ears, planted forearms | scuttle |
 | Ash Bombardier | stout barrel body, bomb bandolier, fuse hood | waddle, lob |
 | Plague Chanter | thin robe, beaked mask, vial staff | drift, cast |
 | Hive Guard | chitin plates, mandibles, barbed spear | march, thrust |
+| Hive Drone | three-eyed wisp, bomb sling | hover, lob |
+| Solder Wisp | ember core with flame tail | flicker, cast |
 | Catacomb Archer | ribcage, skull, bow and quiver | draw, loose |
 | Crystal Golem | faceted mass, crystal growths | stomp |
-| Shadow | tall void silhouette | phase drift |
+| Shadow | hooded cloak, hollow eyes | phase drift |
 | Crystal Guardian | slim armor, rapier | duelist sweep |
-| Prism Entity | geometric shards | orbit |
+| Prism Entity | faceted gem body | orbit |
 | Void Walker | elongated rift | glide |
 | The Forgotten | broken armor, empty helm | relentless |
 | The Keeper | gold robe, halo, staff | judgment |
 
+The hound and warden families read by silhouette rather than tint: the grave
+hound keeps the skull-and-ribs base, the magma hound adds a cracked lava hide
+and flame tail, the cinder hound trails smoke plumes, and the cinder and frost
+wardens carry ember scars or ice spikes.
+
+The duelist and oracle families add their own signatures: the crystal guardian
+floats crystal shards, the bone knight shows rib lines and a skull crest, the
+tide caller trails water ribbons, and the frost oracle wears ice spikes.
+
 ## Residents and rooms
 
-The five Sanctuary residents share one silhouette: a hood brim over a shadowed
+The six Sanctuary residents share one silhouette: a hood brim over a shadowed
 face with a bright gaze, a shoulder mantle, cuffed arms, a hem band and a role
-prop (open tome, hammer and apron, shears, crested spear, hung lantern). They
-are drawn to read at the 58 px in-world height.
+prop (open tome, hammer and apron, shears, crested spear, hung lantern, ladle
+and steaming bowl). They are drawn to read at the 58 px in-world height.
 
 The recurring room furniture is drawn to be recognisable at a glance: the ruins
 statue is a weathered memorial (stepped plinth, bowed hood, planted sword, moss

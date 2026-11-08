@@ -69,6 +69,8 @@ export interface Player {
   invulnerable: number;
   knockX: number;
   knockY: number;
+  /** Seconds of stagger left: heavy blows interrupt swings and slow the walker. */
+  stagger: number;
   /** Seconds the hurt flash shows. */
   hurtFlash: number;
   /** Has the near-miss clutch surge been used in the current critical-health state? */
@@ -229,7 +231,15 @@ export type InteractableKind =
   | 'npc'
   | 'gate'
   | 'door'
-  | 'archive';
+  | 'archive'
+  /** A sealed cache: breaking it pays double, and something notices. */
+  | 'cache'
+  /** A wandering in-run memory trader who offers one generous choice. */
+  | 'wayfarer'
+  /** A fast-travel stone: start <-> deepest visited room, once per floor. */
+  | 'waystone'
+  /** A paid in-run ferryman who crosses the walker to the floor guardian. */
+  | 'ferryman';
 
 export interface Interactable {
   id: number;
@@ -253,6 +263,8 @@ export interface Interactable {
   label?: string;
   /** A chest that turns out to be a mimic. */
   mimic?: boolean;
+  /** A cursed cache whose seal has been strained once (breaks on re-use). */
+  armed?: boolean;
 }
 
 export type HazardKind =

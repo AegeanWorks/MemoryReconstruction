@@ -38,6 +38,33 @@ describe('restoreRun (a corrupt snapshot degrades, never crashes)', () => {
     expect(run!.knownFragments).toEqual([]);
   });
 
+  it('rebuilds a snapshot with no player stats instead of throwing', () => {
+    const raw = snapshot() as Record<string, unknown>;
+    const player = { ...(raw['player'] as Record<string, unknown>) };
+    delete player['stats'];
+    raw['player'] = player;
+    let result: unknown = 'threw';
+    try {
+      result = restoreRun(raw);
+    } catch {
+      result = 'threw';
+    }
+    expect(result).not.toBe('threw');
+    const run = result as NonNullable<ReturnType<typeof restoreRun>>;
+    expect(run.player.stats.maxHealth).toBeGreaterThan(0);
+    expect(Number.isFinite(run.player.health)).toBe(true);
+    expect(run.player.health).toBeGreaterThan(0);
+  });
+
+  it('refills a non-finite health instead of loading NaN', () => {
+    const raw = snapshot() as Record<string, unknown>;
+    raw['player'] = { ...(raw['player'] as Record<string, unknown>), health: NaN };
+    const run = restoreRun(raw as Record<string, unknown>);
+    expect(run).toBeDefined();
+    expect(Number.isNaN(run!.player.health)).toBe(false);
+    expect(run!.player.health).toBe(run!.player.stats.maxHealth);
+  });
+
   it('never loads NaN vitals when mana or dash charges are missing', () => {
     const raw = snapshot() as Record<string, unknown>;
     const player = { ...(raw['player'] as Record<string, unknown>) };
@@ -63,6 +90,22 @@ describe('restoreRun (a corrupt snapshot degrades, never crashes)', () => {
     expect(equipmentExists('rusted_edge')).toBe(true);
     expect(equipmentExists('not_a_relic')).toBe(false);
     expect(equipmentExists('')).toBe(false);
+  });
+
+  it('drops phantom upgrade options from a pending choice', () => {
+    const raw = snapshot({
+      pendingChoices: [
+        null,
+        { source: 'level' },
+        { source: 'level', options: ['not_an_upgrade', 'vitality'] },
+        { source: 'chest', options: ['also_gone'] },
+      ],
+    });
+    const run = restoreRun(raw);
+    expect(run).toBeDefined();
+    expect(run!.pendingChoices).toHaveLength(2);
+    expect(run!.pendingChoices[0].options).toEqual(['vitality']);
+    expect(run!.pendingChoices[1].options).toEqual([]);
   });
 
   it('drops phantom relic defIds instead of loading a crashing bag', () => {

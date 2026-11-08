@@ -41,10 +41,10 @@ transition → playing … → dead | victory → sanctuary`.
 | `rng.ts`       | mulberry32 RNG; `floorSeed(runSeed, depth)` gives each floor its own seed          |
 | `tiles.ts`     | `TileGrid`: void/floor/wall/door tiles, decorations, locked doors                  |
 | `dungeon.ts`   | floor generator: rooms on a 7x6 cell grid, straight 3-wide corridors, room kinds   |
-| `sanctuary.ts` | hand-built Sanctuary hall: 10 stations, 5 NPCs, expedition gate, furniture decor   |
+| `sanctuary.ts` | hand-built Sanctuary hall: 8 stations, 6 NPCs, expedition gate, furniture decor    |
 | `physics.ts`   | box-versus-tile movement with sub-steps and corner slipping; circle separation     |
 | `pathing.ts`   | flow field toward the player so enemies route around pillars                       |
-| `content.ts`   | typed views of `enemies.json`, `biomes.json`, `lore.json`; the 16-section plan     |
+| `content.ts`   | typed views of `enemies.json`, `biomes.json`, `lore.json`; the 23-section plan     |
 | `entities.ts`  | plain-data `Player`, `Enemy`, `Projectile`, `Pickup`, `Interactable`, `InputFrame` |
 | `combat.ts`    | the `Arena` interface actors use, plus arc and damage helpers                      |
 | `weapons.ts`   | three melee stances (`sword`, `spear`, `greatsword`), combo steps, swing styles    |
@@ -82,15 +82,15 @@ Rules that matter when changing the sim:
 
 ### Floors
 
-`FLOOR_PLANS` in `content.ts` fixes sixteen sections, including two boss-only
+`FLOOR_PLANS` in `content.ts` fixes twenty-three sections, including four boss-only
 Echo Trial episodes: biome, enemy roster, boss,
 room count and a `layout` (`branch`, `ring`, `spine`, `grid`, `diamond` or `cross`).
 Each room also has a shape (`rect`, `rounded`, `octagon`, `cave`) cut into the
 rectangle before corridors; `arena` and `library` are extra room kinds, and a
 `bossOnly` plan generates one octagonal arena with no trash. `layoutCells`
 builds the cell pattern for each style before the existing Prim linking, so
-routes and sightlines change by section. The last is a straight approach to
-the Keeper's arena. Every room contains its cell's centre band, so corridors
+routes and sightlines change by section. The last is a ring around the First
+Memory's arena. Every room contains its cell's centre band, so corridors
 run straight along cell centre lines and never cut through another room.
 Obstacles stay off the centre lines, which keeps every doorway reachable
 (tested across seeds).
@@ -100,7 +100,7 @@ spawns waves. Clearing it unlocks the doors. The treasure room holds a chest
 (upgrade pick plus a memory fragment), the shrine holds a Memory Well (shards
 buy healing and a pick), and the boss drops a fragment and opens the exit rift.
 
-Later sections field larger waves (up to four per room) and summons draw from
+Later sections field larger waves (up to ten per room) and summons draw from
 the section roster, so the pressure and the faces both escalate.
 
 Clearing a room without taking damage pays a flawless bonus. A floor also has
@@ -181,9 +181,10 @@ pulses unclaimed chests and wells. The HUD fades while a menu is open.
 ### The Sanctuary map
 
 `World` takes `{ sanctuary: true }` and builds `sanctuary.ts`'s hand-made hall
-instead of a procedural floor: no enemies or hazards, ten labeled stations
-(seven restorations plus Training Yard, Meditation Stone and Notice Board),
-five labeled NPCs, the gate, and non-interactive `decor` furniture (shelves,
+instead of a procedural floor: no enemies or hazards, eight labeled stations
+(Restore the Sanctuary, Training Yard, Meditation Stone, Notice Board, the
+Reliquary, the Cairn, the Aspect Shrine and the Reforge), six labeled NPCs,
+the gate, and non-interactive `decor` furniture (shelves,
 tables, chairs, crates, planters, lanterns) placed by `SANCTUARY_DECOR`. Each station has its own prop silhouette; labels fade in only near the walker so they never clip at the viewport edge. The App runs it as the `sanctuary`
 state, shows a prompt for the nearest station, and routes interaction events
 to the rebuild ledger, NPC dialogue or the checkpoint picker. `quests.ts`

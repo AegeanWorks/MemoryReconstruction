@@ -115,6 +115,12 @@ export class Effects {
   private shake = 0;
   /** 0..1 strength of the red screen flash after taking damage. */
   hurtFlash = 0;
+  /** Toggled from settings: hide floating hit amounts, keep loot text. */
+  showDamageNumbers = true;
+  private stepTimer = 0;
+  private lastPX = 0;
+  private lastPY = 0;
+  private lastMoving = false;
 
   constructor(
     private readonly accent: number,
@@ -182,12 +188,15 @@ export class Effects {
               this.star(e.x, e.y, 0xffd34a, 42, 0.35);
               this.ring(e.x, e.y, 38, 0xffd98a, 0.3);
               this.burst(e.x, e.y, 0xffe070, 8, 120, 0.28, 4);
+              // Crits land with weight: a short hit-stop shake sells the impact.
+              this.shake = Math.min(18, Math.max(this.shake, 4));
             }
-            this.number(e.x, e.y, `${e.amount}`, e.crit ? 0xffd34a : 0xffffff, e.crit ? 22 : 16);
+            if (this.showDamageNumbers)
+              this.number(e.x, e.y, `${e.amount}`, e.crit ? 0xffd34a : 0xffffff, e.crit ? 22 : 16);
           } else {
             this.burst(e.x, e.y, 0xff3b3b, 12, 140, 0.4, 4);
             this.ring(e.x, e.y, 34, 0xff3b3b, 0.28);
-            this.number(e.x, e.y, `-${e.amount}`, 0xff5a5a, 18);
+            if (this.showDamageNumbers) this.number(e.x, e.y, `-${e.amount}`, 0xff5a5a, 18);
           }
           break;
         case 'shockwave':
@@ -419,15 +428,64 @@ export class Effects {
     return { x: (this.random() * 2 - 1) * this.shake, y: (this.random() * 2 - 1) * this.shake };
   }
 
-  update(dt: number, view: ViewRect): void {
+  update(dt: number, view: ViewRect, player?: { x: number; y: number; moving: boolean }): void {
     this.shake *= Math.exp(-14 * dt);
     this.hurtFlash = Math.max(0, this.hurtFlash - dt * 3);
+    if (player) this.updateFootsteps(dt, player);
     this.updateParticles(dt);
     this.updateSlashes(dt);
     this.updateRings(dt);
     this.updateStars(dt);
     this.updateTexts(dt);
     this.updateMotes(dt, view);
+  }
+
+  /** Soft dust puffs while the walker runs; still air while idle. */
+  private updateFootsteps(dt: number, player: { x: number; y: number; moving: boolean }): void {
+    const moved = Math.hypot(player.x - this.lastPX, player.y - this.lastPY);
+    this.lastPX = player.x;
+    this.lastPY = player.y;
+    if (!player.moving || moved < 4) {
+      this.lastMoving = player.moving;
+      // A single landing poof when motion stops after a run, not every frame.
+      if (this.lastMoving && !player.moving) this.dust(player.x, player.y + 10, 3);
+      this.lastMoving = player.moving;
+      return;
+    }
+    this.lastMoving = true;
+    this.stepTimer -= dt;
+    if (this.stepTimer <= 0) {
+      this.stepTimer = 0.22;
+      this.dust(player.x + (this.random() - 0.5) * 10, player.y + 12, 1);
+    }
+  }
+
+  private dust(x: number, y: number, count: number): void {
+    const textures = fxTextures();
+    for (let i = 0; i < count; i++) {
+      if (this.particles.length >= MAX_PARTICLES) return;
+      const sprite = this.free.pop() ?? new Sprite(textures.spark);
+      sprite.texture = textures.dust;
+      sprite.anchor.set(0.5);
+      sprite.blendMode = 'normal';
+      sprite.tint = 0xcfc4b8;
+      sprite.position.set(x + (this.random() - 0.5) * 8, y + (this.random() - 0.5) * 4);
+      const size = 8 + this.random() * 8;
+      sprite.width = sprite.height = size;
+      sprite.alpha = 0.35;
+      sprite.visible = true;
+      if (!sprite.parent) this.layer.addChild(sprite);
+      this.particles.push({
+        sprite,
+        vx: (this.random() - 0.5) * 24,
+        vy: -12 - this.random() * 18,
+        life: 0.45 + this.random() * 0.2,
+        maxLife: 0.6,
+        drag: 3,
+        grow: 14,
+        gravity: -20,
+      });
+    }
   }
 
   private spawn(
@@ -600,7 +658,11 @@ export class Effects {
       p.vy += p.gravity * dt;
       p.sprite.x += p.vx * dt;
       p.sprite.y += p.vy * dt;
-      p.sprite.alpha = p.life / p.maxLife;
+      if (p.grow !== 0) {
+        const s = Math.max(1, p.sprite.width + p.grow * dt);
+        p.sprite.width = p.sprite.height = s;
+      }
+      p.sprite.alpha = Math.min(1, (p.life / p.maxLife) * 1.2);
     }
   }
 
