@@ -80,7 +80,7 @@ cumulative range from commit 1, in steps of three, ending at `1 -> End`.
 | 1 -> 216 | `aae8383` | `ae912d6` fix(combat): buffer a bolt tapped mid-dash<br>`254c251` feat(ui): make enemy health bars readable<br>`aae8383` feat(level): dim spent spawn gates in the world | 960 | yes |
 | 1 -> 219 | `6b63f88` | `334c674` feat(ui): compact the minimap at 390px<br>`b51871c` feat(fx): burst on boss room entry<br>`6b63f88` feat(audio): cue denied dash and bolt | 974 | yes |
 | 1 -> 222 | `ee4f286` | `d5e6b67` fix(save): recover nested meta objects field by field<br>`0379d0e` feat(combat): buffer a dash tapped mid-dash<br>`ee4f286` feat(ui): mark boss phase thresholds on the bar | 989 | yes |
-| 1 -> 224 (End) | `4c4bfe4` | `2a54d4b` feat(level): mark the floor exit on the map<br>`4c4bfe4` feat(ui): fit the map canvas on narrow screens | 999 | yes |
+| 1 -> 225 | `08927bf` | `2a54d4b` feat(level): mark the floor exit on the map<br>`4c4bfe4` feat(ui): fit the map canvas on narrow screens<br>`08927bf` feat(effects): mark the sealed room with a local burst | 1004 | yes |
 
 The deep-dive column marks ranges with a narrative section in the
 curated report. The current tree is verified by the full suite in
