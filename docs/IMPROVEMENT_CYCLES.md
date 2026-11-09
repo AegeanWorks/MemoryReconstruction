@@ -23,6 +23,7 @@ run.
 | 10 | UI readability | Completed (compact 390px minimap) |
 | 11 | Graphics/effects | Completed (boss intro burst) |
 | 12 | Audio cues | Completed (denied dash/bolt cue) |
+| 13 | Progression/saves | Completed (nested save recovery) |
 
 ---
 
@@ -962,6 +963,83 @@ What stayed the same: the visual HUD and frame time.
 
 ```text
 npx vitest run tests/sim/action-denied.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 13 — Progression/saves: one corrupt daily field wipes the streak
+
+### FIND
+
+Evidence:
+
+- `recoverMeta` parses top-level fields independently, but `daily` is still one
+  `z.object`; an invalid `lastKey` (or `best` entry) fails the whole daily object
+  and the default `{streak:0,bestStreak:0}` replaces it.
+- The same all-or-nothing applies to `quests` and `dailyBounty`: one bad
+  subfield discards valid accepted/claimed quest data.
+- No test covers a corrupt nested field beside valid career data.
+
+### ANALYZE
+
+Read: `MetaSchema`, `recoverMeta`, `defaultMeta` and the save tests. Extract
+`DailySchema`, `QuestSchema` and `BountySchema`, reuse them in `MetaSchema`, and
+add a `recoverFields` helper for nested objects so valid subfields survive.
+No schema version or save-format change.
+
+Files: `src/save/SaveStore.ts`, `tests/save-recovery-nested.test.ts`.
+
+Proof: failing nested-save test first; a corrupt `daily.lastKey` browser reload
+shows Daily streak 4 instead of 0 in the same hub screenshot, with no other
+career loss.
+
+### IMPLEMENT
+
+- `src/save/SaveStore.ts`: extracted `DailySchema`, `QuestSchema` and
+  `BountySchema`; added `recoverFields` to salvage valid subfields of settings,
+  quests, daily and dailyBounty. Top-level and full-schema paths are unchanged.
+- `tests/save-recovery-nested.test.ts`: failing-first daily/quest checks, green.
+
+### RECORD — played browser run
+
+Same corrupt save both runs: 3 fragments, runs 4, victories 2, bestDepth 3,
+echoes 42, kills 77, daily `{streak:4,bestStreak:6,lastKey:42}`; 1280x720;
+reload → title → hub.
+
+| Evidence | Before (top-level only) | After |
+| --- | --- | --- |
+| Daily streak | 0 | **4 (best 6)** |
+| Last key | `''` | `''` |
+| Fragments / echoes | 3 / 42 | 3 / 42 |
+| Hub | `docs/qa/cycle13-before-hub.png` — Daily streak 0 | `docs/qa/cycle13-after-hub.png` — Daily streak 4 (best 6) |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle13-before.json` and `cycle13-after.json`. What improved:
+one corrupt nested field no longer discards an entire valid daily/quest/bounty
+object; only that field defaults. What broke: nothing observed; fragments and
+echoes stay intact. What stayed the same: the save version, full-schema path and
+frame time.
+
+### Gate results
+
+- `npx vitest run tests/save-recovery-nested.test.ts`: **2 passed** after the
+  failing-first run
+- `npm test`: **490 passed (95 files)**
+- `npm run test:mechanics`: **379 passed (59 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 220`)
+
+### Commands run
+
+```text
+npx vitest run tests/save-recovery-nested.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck

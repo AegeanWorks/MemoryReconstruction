@@ -41,6 +41,25 @@ const SettingsSchema = z.object({
   screenFlash: z.boolean().default(true),
 });
 
+const QuestSchema = z.object({
+  accepted: z.array(z.string()).default([]),
+  claimed: z.array(z.string()).default([]),
+  acceptedAt: z.record(z.string(), z.number().int().min(0)).default({}),
+});
+
+const BountySchema = z.object({
+  key: z.string().default(''),
+  kills: z.number().int().min(0).default(0),
+  claimed: z.boolean().default(false),
+});
+
+const DailySchema = z.object({
+  best: z.record(z.string(), z.number().int().min(0)).default({}),
+  streak: z.number().int().min(0).default(0),
+  bestStreak: z.number().int().min(0).default(0),
+  lastKey: z.string().default(''),
+});
+
 const MetaSchema = z.object({
   version: z.literal(1),
   fragments: z.array(z.string()),
@@ -68,25 +87,13 @@ const MetaSchema = z.object({
   offerings: z.number().int().min(0).max(3).default(0),
   /** Permanent reforge ranks per vault relic id. */
   relicRanks: z.record(z.string(), z.number().int().min(0).max(3)).default({}),
-  quests: z
-    .object({
-      accepted: z.array(z.string()).default([]),
-      claimed: z.array(z.string()).default([]),
-      acceptedAt: z.record(z.string(), z.number().int().min(0)).default({}),
-    })
-    .default({ accepted: [], claimed: [], acceptedAt: {} }),
+  quests: QuestSchema.default({ accepted: [], claimed: [], acceptedAt: {} }),
   /** Long-term NPC relationships, 0-3 hearts each (see trustLevel). */
   trust: z.record(z.string(), z.number().int().min(0).max(3)).default({}),
   /** NPC ids whose full-trust parting gift has already been given. */
   trustGifted: z.array(z.string()).default([]),
   /** Daily bounty progress; keyed so a new day starts clean. */
-  dailyBounty: z
-    .object({
-      key: z.string().default(''),
-      kills: z.number().int().min(0).default(0),
-      claimed: z.boolean().default(false),
-    })
-    .default({ key: '', kills: 0, claimed: false }),
+  dailyBounty: BountySchema.default({ key: '', kills: 0, claimed: false }),
   /** Settlement-evaluated mastery ladder; idempotent set union per run. */
   feats: z.array(z.string()).default([]),
   /** Best transparent run score across all settlements. */
@@ -119,14 +126,7 @@ const MetaSchema = z.object({
     )
     .default([]),
   /** Daily-descent retention: best score per day plus streak tracking. */
-  daily: z
-    .object({
-      best: z.record(z.string(), z.number().int().min(0)).default({}),
-      streak: z.number().int().min(0).default(0),
-      bestStreak: z.number().int().min(0).default(0),
-      lastKey: z.string().default(''),
-    })
-    .default({ best: {}, streak: 0, bestStreak: 0, lastKey: '' }),
+  daily: DailySchema.default({ best: {}, streak: 0, bestStreak: 0, lastKey: '' }),
   settings: SettingsSchema.default(DEFAULT_SETTINGS),
 });
 
@@ -241,6 +241,21 @@ export class SaveStore {
  * achievements; parse every top-level field independently, then salvage the
  * settings subfields. Unknown/absent fields keep their defaults.
  */
+function recoverFields<T extends Record<string, unknown>>(
+  raw: unknown,
+  shape: Record<string, z.ZodTypeAny>,
+  fallback: T
+): T {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return fallback;
+  const obj = raw as Record<string, unknown>;
+  const result: Record<string, unknown> = { ...fallback };
+  for (const [key, schema] of Object.entries(shape)) {
+    const parsed = schema.safeParse(obj[key]);
+    if (parsed.success) result[key] = parsed.data;
+  }
+  return result as T;
+}
+
 function recoverMeta(raw: unknown): Meta {
   const base = defaultMeta();
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return base;
@@ -252,16 +267,10 @@ function recoverMeta(raw: unknown): Meta {
     const parsed = schema.safeParse(obj[key]);
     if (parsed.success) out[key] = parsed.data;
   }
-  const rawSettings = obj.settings;
-  if (rawSettings && typeof rawSettings === 'object' && !Array.isArray(rawSettings)) {
-    const settings: Record<string, unknown> = { ...DEFAULT_SETTINGS };
-    for (const key of Object.keys(SettingsSchema.shape)) {
-      const schema = SettingsSchema.shape[key as keyof typeof SettingsSchema.shape];
-      const parsed = schema.safeParse((rawSettings as Record<string, unknown>)[key]);
-      if (parsed.success) settings[key] = parsed.data;
-    }
-    out.settings = settings;
-  }
+  out.settings = recoverFields(obj.settings, SettingsSchema.shape, base.settings);
+  out.quests = recoverFields(obj.quests, QuestSchema.shape, base.quests);
+  out.dailyBounty = recoverFields(obj.dailyBounty, BountySchema.shape, base.dailyBounty);
+  out.daily = recoverFields(obj.daily, DailySchema.shape, base.daily);
   return dropPhantomRelics(out as Meta);
 }
 

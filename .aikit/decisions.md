@@ -1775,3 +1775,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: Every emitted event had a Sound case, but a dash with no charges or a bolt without mana/cooldown returned from the sim with no event and no cue, so an unusable input was indistinguishable from a missed key.
 - **Decision**: Emit `actionDenied` for an actively pressed no-charge dash or no-mana bolt; `fireBolt` now returns success. Sound plays a short low square click on per-action throttle keys. Resources, cooldowns, movement and HUD are unchanged.
 - **Consequences**: The seed-7 no-charge dash run records `denied:[]` before and `denied:['dash']` after while the HUD stays Dash 0/3 and frames stay 16.68ms average / 16.90ms max. Final gates: 488 vitest (94 files), 379 mechanics (59 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle12-*`.
+
+## ADR-191: Nested meta saves recover field by field
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 13, progression/saves)
+- **Context**: Cycle 6 recovered top-level meta fields, but `daily`, `quests` and `dailyBounty` were still single objects. One corrupt `daily.lastKey` failed the whole daily object and reset the streak/best streak; one corrupt `quests.claimed` discarded valid accepted quests.
+- **Decision**: Extract `DailySchema`, `QuestSchema` and `BountySchema` and add `recoverFields(raw, shape, fallback)` for nested objects. The full-schema fast path and top-level recovery remain; no save version or format change.
+- **Consequences**: The corrupt-daily browser reload now shows Daily streak 4 (best 6) instead of 0, while fragments 3 and echoes 42 stay intact. Frames stayed 16.68ms average / 16.90ms max. Final gates: 490 vitest (95 files), 379 mechanics (59 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle13-*`.

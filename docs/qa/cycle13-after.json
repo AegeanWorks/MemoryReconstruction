@@ -1,0 +1,18 @@
+{
+  "state": {
+    "fragments": 3,
+    "runs": 4,
+    "echoes": 42,
+    "daily": {
+      "streak": 4,
+      "bestStreak": 6,
+      "lastKey": ""
+    },
+    "text": "Between ExpeditionsThe SanctuaryEchoes 42Restored 0/12Memories 3/35Checkpoint Section 1Best 0Best flow x0Daily streak 4 (best 6)ResidentsThe ArchiveLorekeeperShelves of salvaged pages, and a table kept clear for you. The"
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}
