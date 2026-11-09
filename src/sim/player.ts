@@ -16,6 +16,7 @@ const COMBO_GRACE = 0.4;
 /** How long a strike pressed during a swing or dash stays queued. */
 const ATTACK_BUFFER = 0.18;
 const BOLT_BUFFER = 0.18;
+const DASH_BUFFER = 0.18;
 const DASH_TIME = 0.17;
 const DASH_SPEED = 560;
 const DASH_IFRAMES = 0.24;
@@ -58,6 +59,7 @@ export function createPlayer(x: number, y: number): Player {
     comboWindow: 0,
     attackBuffer: 0,
     boltBuffer: 0,
+    dashBuffer: 0,
     dashTime: 0,
     dashDirX: 1,
     dashDirY: 0,
@@ -111,7 +113,10 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
   if (p.swingTime < 0) p.attackBuffer = Math.max(0, p.attackBuffer - dt);
   // A bolt pressed during a dash waits for the dash to finish, just like a
   // strike; hold the buffer for the committed move instead of dropping it.
-  if (p.dashTime <= 0) p.boltBuffer = Math.max(0, p.boltBuffer - dt);
+  if (p.dashTime <= 0) {
+    p.boltBuffer = Math.max(0, p.boltBuffer - dt);
+    p.dashBuffer = Math.max(0, p.dashBuffer - dt);
+  }
   p.resonanceTime = Math.max(0, p.resonanceTime - dt);
   if (p.resonanceTime === 0) p.resonance = 0;
   p.mana = Math.min(s.maxMana, p.mana + s.manaRegen * dt);
@@ -140,10 +145,12 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
     drinkPotion(arena);
   }
   if (input.dash && !staggered) {
-    if (p.dashCharges >= 1 && p.dashTime <= 0) {
+    if (p.dashTime > 0) {
+      if (p.dashCharges >= 1) p.dashBuffer = DASH_BUFFER;
+    } else if (p.dashCharges >= 1) {
       arena.run.stats.onboarding |= 4;
       startDash(arena, len > 1e-6 ? moveX : Math.cos(p.aim), len > 1e-6 ? moveY : Math.sin(p.aim));
-    } else if (p.dashTime <= 0) {
+    } else {
       arena.emit({ type: 'actionDenied', action: 'dash' });
     }
   }
@@ -155,6 +162,17 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
     if (input.bolt && !staggered) p.boltBuffer = BOLT_BUFFER;
     updateDash(arena, dt);
     return;
+  }
+
+  if (p.dashBuffer > 0 && !staggered) {
+    if (p.dashCharges >= 1) {
+      p.dashBuffer = 0;
+      arena.run.stats.onboarding |= 4;
+      startDash(arena, len > 1e-6 ? moveX : Math.cos(p.aim), len > 1e-6 ? moveY : Math.sin(p.aim));
+      updateDash(arena, dt);
+      return;
+    }
+    p.dashBuffer = 0;
   }
 
   if ((input.bolt || p.boltBuffer > 0) && !staggered) {

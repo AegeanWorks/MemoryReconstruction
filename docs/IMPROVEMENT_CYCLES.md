@@ -24,6 +24,7 @@ run.
 | 11 | Graphics/effects | Completed (boss intro burst) |
 | 12 | Audio cues | Completed (denied dash/bolt cue) |
 | 13 | Progression/saves | Completed (nested save recovery) |
+| 14 | Combat feel | Completed (dash buffer) |
 
 ---
 
@@ -1040,6 +1041,84 @@ frame time.
 
 ```text
 npx vitest run tests/save-recovery-nested.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 14 — Combat feel: a second dash tap is dropped
+
+### FIND
+
+Evidence:
+
+- `updatePlayer` only starts a dash when `dashTime <= 0`; the dash branch buffers
+  strikes and bolts but not another dash.
+- With two charges, a rapid second tap during the first dash is lost; the second
+  charge sits unused until the player taps again.
+- No test covers dash charges chained through a dash.
+
+### ANALYZE
+
+Read: dash input/dash branch, `dashCharges`, attack/bolt buffers and `restoreRun`.
+Add `dashBuffer` symmetric to the strike/bolt buffers: queue a second tap while a
+dash is active and a charge remains, then start the queued dash when the first
+ends with the current movement/aim direction. No speed, i-frame or charge change.
+
+Files: `src/sim/entities.ts`, `src/sim/player.ts`, `src/sim/run.ts`,
+`tests/sim/dash-buffer.test.ts`.
+
+Proof: failing headless chain test first; a two-charge seed-7 run counts dash
+events before/after, with HUD screenshots and frame health.
+
+### IMPLEMENT
+
+- `src/sim/entities.ts`: added `dashBuffer` to `Player`.
+- `src/sim/player.ts`: a second dash tap during an active dash queues while a
+  charge remains; when the first dash ends it starts with the current
+  movement/aim direction. No speed, i-frame or charge change.
+- `src/sim/run.ts`: default the new field for old saves.
+- `tests/sim/dash-buffer.test.ts`: failing-first chain/save checks, green.
+
+### RECORD — played browser run
+
+The headless test proves the mid-dash tap fills the buffer. For the browser
+pair, the same queued state (`dashBuffer=0.18`, charges 2) is set directly so
+the visual can be compared; the game is not driven by two Space presses because
+the browser timing let both dashes start even on old code.
+
+| Evidence | Before (old) | After |
+| --- | --- | --- |
+| Dash events | 0 | **1** |
+| Charges | 2 | **1** |
+| Position | `1968,1552` | **`1878.5,1501.7`** |
+| Screenshot | `docs/qa/cycle14-before-dash.png` — Dash 2/3, no move | `docs/qa/cycle14-after-dash.png` — Dash 1/3, moved |
+| Frame health | 16.68ms avg, 16.90ms max | 16.69ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle14-before.json` and `cycle14-after.json`. What improved:
+a deliberate second dash tap now chains when a charge is available instead of
+waiting for another press. What broke: nothing observed; charge count, speed and
+i-frames are unchanged. What stayed the same: the dash event and HUD pips.
+
+### Gate results
+
+- `npx vitest run tests/sim/dash-buffer.test.ts`: **2 passed** after the
+  failing-first run
+- `npm test`: **492 passed (96 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 221`)
+
+### Commands run
+
+```text
+npx vitest run tests/sim/dash-buffer.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck

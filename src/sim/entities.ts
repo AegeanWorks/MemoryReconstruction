@@ -56,6 +56,8 @@ export interface Player {
   attackBuffer: number;
   /** Seconds left on a queued bolt pressed during a dash. */
   boltBuffer: number;
+  /** Seconds left on a queued dash pressed during another dash. */
+  dashBuffer: number;
   dashTime: number;
   dashDirX: number;
   dashDirY: number;

@@ -1783,3 +1783,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: Cycle 6 recovered top-level meta fields, but `daily`, `quests` and `dailyBounty` were still single objects. One corrupt `daily.lastKey` failed the whole daily object and reset the streak/best streak; one corrupt `quests.claimed` discarded valid accepted quests.
 - **Decision**: Extract `DailySchema`, `QuestSchema` and `BountySchema` and add `recoverFields(raw, shape, fallback)` for nested objects. The full-schema fast path and top-level recovery remain; no save version or format change.
 - **Consequences**: The corrupt-daily browser reload now shows Daily streak 4 (best 6) instead of 0, while fragments 3 and echoes 42 stay intact. Frames stayed 16.68ms average / 16.90ms max. Final gates: 490 vitest (95 files), 379 mechanics (59 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle13-*`.
+
+## ADR-192: A dash tapped mid-dash is buffered
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 14, combat feel)
+- **Context**: `updatePlayer` only starts a dash when `dashTime <= 0`; the dash branch buffered strikes and bolts but not another dash, so a rapid second tap with a charge available was lost. The browser's real two-tap timing let both dashes start on old code, so the input path is proven by a headless test instead.
+- **Decision**: Add `dashBuffer`; a second dash tap during an active dash queues if a charge remains, and starts when the first ends with the current movement/aim direction. No speed, i-frame or charge change; old saves default the field.
+- **Consequences**: The headless chain test passes; the controlled browser state with `dashBuffer=0.18` and two charges changes from 0 dash/2 charges/no move to 1 dash/1 charge/moved. Frames are 16.68/16.69ms average with 16.90ms max. Final gates: 492 vitest (96 files), 381 mechanics (60 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle14-*`.

@@ -1,0 +1,21 @@
+{
+  "setup": {
+    "x": 1968,
+    "y": 1552,
+    "dashCharges": 2,
+    "room": "start"
+  },
+  "state": {
+    "dashes": 0,
+    "x": 1968,
+    "y": 1552,
+    "dashCharges": 2,
+    "dashTime": 0,
+    "state": "playing"
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}
