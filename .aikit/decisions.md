@@ -1807,3 +1807,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: The boss clear creates a `portal` interactable, but `drawMap` only read rooms, gates and objectives; the legend named chests, wells, levers, guardians and gates but not the way down.
 - **Decision**: Read the unused `portal` interactable and draw a pale diamond at its map position; add “Pale diamond: floor exit” to the legend. No level geometry, interaction or room-state change.
 - **Consequences**: The seed-7 map after a boss clear now marks the portal at `1968,3216` while keeping the same rooms and 16.68ms average / 16.90ms max frames. Final gates: 495 vitest (98 files), 381 mechanics (60 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle16-*`.
+
+## ADR-195: The map canvas fits narrow screens
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 17, UI readability)
+- **Context**: `mapScreen` creates a 640×480 canvas and `.big-map` had no width constraint, so a 390px viewport overflowed horizontally, pushed the Close button down and showed a horizontal scrollbar.
+- **Decision**: Add `display: block`, `max-width: min(640px, 100%)` and `height: auto` to `.big-map`; the canvas keeps its 4:3 ratio. Drawing and room data are unchanged.
+- **Consequences**: The 390x844 map now fits with the Close button visible and no horizontal scrollbar; frames stay 16.68ms average / 16.90ms max. Final gates: 496 vitest (99 files), 381 mechanics (60 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle17-*`.

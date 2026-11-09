@@ -1,0 +1,18 @@
+{
+  "kill": {
+    "name": "Guardian",
+    "hp": 640
+  },
+  "state": {
+    "state": "map",
+    "screen": "screen",
+    "portal": null,
+    "bossAlive": true,
+    "legend": "cement gate  ·  Pale diamond: floor exit"
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}

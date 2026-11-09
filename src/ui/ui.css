@@ -946,6 +946,9 @@
   margin-bottom: 2px;
 }
 .big-map {
+  display: block;
+  max-width: min(640px, 100%);
+  height: auto;
   border: 1px solid var(--panel-edge);
   border-radius: 10px;
   background: rgba(8, 7, 16, 0.85);

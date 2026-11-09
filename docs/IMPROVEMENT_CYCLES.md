@@ -27,6 +27,7 @@ run.
 | 14 | Combat feel | Completed (dash buffer) |
 | 15 | Enemies/bosses | Completed (boss phase ticks) |
 | 16 | Levels | Completed (map exit marker) |
+| 17 | UI readability | Completed (narrow map fits) |
 
 ---
 
@@ -1266,6 +1267,76 @@ and frame time.
 
 ```text
 npx vitest run tests/ui-map-exit.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 17 — UI readability: map canvas overflows narrow screens
+
+### FIND
+
+Evidence:
+
+- `mapScreen` creates a canvas with `width="640" height="480"`.
+- `.big-map` only defines border/background; no CSS width constraint.
+- At a 390px viewport the 640px canvas overflows the screen horizontally,
+  clipping the right half of the map and forcing horizontal scroll.
+
+### ANALYZE
+
+Read: `mapScreen`, `.big-map`, `.map-legend` and the 390 layout. Add
+`max-width: min(640px, 100%); height: auto; display: block` so the canvas
+scales inside the screen while preserving its 4:3 ratio. The drawMap code and
+marker positions are unchanged.
+
+Files: `src/ui/ui.css`, `tests/ui-map-narrow.test.ts`.
+
+Proof: failing CSS check first; a seed-7 boss-clear map at 390x844
+before/after.
+
+### IMPLEMENT
+
+- `src/ui/ui.css`: `.big-map` is `display: block`, `max-width: min(640px, 100%)`
+  and `height: auto`, preserving the canvas 4:3 ratio inside the screen.
+- `tests/ui-map-narrow.test.ts`: failing-first constraint check, green.
+
+### RECORD — played browser run
+
+Same seed 7 boss-clear map at 390x844; the portal was absent in this shorter run,
+but the room map and legend are identical before/after.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Canvas | intrinsic 640×480 overflowing | **fits screen, 4:3** |
+| Layout | horizontal scrollbar; Close pushed down | no scrollbar; Close visible |
+| Screenshot | `docs/qa/cycle17-before-map390.png` | `docs/qa/cycle17-after-map390.png` |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle17-before.json` and `cycle17-after.json`. What improved:
+the map is fully visible on the narrow viewport without horizontal scrolling.
+What broke: nothing observed; the map drawing and room data are unchanged.
+What stayed the same: the legend and frame time.
+
+### Gate results
+
+- `npx vitest run tests/ui-map-narrow.test.ts`: **1 passed** after the
+  failing-first run
+- `npm test`: **496 passed (99 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 224`)
+
+### Commands run
+
+```text
+npx vitest run tests/ui-map-narrow.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck
