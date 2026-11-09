@@ -1052,7 +1052,7 @@ corrupt-save hub preserved 3 fragments and 42 echoes instead of 0.
 
 **Finding:** none.
 
-## Range 1 -> 216 (End) (`407e047..aae8383`)
+## Range 1 -> 216 (`407e047..aae8383`)
 
 **Commits:** cycle 7 combat feel, cycle 8 enemies/bosses and cycle 9 levels.
 Cycle 7 buffers a bolt tapped during a dash. Cycle 8 makes enemy health bars
@@ -1068,9 +1068,22 @@ gate pair uses a forced cleared-room state and shows the bright/dim gate at
 
 **Finding:** none.
 
+## Range 1 -> 217 (End) (`407e047..334c674`)
+
+**Commit:** cycle 10 UI readability: the 390px minimap is 104×76 instead of the
+inherited 130×100, freeing the top-right HUD area while keeping the map visible.
+Adds a failing-first responsive CSS check and a 390x844 before/after pair.
+
+**Verification:** 483 vitest (92 files), 376 mechanics (58 files),
+typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed from
+`334c674`; the same seed-7 room renders the map at 85.3×62.3 screen pixels
+instead of 106.6×82, with 16.68ms average / 16.90ms max frames.
+
+**Finding:** none.
+
 ## Late-content batch summary
 
-The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 72 cumulative
+The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 73 cumulative
 ranges, the three commits added by each, and the file count at the endpoint.
 Every range is now deep-dived; this section keeps the shared verification for
 the art, UI, combat-polish and late-content expansion that followed the early
@@ -1111,7 +1124,7 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **482 passed (92 files)**
+- `npm test`: **483 passed (92 files)**
 - `npm run test:mechanics`: **376 passed (58 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
@@ -1120,9 +1133,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (216 commits,
+The inventory covers every content commit through `1 -> End` (217 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-8 and the cycle 9 spent-gate pass). The
+follow-up, visual review, cycles 1-9 and the cycle 10 compact minimap). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1142,5 +1155,6 @@ fairness), ADR-179 (visual UI review), ADR-180 (attack buffer survives a slow
 swing), ADR-181 (boss telegraphs freeze their windup), ADR-182 (boss phase
 burst), ADR-183 (pause suspends audio), ADR-184 (meta saves recover field by
 field), ADR-185 (a bolt tapped mid-dash is buffered), ADR-186 (enemy health bars
-are readable), ADR-187 (cleared gates read as spent) and the README boss-count
-correction recorded above. No open audit items remain.
+are readable), ADR-187 (cleared gates read as spent), ADR-188 (compact minimap
+on the narrow HUD) and the README boss-count correction recorded above. No open
+audit items remain.
