@@ -1815,3 +1815,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: `mapScreen` creates a 640×480 canvas and `.big-map` had no width constraint, so a 390px viewport overflowed horizontally, pushed the Close button down and showed a horizontal scrollbar.
 - **Decision**: Add `display: block`, `max-width: min(640px, 100%)` and `height: auto` to `.big-map`; the canvas keeps its 4:3 ratio. Drawing and room data are unchanged.
 - **Consequences**: The 390x844 map now fits with the Close button visible and no horizontal scrollbar; frames stay 16.68ms average / 16.90ms max. Final gates: 496 vitest (99 files), 381 mechanics (60 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle17-*`.
+
+## ADR-196: The room seal has a local burst
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 18, graphics/effects)
+- **Context**: `activateRoom` emitted `roomLocked` with only `roomId`; the HUD toasted “Doors seal” and Sound played a lock thump, but nothing local marked the sealed chamber.
+- **Decision**: Carry the room-centre `x`/`y` on `roomLocked` and draw a 150px red ring, 78px amber ring, 18-particle ember burst and short shake in `Effects`. Lock, spawn, audio and HUD behaviour are unchanged.
+- **Consequences**: Entering seed-7 combat room 1 now shows the seal burst at `1952,2048` with the same room phase and 16.68ms average / 16.90ms max frames. Final gates: 498 vitest (100 files), 381 mechanics (60 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle18-*`.

@@ -1158,13 +1158,13 @@ export class World implements Arena {
     state.phase = 'active';
     this.roomDamage = 0;
     this.setRoomLocked(room, true);
-    this.emit({ type: 'roomLocked', roomId: room.id });
+    const c = roomCentrePx(room);
+    this.emit({ type: 'roomLocked', roomId: room.id, x: c.x, y: c.y });
     if (room.kind === 'boss' || room.kind === 'arena') {
       state.wavesLeft = 1;
       state.totalWaves = 1;
       state.spawnDelay = 1.0;
       const boss = room.kind === 'boss' ? this.plan.boss : arenaBossFor(this.run.depth);
-      const c = roomCentrePx(room);
       this.emit({ type: 'bossIntro', name: enemyDef(boss).name, x: c.x, y: c.y });
       if (room.kind === 'arena')
         this.emit({ type: 'notice', text: 'An echo guardian holds the arena alone.' });

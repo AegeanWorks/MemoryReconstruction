@@ -286,6 +286,13 @@ export class Effects {
         case 'resonanceBreak':
           this.ring(playerX, playerY, 70, 0xff5a5a, 0.4);
           break;
+        case 'roomLocked': {
+          this.ring(e.x, e.y, 150, 0xff5a3a, 0.6);
+          this.ring(e.x, e.y, 78, 0xffc84a, 0.4);
+          this.burst(e.x, e.y, 0xff6a4a, 18, 160, 0.5, 4);
+          this.shake = Math.min(18, Math.max(this.shake, 3));
+          break;
+        }
         case 'bossIntro': {
           this.ring(e.x, e.y, 190, 0xffd98a, 0.9);
           this.ring(e.x, e.y, 360, 0xff6a3a, 0.65);

@@ -78,7 +78,7 @@ export type SimEvent =
   | { type: 'beam'; x: number; y: number; angle: number; length: number; width: number }
   | { type: 'blink'; x: number; y: number; toX: number; toY: number }
   | { type: 'hook'; x: number; y: number; toX: number; toY: number }
-  | { type: 'roomLocked'; roomId: number }
+  | { type: 'roomLocked'; roomId: number; x: number; y: number }
   | { type: 'roomCleared'; roomId: number }
   /** A lever opened a sealed vault; the view rebuilds the floor to show it. */
   | { type: 'secretOpened'; roomId: number }

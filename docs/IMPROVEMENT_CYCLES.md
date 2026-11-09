@@ -28,6 +28,7 @@ run.
 | 15 | Enemies/bosses | Completed (boss phase ticks) |
 | 16 | Levels | Completed (map exit marker) |
 | 17 | UI readability | Completed (narrow map fits) |
+| 18 | Graphics/effects | Completed (room seal burst) |
 
 ---
 
@@ -1337,6 +1338,80 @@ What stayed the same: the legend and frame time.
 
 ```text
 npx vitest run tests/ui-map-narrow.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 18 — Graphics/effects: room seal has no local burst
+
+### FIND
+
+Evidence:
+
+- `activateRoom` emits `roomLocked` with only `roomId`; the HUD toasts “Doors
+  seal” and Sound plays a lock thump, but `Effects.handle` has no case and no
+  position.
+- Entering a combat/boss room is a major transition, but nothing local marks
+  the sealed chamber.
+- Existing view tests cover boss intros/phases, not the room-seal moment.
+
+### ANALYZE
+
+Read: `activateRoom`, `roomCentrePx`, App/HUD/Sound consumers and the effect
+patterns. Add room-centre `x`/`y` to `roomLocked` and draw a red/amber ring pair
+with a small particle burst and short shake. No lock, spawn, audio or HUD change.
+
+Files: `src/sim/events.ts`, `src/sim/world.ts`, `src/view/Effects.ts`,
+`tests/view-room-lock-fx.test.ts`.
+
+Proof: failing source/event check first; seed-7 entry into a combat room
+captured pre/post effect at 1280x720.
+
+### IMPLEMENT
+
+- `src/sim/events.ts`: `roomLocked` carries room-centre `x`/`y`.
+- `src/sim/world.ts`: `activateRoom` computes the centre once and uses it for
+  both `roomLocked` and `bossIntro`.
+- `src/view/Effects.ts`: `roomLocked` draws a 150px red ring and 78px amber ring,
+  an 18-particle ember burst and a short shake.
+- `tests/view-room-lock-fx.test.ts`: failing-first source/event checks, green.
+
+### RECORD — played browser run
+
+Seed 7, teleported into combat room 1 (`1952,2048`); the room locks naturally.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Seal moment | toast only, no chamber burst | **red/amber rings + particles** |
+| Room state | active, enemies spawned | active, enemies spawned |
+| Screenshot | `docs/qa/cycle18-before-roomlock.png` | `docs/qa/cycle18-after-roomlock.png` |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle18-before.json` and `cycle18-after.json`. What improved:
+the sealed chamber now has a local visual beat. What broke: nothing observed;
+lock, spawn, audio and HUD behaviour are unchanged. What stayed the same: room
+phase, enemy spawn and frame time.
+
+### Gate results
+
+- `npx vitest run tests/view-room-lock-fx.test.ts`: **2 passed** after the
+  failing-first run
+- `npm test`: **498 passed (100 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 225`)
+
+### Commands run
+
+```text
+npx vitest run tests/view-room-lock-fx.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck

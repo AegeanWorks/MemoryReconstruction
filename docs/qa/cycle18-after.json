@@ -1,0 +1,25 @@
+{
+  "room": {
+    "id": 1,
+    "kind": "combat",
+    "x": 1952,
+    "y": 2048
+  },
+  "state": {
+    "state": "playing",
+    "room": {
+      "id": 1,
+      "phase": "active"
+    },
+    "player": {
+      "x": 1952,
+      "y": 2048
+    },
+    "toast": "Omen: Heavy Air — Enemies hit 15% harder."
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}
