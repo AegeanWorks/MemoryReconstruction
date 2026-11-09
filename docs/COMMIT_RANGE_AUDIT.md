@@ -1098,16 +1098,16 @@ Guardian bar shows both threshold ticks at 16.68ms average / 16.90ms max.
 
 **Finding:** none.
 
-## Range 1 -> 223 (End) (`407e047..2a54d4b`)
+## Range 1 -> 224 (End) (`407e047..4c4bfe4`)
 
-**Commit:** cycle 16 levels: the map reads the unused portal interactable and
-draws a pale diamond at its position, with a legend entry. No level geometry,
-interaction or room state changed.
+**Commits:** cycle 16 levels and cycle 17 UI readability. Cycle 16 draws a pale
+exit diamond on the map; cycle 17 constrains the 640×480 map canvas to the
+viewport with a preserved 4:3 ratio.
 
-**Verification:** 495 vitest (98 files), 381 mechanics (60 files),
-typecheck/lint/build clean, 8/8 AIKit; the seed-7 boss-clear map now marks the
-portal at `1968,3216` with the pale diamond and legend, at 16.68ms average /
-16.90ms max frames.
+**Verification:** 496 vitest (99 files), 381 mechanics (60 files),
+typecheck/lint/build clean, 8/8 AIKit; the boss-clear map marks the portal, and
+the 390x844 map fits without a horizontal scrollbar while keeping the Close
+button visible, at 16.68ms average / 16.90ms max frames.
 
 **Finding:** none.
 
@@ -1154,7 +1154,7 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **495 passed (98 files)**
+- `npm test`: **496 passed (99 files)**
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
@@ -1163,9 +1163,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (223 commits,
+The inventory covers every content commit through `1 -> End` (224 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-15 and the cycle 16 map exit marker). The
+follow-up, visual review, cycles 1-16 and the cycle 17 narrow map). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1189,5 +1189,6 @@ are readable), ADR-187 (cleared gates read as spent), ADR-188 (compact minimap
 on the narrow HUD), ADR-189 (boss entries burst at the chamber centre), ADR-190
 (denied dash and bolt pay a dry click), ADR-191 (nested meta saves recover field
 by field), ADR-192 (a dash tapped mid-dash is buffered), ADR-193 (boss bar marks
-both phase thresholds), ADR-194 (the map marks the floor exit) and the README
-boss-count correction recorded above. No open audit items remain.
+both phase thresholds), ADR-194 (the map marks the floor exit), ADR-195 (the map
+canvas fits narrow screens) and the README boss-count correction recorded above.
+No open audit items remain.
