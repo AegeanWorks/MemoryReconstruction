@@ -1799,3 +1799,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: Boss phases advance at 60% and 30% health, but the HUD bar showed only the current percentage; the player could not see how close the next shift was.
 - **Decision**: Draw 3px white threshold lines at 60% and 30% on the boss bar with a light halo and dark outline, above the fill and text. No health, phase or event change.
 - **Consequences**: The seed-7 Guardian at 25% now shows both threshold lines; before/after captures at 1280x720 keep the same 25% bar and 16.68ms average / 16.90ms max frames. Final gates: 493 vitest (97 files), 381 mechanics (60 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle15-*`.
+
+## ADR-194: The map marks the floor exit
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 16, levels)
+- **Context**: The boss clear creates a `portal` interactable, but `drawMap` only read rooms, gates and objectives; the legend named chests, wells, levers, guardians and gates but not the way down.
+- **Decision**: Read the unused `portal` interactable and draw a pale diamond at its map position; add “Pale diamond: floor exit” to the legend. No level geometry, interaction or room-state change.
+- **Consequences**: The seed-7 map after a boss clear now marks the portal at `1968,3216` while keeping the same rooms and 16.68ms average / 16.90ms max frames. Final gates: 495 vitest (98 files), 381 mechanics (60 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle16-*`.

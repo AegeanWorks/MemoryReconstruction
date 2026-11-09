@@ -6,6 +6,8 @@ import type { Room } from '../sim/dungeon';
 import { TILE_SIZE } from '../sim/tiles';
 import type { World } from '../sim/world';
 
+const PALE = 'rgba(255, 243, 196, 0.92)';
+
 const KIND_COLOR: Record<Room['kind'], string> = {
   start: '#8fd7ff',
   combat: '#9a8fb8',
@@ -241,19 +243,23 @@ export function drawMap(canvas: HTMLCanvasElement, world: World, time: number): 
     }
   }
 
-  // Exit portal once open.
-  const portal = world.interactables.find((i) => i.kind === 'portal');
+  // Exit portal once open: a pale diamond distinct from every room marker.
+  const portal = world.interactables.find((i) => i.kind === 'portal' && !i.used);
   if (portal) {
-    ctx.fillStyle = `rgba(111, 231, 255, ${0.6 + 0.4 * Math.sin(time * 5)})`;
-    ctx.beginPath();
-    ctx.arc(
-      ox + (portal.x / TILE_SIZE) * scale,
-      oy + (portal.y / TILE_SIZE) * scale,
-      Math.max(4, scale * 2.4),
-      0,
-      Math.PI * 2
-    );
-    ctx.fill();
+    const px = ox + (portal.x / TILE_SIZE) * scale;
+    const py = oy + (portal.y / TILE_SIZE) * scale;
+    const s = Math.max(7, scale * 2.8);
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate(Math.PI / 4);
+    ctx.globalAlpha = 0.65 + 0.35 * Math.sin(time * 5);
+    ctx.fillStyle = PALE;
+    ctx.fillRect(-s / 2, -s / 2, s, s);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'rgba(35, 24, 10, 0.9)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(-s / 2, -s / 2, s, s);
+    ctx.restore();
   }
 
   const p = world.player;

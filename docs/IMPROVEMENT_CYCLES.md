@@ -26,6 +26,7 @@ run.
 | 13 | Progression/saves | Completed (nested save recovery) |
 | 14 | Combat feel | Completed (dash buffer) |
 | 15 | Enemies/bosses | Completed (boss phase ticks) |
+| 16 | Levels | Completed (map exit marker) |
 
 ---
 
@@ -1191,6 +1192,80 @@ unchanged. What stayed the same: the bar fill/percentage and frame time.
 
 ```text
 npx vitest run tests/ui-boss-phase-ticks.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 16 — Levels: the floor exit has no map marker
+
+### FIND
+
+Evidence:
+
+- The boss clear creates a `portal` interactable at the room centre, and the
+  map legend lists chests, wells, levers, guardians and gates — but not the
+  exit portal.
+- `Minimap.drawMap` draws rooms, current/cleared states and gates; it never
+  reads the portal interactable.
+- After a boss kill the map cannot tell the player where the way down is.
+
+### ANALYZE
+
+Read: `Minimap.drawMap`, `world.interactables`, the portal creation in
+`clearRoom` and `mapScreen`'s legend. Draw a pale diamond at the portal's map
+position and add “Pale diamond: floor exit” to the legend. No level geometry,
+interaction or room state change.
+
+Files: `src/ui/Minimap.ts`, `src/ui/Screens.ts`, `tests/ui-map-exit.test.ts`.
+
+Proof: failing source check first; a seed-7 boss kill opens the map screen
+before/after, with the same room state and frame health.
+
+### IMPLEMENT
+
+- `src/ui/Minimap.ts`: reads the unused `portal` interactable and draws a pale
+  diamond at its map position; the previous cyan dot is replaced.
+- `src/ui/Screens.ts`: adds “Pale diamond: floor exit” to the map legend.
+- `tests/ui-map-exit.test.ts`: failing-first source/legend checks, green.
+
+### RECORD — played browser run
+
+Same seed 7, boss room clear, portal at `1968,3216`, map screen opened with Tab,
+1280x720, 59 sampled frames.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Portal marker | none | **pale diamond** |
+| Legend | ends at reinforcement gate | **adds Pale diamond: floor exit** |
+| Screenshot | `docs/qa/cycle16-before-mapexit.png` | `docs/qa/cycle16-after-mapexit.png` |
+| Frame health | 16.68ms avg, 17.00ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle16-before.json` and `cycle16-after.json`. What improved:
+the map now points to the way down after a boss clear instead of leaving the
+player to remember the chamber. What broke: nothing observed; the portal,
+room state and interactions are unchanged. What stayed the same: the room map
+and frame time.
+
+### Gate results
+
+- `npx vitest run tests/ui-map-exit.test.ts`: **2 passed** after the
+  failing-first run
+- `npm test`: **495 passed (98 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 223`)
+
+### Commands run
+
+```text
+npx vitest run tests/ui-map-exit.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck

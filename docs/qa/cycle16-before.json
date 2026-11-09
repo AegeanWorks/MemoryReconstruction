@@ -1,0 +1,22 @@
+{
+  "kill": {
+    "name": "Guardian",
+    "hp": 640
+  },
+  "state": {
+    "state": "map",
+    "screen": "screen",
+    "portal": {
+      "x": 1968,
+      "y": 3216,
+      "used": false
+    },
+    "bossAlive": true,
+    "legend": "na  ·  Crimson hatch: reinforcement gate"
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 17,
+    "frames": 59
+  }
+}
