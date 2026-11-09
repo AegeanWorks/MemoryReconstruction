@@ -82,6 +82,7 @@ export type SimEvent =
   | { type: 'roomCleared'; roomId: number }
   /** A lever opened a sealed vault; the view rebuilds the floor to show it. */
   | { type: 'secretOpened'; roomId: number }
+  | { type: 'actionDenied'; action: 'dash' | 'bolt' }
   | { type: 'bossIntro'; name: string; x: number; y: number }
   | { type: 'bossPhase'; phase: number; x: number; y: number }
   | { type: 'fragmentFound'; fragmentId: string }

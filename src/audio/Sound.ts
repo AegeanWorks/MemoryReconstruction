@@ -372,6 +372,16 @@ export class Sound {
           this.tone(55, 50, 2.5, 'sawtooth', 0.18);
           this.tone(82, 80, 2.5, 'sine', 0.2);
           break;
+        case 'actionDenied':
+          this.tone(
+            e.action === 'bolt' ? 260 : 170,
+            e.action === 'bolt' ? 210 : 110,
+            0.06,
+            'square',
+            0.04,
+            `denied-${e.action}`
+          );
+          break;
         case 'bossPhase':
           this.tone(80, 160, 0.6, 'sawtooth', 0.15);
           break;

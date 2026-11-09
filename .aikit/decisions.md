@@ -1767,3 +1767,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: `activateRoom` emitted `bossIntro` with only the boss name; the HUD raised the boss bar and audio played, but `Effects` had no local case and the event had no position.
 - **Decision**: Carry room-centre `x`/`y` on `bossIntro` and draw a gold/ember ring pair, star and burst with a short shake. Spawn timing, room locks, audio and the boss bar are unchanged.
 - **Consequences**: The seed-7 boss chamber now has a local entry anchor; before/after captures at 260ms show the burst while boss spawn, player position and 17.67ms average / 18.50ms max frames stay the same. Final gates: 485 vitest (93 files), 376 mechanics (58 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle11-*`.
+
+## ADR-190: Denied dash and bolt pay a dry click
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 12, audio cues)
+- **Context**: Every emitted event had a Sound case, but a dash with no charges or a bolt without mana/cooldown returned from the sim with no event and no cue, so an unusable input was indistinguishable from a missed key.
+- **Decision**: Emit `actionDenied` for an actively pressed no-charge dash or no-mana bolt; `fireBolt` now returns success. Sound plays a short low square click on per-action throttle keys. Resources, cooldowns, movement and HUD are unchanged.
+- **Consequences**: The seed-7 no-charge dash run records `denied:[]` before and `denied:['dash']` after while the HUD stays Dash 0/3 and frames stay 16.68ms average / 16.90ms max. Final gates: 488 vitest (94 files), 379 mechanics (59 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle12-*`.

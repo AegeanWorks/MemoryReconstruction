@@ -1,0 +1,21 @@
+{
+  "setup": {
+    "dashCharges": 0,
+    "mana": 60,
+    "room": "start"
+  },
+  "state": {
+    "denied": [
+      "dash"
+    ],
+    "dashCharges": 0,
+    "action": "idle",
+    "state": "playing",
+    "room": "start"
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}

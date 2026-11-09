@@ -139,9 +139,13 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
     arena.run.stats.onboarding |= 8;
     drinkPotion(arena);
   }
-  if (input.dash && !staggered && p.dashCharges >= 1 && p.dashTime <= 0) {
-    arena.run.stats.onboarding |= 4;
-    startDash(arena, len > 1e-6 ? moveX : Math.cos(p.aim), len > 1e-6 ? moveY : Math.sin(p.aim));
+  if (input.dash && !staggered) {
+    if (p.dashCharges >= 1 && p.dashTime <= 0) {
+      arena.run.stats.onboarding |= 4;
+      startDash(arena, len > 1e-6 ? moveX : Math.cos(p.aim), len > 1e-6 ? moveY : Math.sin(p.aim));
+    } else if (p.dashTime <= 0) {
+      arena.emit({ type: 'actionDenied', action: 'dash' });
+    }
   }
 
   if (p.dashTime > 0) {
@@ -155,7 +159,7 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
 
   if ((input.bolt || p.boltBuffer > 0) && !staggered) {
     arena.run.stats.onboarding |= 2;
-    fireBolt(arena);
+    if (!fireBolt(arena) && input.bolt) arena.emit({ type: 'actionDenied', action: 'bolt' });
     p.boltBuffer = 0;
   }
   if (input.attack && !staggered) {
@@ -243,10 +247,10 @@ function updateDash(arena: Arena, dt: number): void {
   }
 }
 
-function fireBolt(arena: Arena): void {
+function fireBolt(arena: Arena): boolean {
   const p = arena.player;
   const s = p.stats;
-  if (p.boltCooldown > 0 || p.mana < s.boltCost) return;
+  if (p.boltCooldown > 0 || p.mana < s.boltCost) return false;
   p.mana -= s.boltCost;
   p.boltCooldown = BOLT_COOLDOWN;
   for (let i = 0; i < s.boltCount; i++) {
@@ -265,6 +269,7 @@ function fireBolt(arena: Arena): void {
     });
   }
   arena.emit({ type: 'bolt', x: p.x, y: p.y, angle: p.aim });
+  return true;
 }
 
 /** Switches stance; a switch cancels the current swing but keeps the flow meter. */

@@ -22,6 +22,7 @@ run.
 | 9 | Levels | Completed (spent gates dim) |
 | 10 | UI readability | Completed (compact 390px minimap) |
 | 11 | Graphics/effects | Completed (boss intro burst) |
+| 12 | Audio cues | Completed (denied dash/bolt cue) |
 
 ---
 
@@ -883,6 +884,84 @@ existing phase burst.
 
 ```text
 npx vitest run tests/view-boss-intro-fx.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 12 — Audio cues: denied dash/bolt are silent
+
+### FIND
+
+Evidence:
+
+- Every `SimEvent` has a Sound case, but a dash with **no charges** and a bolt
+  with **no mana/cooldown** return from the sim without an event. The input
+  simply disappears.
+- No test covers the denied path; the player cannot tell a dropped input from a
+  missed key.
+- Existing Sound tones accept a throttle key, so a dry click can avoid spam.
+
+### ANALYZE
+
+Read: dash/bolt branches in `player.ts`, `fireBolt`, the Sound switch and
+`tone` throttling. Add an `actionDenied` event for dash/bolt only, emit it when
+the input is actively pressed and unusable, and play a short low square click
+with a per-action throttle. No resource, cooldown or movement change.
+
+Files: `src/sim/events.ts`, `src/sim/player.ts`, `src/audio/Sound.ts`,
+`tests/sim/action-denied.test.ts`.
+
+Proof: failing sim/audio source check first; a seed-7 no-charge dash played run
+with a wrapped `Sound.handle` records the event before/after, with HUD
+screenshots and frame health.
+
+### IMPLEMENT
+
+- `src/sim/events.ts`: added `actionDenied` for `dash`/`bolt`.
+- `src/sim/player.ts`: a no-charge dash and a no-mana bolt now emit the event;
+  `fireBolt` returns whether it fired. Resources, cooldowns and movement are
+  unchanged.
+- `src/audio/Sound.ts`: a short low square click per denied action, throttled by
+  `denied-dash` / `denied-bolt` so holding the key cannot clip.
+- `tests/sim/action-denied.test.ts`: failing-first sim and Sound checks, green.
+
+### RECORD — played browser run
+
+Same seed 7 start room, 1280x720, dash charges forced to 0 with recharge frozen;
+`Sound.handle` wrapped to log denied events. Space is pressed once.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Denied events reaching Sound | `[]` | **`['dash']`** |
+| Dash charges | 0 | 0 |
+| Screenshot | `docs/qa/cycle12-before-denied.png` — Dash 0/3 | `docs/qa/cycle12-after-denied.png` — same HUD |
+| Frame health | 16.68ms avg, 17.00ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle12-before.json` and `cycle12-after.json`. What improved:
+an empty dash or bolt now pays a dry click instead of disappearing silently.
+What broke: nothing observed; resources, cooldowns and movement are unchanged.
+What stayed the same: the visual HUD and frame time.
+
+### Gate results
+
+- `npx vitest run tests/sim/action-denied.test.ts`: **3 passed** after the
+  failing-first run
+- `npm test`: **488 passed (94 files)**
+- `npm run test:mechanics`: **379 passed (59 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 219`)
+
+### Commands run
+
+```text
+npx vitest run tests/sim/action-denied.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck
