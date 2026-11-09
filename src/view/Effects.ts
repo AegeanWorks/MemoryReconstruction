@@ -286,6 +286,14 @@ export class Effects {
         case 'resonanceBreak':
           this.ring(playerX, playerY, 70, 0xff5a5a, 0.4);
           break;
+        case 'bossIntro': {
+          this.ring(e.x, e.y, 190, 0xffd98a, 0.9);
+          this.ring(e.x, e.y, 360, 0xff6a3a, 0.65);
+          this.star(e.x, e.y, 0xffd98a, 84, 0.8);
+          this.burst(e.x, e.y, 0xffd98a, 30, 220, 0.7, 6);
+          this.shake = Math.min(18, Math.max(this.shake, 6));
+          break;
+        }
         case 'bossPhase': {
           const color = e.phase >= 2 ? 0xff6a3a : 0xffc84a;
           this.ring(e.x, e.y, e.phase >= 2 ? 112 : 84, color, 0.55);

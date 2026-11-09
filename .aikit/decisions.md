@@ -1759,3 +1759,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: The 720px rule set the minimap to 130×100, and the later 560px block had no override. At a 390px viewport the map occupied roughly a third of the HUD width and covered the top-right action area.
 - **Decision**: Set the minimap to 104×76 inside the existing `max-width: 560px` block. The canvas already scales to its CSS box; no renderer, data or map logic changed.
 - **Consequences**: The same seed-7 start-room state now renders the map at 85.3×62.3 screen pixels instead of 106.6×82, while the rooms/markers stay visible and frames stay 16.68ms average / 16.90ms max. Final gates: 483 vitest (92 files), 376 mechanics (58 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle10-*`.
+
+## ADR-189: Boss entries burst at the chamber centre
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 11, graphics/effects)
+- **Context**: `activateRoom` emitted `bossIntro` with only the boss name; the HUD raised the boss bar and audio played, but `Effects` had no local case and the event had no position.
+- **Decision**: Carry room-centre `x`/`y` on `bossIntro` and draw a gold/ember ring pair, star and burst with a short shake. Spawn timing, room locks, audio and the boss bar are unchanged.
+- **Consequences**: The seed-7 boss chamber now has a local entry anchor; before/after captures at 260ms show the burst while boss spawn, player position and 17.67ms average / 18.50ms max frames stay the same. Final gates: 485 vitest (93 files), 376 mechanics (58 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle11-*`.

@@ -1,0 +1,23 @@
+{
+  "enter": {
+    "room": "boss",
+    "id": 5,
+    "x": 1952,
+    "y": 3200
+  },
+  "state": {
+    "room": "boss",
+    "id": 5,
+    "enemies": 0,
+    "player": {
+      "x": 1952,
+      "y": 3200
+    },
+    "state": "playing"
+  },
+  "frames": {
+    "avgMs": 17.67,
+    "maxMs": 18.5,
+    "frames": 59
+  }
+}

@@ -21,6 +21,7 @@ run.
 | 8 | Enemies/bosses | Completed (readable enemy health bars) |
 | 9 | Levels | Completed (spent gates dim) |
 | 10 | UI readability | Completed (compact 390px minimap) |
+| 11 | Graphics/effects | Completed (boss intro burst) |
 
 ---
 
@@ -806,6 +807,82 @@ seed/state and frame time.
 
 ```text
 npx vitest run tests/ui-responsive-layout.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 11 — Graphics/effects: boss intro has no local burst
+
+### FIND
+
+Evidence:
+
+- `World.activateRoom` emits `bossIntro` with only the boss name; the HUD
+  raises the boss bar and audio plays a cue, but `Effects.handle` has no
+  `bossIntro` case and the event carries no position.
+- Entering a boss room is a major transition, but the screen has no local
+  visual anchor at the chamber.
+- No view test covers the boss-intro moment.
+
+### ANALYZE
+
+Read: `activateRoom`, `roomCentrePx`, `bossIntro` consumers in App/HUD/Sound,
+and the effect patterns used by `bossPhase`/`floorX`. Add room-centre `x`/`y`
+to the event and draw a large gold/ember ring, star and burst with a short
+shake; no spawn, lock, audio or boss-bar change.
+
+Files: `src/sim/events.ts`, `src/sim/world.ts`, `src/view/Effects.ts`,
+`tests/view-boss-intro-fx.test.ts`.
+
+Proof: failing source/event check first; seed-7 boss-room entry captured at the
+same moment before/after, 1280x720, with frame health.
+
+### IMPLEMENT
+
+- `src/sim/events.ts`: `bossIntro` carries room-centre `x`/`y`.
+- `src/sim/world.ts`: `activateRoom` emits the room centre with the boss name.
+- `src/view/Effects.ts`: draws a gold/ember ring pair, star and burst at the
+  chamber centre, with a short shake. No spawn, lock, audio or boss-bar change.
+- `tests/view-boss-intro-fx.test.ts`: failing-first source/event checks, green.
+
+### RECORD — played browser run
+
+Same seed 7, boss room id 5 at `1952,3200`, player at the centre, 1280x720;
+captured 260ms after activation, before the 1s boss spawn.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Local effect | none | **two rings, star and gold burst** |
+| Room / player | boss / `1952,3200` | boss / `1952,3200` |
+| Screenshot | `docs/qa/cycle11-before-bossintro.png` | `docs/qa/cycle11-after-bossintro.png` |
+| Frame health | 17.67ms avg, 18.50ms max | 17.67ms avg, 18.50ms max |
+
+Raw logs: `docs/qa/cycle11-before.json` and `cycle11-after.json`. What improved:
+entering a boss chamber now has a local visual anchor instead of only a boss bar
+and audio cue. What broke: nothing observed; the boss spawn, room lock, audio
+and frame time are unchanged. What stayed the same: the intro timing and the
+existing phase burst.
+
+### Gate results
+
+- `npx vitest run tests/view-boss-intro-fx.test.ts`: **2 passed** after the
+  failing-first run
+- `npm test`: **485 passed (93 files)**
+- `npm run test:mechanics`: **376 passed (58 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 218`)
+
+### Commands run
+
+```text
+npx vitest run tests/view-boss-intro-fx.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck
