@@ -2645,4 +2645,9 @@
     font-size: 10px;
     line-height: 1.4;
   }
+
+  .minimap {
+    width: 104px;
+    height: 76px;
+  }
 }

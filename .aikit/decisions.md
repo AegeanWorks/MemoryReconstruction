@@ -1751,3 +1751,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: The minimap dimmed a cleared room’s gates, but `LevelView.drawDoors` had no room-phase input and kept the world portcullis bright with its ember glow, suggesting a cleared room could reinforce.
 - **Decision**: Pass `world.rooms[id]?.phase` into `LevelView`; when a gate’s room is cleared, overlay a 0.55 dark wash on each gate tile after its art. No collision, spawn, room-state or minimap change.
 - **Consequences**: The same seed-7 cleared room now shows a dim spent gate in the world, matching the minimap. The capture records `forced:true` because the scripted damage loop left the room active after 8s; this is a controlled visual state. Frames were 17.70/17.72ms average with 18.50/18.70ms max. Final gates: 482 vitest (92 files), 376 mechanics (58 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle9-*`.
+
+## ADR-188: Compact minimap on the narrow HUD
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 10, UI readability)
+- **Context**: The 720px rule set the minimap to 130×100, and the later 560px block had no override. At a 390px viewport the map occupied roughly a third of the HUD width and covered the top-right action area.
+- **Decision**: Set the minimap to 104×76 inside the existing `max-width: 560px` block. The canvas already scales to its CSS box; no renderer, data or map logic changed.
+- **Consequences**: The same seed-7 start-room state now renders the map at 85.3×62.3 screen pixels instead of 106.6×82, while the rooms/markers stay visible and frames stay 16.68ms average / 16.90ms max. Final gates: 483 vitest (92 files), 376 mechanics (58 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle10-*`.

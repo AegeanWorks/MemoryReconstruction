@@ -20,6 +20,7 @@ run.
 | 7 | Combat feel | Completed (dash-bolt buffer) |
 | 8 | Enemies/bosses | Completed (readable enemy health bars) |
 | 9 | Levels | Completed (spent gates dim) |
+| 10 | UI readability | Completed (compact 390px minimap) |
 
 ---
 
@@ -732,6 +733,79 @@ art itself, the room clear rules and the minimap.
 
 ```text
 npx vitest run tests/ui-gate-cleared.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 10 — UI readability: the 390px minimap is too large
+
+### FIND
+
+Evidence:
+
+- The `@media (max-width: 720px)` rule sets the minimap to **130×100**.
+- The later `@media (max-width: 560px)` layout block has no minimap override,
+  so a 390px viewport still spends 130px of 390 (~33%) on the map.
+- The 390 gameplay captures show the minimap covering the top-right quarter
+  where enemies and pickups appear.
+
+### ANALYZE
+
+Read: `Hud` minimap canvas (190×140 intrinsic), the 720px and 560px CSS blocks,
+and the 390 gameplay capture. Add a 104×76 CSS size inside the existing 560px
+block; the canvas renderer already scales to its CSS box, so no code or data
+change. Keep the map visible rather than hiding information.
+
+Files: `src/ui/ui.css`, `tests/ui-responsive-layout.test.ts`.
+
+Proof: failing CSS check first; a seed-7 390x844 gameplay capture before/after,
+with frame health.
+
+### IMPLEMENT
+
+- `src/ui/ui.css`: inside the existing `max-width: 560px` block, the minimap is
+  now 104×76 instead of the inherited 130×100. The canvas renderer scales to the
+  CSS box; no canvas, data or minimap logic changed.
+- `tests/ui-responsive-layout.test.ts`: added the failing-first minimap check.
+
+### RECORD — played browser run
+
+Same seed 7, start room, player at `1936,1488`, 390x844, 59 sampled frames. The
+map remains visible; only its CSS box shrinks.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| CSS box | 130×100 | **104×76** |
+| Screen box | 106.6×82 | **85.3×62.3** |
+| Screenshot | `docs/qa/cycle10-before-minimap.png` | `docs/qa/cycle10-after-minimap.png` |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle10-before.json` and `cycle10-after.json`. What improved:
+the map no longer covers a third of the 390px HUD width, freeing the top-right
+play area while keeping room state visible. What broke: nothing observed; the
+same rooms and markers render, just smaller. What stayed the same: map logic,
+seed/state and frame time.
+
+### Gate results
+
+- `npx vitest run tests/ui-responsive-layout.test.ts`: **4 passed** after the
+  failing-first minimap check
+- `npm test`: **483 passed (92 files)**
+- `npm run test:mechanics`: **376 passed (58 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 217`)
+
+### Commands run
+
+```text
+npx vitest run tests/ui-responsive-layout.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck

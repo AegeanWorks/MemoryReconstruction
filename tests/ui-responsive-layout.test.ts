@@ -37,6 +37,13 @@ describe('responsive UI review', () => {
     expect(narrow).toMatch(/max-height:\s*40vh/);
   });
 
+  it('compacts the minimap at 390px', () => {
+    const narrow = mediaBlock('(max-width: 560px)');
+    expect(narrow).toContain('.minimap {');
+    expect(narrow).toMatch(/\.minimap\s*\{[^}]*width:\s*104px/s);
+    expect(narrow).toMatch(/\.minimap\s*\{[^}]*height:\s*76px/s);
+  });
+
   it('keeps the mobile expedition actions fixed and the HUD kit wrapping', () => {
     const narrow = mediaBlock('(max-width: 560px)');
     expect(narrow).toMatch(/\.hub-expedition\s*\{[^}]*position:\s*fixed/s);

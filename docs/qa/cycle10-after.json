@@ -1,0 +1,26 @@
+{
+  "setup": {
+    "room": "start",
+    "x": 1936,
+    "y": 1488
+  },
+  "state": {
+    "viewport": [
+      390,
+      844
+    ],
+    "room": "start",
+    "minimap": {
+      "x": 294.7,
+      "y": 10,
+      "w": 85.3,
+      "h": 62.3
+    },
+    "css": "104pxx76px"
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}
