@@ -1068,16 +1068,17 @@ gate pair uses a forced cleared-room state and shows the bright/dim gate at
 
 **Finding:** none.
 
-## Range 1 -> 217 (End) (`407e047..334c674`)
+## Range 1 -> 218 (End) (`407e047..b51871c`)
 
-**Commit:** cycle 10 UI readability: the 390px minimap is 104×76 instead of the
-inherited 130×100, freeing the top-right HUD area while keeping the map visible.
-Adds a failing-first responsive CSS check and a 390x844 before/after pair.
+**Commits:** cycle 10 UI readability and cycle 11 graphics/effects. Cycle 10
+compacts the 390px minimap to 104×76. Cycle 11 carries the boss-room centre on
+`bossIntro` and draws a local gold/ember ring pair, star and burst.
 
-**Verification:** 483 vitest (92 files), 376 mechanics (58 files),
+**Verification:** 485 vitest (93 files), 376 mechanics (58 files),
 typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed from
-`334c674`; the same seed-7 room renders the map at 85.3×62.3 screen pixels
-instead of 106.6×82, with 16.68ms average / 16.90ms max frames.
+`b51871c`; the minimap shrinks from 106.6×82 to 85.3×62.3 screen pixels at the
+same frame time; the boss entry pair shows no burst before and the local rings
+after, with 17.67ms average / 18.50ms max frames.
 
 **Finding:** none.
 
@@ -1124,7 +1125,7 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **483 passed (92 files)**
+- `npm test`: **485 passed (93 files)**
 - `npm run test:mechanics`: **376 passed (58 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
@@ -1133,9 +1134,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (217 commits,
+The inventory covers every content commit through `1 -> End` (218 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-9 and the cycle 10 compact minimap). The
+follow-up, visual review, cycles 1-10 and the cycle 11 boss-intro burst). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1156,5 +1157,5 @@ swing), ADR-181 (boss telegraphs freeze their windup), ADR-182 (boss phase
 burst), ADR-183 (pause suspends audio), ADR-184 (meta saves recover field by
 field), ADR-185 (a bolt tapped mid-dash is buffered), ADR-186 (enemy health bars
 are readable), ADR-187 (cleared gates read as spent), ADR-188 (compact minimap
-on the narrow HUD) and the README boss-count correction recorded above. No open
-audit items remain.
+on the narrow HUD), ADR-189 (boss entries burst at the chamber centre) and the
+README boss-count correction recorded above. No open audit items remain.
