@@ -1083,7 +1083,7 @@ run records `denied:[]` before and `denied:['dash']` after with 16.68ms frames.
 
 **Finding:** none.
 
-## Range 1 -> 222 (End) (`407e047..ee4f286`)
+## Range 1 -> 222 (`407e047..ee4f286`)
 
 **Commits:** cycle 13 progression/saves, cycle 14 combat feel and cycle 15
 enemies/bosses. Cycle 13 recovers nested daily/quest/bounty fields; cycle 14
@@ -1098,9 +1098,22 @@ Guardian bar shows both threshold ticks at 16.68ms average / 16.90ms max.
 
 **Finding:** none.
 
+## Range 1 -> 223 (End) (`407e047..2a54d4b`)
+
+**Commit:** cycle 16 levels: the map reads the unused portal interactable and
+draws a pale diamond at its position, with a legend entry. No level geometry,
+interaction or room state changed.
+
+**Verification:** 495 vitest (98 files), 381 mechanics (60 files),
+typecheck/lint/build clean, 8/8 AIKit; the seed-7 boss-clear map now marks the
+portal at `1968,3216` with the pale diamond and legend, at 16.68ms average /
+16.90ms max frames.
+
+**Finding:** none.
+
 ## Late-content batch summary
 
-The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 74 cumulative
+The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 75 cumulative
 ranges, the three commits added by each, and the file count at the endpoint.
 Every range is now deep-dived; this section keeps the shared verification for
 the art, UI, combat-polish and late-content expansion that followed the early
@@ -1141,7 +1154,7 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **493 passed (97 files)**
+- `npm test`: **495 passed (98 files)**
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
@@ -1150,9 +1163,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (222 commits,
+The inventory covers every content commit through `1 -> End` (223 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-14 and the cycle 15 boss phase ticks). The
+follow-up, visual review, cycles 1-15 and the cycle 16 map exit marker). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1176,5 +1189,5 @@ are readable), ADR-187 (cleared gates read as spent), ADR-188 (compact minimap
 on the narrow HUD), ADR-189 (boss entries burst at the chamber centre), ADR-190
 (denied dash and bolt pay a dry click), ADR-191 (nested meta saves recover field
 by field), ADR-192 (a dash tapped mid-dash is buffered), ADR-193 (boss bar marks
-both phase thresholds) and the README boss-count correction recorded above. No
-open audit items remain.
+both phase thresholds), ADR-194 (the map marks the floor exit) and the README
+boss-count correction recorded above. No open audit items remain.
