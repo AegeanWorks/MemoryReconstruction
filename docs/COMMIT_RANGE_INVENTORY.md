@@ -78,7 +78,7 @@ cumulative range from commit 1, in steps of three, ending at `1 -> End`.
 | 1 -> 210 | `544f274` | `f21ef44` feat(combat): keep attack buffer through a swing<br>`a0ef779` fix(boss): freeze windup duration through phase changes<br>`544f274` test(levels): add 60-seed fuzz guard and record dry cycle | 930 | yes |
 | 1 -> 213 | `544cba3` | `56fb130` feat(fx): burst at the boss on phase change<br>`b042b4d` fix(audio): suspend context on pause and keep it suspended<br>`544cba3` fix(save): recover meta field by field | 945 | yes |
 | 1 -> 216 | `aae8383` | `ae912d6` fix(combat): buffer a bolt tapped mid-dash<br>`254c251` feat(ui): make enemy health bars readable<br>`aae8383` feat(level): dim spent spawn gates in the world | 960 | yes |
-| 1 -> 218 (End) | `b51871c` | `334c674` feat(ui): compact the minimap at 390px<br>`b51871c` feat(fx): burst on boss room entry | 969 | yes |
+| 1 -> 219 | `6b63f88` | `334c674` feat(ui): compact the minimap at 390px<br>`b51871c` feat(fx): burst on boss room entry<br>`6b63f88` feat(audio): cue denied dash and bolt | 974 | yes |
 
 The deep-dive column marks ranges with a narrative section in the
 curated report. The current tree is verified by the full suite in

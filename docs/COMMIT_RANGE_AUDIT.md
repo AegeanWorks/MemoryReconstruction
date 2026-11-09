@@ -1068,17 +1068,18 @@ gate pair uses a forced cleared-room state and shows the bright/dim gate at
 
 **Finding:** none.
 
-## Range 1 -> 218 (End) (`407e047..b51871c`)
+## Range 1 -> 219 (End) (`407e047..6b63f88`)
 
-**Commits:** cycle 10 UI readability and cycle 11 graphics/effects. Cycle 10
-compacts the 390px minimap to 104×76. Cycle 11 carries the boss-room centre on
-`bossIntro` and draws a local gold/ember ring pair, star and burst.
+**Commits:** cycle 10 UI readability, cycle 11 graphics/effects and cycle 12
+audio cues. Cycle 10 compacts the 390px minimap to 104×76. Cycle 11 adds a local
+boss-entry burst at the room centre. Cycle 12 emits `actionDenied` for an empty
+dash or no-mana bolt and plays a throttled dry click.
 
-**Verification:** 485 vitest (93 files), 376 mechanics (58 files),
+**Verification:** 488 vitest (94 files), 379 mechanics (59 files),
 typecheck/lint/build clean, 8/8 AIKit; the `app` UI task was closed from
-`b51871c`; the minimap shrinks from 106.6×82 to 85.3×62.3 screen pixels at the
-same frame time; the boss entry pair shows no burst before and the local rings
-after, with 17.67ms average / 18.50ms max frames.
+`6b63f88`; the minimap shrinks from 106.6×82 to 85.3×62.3 screen pixels; the
+boss entry pair shows no burst before and local rings after; the no-charge dash
+run records `denied:[]` before and `denied:['dash']` after with 16.68ms frames.
 
 **Finding:** none.
 
@@ -1125,8 +1126,8 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **485 passed (93 files)**
-- `npm run test:mechanics`: **376 passed (58 files)**
+- `npm test`: **488 passed (94 files)**
+- `npm run test:mechanics`: **379 passed (59 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
 - `npm run build`: clean (existing chunk-size warning only)
@@ -1134,9 +1135,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (218 commits,
+The inventory covers every content commit through `1 -> End` (219 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-10 and the cycle 11 boss-intro burst). The
+follow-up, visual review, cycles 1-11 and the cycle 12 denied-action cue). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1157,5 +1158,6 @@ swing), ADR-181 (boss telegraphs freeze their windup), ADR-182 (boss phase
 burst), ADR-183 (pause suspends audio), ADR-184 (meta saves recover field by
 field), ADR-185 (a bolt tapped mid-dash is buffered), ADR-186 (enemy health bars
 are readable), ADR-187 (cleared gates read as spent), ADR-188 (compact minimap
-on the narrow HUD), ADR-189 (boss entries burst at the chamber centre) and the
-README boss-count correction recorded above. No open audit items remain.
+on the narrow HUD), ADR-189 (boss entries burst at the chamber centre), ADR-190
+(denied dash and bolt pay a dry click) and the README boss-count correction
+recorded above. No open audit items remain.
