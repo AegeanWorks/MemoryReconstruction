@@ -1791,3 +1791,11 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: `updatePlayer` only starts a dash when `dashTime <= 0`; the dash branch buffered strikes and bolts but not another dash, so a rapid second tap with a charge available was lost. The browser's real two-tap timing let both dashes start on old code, so the input path is proven by a headless test instead.
 - **Decision**: Add `dashBuffer`; a second dash tap during an active dash queues if a charge remains, and starts when the first ends with the current movement/aim direction. No speed, i-frame or charge change; old saves default the field.
 - **Consequences**: The headless chain test passes; the controlled browser state with `dashBuffer=0.18` and two charges changes from 0 dash/2 charges/no move to 1 dash/1 charge/moved. Frames are 16.68/16.69ms average with 16.90ms max. Final gates: 492 vitest (96 files), 381 mechanics (60 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle14-*`.
+
+## ADR-193: Boss bar marks both phase thresholds
+
+- **Date**: 2026-11-09
+- **Status**: Accepted (Cycle 15, enemies/bosses)
+- **Context**: Boss phases advance at 60% and 30% health, but the HUD bar showed only the current percentage; the player could not see how close the next shift was.
+- **Decision**: Draw 3px white threshold lines at 60% and 30% on the boss bar with a light halo and dark outline, above the fill and text. No health, phase or event change.
+- **Consequences**: The seed-7 Guardian at 25% now shows both threshold lines; before/after captures at 1280x720 keep the same 25% bar and 16.68ms average / 16.90ms max frames. Final gates: 493 vitest (97 files), 381 mechanics (60 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle15-*`.

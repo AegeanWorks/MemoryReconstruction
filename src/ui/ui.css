@@ -278,6 +278,26 @@
 .boss-bar .bar-fill {
   background: linear-gradient(180deg, #ff6a7a, #a3162c);
 }
+.boss-bar .bar::before,
+.boss-bar .bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 0.55),
+    0 0 10px rgba(0, 0, 0, 0.9);
+  z-index: 2;
+  pointer-events: none;
+}
+.boss-bar .bar::before {
+  left: 60%;
+}
+.boss-bar .bar::after {
+  left: 30%;
+}
 
 .hud-map {
   position: absolute;

@@ -1,0 +1,29 @@
+{
+  "enter": {
+    "room": "boss",
+    "id": 5
+  },
+  "setup": {
+    "name": "Guardian",
+    "health": 160,
+    "max": 640,
+    "bar": {
+      "x": 360,
+      "y": 105,
+      "w": 560,
+      "h": 12
+    }
+  },
+  "state": {
+    "boss": "Guardian",
+    "health": 160,
+    "max": 640,
+    "barText": "25%",
+    "hidden": false
+  },
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 59
+  }
+}

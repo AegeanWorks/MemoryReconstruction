@@ -25,6 +25,7 @@ run.
 | 12 | Audio cues | Completed (denied dash/bolt cue) |
 | 13 | Progression/saves | Completed (nested save recovery) |
 | 14 | Combat feel | Completed (dash buffer) |
+| 15 | Enemies/bosses | Completed (boss phase ticks) |
 
 ---
 
@@ -1119,6 +1120,77 @@ i-frames are unchanged. What stayed the same: the dash event and HUD pips.
 
 ```text
 npx vitest run tests/sim/dash-buffer.test.ts --reporter=verbose
+npm test -- --reporter=dot
+npm run test:mechanics
+npm run typecheck
+npm run lint
+npm run build
+python aikit.py check MemoryReconstruction
+```
+
+---
+
+## Cycle 15 — Enemies/bosses: boss bar hides phase thresholds
+
+### FIND
+
+Evidence:
+
+- Boss phases advance at 60% and 30% health (`bossPhaseFor`), and the bar text
+  shows the current percentage.
+- `.boss-bar` has no markers at those points; the player cannot see how close
+  the next phase is.
+- Existing boss tests cover phase events and aura, not the HUD bar markers.
+
+### ANALYZE
+
+Read: `bossPhaseFor`, `Hud` boss bar, `.boss-bar` CSS and the boss capture. Add
+two high-contrast vertical ticks at 60% and 30% with a small dark halo; no
+health, phase or event change.
+
+Files: `src/ui/ui.css`, `tests/ui-boss-phase-ticks.test.ts`.
+
+Proof: failing CSS check first; seed-7 boss at 25% health captured before/after
+at 1280x720.
+
+### IMPLEMENT
+
+- `src/ui/ui.css`: the boss bar gets 3px white threshold lines at 60% and 30%
+  with a light halo and dark outline, above the fill and text. No health, phase
+  or event change.
+- `tests/ui-boss-phase-ticks.test.ts`: failing-first threshold check, green.
+
+### RECORD — played browser run
+
+Same seed 7, boss room 5, Guardian at 160/640 (25%), state `recover`, 1280x720,
+59 sampled frames.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Phase thresholds | none | **ticks at 60% and 30%** |
+| Boss | Guardian 25% | Guardian 25% |
+| Screenshot | `docs/qa/cycle15-before-bossticks.png` | `docs/qa/cycle15-after-bossticks.png` |
+| Frame health | 16.68ms avg, 17.00ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle15-before.json` and `cycle15-after.json`. What improved:
+the bar now shows both phase boundaries, so the next shift is readable before
+it happens. What broke: nothing observed; boss health, phases and events are
+unchanged. What stayed the same: the bar fill/percentage and frame time.
+
+### Gate results
+
+- `npx vitest run tests/ui-boss-phase-ticks.test.ts`: **1 passed** after the
+  failing-first run
+- `npm test`: **493 passed (97 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: **8/8**
+- `npm run audit:ranges:check`: **[OK] current** (End `1 -> 222`)
+
+### Commands run
+
+```text
+npx vitest run tests/ui-boss-phase-ticks.test.ts --reporter=verbose
 npm test -- --reporter=dot
 npm run test:mechanics
 npm run typecheck
