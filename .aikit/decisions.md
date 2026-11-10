@@ -1823,3 +1823,12 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: `activateRoom` emitted `roomLocked` with only `roomId`; the HUD toasted “Doors seal” and Sound played a lock thump, but nothing local marked the sealed chamber.
 - **Decision**: Carry the room-centre `x`/`y` on `roomLocked` and draw a 150px red ring, 78px amber ring, 18-particle ember burst and short shake in `Effects`. Lock, spawn, audio and HUD behaviour are unchanged.
 - **Consequences**: Entering seed-7 combat room 1 now shows the seal burst at `1952,2048` with the same room phase and 16.68ms average / 16.90ms max frames. Final gates: 498 vitest (100 files), 381 mechanics (60 files), typecheck/lint/build clean, 8/8 AIKit. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle18-*`.
+
+## ADR-197: HUD vitals panel backplate and bar gloss framing
+
+- **Date**: 2026-11-11
+- **Status**: Accepted (Cycle 19, UI/visuals)
+- **Context**: The HUD vitals cluster was unparented without a background container; floor props, hazards and enemies bled through the gaps between bars and behind text. The health and mana bars were flat blocks with no surface depth or highlight.
+- **Decision**: Add a darkened fantasy panel backplate (`rgba(14, 12, 24, 0.88)` to `rgba(7, 6, 14, 0.94)`), subtle gold rim border, 10px rounded corners and backdrop blur to `.hud-vitals`; add a top-half glossy sheen (`.bar-fill::after`) and rich 3-stop dimensional gradients to `.bar.hp` and `.bar.mana`. Bar height, responsive narrow query (`calc(100vw - 24px)`) and sim data remain unchanged.
+- **Consequences**: Combat gameplay captures confirm floor props no longer collide visually with HUD labels; the vitals cluster reads crisply across busy floor textures and boss chambers while keeping 16.68ms average / 16.90ms max frames. Final gates: 500 vitest (101 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle19-*`.
+

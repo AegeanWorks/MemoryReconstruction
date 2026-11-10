@@ -1419,3 +1419,65 @@ npm run lint
 npm run build
 python aikit.py check MemoryReconstruction
 ```
+
+---
+
+## Cycle 19 — UI/visuals: HUD vitals backplate & bar gloss framing
+
+### FIND
+
+Evidence:
+
+- In combat and boss rooms, `.hud-vitals` is unparented without a container
+  background, allowing floor props, pots, chests and hazards to bleed directly
+  through between the bars and behind text (`LEVEL 1` and `0 memories this run`).
+- The health and mana bars are flat blocks with no surface depth or highlight.
+- Existing tests cover bar heights and responsive widths, but not backplate
+  isolation.
+
+### ANALYZE
+
+Read: `.hud-vitals`, `.bar`, `.bar-fill` in `src/ui/ui.css` and the responsive
+media queries. Add a dark panel background with gold rim border, subtle drop
+shadow, and backdrop blur to `.hud-vitals`. Add a top-half glossy sheen
+(`.bar-fill::after`) and rich 3-stop dimensional gradients to `.bar.hp` and
+`.bar.mana`. Keep 18px bar height and responsive queries intact.
+
+Files: `src/ui/ui.css`, `tests/ui-hud-backplate.test.ts`.
+
+Proof: failing CSS test first; live combat gameplay before/after capture at
+1280x720.
+
+### IMPLEMENT
+
+- `src/ui/ui.css`: `.hud-vitals` gets a dark gradient panel (`rgba(14, 12, 24, 0.88)`
+  to `rgba(7, 6, 14, 0.94)`), 10px rounded corners, 1px gold border and
+  inset/outer shadow. `.bar-fill::after` adds a subtle glossy top sheen, and
+  `.bar.hp` / `.bar.mana` get rich multi-stop gradients with glow.
+- `tests/ui-hud-backplate.test.ts`: failing-first backplate and gloss rules, green.
+
+### RECORD — played browser run
+
+Played live browser run, teleported into combat room 1 (`400,1456`), active wave
+with three bruisers and two wisps, 1280x720.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| HUD backplate | none (props bleed through) | **dark framed fantasy panel** |
+| Bar depth | flat blocks | **glossy top sheen + glowing fill** |
+| Screenshot | `docs/qa/cycle19-before-hud.png` | `docs/qa/cycle19-after-hud.png` |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle19-before.json` and `cycle19-after.json`. What improved:
+the vitals cluster is framed, isolated from ground clutter and has tactile depth.
+What broke: nothing observed; bar height, responsive queries, and sim data stay
+identical.
+
+### Gate results
+
+- `npx vitest run tests/ui-hud-backplate.test.ts`: **2 passed**
+- `npm test`: **500 passed (101 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: ready
+

@@ -1,0 +1,11 @@
+{
+  "surface": "hud",
+  "state": "playing",
+  "backplate": true,
+  "vitalsWidth": 372,
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 60
+  }
+}
