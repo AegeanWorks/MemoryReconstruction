@@ -1832,3 +1832,12 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Decision**: Add a darkened fantasy panel backplate (`rgba(14, 12, 24, 0.88)` to `rgba(7, 6, 14, 0.94)`), subtle gold rim border, 10px rounded corners and backdrop blur to `.hud-vitals`; add a top-half glossy sheen (`.bar-fill::after`) and rich 3-stop dimensional gradients to `.bar.hp` and `.bar.mana`. Bar height, responsive narrow query (`calc(100vw - 24px)`) and sim data remain unchanged.
 - **Consequences**: Combat gameplay captures confirm floor props no longer collide visually with HUD labels; the vitals cluster reads crisply across busy floor textures and boss chambers while keeping 16.68ms average / 16.90ms max frames. Final gates: 500 vitest (101 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle19-*`.
 
+## ADR-198: Boss bar monumental styling and enrage pulse
+
+- **Date**: 2026-11-11
+- **Status**: Accepted (Cycle 20, UI/combat)
+- **Context**: The boss health bar was a thin 12px slab with a small oval name tag; encounters with major guardians lacked visual presence and the 30% final enrage shift gave no persistent health-bar cue.
+- **Decision**: Elevate `.boss-bar .bar` to 16px height with dark carved metallic borders, inset shadow and 19px Cinzel serif typography for `.boss-name`; toggle the `.enraged` class in `Hud.ts` when boss health is at or below 30%, driving a fiery animated crimson pulse (`@keyframes bossEnragePulse`). Phase threshold ticks at 60% and 30% remain intact.
+- **Consequences**: Boss encounters feel majestic and imposing; at 20% health the boss bar pulses brightly in crimson while the Guardian's floor aura burns red, giving the player urgent combat feedback at 16.68ms average / 16.90ms max frames. Final gates: 502 vitest (102 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle20-*`.
+
+

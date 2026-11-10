@@ -1481,3 +1481,66 @@ identical.
 - `npm run typecheck`, `npm run lint`, `npm run build`: clean
 - `python aikit.py check MemoryReconstruction`: ready
 
+---
+
+## Cycle 20 — UI/combat: Boss bar monumental styling and enrage pulse
+
+### FIND
+
+Evidence:
+
+- In `22_new_hud_boss.png`, the boss health bar is a thin 12px strip with a plain
+  oval name badge, lacking the stature and gravitas expected of a major guardian.
+- When the boss shifts into its final enrage phase (< 30% health), the sim emits
+  events and the runic floor aura burns red, but the HUD boss bar gives no
+  persistent enrage cue or visual urgency.
+- Existing tests cover threshold ticks at 60%/30% and boss focus camera, but
+  not the enraged health bar state.
+
+### ANALYZE
+
+Read: `Hud.ts` boss bar updating, `.boss-bar` and `.boss-name` CSS. Elevate bar
+height to 16px with dark carved metallic borders, inset shadow and 19px Cinzel
+typography for `.boss-name`. Toggle the `.enraged` class on `.boss-bar` when
+`ratio <= 0.3`, driving `@keyframes bossEnragePulse` on the bar fill and glowing
+crimson border. Keep threshold ticks at 60% and 30% and camera logic intact.
+
+Files: `src/ui/Hud.ts`, `src/ui/ui.css`, `tests/ui-boss-bar-enrage.test.ts`.
+
+Proof: failing threshold and CSS check first; live Guardian boss fight captured
+at 100% and 20% health at 1280x720.
+
+### IMPLEMENT
+
+- `src/ui/Hud.ts`: `update` toggles `this.bossBar.classList.toggle('enraged', ratio <= 0.3)`.
+- `src/ui/ui.css`: `.boss-bar .bar` upgraded to 16px height with carved borders;
+  `.boss-name` upgraded with 19px bold Cinzel and rich text shadow; `.boss-bar.enraged`
+  triggers glowing crimson border and `@keyframes bossEnragePulse` on the fill.
+- `tests/ui-boss-bar-enrage.test.ts`: failing-first class toggle and CSS animation rules, green.
+
+### RECORD — played browser run
+
+Played live browser run, teleported into seed-7 boss room 5, Guardian at 100%
+health and then wounded to 20% (phase 2 enrage), 1280x720.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Boss presence | 12px thin strip | **16px carved metallic bar + 19px Cinzel title** |
+| Final enrage cue | none on HUD bar | **fiery animated pulse + crimson border aura** |
+| Screenshot | `docs/qa/cycle20-before-bossbar.png` | `docs/qa/cycle20-after-bossbar.png` |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle20-before.json` and `cycle20-after.json`. What improved:
+guardian encounters command visual authority; the 30% enrage state is instantly
+readable on the HUD bar alongside the red floor runes. What broke: nothing observed;
+60%/30% phase ticks, boss audio, combat logic and frame health stay intact.
+
+### Gate results
+
+- `npx vitest run tests/ui-boss-bar-enrage.test.ts`: **2 passed**
+- `npm test`: **502 passed (102 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: ready
+
+

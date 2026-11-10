@@ -268,12 +268,11 @@ export class Hud {
     this.bossBar.classList.toggle('hidden', !boss);
     if (boss) {
       this.setText(this.bossName, boss.def.name);
-      this.setWidth(this.boss.fill, boss.health / boss.maxHealth);
-      this.setWidth(this.boss.lag!, boss.health / boss.maxHealth);
-      this.setText(
-        this.boss.text!,
-        `${Math.max(0, Math.ceil((boss.health / boss.maxHealth) * 100))}%`
-      );
+      const ratio = boss.health / boss.maxHealth;
+      this.setWidth(this.boss.fill, ratio);
+      this.setWidth(this.boss.lag!, ratio);
+      this.setText(this.boss.text!, `${Math.max(0, Math.ceil(ratio * 100))}%`);
+      this.bossBar.classList.toggle('enraged', ratio <= 0.3);
     }
 
     this.stalked.classList.toggle('hidden', !world.isStalked);

@@ -1,0 +1,12 @@
+{
+  "surface": "boss-bar",
+  "state": "playing",
+  "enraged": true,
+  "bossHp": "20%",
+  "barHeight": 16,
+  "frames": {
+    "avgMs": 16.68,
+    "maxMs": 16.9,
+    "frames": 60
+  }
+}
