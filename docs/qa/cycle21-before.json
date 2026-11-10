@@ -1,0 +1,11 @@
+{
+  "cycle": 21,
+  "area": "UI readability / Upgrade choice modal",
+  "state": "before",
+  "cards": [
+    { "id": "edge", "rarity": "common", "headerFlare": false, "numBadgeStyled": false, "emblemPulse": false },
+    { "id": "brutal", "rarity": "rare", "headerFlare": false, "numBadgeStyled": false, "emblemPulse": false },
+    { "id": "shockwave", "rarity": "epic", "headerFlare": false, "numBadgeStyled": false, "emblemPulse": false }
+  ],
+  "frame_health": { "avg_ms": 16.68, "max_ms": 16.90 }
+}

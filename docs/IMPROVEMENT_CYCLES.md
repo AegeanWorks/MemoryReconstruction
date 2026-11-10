@@ -29,6 +29,9 @@ run.
 | 16 | Levels | Completed (map exit marker) |
 | 17 | UI readability | Completed (narrow map fits) |
 | 18 | Graphics/effects | Completed (room seal burst) |
+| 19 | UI/visuals | Completed (HUD vitals backplate & gloss) |
+| 20 | UI/combat | Completed (monumental boss bar & enrage pulse) |
+| 21 | UI readability / visuals | Completed (upgrade card rarity polish & emblem pulse) |
 
 ---
 
@@ -1542,5 +1545,76 @@ readable on the HUD bar alongside the red floor runes. What broke: nothing obser
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npm run typecheck`, `npm run lint`, `npm run build`: clean
 - `python aikit.py check MemoryReconstruction`: ready
+
+---
+
+## Cycle 21 — UI readability / visuals: Upgrade card rarity polish and celestial emblem pulse
+
+### FIND
+
+Evidence:
+
+- In `20_choice_screen.png`, common, rare, and epic upgrade cards shared identical
+  plain 1px wireframe borders, muted neutral number tags, and static emblems.
+- High-rarity choices (epic abilities like Phantom Rush, Echo Strike, Deadeye) did
+  not command the prestige or visual drama expected when rolling a rare or epic card.
+- Existing tests covered upgrade application and counts, but not card rarity visual
+  presentation or animations.
+
+### ANALYZE
+
+Read: `Screens.ts` `choiceScreen`, `ui.css` `.card` hierarchy. Give rare and epic
+cards bespoke luminous header crown flares (`.card.rare::before`, `.card.epic::before`),
+tier-colored number badges (`.card.rare .num`, `.card.epic .num`), glowing text
+shadows on upgrade titles, and an animated breathing pulse on epic emblems
+(`@keyframes epicEmblemPulse`). Respect `prefers-reduced-motion: reduce`. Card
+dimensions, button interaction timing, and upgrade sim mechanics remain untouched.
+
+Files: `src/ui/ui.css`, `tests/ui-card-rarity.test.ts`.
+
+Proof: failing CSS contract test first; live browser captures of the choice modal
+with Common (`edge`), Rare (`brutal`), and Epic (`shockwave`) at 1280x720 before,
+after, and on hover.
+
+### IMPLEMENT
+
+- `src/ui/ui.css`:
+  - Added luminous top crown flares: `.card.common::before` (soft silver),
+    `.card.rare::before` (azure glow flare), `.card.epic::before` (3px radiant amber flare).
+  - Added tier-colored number pills: `.card.rare .num` (cyan border and glow),
+    `.card.epic .num` (gold border and glow).
+  - Added glowing text shadows to `.card.rare .name` and `.card.epic .name`.
+  - Added glowing colored stack counters: `.card.rare .stacks` and `.card.epic .stacks`.
+  - Added `@keyframes epicEmblemPulse` driving celestial breathing pulse on epic emblems.
+  - Added `.card.epic .card-emblem` to `@media (prefers-reduced-motion: reduce)`.
+- `tests/ui-card-rarity.test.ts`: failing-first tier badges, header flares, and
+  animation test, all green.
+
+### RECORD — played browser run
+
+Played live browser run, started run with greatsword, opened upgrade choice screen
+with Common (`edge`), Rare (`brutal`), and Epic (`shockwave`), 1280x720.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Card distinction | flat 1px borders, grey badges | **radiant gold/cyan header flares & badges** |
+| Epic presence | static emblem, plain text | **breathing celestial emblem pulse + gold text glow** |
+| Screenshot | `docs/qa/cycle21-before-choice.png` | `docs/qa/cycle21-after-choice.png` |
+| Hover state | `cycle21-hover-choice.png` (radiant gold bloom & elevation lift) | |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle21-before.json` and `cycle21-after.json`. What improved:
+upgrade selection is visually dramatic and immediately communicates rarity tiers;
+epic upgrades feel like momentous milestones. What broke: nothing observed;
+keyboard shortcuts (1/2/3/R), selection click safety, and frame times stay identical.
+
+### Gate results
+
+- `npx vitest run tests/ui-card-rarity.test.ts`: **3 passed**
+- `npm test`: **505 passed (103 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: ready
+
 
 

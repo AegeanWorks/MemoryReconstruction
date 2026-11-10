@@ -739,11 +739,33 @@
 }
 .card.rare .card-emblem {
   border-color: rgba(111, 231, 255, 0.45);
-  box-shadow: 0 4px 14px rgba(111, 231, 255, 0.25), inset 0 0 10px rgba(111, 231, 255, 0.18);
+  background: radial-gradient(circle, rgba(111, 231, 255, 0.2) 0%, rgba(12, 22, 44, 0.7) 75%);
+  box-shadow:
+    0 4px 14px rgba(111, 231, 255, 0.25),
+    inset 0 0 10px rgba(111, 231, 255, 0.18);
+}
+@keyframes epicEmblemPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 16px rgba(255, 217, 138, 0.35),
+      inset 0 0 12px rgba(255, 217, 138, 0.22);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 4px 24px rgba(255, 217, 138, 0.6),
+      inset 0 0 16px rgba(255, 217, 138, 0.38);
+    transform: scale(1.04);
+  }
 }
 .card.epic .card-emblem {
-  border-color: rgba(255, 217, 138, 0.55);
-  box-shadow: 0 4px 14px rgba(255, 217, 138, 0.35), inset 0 0 12px rgba(255, 217, 138, 0.22);
+  border-color: rgba(255, 217, 138, 0.75);
+  background: radial-gradient(circle, rgba(255, 217, 138, 0.22) 0%, rgba(38, 22, 12, 0.75) 75%);
+  box-shadow:
+    0 4px 14px rgba(255, 217, 138, 0.35),
+    inset 0 0 12px rgba(255, 217, 138, 0.22);
+  animation: epicEmblemPulse 3s ease-in-out infinite;
 }
 .card-emblem-icon {
   width: 36px;
@@ -757,6 +779,15 @@
   font-weight: 600;
   letter-spacing: 0.04em;
 }
+.card.rare .name {
+  text-shadow: 0 0 12px rgba(111, 231, 255, 0.35);
+}
+.card.epic .name {
+  color: #fff7e0;
+  text-shadow:
+    0 0 16px rgba(255, 217, 138, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.8);
+}
 .card .desc {
   font-size: 14px;
   line-height: 1.45;
@@ -766,6 +797,16 @@
   margin-top: auto;
   font-size: 12px;
   color: var(--ink-dim);
+}
+.card.rare .stacks {
+  color: var(--cyan);
+  letter-spacing: 0.04em;
+}
+.card.epic .stacks {
+  color: var(--gold);
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(255, 217, 138, 0.4);
 }
 .card .num {
   font-family: var(--serif);
@@ -781,13 +822,34 @@
   border-color: rgba(200, 205, 225, 0.35);
   background: linear-gradient(180deg, rgba(30, 28, 48, 0.96), rgba(14, 13, 24, 0.98));
 }
+.card.common::before {
+  background: linear-gradient(90deg, transparent, rgba(200, 205, 235, 0.5), transparent);
+}
+.card.common .num {
+  border-color: rgba(200, 205, 225, 0.25);
+  color: #cfd3e6;
+}
 .card.common .rarity {
   color: #cfd3e6;
 }
 .card.rare {
   border-color: rgba(111, 231, 255, 0.55);
   background: linear-gradient(180deg, rgba(22, 34, 62, 0.96), rgba(10, 16, 32, 0.98));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(111, 231, 255, 0.15);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(111, 231, 255, 0.2),
+    inset 0 1px 0 rgba(111, 231, 255, 0.3);
+}
+.card.rare::before {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(111, 231, 255, 0.85), transparent);
+  box-shadow: 0 0 8px rgba(111, 231, 255, 0.7);
+}
+.card.rare .num {
+  border-color: rgba(111, 231, 255, 0.5);
+  color: var(--cyan);
+  background: rgba(14, 30, 50, 0.6);
+  box-shadow: 0 0 8px rgba(111, 231, 255, 0.2);
 }
 .card.rare .rarity {
   color: var(--cyan);
@@ -795,7 +857,21 @@
 .card.epic {
   border-color: rgba(255, 217, 138, 0.75);
   background: linear-gradient(180deg, rgba(46, 34, 22, 0.96), rgba(20, 15, 10, 0.98));
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65), 0 0 24px rgba(255, 217, 138, 0.25);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.65),
+    0 0 28px rgba(255, 217, 138, 0.3),
+    inset 0 1px 0 rgba(255, 235, 170, 0.5);
+}
+.card.epic::before {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255, 225, 140, 0.95), transparent);
+  box-shadow: 0 0 14px rgba(255, 217, 138, 0.85);
+}
+.card.epic .num {
+  border-color: rgba(255, 217, 138, 0.6);
+  color: var(--gold);
+  background: rgba(45, 28, 14, 0.6);
+  box-shadow: 0 0 10px rgba(255, 217, 138, 0.3);
 }
 .card.epic .rarity {
   color: var(--gold);
@@ -2571,6 +2647,7 @@
   .banner,
   .screen,
   .card,
+  .card.epic .card-emblem,
   .gear-row.attuned {
     animation: none;
   }

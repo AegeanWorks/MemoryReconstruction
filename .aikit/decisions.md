@@ -1840,4 +1840,13 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Decision**: Elevate `.boss-bar .bar` to 16px height with dark carved metallic borders, inset shadow and 19px Cinzel serif typography for `.boss-name`; toggle the `.enraged` class in `Hud.ts` when boss health is at or below 30%, driving a fiery animated crimson pulse (`@keyframes bossEnragePulse`). Phase threshold ticks at 60% and 30% remain intact.
 - **Consequences**: Boss encounters feel majestic and imposing; at 20% health the boss bar pulses brightly in crimson while the Guardian's floor aura burns red, giving the player urgent combat feedback at 16.68ms average / 16.90ms max frames. Final gates: 502 vitest (102 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle20-*`.
 
+## ADR-199: Upgrade choice card rarity polish and celestial emblem pulse
+
+- **Date**: 2026-11-11
+- **Status**: Accepted (Cycle 21, UI readability / visuals)
+- **Context**: The upgrade choice modal ("Choose an Echo") displayed common, rare and epic cards with identical flat 1px wireframe borders, muted number tags, and static emblems; epic and rare cards lacked prestige and distinction fitting a dark fantasy roguelike.
+- **Decision**: In `src/ui/ui.css`, add luminous header crown flares (`.card.rare::before`, `.card.epic::before`), distinct tier-colored and glowing number badges (`.card.rare .num`, `.card.epic .num`), radiant text shadows on upgrade titles (`.card.epic .name`, `.card.rare .name`), and an animated celestial breathing pulse on epic emblems (`@keyframes epicEmblemPulse`, disabled under `prefers-reduced-motion`). Upgrade selection mechanics, card dimensions, and sim data remain strictly unchanged.
+- **Consequences**: Upgrade choices now command clear visual hierarchy; rare and epic choices immediately stand out with radiant tier styling, atmospheric glow, and tactile hover lift at 16.68ms average / 16.90ms max frames. Final gates: 505 vitest (103 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle21-*`.
+
+
 
