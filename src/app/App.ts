@@ -241,7 +241,13 @@ export class App {
       : events.filter((e) => e.type !== 'shake');
     this.renderer.handleEvents(visible);
     this.sound.handle(events);
-    this.hud.handle(events, world);
+    // On the first run, the first roomLocked triggers a detailed tutorial tip;
+    // suppress the generic 'The doors seal shut' toast so they do not overlap.
+    const hudEvents =
+      !this.tipRoom && this.meta.runs === 0 && events.some((e) => e.type === 'roomLocked')
+        ? events.filter((e) => e.type !== 'roomLocked')
+        : events;
+    this.hud.handle(hudEvents, world);
     for (const e of events) {
       switch (e.type) {
         case 'fragmentFound':

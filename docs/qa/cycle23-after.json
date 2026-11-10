@@ -1,0 +1,11 @@
+{
+  "cycle": 23,
+  "area": "UI readability / Toasts",
+  "state": "after",
+  "toasts": {
+    "first_room_lock_duplicate": false,
+    "generic_toast": null,
+    "tutorial_toast": "Doors seal — clear every wave, then take the gate down."
+  },
+  "frame_health": { "avg_ms": 16.68, "max_ms": 16.90 }
+}

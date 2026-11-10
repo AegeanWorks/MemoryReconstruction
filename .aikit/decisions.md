@@ -1856,6 +1856,15 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Decision**: In `src/view/Effects.ts`, add an immediate specular star glint to all enemy weapon impacts (`this.star(e.x, e.y, e.crit ? 0xfff3a0 : 0xd0f4ff, e.crit ? 54 : 20, e.crit ? 0.35 : 0.16)`), increase directional spark count from 7/14 to 8/18, expand the critical shockwave ring from 38px to 44px, and increase radial burst particles from 8 to 12. Combat math, event signatures, and sound triggers remain unchanged.
 - **Consequences**: Every weapon connection feels crisp and tactile with a sharp specular gleam, while critical hits erupt with a radiant golden starburst and shockwave at 16.68ms average / 16.90ms max frames. Final gates: 507 vitest (104 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle22-*`.
 
+## ADR-201: Combat room-lock toast deduplication on first expedition
+
+- **Date**: 2026-11-11
+- **Status**: Accepted (Cycle 23, UI readability / Toasts)
+- **Context**: When a combat room locked on the player's initial expedition run, `Hud.handle` toasted "The doors seal shut" while `App.tutorialTips` simultaneously toasted "Doors seal — clear every wave, then take the gate down.", resulting in two overlapping toasts occupying the top center of the viewport.
+- **Decision**: In `src/app/App.ts`, when `!this.tipRoom && this.meta.runs === 0`, filter out `roomLocked` before passing events to `this.hud.handle` so only the tutorial tip displays; renderer room seal effects and door audio continue to receive `roomLocked` unchanged. Subsequent room locks or runs with `meta.runs > 0` show the standard concise toast.
+- **Consequences**: The player sees a single, informative tutorial toast without visual clutter or overlapping text boxes at 16.68ms average / 16.90ms max frames. Final gates: 508 vitest (105 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle23-*`.
+
+
 
 
 

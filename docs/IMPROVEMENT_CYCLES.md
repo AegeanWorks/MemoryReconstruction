@@ -33,6 +33,7 @@ run.
 | 20 | UI/combat | Completed (monumental boss bar & enrage pulse) |
 | 21 | UI readability / visuals | Completed (upgrade card rarity polish & emblem pulse) |
 | 22 | Graphics/effects | Completed (combat hit sparks & crit punch) |
+| 23 | UI readability / Toasts | Completed (first-room lock toast deduplication) |
 
 ---
 
@@ -1678,6 +1679,64 @@ shake limits, and 60fps frame rate remain rock solid.
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npm run typecheck`, `npm run lint`, `npm run build`: clean
 - `python aikit.py check MemoryReconstruction`: ready
+
+---
+
+## Cycle 23 — UI readability / Toasts: Combat room-lock toast deduplication
+
+### FIND
+
+Evidence:
+
+- In `cycle22-after-crit.png` and `15_combat_room_enemies.png`, when a player first entered
+  a combat chamber on run 1, two toasts fired simultaneously at the exact same position:
+  "The doors seal shut" and "Doors seal — clear every wave, then take the gate down."
+- The two text boxes collided and rendered on top of each other, obscuring dungeon
+  geometry and cluttering the combat area.
+- Existing tests covered individual toasts, but not the first-expedition deduplication.
+
+### ANALYZE
+
+Read: `App.ts` `dispatch` and `tutorialTips`. When `!this.tipRoom && this.meta.runs === 0`,
+`tutorialTips` provides the detailed tutorial toast for `roomLocked`. Filter `roomLocked`
+from `hudEvents` passed to `this.hud.handle`, while keeping `roomLocked` intact for
+`renderer.handleEvents` (red room seal burst) and `sound.handle` (door thump).
+
+Files: `src/app/App.ts`, `tests/ui-toast-dedup.test.ts`.
+
+Proof: failing first-run deduplication test first; live browser capture entering the
+first combat room at 1280x720 showing a single clean tutorial toast.
+
+### IMPLEMENT
+
+- `src/app/App.ts`: in `dispatch`, filter out `roomLocked` from `hudEvents` when
+  `!this.tipRoom && this.meta.runs === 0`.
+- `tests/ui-toast-dedup.test.ts`: failing-first toast deduplication test, green.
+
+### RECORD — played browser run
+
+Played live browser run, started run with greatsword, entered first combat room, 1280x720.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Room lock toasts | 2 overlapping stacked banners | **1 single clear centered tutorial banner** |
+| Room seal burst & audio | intact | **intact** |
+| Screenshot | `docs/qa/cycle23-before-toast.png` | `docs/qa/cycle23-after-toast.png` |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle23-before.json` and `cycle23-after.json`. What improved:
+the top-center screen area is clean and legible; tutorial guidance is delivered
+crisply without visual collision. What broke: nothing observed; later room locks
+continue to show the standard concise toast, and audio/effects triggers stay identical.
+
+### Gate results
+
+- `npx vitest run tests/ui-toast-dedup.test.ts`: **1 passed**
+- `npm test`: **508 passed (105 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: ready
+
 
 
 
