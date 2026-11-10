@@ -1,0 +1,15 @@
+{
+  "cycle": 24,
+  "area": "UI / Expedition Checkpoint List Layout",
+  "state": "before",
+  "layout": {
+    "viewport_height": 720,
+    "screen_scroll_height": 784,
+    "screen_client_height": 720,
+    "overflows": true,
+    "list_max_height": "432px",
+    "back_button_bottom": 718,
+    "sliced_text_element": "Section 16 text sliced horizontally across container border"
+  },
+  "frame_health": { "avg_ms": 16.65, "max_ms": 16.85 }
+}

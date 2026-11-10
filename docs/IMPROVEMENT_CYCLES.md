@@ -34,6 +34,7 @@ run.
 | 21 | UI readability / visuals | Completed (upgrade card rarity polish & emblem pulse) |
 | 22 | Graphics/effects | Completed (combat hit sparks & crit punch) |
 | 23 | UI readability / Toasts | Completed (first-room lock toast deduplication) |
+| 24 | UI / Expedition layout | Completed (checkpoint list height constraint) |
 
 ---
 
@@ -1733,6 +1734,64 @@ continue to show the standard concise toast, and audio/effects triggers stay ide
 
 - `npx vitest run tests/ui-toast-dedup.test.ts`: **1 passed**
 - `npm test`: **508 passed (105 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: ready
+
+---
+
+## Cycle 24 — UI / Expedition layout: Checkpoint list height constraint for 720p
+
+### FIND
+
+Evidence:
+
+- In `cycle24-before-expedition.png` and `03_expedition.png`, at 1280x720 window resolution,
+  the Set Out screen `.checkpoint-list` had `max-height: min(60vh, 480px)` (432px).
+- Stacked under the Difficulty and Daily Descent cards, total screen `scrollHeight` reached
+  784px against 720px `clientHeight` (64px vertical overflow).
+- Section 16 at the bottom of the checkpoint card list was sliced directly horizontally
+  across its title text, and the Back button was pushed down to the very edge of the viewport.
+
+### ANALYZE
+
+Read: `src/ui/ui.css` line 1281 `.checkpoint-list`. Constraining max-height from `min(60vh, 480px)`
+to `min(45vh, 320px)` ensures that even with Difficulty and Daily Descent panels expanded, the
+entire expedition dialog fits comfortably within 720px client height, eliminating window-level
+overflow while preserving internal card scrolling.
+
+Files: `src/ui/ui.css`, `tests/ui-expedition-layout.test.ts`.
+
+Proof: failing CSS rule contract test first; live browser capture of the Set Out screen at
+1280x720 confirming `overflows === false`, no text slicing across borders, and generous bottom
+breathing space for the Back button.
+
+### IMPLEMENT
+
+- `src/ui/ui.css`: `.checkpoint-list` max-height set to `min(45vh, 320px)`.
+- `tests/ui-expedition-layout.test.ts`: test validating `.checkpoint-list` max-height constraint.
+
+### RECORD — played browser run
+
+Played live browser run, entered Sanctuary, opened Set Out expedition screen at 1280x720.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Screen scrollHeight | 784px (64px vertical overflow) | **720px (0 overflow)** |
+| Section 16 card text | Sliced horizontally across border | **Clean card clipping, no sliced text** |
+| Back button position | 718px bottom (touching edge) | **688px bottom (32px padding)** |
+| Screenshot | `docs/qa/cycle24-before-expedition.png` | `docs/qa/cycle24-after-expedition.png` |
+| Frame health | 16.65ms avg, 16.85ms max | 16.65ms avg, 16.85ms max |
+
+Raw logs: `docs/qa/cycle24-before.json` and `cycle24-after.json`. What improved:
+the Set Out screen cleanly fits standard 720p viewports without vertical overflow,
+ugly scrollbar collision, or awkward text slicing. What broke: nothing observed;
+checkpoint scrolling within the 320px list remains fully operational.
+
+### Gate results
+
+- `npx vitest run tests/ui-expedition-layout.test.ts`: **1 passed**
+- `npm test`: **509 passed (106 files)**
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npm run typecheck`, `npm run lint`, `npm run build`: clean
 - `python aikit.py check MemoryReconstruction`: ready

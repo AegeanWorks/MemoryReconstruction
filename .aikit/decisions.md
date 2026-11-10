@@ -1864,6 +1864,14 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Decision**: In `src/app/App.ts`, when `!this.tipRoom && this.meta.runs === 0`, filter out `roomLocked` before passing events to `this.hud.handle` so only the tutorial tip displays; renderer room seal effects and door audio continue to receive `roomLocked` unchanged. Subsequent room locks or runs with `meta.runs > 0` show the standard concise toast.
 - **Consequences**: The player sees a single, informative tutorial toast without visual clutter or overlapping text boxes at 16.68ms average / 16.90ms max frames. Final gates: 508 vitest (105 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle23-*`.
 
+## ADR-202: Expedition checkpoint list layout height constraint for 720p
+
+- **Date**: 2026-11-11
+- **Status**: Accepted (Cycle 24, UI / Expedition layout)
+- **Context**: At standard 1280x720 resolution, the Set Out expedition screen had `.checkpoint-list` with `max-height: min(60vh, 480px)`. Preceded by difficulty and daily descent cards, the screen scrollHeight reached 784px against a 720px clientHeight, causing vertical overflow, slicing Section 16 card text directly across the container border, and pushing the Back button down to the window edge.
+- **Decision**: In `src/ui/ui.css`, change `.checkpoint-list` max-height to `min(45vh, 320px)`.
+- **Consequences**: Total screen scrollHeight reduces from 784px to 720px (0 overflow), Section 16 card text is no longer sliced horizontally across container borders, and the Back button maintains 32px of bottom margin breathing space at 16.65ms average / 16.85ms max frames. Final gates: 509 vitest (106 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle24-*`.
+
 
 
 
