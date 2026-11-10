@@ -1171,7 +1171,7 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **513 passed (108 files)**
+- `npm test`: **514 passed (109 files)**
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
@@ -1180,9 +1180,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (233 commits,
+The inventory covers every content commit through `1 -> End` (234 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-25 and the cycle 26 inventory stat pill framing & panel height bounding). The
+follow-up, visual review, cycles 1-26 and the cycle 27 enemy stagger orbital daze halo and rotating star glints). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1214,5 +1214,6 @@ and emblem pulse), ADR-200 (specular hit glints and radiant critical hit starbur
 ADR-201 (combat room-lock toast deduplication on first expedition), ADR-202
 (expedition checkpoint list height constraint for 720p), ADR-203 (combat critical
 hit metallic resonance ping sound cue), ADR-204 (relic inventory stat pill framing
-and panel height bounding) and the README boss-count
+and panel height bounding), ADR-205 (enemy stagger orbital daze halo and rotating
+star glints) and the README boss-count
 correction recorded above. No open audit items remain.
