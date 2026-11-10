@@ -1098,17 +1098,16 @@ Guardian bar shows both threshold ticks at 16.68ms average / 16.90ms max.
 
 **Finding:** none.
 
-## Range 1 -> 225 (End) (`407e047..08927bf`)
+## Range 1 -> 226 (End) (`407e047..0ac32e8`)
 
-**Commits:** cycles 16-18. Cycle 16 draws a pale exit diamond on the map; cycle
+**Commits:** cycles 16-19. Cycle 16 draws a pale exit diamond on the map; cycle
 17 constrains the 640×480 map canvas to the viewport with a preserved 4:3
 ratio; cycle 18 draws a red/amber seal burst at the room centre when a chamber
-locks.
+locks; cycle 19 frames the HUD vitals with a dark backplate and gloss sheen.
 
-**Verification:** 498 vitest (100 files), 381 mechanics (60 files),
-typecheck/lint/build clean, 8/8 AIKit; the boss-clear map marks the portal, the
-390x844 map fits without a horizontal scrollbar, and seed-7 combat room 1 shows
-the seal burst at `1952,2048`, at 16.68ms average / 16.90ms max frames.
+**Verification:** 500 vitest (101 files), 381 mechanics (60 files),
+typecheck/lint/build clean, 8/8 AIKit; gameplay captures confirm the HUD vitals
+cluster is framed against floor props with glossy top sheen at 16.68ms average / 16.90ms max frames.
 
 **Finding:** none.
 
@@ -1155,7 +1154,7 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **498 passed (100 files)**
+- `npm test`: **500 passed (101 files)**
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
@@ -1164,9 +1163,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (225 commits,
+The inventory covers every content commit through `1 -> End` (226 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-17 and the cycle 18 room seal). The
+follow-up, visual review, cycles 1-18 and the cycle 19 HUD backplate). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1191,5 +1190,6 @@ on the narrow HUD), ADR-189 (boss entries burst at the chamber centre), ADR-190
 (denied dash and bolt pay a dry click), ADR-191 (nested meta saves recover field
 by field), ADR-192 (a dash tapped mid-dash is buffered), ADR-193 (boss bar marks
 both phase thresholds), ADR-194 (the map marks the floor exit), ADR-195 (the map
-canvas fits narrow screens), ADR-196 (the room seal has a local burst) and the
-README boss-count correction recorded above. No open audit items remain.
+canvas fits narrow screens), ADR-196 (the room seal has a local burst), ADR-197
+(HUD vitals panel backplate and bar gloss framing) and the README boss-count
+correction recorded above. No open audit items remain.
