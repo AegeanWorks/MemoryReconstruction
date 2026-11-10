@@ -1098,18 +1098,20 @@ Guardian bar shows both threshold ticks at 16.68ms average / 16.90ms max.
 
 **Finding:** none.
 
-## Range 1 -> 227 (End) (`407e047..ac3888c`)
+## Range 1 -> 228 (`407e047..a63ea08`)
 
-**Commits:** cycles 16-20. Cycle 16 draws a pale exit diamond on the map; cycle
+**Commits:** cycles 16-21. Cycle 16 draws a pale exit diamond on the map; cycle
 17 constrains the 640×480 map canvas to the viewport with a preserved 4:3
 ratio; cycle 18 draws a red/amber seal burst at the room centre when a chamber
 locks; cycle 19 frames the HUD vitals with a dark backplate and gloss sheen;
 cycle 20 gives the boss health bar a monumental metallic carved trough, serif
-Cinzel header, and a glowing 30% enrage pulse.
+Cinzel header, and a glowing 30% enrage pulse; cycle 21 gives upgrade choice
+cards luminous header crown flares, tier-colored badges, and an animated
+breathing pulse on epic emblems.
 
-**Verification:** 502 vitest (102 files), 381 mechanics (60 files),
+**Verification:** 505 vitest (103 files), 381 mechanics (60 files),
 typecheck/lint/build clean, 8/8 AIKit; gameplay captures confirm the
-monumental boss bar styling with 30% enrage pulse at 16.68ms average / 16.90ms max frames.
+upgrade choice card rarity polish with celestial emblem pulse at 16.68ms average / 16.90ms max frames.
 
 **Finding:** none.
 
@@ -1165,9 +1167,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (227 commits,
+The inventory covers every content commit through `1 -> End` (228 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-19 and the cycle 20 monumental boss bar). The
+follow-up, visual review, cycles 1-20 and the cycle 21 upgrade card rarity polish). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1194,5 +1196,6 @@ by field), ADR-192 (a dash tapped mid-dash is buffered), ADR-193 (boss bar marks
 both phase thresholds), ADR-194 (the map marks the floor exit), ADR-195 (the map
 canvas fits narrow screens), ADR-196 (the room seal has a local burst), ADR-197
 (HUD vitals panel backplate and bar gloss framing), ADR-198 (monumental boss
-bar styling with 30% enrage pulse) and the README boss-count
+bar styling with 30% enrage pulse), ADR-199 (upgrade choice card rarity flares
+and emblem pulse) and the README boss-count
 correction recorded above. No open audit items remain.
