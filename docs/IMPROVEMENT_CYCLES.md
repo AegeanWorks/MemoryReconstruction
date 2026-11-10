@@ -35,6 +35,7 @@ run.
 | 22 | Graphics/effects | Completed (combat hit sparks & crit punch) |
 | 23 | UI readability / Toasts | Completed (first-room lock toast deduplication) |
 | 24 | UI / Expedition layout | Completed (checkpoint list height constraint) |
+| 25 | Combat audio / Feedback | Completed (critical hit metallic ping sound cue) |
 
 ---
 
@@ -1795,6 +1796,63 @@ checkpoint scrolling within the 320px list remains fully operational.
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npm run typecheck`, `npm run lint`, `npm run build`: clean
 - `python aikit.py check MemoryReconstruction`: ready
+
+---
+
+## Cycle 25 — Combat audio / Feedback: Critical hit metallic resonance ping sound cue
+
+### FIND
+
+Evidence:
+
+- In `src/audio/Sound.ts` lines 221-223, `case 'hit':` only played `this.thump(e.crit ? 220 : 160, ...)`.
+- While Cycle 22 introduced specular star glints and radiant critical shockwaves visually, critical hits
+  lacked an acoustic signature with sharp metallic bite and resonant frequency sweep, sounding like a muffled
+  low thump rather than a precision strike.
+- Existing tests covered enemy attack telegraph audio presets, but did not guard the critical hit ping cue.
+
+### ANALYZE
+
+Read: `src/audio/Sound.ts` `handle(events)`. When `e.target === 'enemy'` and `e.crit` is true, layer a high-frequency
+metallic ping `this.tone(1480, 2200, 0.08, 'triangle', 0.16, 'critPing')` over the tactile low thump.
+This plays a fast-rising triangle wave from 1480Hz up to 2200Hz over 80ms on its own throttle key (`critPing`),
+so it accompanies the bass punch without being clipped or suppressed by standard hit thumps.
+
+Files: `src/audio/Sound.ts`, `tests/audio-crit-ping.test.ts`.
+
+Proof: failing contract test first; live browser capture with AudioContext oscillator spy confirming
+triangle wave synthesis sweeping from 1480Hz to 2200Hz on critical hits while standard hits retain single sine thump.
+
+### IMPLEMENT
+
+- `src/audio/Sound.ts`: in `case 'hit':`, when `e.target === 'enemy' && e.crit`, call `this.tone(1480, 2200, 0.08, 'triangle', 0.16, 'critPing')`.
+- `tests/audio-crit-ping.test.ts`: failing-first contract test, green.
+
+### RECORD — played browser run
+
+Played live browser run, entered Sanctuary, set out into Forgotten Ruins at 1280x720, dispatched hit events.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Normal hit audio | 160Hz -> 64Hz sine thump | **160Hz -> 64Hz sine thump** |
+| Critical hit audio | 220Hz -> 88Hz sine thump only | **220Hz thump + 1480Hz -> 2200Hz triangle ping** |
+| Audio throttle key | generic 'hit' | **dedicated 'critPing' key** |
+| Screenshot | `docs/qa/cycle25-after-crit-ping.png` | `docs/qa/cycle25-after-crit-ping.png` |
+| Frame health | 16.65ms avg, 16.85ms max | 16.65ms avg, 16.85ms max |
+
+Raw logs: `docs/qa/cycle25-before.json` and `cycle25-after.json`. What improved:
+critical hits deliver immediate, sharp acoustic feedback and blade resonance, complementing the
+visual starburst and shockwave from Cycle 22. What broke: nothing observed; normal hits retain their
+muffled physical thump, and audio throttle isolation prevents any cue clipping.
+
+### Gate results
+
+- `npx vitest run tests/audio-crit-ping.test.ts`: **1 passed**
+- `npm test`: **510 passed (107 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: ready
+
 
 
 

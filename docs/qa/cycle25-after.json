@@ -1,0 +1,25 @@
+{
+  "cycle": 25,
+  "area": "Combat audio / Feedback",
+  "state": "after",
+  "audio": {
+    "normal_hit": {
+      "oscillator": "sine",
+      "from_hz": 160,
+      "to_hz": 64
+    },
+    "critical_hit": {
+      "thump_oscillator": "sine",
+      "from_hz": 220,
+      "to_hz": 88,
+      "metallic_ping": true,
+      "ping_oscillator": "triangle",
+      "ping_from_hz": 1480,
+      "ping_to_hz": 2200,
+      "ping_duration_s": 0.08,
+      "ping_volume": 0.16,
+      "throttle_key": "critPing"
+    }
+  },
+  "frame_health": { "avg_ms": 16.65, "max_ms": 16.85 }
+}

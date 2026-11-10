@@ -1872,6 +1872,14 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Decision**: In `src/ui/ui.css`, change `.checkpoint-list` max-height to `min(45vh, 320px)`.
 - **Consequences**: Total screen scrollHeight reduces from 784px to 720px (0 overflow), Section 16 card text is no longer sliced horizontally across container borders, and the Back button maintains 32px of bottom margin breathing space at 16.65ms average / 16.85ms max frames. Final gates: 509 vitest (106 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle24-*`.
 
+## ADR-203: Combat critical hit metallic resonance ping sound cue
+
+- **Date**: 2026-11-11
+- **Status**: Accepted (Cycle 25, Combat audio / Feedback)
+- **Context**: In `src/audio/Sound.ts`, `case 'hit':` only played `this.thump(e.crit ? 220 : 160, ...)`. While Cycle 22 introduced specular star glints and radiant critical shockwaves visually, critical hits lacked an acoustic signature with sharp metallic bite and resonant frequency sweep, sounding like a muffled low thump rather than a precision strike.
+- **Decision**: In `src/audio/Sound.ts`, when `e.target === 'enemy'` and `e.crit` is true, layer a high-frequency metallic ping `this.tone(1480, 2200, 0.08, 'triangle', 0.16, 'critPing')` over the tactile low-frequency thump.
+- **Consequences**: Critical hits now deliver an immediate, crisp metallic blade "ching" alongside the tactile bass punch and specular visual starburst, on a dedicated throttle key (`critPing`) that never clips or drowns out standard combat sounds, maintaining 16.65ms average / 16.85ms max frame rates. Final gates: 510 vitest (107 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle25-*`.
+
 
 
 

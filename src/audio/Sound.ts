@@ -219,7 +219,10 @@ export class Sound {
           break;
         }
         case 'hit':
-          if (e.target === 'enemy') this.thump(e.crit ? 220 : 160, e.crit ? 0.35 : 0.22, 'hit');
+          if (e.target === 'enemy') {
+            this.thump(e.crit ? 220 : 160, e.crit ? 0.35 : 0.22, 'hit');
+            if (e.crit) this.tone(1480, 2200, 0.08, 'triangle', 0.16, 'critPing');
+          }
           break;
         case 'playerHurt':
           this.tone(180, 70, 0.22, 'sawtooth', 0.3);

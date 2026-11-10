@@ -1,0 +1,19 @@
+{
+  "cycle": 25,
+  "area": "Combat audio / Feedback",
+  "state": "before",
+  "audio": {
+    "normal_hit": {
+      "oscillator": "sine",
+      "from_hz": 160,
+      "to_hz": 64
+    },
+    "critical_hit": {
+      "oscillator": "sine",
+      "from_hz": 220,
+      "to_hz": 88,
+      "metallic_ping": false
+    }
+  },
+  "frame_health": { "avg_ms": 16.65, "max_ms": 16.85 }
+}
