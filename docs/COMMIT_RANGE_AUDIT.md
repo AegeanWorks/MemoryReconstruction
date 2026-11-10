@@ -1180,9 +1180,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (234 commits,
+The inventory covers every content commit through `1 -> End` (235 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-26 and the cycle 27 enemy stagger orbital daze halo and rotating star glints). The
+follow-up, visual review, cycles 1-26, cycle 27 enemy stagger orbital daze halo, and its test wrapper assertion fix). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
