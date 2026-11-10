@@ -1888,6 +1888,14 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Decision**: In `src/ui/ui.css`, enclose `.gear-stats` in a recessed dark tray (`background: rgba(0, 0, 0, 0.32)`, `border: 1px solid rgba(255, 255, 255, 0.07)`, `border-radius: 8px`), format individual `.gear-stat` items as discrete rounded pill chips (`padding: 3px 8px`, `border-radius: 6px`, `background: rgba(255, 255, 255, 0.035)`), and bound `.gear-panel` to `max-height: min(60vh, 460px)`.
 - **Consequences**: Player attributes and weapon combo counters read cleanly at a glance as framed stat badges with crisp visual hierarchy, while the inventory modal fits comfortably within 720p screens with zero vertical page overflow at 16.65ms average / 16.85ms max frames. Final gates: 513 vitest (108 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle26-*`.
 
+## ADR-205: Enemy stagger orbital daze halo and rotating star glints
+
+- **Date**: 2026-11-11
+- **Status**: Accepted (Cycle 27, Graphics / Stagger visual feedback)
+- **Context**: In `src/view/ActorView.ts`, staggered enemies only rendered three tiny 1.8px yellow dots orbiting their head. Against high-contrast dungeon floor tiles and active weapon swings, these dots were nearly imperceptible, leaving players uncertain whether an enemy's poise had broken and whether a safe punish window was active.
+- **Decision**: In `src/view/ActorView.ts`, when `staggered` is true, render a luminous golden orbital daze halo (`this.telegraphs.ellipse(pos.x, headY, rx, ry).stroke({ width: 1.2, color: 0xffdf80, alpha: 0.35 })`) accompanied by three rotating 4-pointed sparkle stars featuring an outer amber glow (`0xffdf80`) and a brilliant white specular core (`0xffffff`).
+- **Consequences**: Staggered enemies clearly announce their vulnerability with an unmistakable, polished dark-fantasy daze halo across all zoom levels and viewports, maintaining rock-solid 60fps frame rates (16.65ms average / 16.85ms max). Final gates: 514 vitest (109 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle27-*`.
+
 
 
 

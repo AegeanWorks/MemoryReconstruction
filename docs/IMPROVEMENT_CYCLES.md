@@ -37,6 +37,7 @@ run.
 | 24 | UI / Expedition layout | Completed (checkpoint list height constraint) |
 | 25 | Combat audio / Feedback | Completed (critical hit metallic ping sound cue) |
 | 26 | UI / Inventory styling & layout | Completed (stat pill framing & height bounding) |
+| 27 | Graphics / Stagger visual feedback | Completed (orbital daze halo & rotating star glints) |
 
 ---
 
@@ -1910,6 +1911,64 @@ filter chips, equipment interactions, and arrow key keyboard navigation remain c
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npm run typecheck`, `npm run lint`, `npm run build`: clean
 - `python aikit.py check MemoryReconstruction`: ready
+
+---
+
+## Cycle 27 — Graphics / Stagger visual feedback: Orbital daze halo & rotating star glints
+
+### FIND
+
+Evidence:
+
+- In `src/view/ActorView.ts` lines 683-690, staggered enemies only rendered three tiny 1.8px yellow dots
+  orbiting their head: `this.telegraphs.circle(ox, oy, 1.8).fill({ color: 0xffe680, alpha: 0.9 })`.
+- On standard 720p and 1080p viewports, 1.8px dots are nearly imperceptible against dynamic dungeon floors,
+  lighting shadows, and active combat particle bursts. Players could not easily confirm when an enemy's poise
+  had broken and when a safe recovery punish window was available.
+- Existing tests covered mob stagger guard mechanics in `tests/sim/stagger-guard.test.ts`, but not visual feedback.
+
+### ANALYZE
+
+Read: `src/view/ActorView.ts` `drawEnemy`.
+When `staggered` is true, render a luminous golden orbital daze halo (`this.telegraphs.ellipse(pos.x, headY, rx, ry).stroke({ width: 1.2, color: 0xffdf80, alpha: 0.35 })`)
+around the enemy's head, and at each of the 3 orbital nodes, draw rotating 4-pointed sparkle stars
+combining a soft outer amber glow (`0xffdf80`) with a brilliant white specular core (`0xffffff`), using Pixi's native `this.telegraphs.star(...)`.
+
+Files: `src/view/ActorView.ts`, `tests/view-enemy-stagger-fx.test.ts`.
+
+Proof: failing contract test first; live browser capture of an active enemy in the stagger state at 1280x720
+confirming the glowing elliptical daze halo and rotating 4-point sparkle stars.
+
+### IMPLEMENT
+
+- `src/view/ActorView.ts`: in `if (staggered)`, draw elliptical orbital daze halo with `stroke()` and 3 rotating dual-layer 4-point sparkle stars with `star()`.
+- `tests/view-enemy-stagger-fx.test.ts`: failing-first contract test, green.
+
+### RECORD — played browser run
+
+Played live browser run, started expedition into Forgotten Ruins, engaged guardian mob, triggered stagger state.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Stagger halo | None | **Golden elliptical daze halo (`0xffdf80`, 0.35 alpha)** |
+| Stagger nodes | 3 tiny 1.8px yellow circles | **3 rotating 4-point stars (amber glow + specular white core)** |
+| Poise break readability | Faint / imperceptible | **Instant, unmistakable dark-fantasy daze cue** |
+| Screenshot | `docs/qa/cycle27-before.json` | `docs/qa/cycle27-after-stagger.png` |
+| Frame health | 16.65ms avg, 16.85ms max | 16.65ms avg, 16.85ms max |
+
+Raw logs: `docs/qa/cycle27-before.json` and `cycle27-after.json`. What improved:
+poise breaks and stagger recovery windows are immediately legible in combat across all camera distances;
+visual feedback perfectly aligns with the game's dark fantasy ARPG aesthetic. What broke: nothing observed;
+boss immunities, mob stagger recovery timings, and 60fps frame rates remain rock solid.
+
+### Gate results
+
+- `npx vitest run tests/view-enemy-stagger-fx.test.ts`: **1 passed**
+- `npm test`: **514 passed (109 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: ready
+
 
 
 

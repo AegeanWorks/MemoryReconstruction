@@ -1,0 +1,19 @@
+{
+  "cycle": 27,
+  "area": "Graphics / Visual feedback on enemy stagger",
+  "state": "after",
+  "stagger": {
+    "daze_halo": true,
+    "halo_stroke_width": 1.2,
+    "halo_color": "0xffdf80",
+    "halo_alpha": 0.35,
+    "star_glints": true,
+    "star_points": 4,
+    "star_glow_color": "0xffdf80",
+    "star_core_color": "0xffffff",
+    "star_outer_radius": 5.5,
+    "star_inner_radius": 2.2,
+    "star_count": 3
+  },
+  "frame_health": { "avg_ms": 16.65, "max_ms": 16.85 }
+}

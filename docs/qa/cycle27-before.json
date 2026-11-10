@@ -1,0 +1,13 @@
+{
+  "cycle": 27,
+  "area": "Graphics / Visual feedback on enemy stagger",
+  "state": "before",
+  "stagger": {
+    "daze_halo": false,
+    "star_glints": false,
+    "shape": "1.8px yellow dots",
+    "dot_count": 3,
+    "glow_color": "none"
+  },
+  "frame_health": { "avg_ms": 16.65, "max_ms": 16.85 }
+}

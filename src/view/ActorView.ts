@@ -681,11 +681,19 @@ export class ActorView {
     a.shadow.alpha = a.body.alpha;
 
     if (staggered) {
+      const headY = pos.y - e.def.displayHeight * 0.92;
+      const rx = e.radius * 0.95;
+      const ry = e.radius * 0.38;
+      this.telegraphs
+        .ellipse(pos.x, headY, rx, ry)
+        .stroke({ width: 1.2, color: 0xffdf80, alpha: 0.35 });
       for (let i = 0; i < 3; i++) {
-        const aOrbit = this.time * 5 + (i / 3) * Math.PI * 2;
-        const ox = pos.x + Math.cos(aOrbit) * (e.radius * 0.9);
-        const oy = pos.y - e.def.displayHeight * 0.9 + Math.sin(aOrbit) * (e.radius * 0.35);
-        this.telegraphs.circle(ox, oy, 1.8).fill({ color: 0xffe680, alpha: 0.9 });
+        const aOrbit = this.time * 4.5 + (i / 3) * Math.PI * 2;
+        const ox = pos.x + Math.cos(aOrbit) * rx;
+        const oy = headY + Math.sin(aOrbit) * ry;
+        const starRot = this.time * 5 + i;
+        this.telegraphs.star(ox, oy, 4, 5.5, 2.2, starRot).fill({ color: 0xffdf80, alpha: 0.5 });
+        this.telegraphs.star(ox, oy, 4, 3.5, 1.4, starRot).fill({ color: 0xffffff, alpha: 0.95 });
       }
     }
 
