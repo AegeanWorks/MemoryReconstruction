@@ -1098,16 +1098,18 @@ Guardian bar shows both threshold ticks at 16.68ms average / 16.90ms max.
 
 **Finding:** none.
 
-## Range 1 -> 226 (End) (`407e047..0ac32e8`)
+## Range 1 -> 227 (End) (`407e047..ac3888c`)
 
-**Commits:** cycles 16-19. Cycle 16 draws a pale exit diamond on the map; cycle
+**Commits:** cycles 16-20. Cycle 16 draws a pale exit diamond on the map; cycle
 17 constrains the 640×480 map canvas to the viewport with a preserved 4:3
 ratio; cycle 18 draws a red/amber seal burst at the room centre when a chamber
-locks; cycle 19 frames the HUD vitals with a dark backplate and gloss sheen.
+locks; cycle 19 frames the HUD vitals with a dark backplate and gloss sheen;
+cycle 20 gives the boss health bar a monumental metallic carved trough, serif
+Cinzel header, and a glowing 30% enrage pulse.
 
-**Verification:** 500 vitest (101 files), 381 mechanics (60 files),
-typecheck/lint/build clean, 8/8 AIKit; gameplay captures confirm the HUD vitals
-cluster is framed against floor props with glossy top sheen at 16.68ms average / 16.90ms max frames.
+**Verification:** 502 vitest (102 files), 381 mechanics (60 files),
+typecheck/lint/build clean, 8/8 AIKit; gameplay captures confirm the
+monumental boss bar styling with 30% enrage pulse at 16.68ms average / 16.90ms max frames.
 
 **Finding:** none.
 
@@ -1163,9 +1165,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (226 commits,
+The inventory covers every content commit through `1 -> End` (227 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-18 and the cycle 19 HUD backplate). The
+follow-up, visual review, cycles 1-19 and the cycle 20 monumental boss bar). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1191,5 +1193,6 @@ on the narrow HUD), ADR-189 (boss entries burst at the chamber centre), ADR-190
 by field), ADR-192 (a dash tapped mid-dash is buffered), ADR-193 (boss bar marks
 both phase thresholds), ADR-194 (the map marks the floor exit), ADR-195 (the map
 canvas fits narrow screens), ADR-196 (the room seal has a local burst), ADR-197
-(HUD vitals panel backplate and bar gloss framing) and the README boss-count
+(HUD vitals panel backplate and bar gloss framing), ADR-198 (monumental boss
+bar styling with 30% enrage pulse) and the README boss-count
 correction recorded above. No open audit items remain.
