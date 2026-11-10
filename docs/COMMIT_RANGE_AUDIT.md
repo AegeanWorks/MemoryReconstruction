@@ -1171,7 +1171,7 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Current gates
 
-- `npm test`: **500 passed (101 files)**
+- `npm test`: **509 passed (106 files)**
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npx tsc --noEmit`: clean
 - `npm run lint`: clean
@@ -1180,9 +1180,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (230 commits,
+The inventory covers every content commit through `1 -> End` (231 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-22 and the cycle 23 room locked toast deduplication). The
+follow-up, visual review, cycles 1-23 and the cycle 24 expedition checkpoint list layout). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1211,5 +1211,6 @@ canvas fits narrow screens), ADR-196 (the room seal has a local burst), ADR-197
 (HUD vitals panel backplate and bar gloss framing), ADR-198 (monumental boss
 bar styling with 30% enrage pulse), ADR-199 (upgrade choice card rarity flares
 and emblem pulse), ADR-200 (specular hit glints and radiant critical hit starbursts),
-ADR-201 (combat room-lock toast deduplication on first expedition) and the README boss-count
+ADR-201 (combat room-lock toast deduplication on first expedition), ADR-202
+(expedition checkpoint list height constraint for 720p) and the README boss-count
 correction recorded above. No open audit items remain.
