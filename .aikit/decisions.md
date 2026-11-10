@@ -1880,6 +1880,14 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Decision**: In `src/audio/Sound.ts`, when `e.target === 'enemy'` and `e.crit` is true, layer a high-frequency metallic ping `this.tone(1480, 2200, 0.08, 'triangle', 0.16, 'critPing')` over the tactile low-frequency thump.
 - **Consequences**: Critical hits now deliver an immediate, crisp metallic blade "ching" alongside the tactile bass punch and specular visual starburst, on a dedicated throttle key (`critPing`) that never clips or drowns out standard combat sounds, maintaining 16.65ms average / 16.85ms max frame rates. Final gates: 510 vitest (107 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle25-*`.
 
+## ADR-204: Relic inventory stat pill framing and panel height bounding
+
+- **Date**: 2026-11-11
+- **Status**: Accepted (Cycle 26, UI / Inventory styling & layout)
+- **Context**: In `src/ui/ui.css`, `.gear-stats` displayed character sheet stats as an unpadded, plain text list over a basic bottom line, lacking visual hierarchy or modularity. Concurrently, `.gear-panel` used `max-height: 66vh` without an upper pixel bound, causing the carried section and empty slots to push close to the lower edge in 720p viewports.
+- **Decision**: In `src/ui/ui.css`, enclose `.gear-stats` in a recessed dark tray (`background: rgba(0, 0, 0, 0.32)`, `border: 1px solid rgba(255, 255, 255, 0.07)`, `border-radius: 8px`), format individual `.gear-stat` items as discrete rounded pill chips (`padding: 3px 8px`, `border-radius: 6px`, `background: rgba(255, 255, 255, 0.035)`), and bound `.gear-panel` to `max-height: min(60vh, 460px)`.
+- **Consequences**: Player attributes and weapon combo counters read cleanly at a glance as framed stat badges with crisp visual hierarchy, while the inventory modal fits comfortably within 720p screens with zero vertical page overflow at 16.65ms average / 16.85ms max frames. Final gates: 513 vitest (108 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle26-*`.
+
 
 
 

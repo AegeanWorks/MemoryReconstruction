@@ -1,0 +1,16 @@
+{
+  "cycle": 26,
+  "area": "UI / Inventory stat pill framing & panel height",
+  "state": "after",
+  "inventory": {
+    "stats_background": "rgba(0, 0, 0, 0.32)",
+    "stats_border": "1px solid rgba(255, 255, 255, 0.07) rounded 8px tray",
+    "stat_pill_framing": true,
+    "panel_max_height": "min(60vh, 460px) (bounded at 432px)",
+    "chip_border_radius": "6px",
+    "chip_background": "rgba(255, 255, 255, 0.035)",
+    "chip_padding": "3px 8px",
+    "screen_overflows": false
+  },
+  "frame_health": { "avg_ms": 16.65, "max_ms": 16.85 }
+}

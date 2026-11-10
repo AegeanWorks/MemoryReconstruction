@@ -36,6 +36,7 @@ run.
 | 23 | UI readability / Toasts | Completed (first-room lock toast deduplication) |
 | 24 | UI / Expedition layout | Completed (checkpoint list height constraint) |
 | 25 | Combat audio / Feedback | Completed (critical hit metallic ping sound cue) |
+| 26 | UI / Inventory styling & layout | Completed (stat pill framing & height bounding) |
 
 ---
 
@@ -1852,6 +1853,64 @@ muffled physical thump, and audio throttle isolation prevents any cue clipping.
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npm run typecheck`, `npm run lint`, `npm run build`: clean
 - `python aikit.py check MemoryReconstruction`: ready
+
+---
+
+## Cycle 26 — UI / Inventory styling & layout: Relic stat pill framing & panel height bounding
+
+### FIND
+
+Evidence:
+
+- In `cycle26-before-inventory.png`, player attributes in `.gear-stats` were rendered as plain unpadded text
+  packed across a single border-bottom line without modular pill framing or visual hierarchy.
+- In 720p window resolution, `.gear-panel` had an unconstrained `max-height: 66vh` (475px), leaving the bottom
+  empty slot card cramped near the container margin.
+- Existing tests covered inventory operations and reliquary attunement, but not stat pill styling or panel bounding.
+
+### ANALYZE
+
+Read: `src/ui/ui.css` `.gear-panel`, `.gear-stats`, `.gear-stat`.
+Enclose `.gear-stats` in a recessed tray (`background: rgba(0, 0, 0, 0.32)`, `border-radius: 8px`, `border: 1px solid rgba(255, 255, 255, 0.07)`),
+style each `.gear-stat` as a discrete rounded pill chip (`display: inline-flex`, `padding: 3px 8px`, `border-radius: 6px`, `background: rgba(255, 255, 255, 0.035)`),
+and bound `.gear-panel` with `max-height: min(60vh, 460px)`.
+
+Files: `src/ui/ui.css`, `tests/ui-inventory-stats.test.ts`.
+
+Proof: failing contract test first; live browser capture of the Relics inventory at 1280x720 confirming
+individual stat pill badges, dark recessed tray, and clean 720p layout with zero screen overflow.
+
+### IMPLEMENT
+
+- `src/ui/ui.css`: `.gear-panel` max-height bounded to `min(60vh, 460px)`; `.gear-stats` styled as a dark recessed tray; `.gear-stat` styled as rounded pill chips.
+- `tests/ui-inventory-stats.test.ts`: test validating `.gear-stats`, `.gear-stat`, and `.gear-panel` rules.
+
+### RECORD — played browser run
+
+Played live browser run, started expedition, opened Relics inventory modal at 1280x720.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Stats framing | Plain text over bottom border line | **Framed pill badges inside recessed dark tray** |
+| Stat pill radius | None (text only) | **6px rounded pill chips (`rgba(255, 255, 255, 0.035)`)** |
+| Panel max-height | `66vh` (475px unbounded) | **`min(60vh, 460px)` (432px bounded)** |
+| Screen overflow | tight spacing near container edge | **0 overflow, clean vertical margin** |
+| Screenshot | `docs/qa/cycle26-before-inventory.png` | `docs/qa/cycle26-after-inventory.png` |
+| Frame health | 16.65ms avg, 16.85ms max | 16.65ms avg, 16.85ms max |
+
+Raw logs: `docs/qa/cycle26-before.json` and `cycle26-after.json`. What improved:
+character stats and weapon combo badges stand out with crisp dark fantasy ARPG polish; the inventory
+screen is legible and cleanly fits within standard 720p viewports. What broke: nothing observed;
+filter chips, equipment interactions, and arrow key keyboard navigation remain completely intact.
+
+### Gate results
+
+- `npx vitest run tests/ui-inventory-stats.test.ts`: **3 passed**
+- `npm test`: **513 passed (108 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: ready
+
 
 
 

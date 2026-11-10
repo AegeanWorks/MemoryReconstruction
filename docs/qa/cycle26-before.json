@@ -1,0 +1,13 @@
+{
+  "cycle": 26,
+  "area": "UI / Inventory stat pill framing & panel height",
+  "state": "before",
+  "inventory": {
+    "stats_background": "transparent",
+    "stats_border": "1px solid border-bottom only",
+    "stat_pill_framing": false,
+    "panel_max_height": "66vh (unbounded at 475px)",
+    "chip_border_radius": "none"
+  },
+  "frame_health": { "avg_ms": 16.65, "max_ms": 16.85 }
+}
