@@ -83,6 +83,7 @@ cumulative range from commit 1, in steps of three, ending at `1 -> End`.
 | 1 -> 225 | `08927bf` | `2a54d4b` feat(level): mark the floor exit on the map<br>`4c4bfe4` feat(ui): fit the map canvas on narrow screens<br>`08927bf` feat(effects): mark the sealed room with a local burst | 1004 |  |
 | 1 -> 228 | `a63ea08` | `0ac32e8` feat(ui): frame the HUD vitals with a backplate and gloss sheen<br>`ac3888c` feat(ui): monumental boss bar styling with 30% enrage pulse<br>`a63ea08` feat(ui): upgrade choice card rarity flares and emblem pulse | 1020 | yes |
 | 1 -> 231 | `3d11e67` | `f949c3d` feat(effects): specular hit glints and radiant critical hit starbursts<br>`bf6b28e` feat(ui): deduplicate first-expedition room locked toasts<br>`3d11e67` feat(ui): constrain expedition checkpoint list height to fit 720p | 1035 |  |
+| 1 -> 232 (End) | `21125ce` | `21125ce` feat(audio): layer metallic resonance ping on critical hits | 1039 |  |
 
 The deep-dive column marks ranges with a narrative section in the
 curated report. The current tree is verified by the full suite in
