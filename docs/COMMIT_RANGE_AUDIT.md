@@ -1115,6 +1115,18 @@ upgrade choice card rarity polish with celestial emblem pulse at 16.68ms average
 
 **Finding:** none.
 
+## Range 1 -> 229 (End) (`407e047..f949c3d`)
+
+**Commits:** cycle 22. Cycle 22 adds specular impact star glints to all enemy
+hits and boosts critical hit starburst radius, spark count, and shockwave ring
+width in `Effects.ts`.
+
+**Verification:** 507 vitest (104 files), 381 mechanics (60 files),
+typecheck/lint/build clean, 8/8 AIKit; gameplay captures confirm the
+specular impact glints and radiant critical hit starbursts at 16.68ms average / 16.90ms max frames.
+
+**Finding:** none.
+
 ## Late-content batch summary
 
 The full per-range map is `docs/COMMIT_RANGE_INVENTORY.md`: 75 cumulative
@@ -1167,9 +1179,9 @@ gate/torch/mastery docs (this report), and the thin big-room cover backstop
 
 ## Next pass
 
-The inventory covers every content commit through `1 -> End` (228 commits,
+The inventory covers every content commit through `1 -> End` (229 commits,
 ending with the delivery, UI-bookkeeping, state-machine audit, story/fight
-follow-up, visual review, cycles 1-20 and the cycle 21 upgrade card rarity polish). The
+follow-up, visual review, cycles 1-21 and the cycle 22 combat hit sparks and crit punch). The
 generator
 omits commits whose subject starts with `chore(audit):` (its refresh and
 bookkeeping commits), so the map stays current at HEAD instead of re-admitting
@@ -1197,5 +1209,5 @@ both phase thresholds), ADR-194 (the map marks the floor exit), ADR-195 (the map
 canvas fits narrow screens), ADR-196 (the room seal has a local burst), ADR-197
 (HUD vitals panel backplate and bar gloss framing), ADR-198 (monumental boss
 bar styling with 30% enrage pulse), ADR-199 (upgrade choice card rarity flares
-and emblem pulse) and the README boss-count
+and emblem pulse), ADR-200 (specular hit glints and radiant critical hit starbursts) and the README boss-count
 correction recorded above. No open audit items remain.
