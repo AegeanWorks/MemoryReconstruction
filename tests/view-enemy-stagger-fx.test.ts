@@ -16,9 +16,9 @@ describe('stagger daze visual feedback', () => {
     const block = source.slice(staggerIndex, blockEnd);
 
     // Should draw an orbital ellipse halo
-    expect(block).toContain('this.telegraphs.ellipse(');
+    expect(block).toContain('.ellipse(pos.x, headY, rx, ry)');
     // Should draw 4-pointed stars with glow and core
-    expect(block).toContain('this.telegraphs.star(');
+    expect(block).toContain('.star(');
     expect(block).toContain('4,'); // 4-pointed star
   });
 });
