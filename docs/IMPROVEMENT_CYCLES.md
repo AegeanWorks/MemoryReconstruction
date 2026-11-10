@@ -32,6 +32,7 @@ run.
 | 19 | UI/visuals | Completed (HUD vitals backplate & gloss) |
 | 20 | UI/combat | Completed (monumental boss bar & enrage pulse) |
 | 21 | UI readability / visuals | Completed (upgrade card rarity polish & emblem pulse) |
+| 22 | Graphics/effects | Completed (combat hit sparks & crit punch) |
 
 ---
 
@@ -1615,6 +1616,69 @@ keyboard shortcuts (1/2/3/R), selection click safety, and frame times stay ident
 - `npm run test:mechanics`: **381 passed (60 files)**
 - `npm run typecheck`, `npm run lint`, `npm run build`: clean
 - `python aikit.py check MemoryReconstruction`: ready
+
+---
+
+## Cycle 22 — Graphics/effects: Combat hit sparks and critical hit visual punch
+
+### FIND
+
+Evidence:
+
+- Regular enemy weapon hits spawned only 7 directional sparks without any
+  specular impact flash or blade glint at the point of contact, making light
+  attacks feel somewhat soft.
+- Critical hits lacked the visceral punch and explosive shockwave presence
+  befitting a decisive strike in an action roguelike.
+- Existing tests covered boss bursts, telegraphs, and weapon impact shakes, but
+  did not assert the hit impact glint contract on enemy strikes.
+
+### ANALYZE
+
+Read: `Effects.ts` `case 'hit':`. Add an instant specular star glint on all enemy
+hits (`this.star(e.x, e.y, e.crit ? 0xfff3a0 : 0xd0f4ff, e.crit ? 54 : 20, e.crit ? 0.35 : 0.16)`).
+For critical hits, expand the radiant starburst size from 42 to 54, expand the golden
+shockwave ring from 38 to 44, and increase directional spark count from 7/14 to 8/18.
+Damage math, event flow, and frame budget remain untouched.
+
+Files: `src/view/Effects.ts`, `tests/view-crit-sparks.test.ts`.
+
+Proof: failing contract test first; live browser combat capture during an active wave
+encounter with a critical hit impact at 1280x720.
+
+### IMPLEMENT
+
+- `src/view/Effects.ts`:
+  - `case 'hit':` adds instant specular star glint on all enemy hits.
+  - Boosts critical hit starburst radius to 54, golden ring radius to 44, and
+    directional sparks to 18 (8 on normal hits).
+- `tests/view-crit-sparks.test.ts`: failing-first specular glint and crit parameters, green.
+
+### RECORD — played browser run
+
+Played live browser run, started run with greatsword, entered active combat room with
+cultists and wisps, landed a critical hit, 1280x720.
+
+| Evidence | Before | After |
+| --- | --- | --- |
+| Normal hit glint | none (7 spark dots only) | **sharp 20px specular blade gleam** |
+| Critical hit punch | 42px star, 38px ring | **54px starburst, 44px golden shockwave, 18 sparks** |
+| Screenshot | `docs/qa/cycle22-before-crit.png` | `docs/qa/cycle22-after-crit.png` |
+| Frame health | 16.68ms avg, 16.90ms max | 16.68ms avg, 16.90ms max |
+
+Raw logs: `docs/qa/cycle22-before.json` and `cycle22-after.json`. What improved:
+every weapon connection has an immediate crisp tactile bite, and critical hits explode
+with unmistakable visual weight. What broke: nothing observed; combat damage numbers,
+shake limits, and 60fps frame rate remain rock solid.
+
+### Gate results
+
+- `npx vitest run tests/view-crit-sparks.test.ts`: **2 passed**
+- `npm test`: **507 passed (104 files)**
+- `npm run test:mechanics`: **381 passed (60 files)**
+- `npm run typecheck`, `npm run lint`, `npm run build`: clean
+- `python aikit.py check MemoryReconstruction`: ready
+
 
 
 

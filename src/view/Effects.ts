@@ -182,12 +182,18 @@ export class Effects {
               e.x,
               e.y,
               Math.atan2(e.y - playerY, e.x - playerX),
-              e.crit ? 14 : 7
+              e.crit ? 18 : 8
+            );
+            this.star(
+              e.x,
+              e.y,
+              e.crit ? 0xfff3a0 : 0xd0f4ff,
+              e.crit ? 54 : 20,
+              e.crit ? 0.35 : 0.16
             );
             if (e.crit) {
-              this.star(e.x, e.y, 0xffd34a, 42, 0.35);
-              this.ring(e.x, e.y, 38, 0xffd98a, 0.3);
-              this.burst(e.x, e.y, 0xffe070, 8, 120, 0.28, 4);
+              this.ring(e.x, e.y, 44, 0xffd98a, 0.32);
+              this.burst(e.x, e.y, 0xffe070, 12, 140, 0.3, 4);
               // Crits land with weight: a short hit-stop shake sells the impact.
               this.shake = Math.min(18, Math.max(this.shake, 4));
             }

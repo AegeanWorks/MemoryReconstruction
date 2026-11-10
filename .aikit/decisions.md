@@ -1848,5 +1848,14 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Decision**: In `src/ui/ui.css`, add luminous header crown flares (`.card.rare::before`, `.card.epic::before`), distinct tier-colored and glowing number badges (`.card.rare .num`, `.card.epic .num`), radiant text shadows on upgrade titles (`.card.epic .name`, `.card.rare .name`), and an animated celestial breathing pulse on epic emblems (`@keyframes epicEmblemPulse`, disabled under `prefers-reduced-motion`). Upgrade selection mechanics, card dimensions, and sim data remain strictly unchanged.
 - **Consequences**: Upgrade choices now command clear visual hierarchy; rare and epic choices immediately stand out with radiant tier styling, atmospheric glow, and tactile hover lift at 16.68ms average / 16.90ms max frames. Final gates: 505 vitest (103 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle21-*`.
 
+## ADR-200: Combat hit sparks and critical hit visual punch
+
+- **Date**: 2026-11-11
+- **Status**: Accepted (Cycle 22, Graphics/effects)
+- **Context**: Standard weapon hits against enemies produced only 7 directional sparks without an instant specular impact flash at the point of contact, leaving light hits feeling soft; critical hits lacked the explosive visual drama and shockwave presence warranted by an authentic dark fantasy roguelike.
+- **Decision**: In `src/view/Effects.ts`, add an immediate specular star glint to all enemy weapon impacts (`this.star(e.x, e.y, e.crit ? 0xfff3a0 : 0xd0f4ff, e.crit ? 54 : 20, e.crit ? 0.35 : 0.16)`), increase directional spark count from 7/14 to 8/18, expand the critical shockwave ring from 38px to 44px, and increase radial burst particles from 8 to 12. Combat math, event signatures, and sound triggers remain unchanged.
+- **Consequences**: Every weapon connection feels crisp and tactile with a sharp specular gleam, while critical hits erupt with a radiant golden starburst and shockwave at 16.68ms average / 16.90ms max frames. Final gates: 507 vitest (104 files), 381 mechanics (60 files), typecheck/lint/build clean. Evidence: `docs/IMPROVEMENT_CYCLES.md` and `docs/qa/cycle22-*`.
+
+
 
 

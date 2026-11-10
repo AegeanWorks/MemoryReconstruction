@@ -1,0 +1,13 @@
+{
+  "cycle": 22,
+  "area": "Graphics/effects",
+  "state": "after",
+  "hit_effects": {
+    "normal_hit_glint": true,
+    "crit_starburst_radius": 54,
+    "crit_ring_radius": 44,
+    "crit_sparks_count": 18,
+    "normal_sparks_count": 8
+  },
+  "frame_health": { "avg_ms": 16.68, "max_ms": 16.90 }
+}
