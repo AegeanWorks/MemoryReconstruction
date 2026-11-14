@@ -1004,5 +1004,27 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "adc82b1a3742d73be2e62729e466113398dfc539070dace0b67e1795f9d4450c"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [
+      "src/view/ActorView.ts",
+      "src/view/armorTextures.ts",
+      "src/view/gearLook.ts"
+    ],
+    "no_visual_reason": "",
+    "baseline_commit": "1990ddac4ded4951bf3f33abe295597b3e512ffc",
+    "contract_hash": "95160ade0a890d579eb44f504bc03a7e4a2f5a819e32114c9f380064423b4042",
+    "started_at": 1794689654.6803231,
+    "finished_at": 1794689702.235372,
+    "strikes": 0,
+    "reviewer": "agent:unidentified",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "3d66e3e8fba69ef6999697ed383ce9c9075739072cfe45ab39353a65d94f6ef8"
   }
 ]

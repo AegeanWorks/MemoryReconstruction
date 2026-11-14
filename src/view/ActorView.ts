@@ -32,7 +32,9 @@ import { TILE_SIZE } from '../sim/tiles';
 import type { World } from '../sim/world';
 import { bossAuraTier } from './bossAura';
 import { hasWaterEffect } from './propFx';
+import { recolorFrames } from './armorTextures';
 import { fxTextures } from './fxArt';
+import { gearLooks } from './gearLook';
 import { BIOME_ART, hex } from './palette';
 import {
   clipLaneToRoom,
@@ -170,6 +172,11 @@ export class ActorView {
   private readonly sanctuaryLights: Array<{ sprite: Sprite; phase: number }> = [];
   private dashGhostTimer = 0;
   private readonly player: ActorSprite;
+  /** The body again in the worn armor's colours; replaces the plain body while armor is worn. */
+  private readonly armorLayer: AnimatedSprite;
+  private armorFrames: Texture[] | undefined;
+  /** Orbiting glow for the worn trinket. */
+  private readonly trinketOrb: Sprite;
   private readonly playerLight: Sprite;
   private readonly enemies = new Map<number, ActorSprite>();
   private readonly projectiles = new Map<number, Tracked>();
@@ -199,6 +206,14 @@ export class ActorView {
     this.ground.addChild(this.telegraphMask);
     this.telegraphs.mask = this.telegraphMask;
     this.player = makeActor(sprites.player, 56);
+    this.armorLayer = new AnimatedSprite(sprites.player.idle.frames);
+    this.armorLayer.anchor.set(sprites.player.originX, sprites.player.originY);
+    this.armorLayer.visible = false;
+    this.trinketOrb = this.glow(0xffffff, 16, 0.9);
+    this.trinketOrb.visible = false;
+    // Between the body and the hit flash, so a hurt flash still washes over the armor.
+    this.player.root.addChildAt(this.armorLayer, this.player.root.getChildIndex(this.player.flash));
+    this.player.root.addChild(this.trinketOrb);
     this.actors.addChild(this.player.root);
     this.addDecor();
     this.playerLight = this.glow(PLAYER_COLOR, 260, 0.16);
@@ -390,7 +405,8 @@ export class ActorView {
       this.dashGhostTimer -= dt;
       if (this.dashGhostTimer <= 0) {
         this.dashGhostTimer = 0.04;
-        const ghost = new Sprite(a.body.texture);
+        // Copy what is on screen, so the afterimage wears the armor too.
+        const ghost = new Sprite((this.armorLayer.visible ? this.armorLayer : a.body).texture);
         ghost.anchor.copyFrom(a.body.anchor);
         ghost.position.set(pos.x, pos.y);
         ghost.scale.copyFrom(a.body.scale);
@@ -450,6 +466,35 @@ export class ActorView {
             : 1;
     this.drawPlayerAura(p, pos.x, pos.y);
     this.drawAimReticle(p, pos.x, pos.y);
+    this.syncGear(p);
+  }
+
+  /** Shows the worn armor's colours on the body and the worn trinket as an orbiting glow. */
+  private syncGear(p: Player): void {
+    const looks = gearLooks(p.equipment);
+    const body = this.player.body;
+    const layer = this.armorLayer;
+    layer.visible = looks.armor !== null && looks.armorId !== null;
+    body.visible = !layer.visible;
+    if (looks.armor && looks.armorId) {
+      const frames = recolorFrames(body.textures as Texture[], looks.armorId, looks.armor);
+      if (frames !== this.armorFrames) {
+        this.armorFrames = frames;
+        layer.textures = frames;
+      }
+      layer.currentFrame = body.currentFrame;
+      layer.position.copyFrom(body.position);
+      layer.scale.copyFrom(body.scale);
+      layer.rotation = body.rotation;
+      layer.alpha = body.alpha;
+    }
+    const orb = this.trinketOrb;
+    orb.visible = looks.trinket !== null && p.action !== 'dead';
+    if (!looks.trinket) return;
+    const angle = this.time * 2.2;
+    orb.position.set(Math.cos(angle) * 20, -34 + Math.sin(angle) * 7);
+    orb.tint = looks.trinket.color;
+    orb.width = orb.height = 16 * looks.trinket.scale * (1 + Math.sin(this.time * 5) * 0.12);
   }
 
   /** Subtle, atmospheric weapon stance aim reticle in world space. */
