@@ -99,6 +99,7 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     ],
     cardProp: 'furn_shelf',
     decor: [
+      { prop: 'furn_lectern', tx: 15, ty: 11, size: 60 },
       { prop: 'furn_shelf', tx: 4, ty: 4, size: 66 },
       { prop: 'furn_shelf', tx: 6, ty: 4, size: 66 },
       { prop: 'furn_shelf', tx: 18, ty: 4, size: 66 },
@@ -157,6 +158,7 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     ],
     cardProp: 'furn_anvil',
     decor: [
+      { prop: 'furn_bellows', tx: 18, ty: 6, size: 58 },
       { prop: 'station_armory', tx: 6, ty: 4, size: 84 },
       { prop: 'station_hearth', tx: 18, ty: 4, size: 80 },
       { prop: 'furn_crate', tx: 20, ty: 8, size: 46 },
@@ -205,10 +207,12 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       { tx: 12, ty: 5, work: 3 },
       { tx: 9, ty: 6, work: 5 },
       { tx: 14, ty: 10, work: 4 },
+      { tx: 17, ty: 10, work: 4 },
       { tx: 16, ty: 6, work: 5 },
     ],
     cardProp: 'ancient_tree',
     decor: [
+      { prop: 'furn_seed_trays', tx: 6, ty: 10, size: 60 },
       { prop: 'ancient_tree', tx: 5, ty: 4, size: 96 },
       { prop: 'furn_planter', tx: 9, ty: 4, size: 50 },
       { prop: 'furn_planter', tx: 16, ty: 4, size: 50 },
@@ -258,10 +262,11 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       { tx: 12, ty: 5, work: 3 },
       { tx: 7, ty: 6, work: 5 },
       { tx: 12, ty: 5, work: 2 },
-      { tx: 17, ty: 7, work: 5 },
+      { tx: 17, ty: 8, work: 5 },
     ],
     cardProp: 'station_bulwark',
     decor: [
+      { prop: 'furn_dummy', tx: 19, ty: 6, size: 64 },
       { prop: 'station_bulwark', tx: 6, ty: 4, size: 84 },
       { prop: 'station_training', tx: 18, ty: 4, size: 84 },
       { prop: 'furn_bench', tx: 15, ty: 6, size: 66 },
@@ -309,13 +314,17 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     route: [
       { tx: 12, ty: 5, work: 2 },
       { tx: 7, ty: 5, work: 3 },
+      { tx: 5, ty: 8, work: 1 },
       { tx: 5, ty: 10, work: 3 },
+      { tx: 10, ty: 10, work: 2 },
       { tx: 12, ty: 5, work: 2 },
+      { tx: 14, ty: 10, work: 2 },
       { tx: 19, ty: 10, work: 3 },
       { tx: 17, ty: 5, work: 3 },
     ],
     cardProp: 'furn_lantern',
     decor: [
+      { prop: 'furn_ladder', tx: 7, ty: 4, size: 64 },
       { prop: 'furn_lantern', tx: 6, ty: 4, size: 58 },
       { prop: 'furn_lantern', tx: 18, ty: 4, size: 58 },
       { prop: 'furn_lantern', tx: 4, ty: 9, size: 54 },
@@ -369,6 +378,7 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     ],
     cardProp: 'furn_brazier',
     decor: [
+      { prop: 'furn_pantry', tx: 5, ty: 6, size: 66 },
       { prop: 'furn_cauldron', tx: 12, ty: 4, size: 60 },
       { prop: 'furn_brazier', tx: 6, ty: 4, size: 52 },
       { prop: 'furn_brazier', tx: 18, ty: 4, size: 52 },

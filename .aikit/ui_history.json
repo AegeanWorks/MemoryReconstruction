@@ -1113,5 +1113,25 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "571dc789a505b125a850bb4837052f637d7f441084dac134b9a087e117128cea"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [
+      "src/sim/sanctuary.ts"
+    ],
+    "no_visual_reason": "",
+    "baseline_commit": "baa2112c78e5a276833cde72097d8ab6ac092de6",
+    "contract_hash": "95160ade0a890d579eb44f504bc03a7e4a2f5a819e32114c9f380064423b4042",
+    "started_at": 1794698995.7849286,
+    "finished_at": 1794699015.318421,
+    "strikes": 0,
+    "reviewer": "agent:unidentified",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "9881328f3f00c8c97038e247f96f61fa58d427756a4bc7cc1ff40c58b89fd435"
   }
 ]

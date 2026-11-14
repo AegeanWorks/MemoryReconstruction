@@ -1942,3 +1942,10 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: The inventory grid needed a picture per relic. The main generator `generate_art_assets.py` rewrites the whole art set when it runs, so adding icons there would regenerate every existing asset to add 20 files.
 - **Decision**: A separate `generate_relic_icons.py` imports the main generator's drawing helpers (that import only defines functions) and writes only `relic_<id>.png`. It refuses to run if a relic in `equipment.json` has no drawing, and a test requires a distinct 64 px icon for every relic. The icons fall under the existing `assets/sprites/` row of `ASSETS.md`.
 - **Consequences**: A new relic needs a drawing function before it can ship. The icons are simple vector shapes at 64 px; a hand-pixelled set would replace the files without code changes. Room props were not part of this cycle.
+
+## ADR-212: New room props go through the main generator's prop list
+- **Date**: 2026-11-15
+- **Status**: Accepted (Cycle 92, Graphics / Room props; milestone 5 of the Sanctuary and inventory program)
+- **Context**: `scripts/generate_art_assets.py` rebuilds `sprite_atlas.json` from its own prop list. Props written by a separate script, as the relic icons were (ADR-211), would drop out of the atlas at the next full run, and the view skips a decor prop with no texture without an error. Icons are not in the atlas, so ADR-211 does not have this problem.
+- **Decision**: Room props are added to the main generator (palette, drawing branch, prop list) and rendered with its own functions, so a full run reproduces them. Atlas entries are appended in generator order, keeping each file's line endings. A test requires each resident's signature prop to be in the atlas.
+- **Consequences**: A full regeneration keeps the new props. Rendering only the new props avoids rewriting the rest of the art set. Route paths are now tested against furniture, which closes the gap left by cycle 89.

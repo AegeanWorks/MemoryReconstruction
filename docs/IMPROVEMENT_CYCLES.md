@@ -4032,3 +4032,26 @@ Inventory at 1280x720 and 390x844 with three worn relics and seven carried: 20 o
 no overflow, no console errors. The reforge rank still shows over the icon.
 ### Gate results
 See the task summary.
+
+## Cycle 92 - A prop of their own for every resident, and routes that walk around furniture
+### FIND
+Five of the six rooms drew from one shared furniture set (tables, chairs, shelves, lanterns, strings). Checking
+free tiles for new props also showed a bug from cycle 89: the tests there kept route stops off furniture but not
+the paths between them, and the Gardener walked through the herbs, the Warden through a bench, and the
+Lamplighter through a chair and two candles.
+### IMPLEMENT
+- `src/sim/sanctuary.ts`: the Gardener gets a stop at the planters, the Warden's last stop moves one tile down,
+  and the Lamplighter gets three waypoints, so every path goes around furniture. Each resident gets a signature
+  prop on a free tile: lectern (Archive), bellows (Forge), seed trays (Garden), training dummy (Barracks), lamp
+  ladder (Lamp House), pantry (Hearth).
+- `scripts/generate_art_assets.py`: the six props are in its palette, its drawing switch and its prop list, so a
+  full run draws and registers them. They were rendered now with that script's own `prop_image` and
+  `save_cell` and appended to `assets/data/sprite_atlas.json`, `src/data/sprite_atlas.json` and
+  `assets/data/graphics.assets.json` in the order a full run writes; each file kept its line endings, and a
+  round-trip of all three was byte-identical before the edit.
+- Tests in `tests/sim/sanctuary.test.ts`: no route segment crosses a furniture tile, and each resident's prop is in
+  the atlas, in its room and in no other. Both failed before the change.
+### RECORD
+All six rooms at 1280x720: each new prop is in place and reads as what it is; no console errors; 793 tests.
+### Gate results
+See the task summary.

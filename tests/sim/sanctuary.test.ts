@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import atlas from '../../src/data/sprite_atlas.json';
 import { NO_INPUT } from '../../src/sim/entities';
 import { createRun } from '../../src/sim/run';
 import {
@@ -286,6 +287,41 @@ describe('each room has its own floor plan', () => {
       }
       const floor = b.plan.join('').split('.').length - 1;
       expect(seen.size, `${b.id} has unreachable floor`).toBe(floor);
+    }
+  });
+});
+
+describe('residents walk around furniture, and every room has a piece of its own', () => {
+  it('never routes a resident through a piece of furniture', () => {
+    for (const b of SANCTUARY_BUILDINGS) {
+      const blocked = new Set(b.decor.map((d) => `${d.tx},${d.ty}`));
+      b.route.forEach((a, i) => {
+        const c = b.route[(i + 1) % b.route.length];
+        for (let s = 0; s <= 40; s++) {
+          const x = Math.floor(a.tx + 0.5 + ((c.tx - a.tx) * s) / 40);
+          const y = Math.floor(a.ty + 0.5 + ((c.ty - a.ty) * s) / 40);
+          expect(blocked.has(`${x},${y}`), `${b.id} route ${i} walks through ${x},${y}`).toBe(false);
+        }
+      });
+    }
+  });
+  const SIGNATURE: Record<string, string> = {
+    archivist: 'furn_lectern',
+    smith: 'furn_bellows',
+    gardener: 'furn_seed_trays',
+    warden: 'furn_dummy',
+    lamplighter: 'furn_ladder',
+    hearthkeeper: 'furn_pantry',
+  };
+  it('gives each resident a prop that only its room has, drawn in the atlas', () => {
+    const props = (atlas as { props: Record<string, string> }).props;
+    for (const b of SANCTUARY_BUILDINGS) {
+      const prop = SIGNATURE[b.id];
+      expect(props[prop], `${prop} is not in the atlas`).toBe(`sprites/props/${prop}.png`);
+      expect(b.decor.some((d) => d.prop === prop), `${b.id} lacks ${prop}`).toBe(true);
+      for (const other of SANCTUARY_BUILDINGS.filter((o) => o.id !== b.id)) {
+        expect(other.decor.some((d) => d.prop === prop), `${prop} is also in ${other.id}`).toBe(false);
+      }
     }
   });
 });

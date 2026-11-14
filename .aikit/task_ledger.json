@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794698976.216757,
+    "updated_at": 1794699079.578544,
     "owner": "kiro:1",
     "started_by": "claude:1",
     "continuations": [
@@ -329,6 +329,23 @@
       "status": "in_progress",
       "timestamp": 1794698976.216757,
       "timestamp_str": "2026-11-15 02:29:36",
+      "agent": "kiro:1",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/2] Verified: signature props placed in each room; Gardener, Warden and Lamplighter routes no longer walk through furniture; two failing-first tests (route segments vs furniture, signature prop per room); all six rooms checked at 1280x720; 793 tests; UI task closed first try; README, cycle 92, ADR-212; milestone 5 complete",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794699079.578544,
+      "timestamp_str": "2026-11-15 02:31:19",
       "agent": "kiro:1",
       "workspaces": [
         {
