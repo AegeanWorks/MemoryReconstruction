@@ -11,6 +11,8 @@ import {
   type EquipmentSlot,
   type EquipmentSlots,
 } from '../sim/equipment';
+import { gearLooks } from '../view/gearLook';
+import { recolorSheetUrl } from './dollArt';
 import { assetUrl, h } from './dom';
 import {
   bagCells,
@@ -176,8 +178,23 @@ export function inventoryGrid(player: GridPlayer, actions: GridActions): HTMLEle
   });
 
   const idleSheet = player.weapon === 'sword' ? 'idle' : `idle_${player.weapon}`;
+  const sheetUrl = assetUrl(`sprites/player/${idleSheet}.png`);
+  const looks = gearLooks(player.equipment);
   const figure = h('div', { class: 'doll-figure' });
-  figure.style.backgroundImage = `url('${assetUrl(`sprites/player/${idleSheet}.png`)}')`;
+  figure.style.backgroundImage = `url('${sheetUrl}')`;
+  if (looks.armor && looks.armorId) {
+    // Plain sheet first, the armoured one as soon as it is painted, so the doll never flashes empty.
+    void recolorSheetUrl(sheetUrl, looks.armorId, looks.armor).then((url) => {
+      figure.style.backgroundImage = `url('${url}')`;
+    });
+  }
+  if (looks.trinket) {
+    const orb = h('div', { class: 'doll-orb' });
+    const color = `#${looks.trinket.color.toString(16).padStart(6, '0')}`;
+    orb.style.setProperty('--orb', color);
+    orb.style.setProperty('--orb-size', `${Math.round(14 * looks.trinket.scale)}px`);
+    figure.append(orb);
+  }
   const doll = h(
     'div',
     { class: 'doll', 'data-drop': 'doll' },

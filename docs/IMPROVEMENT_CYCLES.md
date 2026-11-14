@@ -3927,3 +3927,30 @@ weapon gear; it fits the weapon slot, not trinket."; an armor relic dropped on t
 the worn armor dragged to the bag returned to it; a click equipped; a drop on empty space changed nothing.
 ### Gate results
 See the task summary.
+
+## Cycle 88 - Worn armor and trinkets change the wanderer's look
+### FIND
+Armor and trinkets changed stats only. The wanderer looked the same in every relic, in the game and on the new
+paper doll, so a drag onto the doll had no visible result beyond a number.
+### IMPLEMENT
+- `src/view/gearLook.ts` (pure): a palette per armor (target hue, saturation and brightness factors) and a
+  glow per trinket (colour, size by rarity). `recolorPixels` remaps only the robe band of the player sheets
+  (hue 205-255, saturation >= 0.25, brightness >= 0.14), so skin, gold trim, the cyan cape, the blade and the
+  outline stay as drawn, and keeps 30% of the original hue spread so the shading reads.
+- `src/view/armorTextures.ts`: re-coloured frame textures, built once per animation and armor.
+- `src/view/ActorView.ts`: an armor layer that mirrors the body frame, scale, lean and alpha and replaces
+  the body while armor is worn (the hurt flash still sits above it); an orbiting trinket glow; dash
+  afterimages copy whichever sprite is showing.
+- `src/ui/dollArt.ts` and `src/ui/InventoryGrid.ts`: the doll's idle sheet is re-coloured with the same
+  rules (cached data URL, plain sheet until it is ready) and the trinket orbits as a CSS glow, still under
+  reduced motion.
+- Tests: `tests/gear-look.test.ts` (12: every armor and trinket in `equipment.json` has a look, the six
+  armors stay apart, protected colours untouched, alpha kept, shading order kept) and
+  `tests/ui-doll-gear.test.ts` (4). Both failed before the change.
+### RECORD
+In the Archive at 1280x720: all six armors idle, plus walking left, the wider attack sheet, and unequipping
+back to the blue robe; each trinket glow shows in its colour. On the doll at 1280x720 and 390x844, Void Shroud
+with Sun Core showed purple with a gold glow, and dragging Crystal Mail onto the doll re-dressed it teal. No
+console errors. A dash afterimage was not captured; the change there is one line.
+### Gate results
+See the task summary.

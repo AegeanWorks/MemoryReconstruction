@@ -3452,6 +3452,9 @@
   .doll-figure {
     animation: none;
   }
+  .doll-orb {
+    animation: none;
+  }
 }
 
 /* --- Inventory: paper doll and bag grid ------------------------------------ */
@@ -3595,6 +3598,30 @@
   font-size: 12px;
   line-height: 1.45;
   color: var(--ink-dim);
+}
+.doll-figure {
+  position: relative;
+}
+.doll-orb {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  width: var(--orb-size, 14px);
+  height: var(--orb-size, 14px);
+  margin: calc(var(--orb-size, 14px) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 18%, var(--orb) 45%, transparent 72%);
+  box-shadow: 0 0 14px var(--orb);
+  animation: doll-orb 2.8s linear infinite;
+  pointer-events: none;
+}
+@keyframes doll-orb {
+  from {
+    transform: rotate(0deg) translateX(46px) rotate(0deg) scaleY(1);
+  }
+  to {
+    transform: rotate(360deg) translateX(46px) rotate(-360deg) scaleY(1);
+  }
 }
 @media (max-width: 560px) {
   .inv-grid {
