@@ -4010,3 +4010,25 @@ trees), no console errors, 787 tests. The Hearth alcove sits right under the roo
 readable.
 ### Gate results
 See the task summary.
+
+## Cycle 91 - Every relic gets its own icon
+### FIND
+The bag grid from cycle 87 showed one glyph per slot, so all five weapons, six armors and nine trinkets looked
+alike apart from the rarity colour. The list rows had no art at all.
+### IMPLEMENT
+- `scripts/generate_relic_icons.py`: draws one 64 px icon per relic in `equipment.json` into
+  `assets/sprites/ui/relic_<id>.png`, reusing the drawing helpers of `generate_art_assets.py` so the line
+  weight and outline match the rest of the art. It is deterministic and exits 1 with Why/Fix if a relic has no
+  drawing. It writes only the 20 new files.
+- After a first look, Ember Core was redrawn as a caged orb on a haft because it read like Ember Charm, the
+  Thorn Ring thorns were doubled in width, and the Rusted Edge blade was widened.
+- `src/ui/dom.ts`: `relicIconUrl`. `InventoryGrid.ts` shows the icon in filled boxes, and the slot glyph
+  stays as the empty-slot mark. `Screens.ts` puts a 32 px icon in the slot label of the bag, worn, Reliquary,
+  Reforge and relic market rows, so every relic list matches.
+- Tests: `tests/relic-icons.test.ts` (an icon for every relic at 64x64, all different, wired into the grid and
+  the rows, built by the script). It failed 4 of 4 before the change.
+### RECORD
+Inventory at 1280x720 and 390x844 with three worn relics and seven carried: 20 of 20 icons loaded at 64 px,
+no overflow, no console errors. The reforge rank still shows over the icon.
+### Gate results
+See the task summary.

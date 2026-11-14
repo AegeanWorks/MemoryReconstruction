@@ -50,7 +50,7 @@ import { computeStats, upgradeDef, type PlayerStats } from '../sim/upgrades';
 import { WEAPONS, weaponDef } from '../sim/weapons';
 import type { World } from '../sim/world';
 import { dailyModifier, type Meta, type Settings } from '../save/SaveStore';
-import { assetUrl, button, h } from './dom';
+import { assetUrl, button, h, relicIconUrl } from './dom';
 import { drawMap } from './Minimap';
 import { inventoryGrid } from './InventoryGrid';
 import { reliquaryCaption } from './reliquary';
@@ -642,7 +642,7 @@ export function reliquaryScreen(opts: {
       return h(
         'div',
         { class: `gear-row ${def.rarity}${isAttuned ? ' attuned' : ' not-attuned'}` },
-        h('span', { class: 'gear-slot' }, def.slot),
+        h('span', { class: 'gear-slot' }, relicIcon(defId), def.slot),
         h(
           'div',
           { class: 'gear-copy' },
@@ -900,7 +900,7 @@ export function reforgeScreen(opts: {
       return h(
         'div',
         { class: `gear-row ${def.rarity}${rank > 0 ? ' attuned' : ''}` },
-        h('span', { class: 'gear-slot' }, def.slot),
+        h('span', { class: 'gear-slot' }, relicIcon(defId), def.slot),
         h(
           'div',
           { class: 'gear-copy' },
@@ -1053,7 +1053,7 @@ export function expeditionScreen(opts: {
       return h(
         'div',
         { class: `gear-row ${def.rarity}${state === 'home' ? ' not-attuned' : ''}` },
-        h('span', { class: 'gear-slot' }, def.slot),
+        h('span', { class: 'gear-slot' }, relicIcon(defId), def.slot),
         h(
           'div',
           { class: 'gear-copy' },
@@ -1369,6 +1369,11 @@ function itemName(item: EquipmentItem): string {
   return `${equipmentDef(item.defId).name}${item.rank ? ` +${item.rank}` : ''}`;
 }
 
+/** A relic's small icon for list rows; decorative, the row already names the relic. */
+function relicIcon(defId: string): HTMLElement {
+  return h('img', { class: 'gear-icon', src: relicIconUrl(defId), alt: '', draggable: 'false' });
+}
+
 /** Rarity as text as well as colour: the row's coloured edge alone excludes colour-blind readers. */
 function rarityTag(rarity: EquipmentRarity): HTMLElement {
   // The separator is in the DOM, not only in CSS, so the accessible name reads
@@ -1418,7 +1423,7 @@ export function inventoryScreen(
     return h(
       'div',
       { class: `gear-row${def ? ` ${def.rarity}` : ''}` },
-      h('span', { class: 'gear-slot' }, slot),
+      h('span', { class: 'gear-slot' }, item ? relicIcon(item.defId) : null, slot),
       h(
         'div',
         { class: 'gear-copy' },
@@ -1500,7 +1505,7 @@ export function inventoryScreen(
         tabindex: '0',
         title: `Equip ${def.name}`,
       },
-      h('span', { class: 'gear-slot' }, def.slot),
+      h('span', { class: 'gear-slot' }, relicIcon(item.defId), def.slot),
       h(
         'div',
         { class: 'gear-copy' },

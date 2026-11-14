@@ -1935,3 +1935,10 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: All six interiors were the same open 21x13 box. Changing the footprint per room would move the spawn, exit, post, camera framing and every test built on them.
 - **Decision**: Keep the footprint and add a per-building plan of 13 x 21 characters (# wall, . floor) applied inside it. The renderer already handles inner walls. Tests require every visitor-facing tile (spawn, exit, walk lane, props, route stops) to be floor, every route segment to cross floor only, and the floor to be one connected region. The test "builds the same sealed, walkable room for every resident" in 	ests/sim/sanctuary.test.ts was changed from "all interior tiles are floor" to "each interior tile matches the plan", which this decision makes the intended behaviour; its outer-wall checks are unchanged.
 - **Consequences**: Rooms read as different places with no new art and no change outside the room. Layouts can only subtract floor from the shared box; a room that should be larger, L-shaped beyond the box, or two-roomed needs a footprint change later.
+
+## ADR-211: Relic icons are generated per relic by a separate script
+- **Date**: 2026-11-15
+- **Status**: Accepted (Cycle 91, Graphics / Relic icons; milestone 5 of the Sanctuary and inventory program)
+- **Context**: The inventory grid needed a picture per relic. The main generator `generate_art_assets.py` rewrites the whole art set when it runs, so adding icons there would regenerate every existing asset to add 20 files.
+- **Decision**: A separate `generate_relic_icons.py` imports the main generator's drawing helpers (that import only defines functions) and writes only `relic_<id>.png`. It refuses to run if a relic in `equipment.json` has no drawing, and a test requires a distinct 64 px icon for every relic. The icons fall under the existing `assets/sprites/` row of `ASSETS.md`.
+- **Consequences**: A new relic needs a drawing function before it can ship. The icons are simple vector shapes at 64 px; a hand-pixelled set would replace the files without code changes. Room props were not part of this cycle.

@@ -3623,6 +3623,25 @@
     transform: rotate(360deg) translateX(46px) rotate(-360deg) scaleY(1);
   }
 }
+.relic-icon {
+  width: 44px;
+  height: 44px;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+}
+.gear-slot:has(.gear-icon) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.gear-icon {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
 @media (max-width: 560px) {
   .inv-grid {
     grid-template-columns: 1fr;

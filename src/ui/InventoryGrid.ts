@@ -13,7 +13,7 @@ import {
 } from '../sim/equipment';
 import { gearLooks } from '../view/gearLook';
 import { recolorSheetUrl } from './dollArt';
-import { assetUrl, h } from './dom';
+import { assetUrl, h, relicIconUrl } from './dom';
 import {
   bagCells,
   dragStarted,
@@ -72,7 +72,9 @@ function relicBox(
   if (item && def) {
     box.title = label(item);
     box.setAttribute('aria-label', label(item));
-    box.append(glyph(def.slot));
+    box.append(
+      h('img', { class: 'relic-icon', src: relicIconUrl(item.defId), alt: '', draggable: 'false' })
+    );
     if (item.rank) box.append(h('span', { class: 'relic-rank' }, `+${item.rank}`));
   } else if (slot) {
     box.append(glyph(slot), h('span', { class: 'relic-slot-name' }, slot));

@@ -32,3 +32,8 @@ export function assetUrl(path: string): string {
   const base = import.meta.env.BASE_URL || '/';
   return `${base}${path.replace(/^\/+/, '')}`;
 }
+
+/** A relic's own icon, drawn by scripts/generate_relic_icons.py; a test keeps one per relic. */
+export function relicIconUrl(defId: string): string {
+  return assetUrl(`sprites/ui/relic_${defId}.png`);
+}
