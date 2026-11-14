@@ -3902,3 +3902,28 @@ buttons are disabled and the note says 20 more are needed. At 200 echoes, Enter 
 "Sharper Intent rests in you." The cycle 85 focus keys are unchanged.
 ### Gate results
 See the task summary.
+
+## Cycle 87 - Inventory grid and paper doll with drag and drop
+### FIND
+The relic bag was a list only: three worn slots and ten carried relics as rows, no boxes, no preview of the
+wanderer, and no way to drag a relic anywhere. The README also still said the bag held six relics while
+`INVENTORY_SLOTS` is 10.
+### IMPLEMENT
+- `src/ui/inventoryDrag.ts` (pure rules): `resolveDrop` (equip, unequip, reject with a reason, or nothing),
+  `parseDropTarget`, `bagCells`, `dragStarted` (6 px threshold so a click is still a click).
+- `src/ui/InventoryGrid.ts`: a paper doll (weapon, armor and trinket boxes around the idle frame of the
+  player for the current stance, animated, still under reduced motion) and a 5x2 bag grid sized from
+  `INVENTORY_SLOTS`. Pointer-event drag works with mouse and touch; valid drop zones glow green and wrong
+  slots red while dragging. A plain click equips. The boxes have no tab stop and no `data-action`, so the list
+  rows stay the keyboard path and the cycle 85 focus restore is untouched.
+- `src/ui/Screens.ts`: the grid is mounted above the weapon stance; equip and unequip moved into two helpers
+  shared by the list rows and the grid, so the messages cannot drift.
+- Relic art is a per-slot glyph in the rarity colour; per-item icons are a later graphics pass.
+- Tests: `tests/inventory-drag.test.ts` (11, failed before the module existed), `tests/ui-inventory-grid.test.ts` (7).
+### RECORD
+Browser run at 1280x720 and 390x844 with real mouse events over CDP, no console errors, no overflow:
+armor dropped on the wanderer equipped; a weapon dropped on the trinket slot was rejected with "That relic is
+weapon gear; it fits the weapon slot, not trinket."; an armor relic dropped on the trinket slot was rejected;
+the worn armor dragged to the bag returned to it; a click equipped; a drop on empty space changed nothing.
+### Gate results
+See the task summary.

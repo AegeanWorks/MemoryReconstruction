@@ -52,6 +52,7 @@ import type { World } from '../sim/world';
 import { dailyModifier, type Meta, type Settings } from '../save/SaveStore';
 import { assetUrl, button, h } from './dom';
 import { drawMap } from './Minimap';
+import { inventoryGrid } from './InventoryGrid';
 import { reliquaryCaption } from './reliquary';
 
 /** How long a destructive button stays armed before it resets. */
@@ -1385,6 +1386,32 @@ export function inventoryScreen(
   const s = p.stats;
   const statChip = (label: string, value: string): HTMLElement =>
     h('span', { class: 'gear-stat' }, h('b', {}, value), ` ${label}`);
+  // One path for the list rows and the drag grid, so the messages cannot drift apart.
+  const equipFromBag = (uid: number): void => {
+    const item = p.inventory.find((i) => i.uid === uid);
+    if (!item) {
+      onChanged('That relic is no longer carried.');
+      return;
+    }
+    const def = equipmentDef(item.defId);
+    const worn = p.equipment[def.slot];
+    world.equipItem(uid);
+    onChanged(
+      worn
+        ? `Equipped ${def.name}; ${equipmentDef(worn.defId).name} returned to the bag.`
+        : `Equipped ${def.name}.`
+    );
+  };
+  const unequipSlot = (slot: EquipmentSlot): void => {
+    const worn = p.equipment[slot];
+    if (!worn) return;
+    const name = equipmentDef(worn.defId).name;
+    onChanged(
+      world.unequip(slot)
+        ? `${name} returned to the bag.`
+        : 'The bag is full. Sell or equip a carried relic first.'
+    );
+  };
   const slotRows = EQUIPMENT_SLOTS.map((slot) => {
     const item = p.equipment[slot];
     const def = item ? equipmentDef(item.defId) : undefined;
@@ -1403,20 +1430,7 @@ export function inventoryScreen(
         ),
         h('div', { class: 'gear-desc' }, def?.description ?? 'No relic worn')
       ),
-      def
-        ? button(
-            'Unequip',
-            () => {
-              const returned = world.unequip(slot);
-              onChanged(
-                returned
-                  ? `${def.name} returned to the bag.`
-                  : 'The bag is full. Sell or equip a carried relic first.'
-              );
-            },
-            'btn small'
-          )
-        : null
+      def ? button('Unequip', () => unequipSlot(slot), 'btn small') : null
     );
   });
   // Best first within each slot: the top row is usually the right choice.
@@ -1441,14 +1455,7 @@ export function inventoryScreen(
           .map((key) => deltaChip(key, s[key] as number, hypo[key] as number))
           .filter((chip): chip is HTMLElement => chip !== null)
       : [];
-    const equip = (): void => {
-      world.equipItem(item.uid);
-      onChanged(
-        wornDef
-          ? `Equipped ${def.name}; ${wornDef.name} returned to the bag.`
-          : `Equipped ${def.name}.`
-      );
-    };
+    const equip = (): void => equipFromBag(item.uid);
     const price = relicSellShards(def);
     const sell = confirmButton(
       `Sell · ${price}`,
@@ -1626,6 +1633,7 @@ export function inventoryScreen(
       statChip('AtkSpd', `${s.attackSpeed.toFixed(2)}x`),
       statChip('Mana', `${s.maxMana}`)
     ),
+    inventoryGrid(p, { equip: equipFromBag, unequip: unequipSlot, reject: (m) => onChanged(m) }),
     h('div', { class: 'gear-title' }, 'Active Weapon & Stance'),
     h(
       'div',

@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794688576.3100605,
+    "updated_at": 1794688756.3568,
     "owner": "kiro:1",
     "started_by": "claude:1",
     "continuations": [
@@ -87,64 +87,6 @@
       "timestamp": 1794164112.4407241,
       "timestamp_str": "2026-11-08 21:55:12",
       "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: cycle 78 (24-seed random-play fuzz, over 3,000 steps, with non-finite input injection; positions, vitals, bounds, wall overlap and counters all hold); 705 vitest (163 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
-      "files_affected": [
-        "docs/IMPROVEMENT_CYCLES.md",
-        ".aikit/codebase_map.md",
-        "tests/sim/world-input-fuzz.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794671139.5515954,
-      "timestamp_str": "2026-11-14 18:45:39",
-      "agent": "kilo:goal",
-      "checklists": "passed",
-      "handoff": {
-        "state": "about 141 files uncommitted, all gates green",
-        "next": "delivery decision belongs to the user - no commit without explicit approval",
-        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
-        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-78 and docs/UI_REVIEW.md 2026-11-14 audit"
-      },
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: cycle 79 (audio event switch made compile-exhaustive and proven by removing a case; runtime no-throw test over all 48 events with a fake AudioContext; 20-second played session with zero page errors recorded in docs/UI_REVIEW.md); 709 vitest (164 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
-      "files_affected": [
-        "docs/IMPROVEMENT_CYCLES.md",
-        "docs/UI_REVIEW.md",
-        ".aikit/codebase_map.md",
-        "src/audio/Sound.ts",
-        "tests/audio-handle.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794673907.6146526,
-      "timestamp_str": "2026-11-14 19:31:47",
-      "agent": "kilo:goal",
-      "checklists": "passed",
-      "handoff": {
-        "state": "about 143 files uncommitted, all gates green",
-        "next": "delivery decision belongs to the user - no commit without explicit approval",
-        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
-        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-79 and docs/UI_REVIEW.md 2026-11-14 audit"
-      },
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
     },
     {
       "task_id": "visual-and-content-polish-28-51",
@@ -485,6 +427,23 @@
       "status": "in_progress",
       "timestamp": 1794688576.3100605,
       "timestamp_str": "2026-11-14 23:36:16",
+      "agent": "kiro:1",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/3] Verified: inventory grid mounted in the relic screen with shared equip helpers, CSS, wiring tests, README, cycle 87, ADR-207; real mouse drag probe at 1280x720 and 390x844 clean; UI task B closed; 8/8 gates",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794688756.3568,
+      "timestamp_str": "2026-11-14 23:39:16",
       "agent": "kiro:1",
       "workspaces": [
         {
