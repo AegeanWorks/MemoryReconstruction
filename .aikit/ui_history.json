@@ -962,5 +962,26 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "48a902999f69a6257a1dd2a2a95e4b88d98f49d893fac517d3410e0826eb20b3"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [
+      "src/ui/InventoryGrid.ts",
+      "src/ui/inventoryDrag.ts"
+    ],
+    "no_visual_reason": "",
+    "baseline_commit": "2705051ef01592fd2b36f2a19671c6cc99bee35b",
+    "contract_hash": "95160ade0a890d579eb44f504bc03a7e4a2f5a819e32114c9f380064423b4042",
+    "started_at": 1794688434.10118,
+    "finished_at": 1794688473.8658574,
+    "strikes": 0,
+    "reviewer": "agent:unidentified",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "3bce83b4dcc9e8568f0c78b63ce8eb66fb3c9f2ce57879bf2c88990cde2699e2"
   }
 ]

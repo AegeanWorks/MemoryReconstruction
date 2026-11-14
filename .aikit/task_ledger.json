@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794687624.2026558,
+    "updated_at": 1794688576.3100605,
     "owner": "kiro:1",
     "started_by": "claude:1",
     "continuations": [
@@ -87,64 +87,6 @@
       "timestamp": 1794164112.4407241,
       "timestamp_str": "2026-11-08 21:55:12",
       "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: cycle 76 (NPC/quest/bounty/feat/modifier reference integrity, including that every daily bounty enemy is spawnable on some floor) and the extra choice/death/victory screen audit recorded in docs/UI_REVIEW.md; 700 vitest (161 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
-      "files_affected": [
-        "docs/IMPROVEMENT_CYCLES.md",
-        "docs/UI_REVIEW.md",
-        ".aikit/codebase_map.md",
-        "tests/sim/content-references.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794669602.4469028,
-      "timestamp_str": "2026-11-14 18:20:02",
-      "agent": "kilo:goal",
-      "checklists": "passed",
-      "handoff": {
-        "state": "about 138 files uncommitted, all gates green",
-        "next": "delivery decision belongs to the user - no commit without explicit approval",
-        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
-        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-76 and docs/UI_REVIEW.md 2026-11-14 audit"
-      },
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: cycle 77 (non-finite device input sanitised at the sim boundary; a NaN aim used to poison knockback and freeze movement permanently; regression test written failing first); 704 vitest (162 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
-      "files_affected": [
-        "docs/IMPROVEMENT_CYCLES.md",
-        ".aikit/codebase_map.md",
-        "src/sim/world.ts",
-        "tests/sim/input-nan.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794670845.4155087,
-      "timestamp_str": "2026-11-14 18:40:45",
-      "agent": "kilo:goal",
-      "checklists": "passed",
-      "handoff": {
-        "state": "about 140 files uncommitted, all gates green",
-        "next": "fuzz deterministic input sequences through World.step for physics invariants",
-        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
-        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-77 and docs/UI_REVIEW.md 2026-11-14 audit"
-      },
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
     },
     {
       "task_id": "visual-and-content-polish-28-51",
@@ -508,6 +450,41 @@
       "status": "in_progress",
       "timestamp": 1794687624.2026558,
       "timestamp_str": "2026-11-14 23:20:24",
+      "agent": "kiro:1",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/3] Sanctuary program milestone 1, inventory grid and paper doll: (1) pure drag logic in src/ui/inventoryDrag.ts (resolveDrop, bagCells, drag threshold) with failing-first unit tests; (2) src/ui/InventoryGrid.ts builds a paper doll (three slot boxes around the player idle frame) and a 5x2 bag grid with pointer-event drag and drop (mouse and touch), click still equips, worn relic dragged to the bag unequips, wrong slot shows a rejection; mounted at the top of inventoryScreen, list rows stay as the detail and keyboard path; (3) CSS, probe at 1280x720 and 390x844, ADR, README, UI task. Later milestones: armor and trinket overlays on the player, NPCs, room layouts, graphics.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794687897.8570776,
+      "timestamp_str": "2026-11-14 23:24:57",
+      "agent": "kiro:1",
+      "plan_digest": "bd3fecceb000e7565a65f1ecd3fd5559b9b77603712eb2cdf2e839822f1385ef",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/3] Verified: inventory drag rules and grid DOM module (inventoryDrag.ts, InventoryGrid.ts) with 11 failing-first tests; UI task A closed (276 lines, under the 300 budget); 8/8 gates",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794688576.3100605,
+      "timestamp_str": "2026-11-14 23:36:16",
       "agent": "kiro:1",
       "workspaces": [
         {
