@@ -266,3 +266,38 @@ export const BIOME_ART: Record<BiomeId, BiomeArt> = {
 export function hex(color: string): number {
   return parseInt(color.slice(1), 16);
 }
+
+/**
+ * A near-white colour grade for a biome: its accent mixed 80% toward white,
+ * multiplied over the whole scene so every floor leans toward its own light.
+ */
+export function gradeTint(biome: BiomeId): number {
+  const accent = hex(BIOME_ART[biome].accent);
+  const mix = (channel: number) => Math.round(channel * 0.2 + 255 * 0.8);
+  return (mix((accent >> 16) & 255) << 16) | (mix((accent >> 8) & 255) << 8) | mix(accent & 255);
+}
+
+function hash2(x: number, y: number): number {
+  let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+}
+
+/**
+ * Smooth value-noise brightness for a floor tile, as a grey multiply tint
+ * (0xd8..0xff). Broad worn and shadowed patches break up repeating floor tiles.
+ */
+export function floorTone(tx: number, ty: number): number {
+  const scale = 5;
+  const gx = tx / scale;
+  const gy = ty / scale;
+  const x0 = Math.floor(gx);
+  const y0 = Math.floor(gy);
+  const smooth = (t: number) => t * t * (3 - 2 * t);
+  const fx = smooth(gx - x0);
+  const fy = smooth(gy - y0);
+  const top = hash2(x0, y0) * (1 - fx) + hash2(x0 + 1, y0) * fx;
+  const bottom = hash2(x0, y0 + 1) * (1 - fx) + hash2(x0 + 1, y0 + 1) * fx;
+  const grey = Math.round(0xd8 + (0xff - 0xd8) * (top * (1 - fy) + bottom * fy));
+  return (grey << 16) | (grey << 8) | grey;
+}

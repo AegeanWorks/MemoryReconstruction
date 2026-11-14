@@ -12,6 +12,7 @@ import {
   equipmentScore,
   relicSellShards,
   type EquipmentItem,
+  type EquipmentRarity,
   type EquipmentSlot,
 } from '../sim/equipment';
 import {
@@ -53,6 +54,43 @@ import { assetUrl, button, h } from './dom';
 import { drawMap } from './Minimap';
 import { reliquaryCaption } from './reliquary';
 
+/** How long a destructive button stays armed before it resets. */
+const CONFIRM_WINDOW_MS = 2600;
+
+/**
+ * A destructive action that arms on the first press and fires on the second, so one stray click
+ * cannot sell a relic or end a run. It disarms itself after a short window, and if the screen is
+ * closed before then the timer simply finds a detached element.
+ */
+function confirmButton(
+  label: string,
+  confirmLabel: string,
+  onConfirm: () => void,
+  cls = 'btn'
+): HTMLElement {
+  let armed = false;
+  const el = button(
+    label,
+    () => {
+      if (!armed) {
+        armed = true;
+        el.textContent = confirmLabel;
+        el.classList.add('danger');
+        window.setTimeout(() => {
+          if (!el.isConnected) return;
+          armed = false;
+          el.textContent = label;
+          el.classList.remove('danger');
+        }, CONFIRM_WINDOW_MS);
+        return;
+      }
+      onConfirm();
+    },
+    cls
+  );
+  return el;
+}
+
 export class Screens {
   private current: HTMLElement | undefined;
   private keyHandler: ((e: KeyboardEvent) => void) | undefined;
@@ -66,13 +104,27 @@ export class Screens {
   show(el: HTMLElement, onKey?: (e: KeyboardEvent) => void): void {
     this.close();
     this.current = el;
+    this.announce(el);
     this.host.append(el);
     if (onKey) {
       this.keyHandler = onKey;
       window.addEventListener('keydown', onKey);
     }
-    // Focus the first control so keyboard and gamepad-as-keyboard users can act at once.
-    el.querySelector<HTMLElement>('button, .card')?.focus({ preventScroll: true });
+    // Focus the first control so keyboard and gamepad-as-keyboard users can act at once. Inputs count:
+    // Settings opens on the volume sliders, and Tab then runs through them in DOM order instead of
+    // starting at the difficulty buttons and leaving the sliders behind.
+    el.querySelector<HTMLElement>('button, .card, input')?.focus({ preventScroll: true });
+  }
+
+  /** Every screen replaces the canvas, so expose it as one named modal dialog. */
+  private announce(el: HTMLElement): void {
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    const label =
+      [el.querySelector('.heading'), el.querySelector('.title')]
+        .map((node) => node?.textContent?.trim())
+        .find((text): text is string => !!text) ?? 'Memory Reconstruction';
+    el.setAttribute('aria-label', label);
   }
 
   close(): void {
@@ -593,7 +645,7 @@ export function reliquaryScreen(opts: {
         h(
           'div',
           { class: 'gear-copy' },
-          h('div', { class: 'gear-name' }, def.name),
+          h('div', { class: 'gear-name' }, def.name, rarityTag(def.rarity)),
           h('div', { class: 'gear-desc' }, def.description)
         ),
         h(
@@ -668,7 +720,10 @@ export function cairnScreen(opts: {
     cost === undefined
       ? h('div', { class: 'cairn-full-chip' }, '3/3 · The cairn is full')
       : button(`Leave an offering · ${CAIRN_COST} echoes`, opts.onOffer, 'btn primary');
-  if (offer instanceof HTMLButtonElement) offer.disabled = opts.meta.echoes < CAIRN_COST;
+  if (offer instanceof HTMLButtonElement) {
+    offer.disabled = opts.meta.echoes < CAIRN_COST;
+    offer.dataset.action = 'cairn:offer';
+  }
   const pips = Array.from({ length: CAIRN_MAX }, (_, i) =>
     h('span', { class: `cairn-pip${i < banked ? ' filled' : ''}` })
   );
@@ -717,6 +772,13 @@ export function cairnScreen(opts: {
 }
 
 /** Choose the long-term element that colours every expedition. */
+/** A "Choose" button for one aspect, keyed so a re-render can keep focus on it. */
+function aspectChooseButton(id: AspectId, onChoose: (id: AspectId) => void): HTMLButtonElement {
+  const btn = button('Choose', () => onChoose(id), 'btn small');
+  btn.dataset.action = `aspect:${id}`;
+  return btn;
+}
+
 export function aspectScreen(opts: {
   current: string;
   onChoose: (id: AspectId) => void;
@@ -736,7 +798,7 @@ export function aspectScreen(opts: {
       ),
       selected
         ? h('span', { class: 'attuned-chip' }, 'Active')
-        : button('Choose', () => opts.onChoose(aspect.id), 'btn small')
+        : aspectChooseButton(aspect.id, opts.onChoose)
     );
   });
   return h(
@@ -833,6 +895,7 @@ export function reforgeScreen(opts: {
           : button(`Reforge · ${cost} echoes`, () => opts.onReforge(defId), 'btn small');
       if (cost !== undefined && opts.meta.echoes < cost)
         (action as HTMLButtonElement).disabled = true;
+      if (action instanceof HTMLButtonElement) action.dataset.action = `reforge:${defId}`;
       return h(
         'div',
         { class: `gear-row ${def.rarity}${rank > 0 ? ' attuned' : ''}` },
@@ -840,7 +903,12 @@ export function reforgeScreen(opts: {
         h(
           'div',
           { class: 'gear-copy' },
-          h('div', { class: 'gear-name' }, `${def.name}${rank > 0 ? ` +${rank}` : ''}`),
+          h(
+            'div',
+            { class: 'gear-name' },
+            `${def.name}${rank > 0 ? ` +${rank}` : ''}`,
+            rarityTag(def.rarity)
+          ),
           h('div', { class: 'gear-desc' }, modSummary(def.mods, 1 + 0.12 * rank)),
           pips
         ),
@@ -971,27 +1039,16 @@ export function expeditionScreen(opts: {
     .map(({ defId, def }) => {
       const state = carry.get(defId) ?? 'home';
       const price = relicSellEchoes(opts.meta, defId);
-      let sellArmed = false;
-      const sell = button(
+      const sell = confirmButton(
         `Sell · ${price ?? 0} echoes`,
+        'Confirm sale',
         () => {
           if (price === undefined) return;
-          if (!sellArmed) {
-            sellArmed = true;
-            sell.textContent = 'Confirm sale';
-            sell.classList.add('danger');
-            window.setTimeout(() => {
-              if (!sell.isConnected) return;
-              sellArmed = false;
-              sell.textContent = `Sell · ${price} echoes`;
-              sell.classList.remove('danger');
-            }, 2600);
-            return;
-          }
           opts.onSellRelic(defId);
         },
         'btn small'
       );
+      sell.dataset.action = `market:${defId}`;
       return h(
         'div',
         { class: `gear-row ${def.rarity}${state === 'home' ? ' not-attuned' : ''}` },
@@ -999,7 +1056,7 @@ export function expeditionScreen(opts: {
         h(
           'div',
           { class: 'gear-copy' },
-          h('div', { class: 'gear-name' }, def.name),
+          h('div', { class: 'gear-name' }, def.name, rarityTag(def.rarity)),
           h('div', { class: 'gear-desc' }, def.description)
         ),
         h(
@@ -1014,13 +1071,35 @@ export function expeditionScreen(opts: {
   const mod = dailyModifier(opts.dailyKey);
   return h(
     'div',
-    { class: 'screen hub' },
+    { class: 'screen hub set-out' },
     h('div', { class: 'heading' }, 'Set Out'),
     h(
       'div',
       { class: 'subtitle' },
       'Every checkpoint reached is kept. Choose where this expedition begins.'
     ),
+    saved
+      ? h(
+          'div',
+          { class: 'panel pending-run' },
+          h(
+            'div',
+            { class: 'cp-name' },
+            `Expedition waiting · Section ${saved.depth + 1} · ${Math.round(saved.health)}/${Math.round(saved.maxHealth)} HP`
+          ),
+          h(
+            'div',
+            { class: 'gear-actions' },
+            opts.onContinue ? button('Continue', opts.onContinue, 'btn small primary') : null,
+            opts.onRest
+              ? Object.assign(button(`Rest · ${opts.restCost} echoes`, opts.onRest, 'btn small'), {
+                  disabled: !resting || saved.health >= saved.maxHealth,
+                })
+              : null
+          )
+        )
+      : null,
+    h('div', { class: 'panel checkpoint-list' }, ...rows),
     h(
       'div',
       { class: 'panel daily-panel' },
@@ -1061,28 +1140,6 @@ export function expeditionScreen(opts: {
       ),
       button('Begin the daily', opts.onDaily, 'btn small primary')
     ),
-    saved
-      ? h(
-          'div',
-          { class: 'panel pending-run' },
-          h(
-            'div',
-            { class: 'cp-name' },
-            `Expedition waiting · Section ${saved.depth + 1} · ${Math.round(saved.health)}/${Math.round(saved.maxHealth)} HP`
-          ),
-          h(
-            'div',
-            { class: 'gear-actions' },
-            opts.onContinue ? button('Continue', opts.onContinue, 'btn small primary') : null,
-            opts.onRest
-              ? Object.assign(button(`Rest · ${opts.restCost} echoes`, opts.onRest, 'btn small'), {
-                  disabled: !resting || saved.health >= saved.maxHealth,
-                })
-              : null
-          )
-        )
-      : null,
-    h('div', { class: 'panel checkpoint-list' }, ...rows),
     relicRows.length > 0
       ? h(
           'div',
@@ -1311,6 +1368,13 @@ function itemName(item: EquipmentItem): string {
   return `${equipmentDef(item.defId).name}${item.rank ? ` +${item.rank}` : ''}`;
 }
 
+/** Rarity as text as well as colour: the row's coloured edge alone excludes colour-blind readers. */
+function rarityTag(rarity: EquipmentRarity): HTMLElement {
+  // The separator is in the DOM, not only in CSS, so the accessible name reads
+  // "Rusted Edge · common" instead of "Rusted Edgecommon".
+  return h('span', { class: 'rarity-tag' }, `\u00a0\u00b7 ${rarity}`);
+}
+
 export function inventoryScreen(
   world: World,
   onClose: () => void,
@@ -1331,7 +1395,12 @@ export function inventoryScreen(
       h(
         'div',
         { class: 'gear-copy' },
-        h('div', { class: 'gear-name' }, item ? itemName(item) : 'Empty'),
+        h(
+          'div',
+          { class: 'gear-name' },
+          item ? itemName(item) : 'Empty',
+          def ? rarityTag(def.rarity) : null
+        ),
         h('div', { class: 'gear-desc' }, def?.description ?? 'No relic worn')
       ),
       def
@@ -1381,22 +1450,10 @@ export function inventoryScreen(
       );
     };
     const price = relicSellShards(def);
-    let sellArmed = false;
-    const sell = button(
+    const sell = confirmButton(
       `Sell · ${price}`,
+      'Confirm sale',
       () => {
-        if (!sellArmed) {
-          sellArmed = true;
-          sell.textContent = 'Confirm sale';
-          sell.classList.add('danger');
-          window.setTimeout(() => {
-            if (!sell.isConnected) return;
-            sellArmed = false;
-            sell.textContent = `Sell · ${price}`;
-            sell.classList.remove('danger');
-          }, 2600);
-          return;
-        }
         const gained = world.sellItem(item.uid);
         onChanged(
           gained === undefined
@@ -1407,22 +1464,10 @@ export function inventoryScreen(
       'btn small'
     );
     sell.title = `Sell for ${price} shards`;
-    let discardArmed = false;
-    const discard = button(
+    const discard = confirmButton(
       'Discard',
+      'Confirm',
       () => {
-        if (!discardArmed) {
-          discardArmed = true;
-          discard.textContent = 'Confirm';
-          discard.classList.add('danger');
-          window.setTimeout(() => {
-            if (!discard.isConnected) return;
-            discardArmed = false;
-            discard.textContent = 'Discard';
-            discard.classList.remove('danger');
-          }, 2600);
-          return;
-        }
         const ok = world.discardItem(item.uid);
         onChanged(ok ? `Discarded ${def.name}.` : 'That relic is no longer carried.');
       },
@@ -1431,6 +1476,15 @@ export function inventoryScreen(
     discard.title = 'Destroy this relic for nothing (frees a bag slot)';
     // Score hint: Upgrade only when the candidate beats what is worn.
     const better = !worn || equipmentScore(item) > equipmentScore(worn);
+    const equipBtn = button(
+      worn ? (better ? 'Upgrade' : 'Swap') : 'Equip',
+      equip,
+      'btn small primary'
+    );
+    // Stable key so a re-render can return focus to the same control.
+    equipBtn.dataset.action = `equip:${item.uid}`;
+    sell.dataset.action = `sell:${item.uid}`;
+    discard.dataset.action = `discard:${item.uid}`;
     const row = h(
       'div',
       {
@@ -1443,7 +1497,7 @@ export function inventoryScreen(
       h(
         'div',
         { class: 'gear-copy' },
-        h('div', { class: 'gear-name' }, itemName(item)),
+        h('div', { class: 'gear-name' }, itemName(item), rarityTag(def.rarity)),
         h(
           'div',
           { class: 'gear-desc' },
@@ -1452,13 +1506,7 @@ export function inventoryScreen(
         ),
         deltas.length > 0 ? h('div', { class: 'gear-deltas' }, ...deltas) : null
       ),
-      h(
-        'div',
-        { class: 'gear-actions' },
-        button(worn ? (better ? 'Upgrade' : 'Swap') : 'Equip', equip, 'btn small primary'),
-        sell,
-        discard
-      )
+      h('div', { class: 'gear-actions' }, equipBtn, sell, discard)
     );
     row.addEventListener('click', (event) => {
       if ((event.target as HTMLElement).closest('button')) return;
@@ -1490,25 +1538,13 @@ export function inventoryScreen(
       : [];
   const bagFull = p.inventory.length >= INVENTORY_SLOTS;
   const commons = p.inventory.filter((i) => equipmentDef(i.defId).rarity === 'common');
-  let junkArmed = false;
   const junkButton =
     commons.length > 0
       ? (() => {
-          const btn = button(
+          const btn = confirmButton(
             `Sell ${commons.length} common${commons.length === 1 ? '' : 's'}`,
+            'Confirm sale',
             () => {
-              if (!junkArmed) {
-                junkArmed = true;
-                btn.textContent = 'Confirm sale';
-                btn.classList.add('danger');
-                window.setTimeout(() => {
-                  if (!btn.isConnected) return;
-                  junkArmed = false;
-                  btn.textContent = `Sell ${p.inventory.filter((i) => equipmentDef(i.defId).rarity === 'common').length} commons`;
-                  btn.classList.remove('danger');
-                }, 2600);
-                return;
-              }
               let gained = 0;
               let sold = 0;
               for (const item of [...p.inventory]) {
@@ -1544,6 +1580,10 @@ export function inventoryScreen(
         onChanged();
       });
       chip.className = `btn small filter-chip${bagFilter === f ? ' active' : ''}`;
+      // A stable key and pressed state: the bag re-renders on every filter change, and without a key
+      // the rebuild dropped focus back to the first chip, which is "All".
+      chip.dataset.action = `filter:${f}`;
+      chip.setAttribute('aria-pressed', bagFilter === f ? 'true' : 'false');
       return chip;
     })
   );
@@ -1677,6 +1717,7 @@ export function trainingScreen(
       'btn small'
     );
     pick.disabled = active;
+    pick.dataset.action = `train:${weapon.id}`;
     const artName =
       weapon.id === 'spear'
         ? 'Piercing Spiral'
@@ -1748,6 +1789,7 @@ export function meditationScreen(
       'btn small'
     );
     buy.disabled = active || meta.echoes < 20;
+    buy.dataset.action = `boon:${option.id}`;
     return h(
       'div',
       { class: `restoration${active ? ' lit' : ''}` },
@@ -1866,7 +1908,7 @@ export function pauseScreen(opts: {
       button('Quests', opts.onQuests),
       button('Settings', opts.onSettings),
       button('Controls', opts.onControls),
-      button('Abandon Run', opts.onAbandon)
+      confirmButton('Abandon Run', 'Confirm abandon', opts.onAbandon)
     )
   );
 }
@@ -2040,7 +2082,14 @@ function runStats(run: RunState): HTMLElement {
     ['Memories recovered', `${run.fragmentsFound.length}`],
     ['Time', minutes(run.stats.elapsed)],
   ];
-  return h('dl', { class: 'stats' }, ...rows.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]));
+  return h(
+    'dl',
+    { class: 'stats' },
+    ...rows.flatMap(([k, v], i) => [
+      h('dt', { style: `--i:${i}` }, k),
+      h('dd', { style: `--i:${i}` }, v),
+    ])
+  );
 }
 
 /** One settled run's legacy: score, best and freshly earned feats. */
@@ -2156,15 +2205,30 @@ export function memoriesScreen(owned: readonly string[], onBack: () => void): HT
     const complete = found.length === core.fragments.length;
     const fragments = core.fragments.map((id) => {
       const fragment = MEMORY_FRAGMENTS.find((f) => f.id === id);
-      return h('div', { class: 'frag' }, have.has(id) && fragment ? `"${fragment.text}"` : '· · ·');
+      return have.has(id) && fragment
+        ? h('div', { class: 'frag found' }, `"${fragment.text}"`)
+        : h('div', { class: 'frag sealed' }, '· · ·');
     });
     return h(
       'div',
-      { class: 'memory' },
+      { class: complete ? 'memory complete' : 'memory' },
       h(
-        'h5',
-        { class: complete ? '' : 'locked' },
-        complete ? core.title : `${core.title}  (${found.length}/${core.fragments.length})`
+        'div',
+        { class: 'memory-head' },
+        h(
+          'h5',
+          { class: complete ? '' : 'locked' },
+          complete ? core.title : `${core.title}  (${found.length}/${core.fragments.length})`
+        ),
+        h(
+          'span',
+          {
+            class: 'memory-pips',
+            role: 'img',
+            'aria-label': `${found.length} of ${core.fragments.length} recovered`,
+          },
+          ...core.fragments.map((id) => h('i', { class: have.has(id) ? 'pip on' : 'pip' }))
+        )
       ),
       complete ? h('p', {}, core.text) : null,
       ...fragments
@@ -2182,6 +2246,14 @@ export function memoriesScreen(owned: readonly string[], onBack: () => void): HT
     h('div', { class: 'panel' }, ...cores),
     h('div', { class: 'menu' }, button('Back', onBack))
   );
+}
+
+/** Class list for a difficulty option: only the selected one is the primary button. */
+export function difficultyButtonClass(
+  selected: Settings['difficulty'],
+  value: Settings['difficulty']
+): string {
+  return selected === value ? 'btn small primary' : 'btn small';
 }
 
 export function settingsScreen(
@@ -2227,6 +2299,16 @@ export function settingsScreen(
     normal: 'The deep as remembered.',
     nightmare: '+35% incoming, tougher hides, more elites.',
   };
+  const difficultyButtons: Array<[Settings['difficulty'], HTMLButtonElement]> = [];
+  /** The screen is built once and never re-rendered, so the highlight must move in place. */
+  const syncDifficulty = (): void => {
+    for (const [value, btn] of difficultyButtons) {
+      const chosen = current.difficulty === value;
+      btn.className = difficultyButtonClass(current.difficulty, value);
+      btn.setAttribute('aria-pressed', chosen ? 'true' : 'false');
+      btn.title = difficultyHints[value];
+    }
+  };
   return h(
     'div',
     { class: 'screen' },
@@ -2250,11 +2332,14 @@ export function settingsScreen(
               d[0].toUpperCase() + d.slice(1),
               () => {
                 current.difficulty = d;
+                syncDifficulty();
                 onChange({ ...current });
               },
-              current.difficulty === d ? 'btn small primary' : 'btn small'
+              difficultyButtonClass(current.difficulty, d)
             );
+            b.setAttribute('aria-pressed', current.difficulty === d ? 'true' : 'false');
             b.title = difficultyHints[d];
+            difficultyButtons.push([d, b]);
             return b;
           })
         )

@@ -14,7 +14,7 @@ import { cameraFocus } from './camera';
 import { Effects } from './Effects';
 import { fxTextures } from './fxArt';
 import { LevelView } from './LevelView';
-import { BIOME_ART, hex } from './palette';
+import { BIOME_ART, gradeTint, hex } from './palette';
 import { loadSprites, type SpriteLibrary } from './sheets';
 
 /** World pixels visible vertically; the zoom follows the window height. */
@@ -108,6 +108,7 @@ export class Renderer {
       this.app.screen.height / (world.mode === 'sanctuary' ? VIEW_HEIGHT_INTERIOR : VIEW_HEIGHT)
     );
     this.darkness.alpha = art.darkness;
+    this.camera.tint = gradeTint(biome);
   }
 
   clearFloor(): void {

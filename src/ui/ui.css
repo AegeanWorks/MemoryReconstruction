@@ -12,6 +12,11 @@
   --panel-edge: rgba(255, 217, 138, 0.28);
   --serif: 'Cinzel', Georgia, serif;
   --sans: 'Inter', system-ui, sans-serif;
+  /* Notches and home bars: non-zero only on a full-screen phone, zero everywhere else. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
 
 #ui {
@@ -40,10 +45,100 @@
   visibility: hidden;
   pointer-events: none;
 }
+/* Touch controls: hidden unless a coarse pointer is present (see the media block near the end). */
+.touch-controls {
+  display: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.touch-stick {
+  position: absolute;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 217, 138, 0.1), rgba(8, 7, 16, 0.5) 70%);
+  border: 2px solid rgba(255, 217, 138, 0.35);
+  touch-action: none;
+  pointer-events: auto;
+}
+.touch-stick.on {
+  border-color: rgba(255, 217, 138, 0.7);
+}
+.touch-stick.move {
+  left: calc(16px + var(--safe-left));
+  bottom: calc(var(--touch-bottom, 16px) + var(--safe-bottom));
+}
+.touch-stick.aim {
+  right: calc(16px + var(--safe-right));
+  bottom: calc(var(--touch-bottom, 16px) + var(--safe-bottom));
+}
+.touch-stick .knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff3cf, var(--gold) 60%, var(--gold-deep));
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+.touch-buttons {
+  position: absolute;
+  right: calc(12px + var(--safe-right));
+  bottom: calc(var(--touch-bottom, 16px) + 124px + var(--safe-bottom));
+  display: grid;
+  grid-template-columns: repeat(4, 48px);
+  gap: 8px;
+  pointer-events: none;
+}
+.touch-btn {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: linear-gradient(180deg, rgba(40, 34, 66, 0.85), rgba(22, 18, 40, 0.9));
+  border: 1px solid rgba(255, 217, 138, 0.4);
+  touch-action: none;
+  pointer-events: auto;
+}
+.touch-btn.on {
+  background: linear-gradient(180deg, #6b5420, #3e2f10);
+  border-color: var(--gold);
+}
+.touch-btn.dash {
+  border-color: rgba(111, 231, 255, 0.55);
+}
+/* Utility rail: the relic bag, map and pause menu stay reachable when no keyboard is present. */
+.touch-utility {
+  position: absolute;
+  left: calc(12px + var(--safe-left));
+  top: calc(12px + var(--safe-top));
+  display: grid;
+  gap: 8px;
+  pointer-events: none;
+}
+.touch-btn.util {
+  width: 44px;
+  height: 44px;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  color: var(--ink-dim);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
 .hud-vitals {
   position: absolute;
   left: 50%;
-  bottom: 14px;
+  bottom: calc(14px + var(--safe-bottom));
   width: 372px;
   transform: translateX(-50%);
   display: grid;
@@ -131,7 +226,10 @@
   border: 1px solid rgba(111, 231, 255, 0.45);
   border-radius: 4px;
   overflow: hidden;
-  transition: opacity 0.25s, box-shadow 0.25s, border-color 0.25s;
+  transition:
+    opacity 0.25s,
+    box-shadow 0.25s,
+    border-color 0.25s;
 }
 .hud-flow:not(.idle) {
   border-color: rgba(111, 231, 255, 0.8);
@@ -143,7 +241,12 @@
 .flow-fill {
   position: absolute;
   inset: 0 auto 0 0;
-  background: linear-gradient(90deg, rgba(47, 166, 214, 0.8), rgba(111, 231, 255, 0.85), rgba(255, 217, 138, 0.9));
+  background: linear-gradient(
+    90deg,
+    rgba(47, 166, 214, 0.8),
+    rgba(111, 231, 255, 0.85),
+    rgba(255, 217, 138, 0.9)
+  );
   transition: width 0.1s linear;
 }
 .flow-label {
@@ -224,7 +327,7 @@
 
 .hud-floor {
   position: absolute;
-  top: 14px;
+  top: calc(14px + var(--safe-top));
   left: 50%;
   transform: translateX(-50%);
   padding: 3px 12px;
@@ -244,7 +347,7 @@
 
 .hud-objectives {
   position: absolute;
-  top: 40px;
+  top: calc(40px + var(--safe-top));
   left: 50%;
   transform: translateX(-50%);
   padding: 2px 10px;
@@ -354,8 +457,8 @@
 
 .hud-map {
   position: absolute;
-  right: 18px;
-  top: 16px;
+  right: calc(18px + var(--safe-right));
+  top: calc(16px + var(--safe-top));
   display: grid;
   gap: 6px;
   justify-items: end;
@@ -364,7 +467,9 @@
   background: rgba(8, 7, 16, 0.85);
   border: 1px solid var(--panel-edge);
   border-radius: 8px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65), inset 0 0 1px rgba(255, 217, 138, 0.25);
+  box-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.65),
+    inset 0 0 1px rgba(255, 217, 138, 0.25);
   backdrop-filter: blur(4px);
 }
 .hud-shards {
@@ -393,7 +498,7 @@
 
 .toasts {
   position: absolute;
-  top: 16%;
+  top: max(16%, min(140px, 24vh));
   left: 50%;
   width: min(560px, 90vw);
   transform: translateX(-50%);
@@ -567,11 +672,51 @@
   letter-spacing: 0.08em;
   text-align: center;
   text-wrap: balance;
-  background: linear-gradient(180deg, #fff3cf, var(--gold) 55%, var(--gold-deep));
+  background:
+    linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.85) 50%, transparent 62%) 0 0 /
+      240% 100% no-repeat,
+    linear-gradient(180deg, #fff3cf, var(--gold) 55%, var(--gold-deep));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   filter: drop-shadow(0 4px 18px rgba(255, 190, 90, 0.25));
+  animation: title-sheen 7s ease-in-out 1.2s infinite;
+}
+@keyframes title-sheen {
+  0%,
+  35% {
+    background-position:
+      130% 0,
+      0 0;
+  }
+  70%,
+  100% {
+    background-position:
+      -30% 0,
+      0 0;
+  }
+}
+/* A warm bloom behind the lettering lights the title scene. */
+.screen.clear:has(> .title) {
+  background:
+    radial-gradient(ellipse at 50% 26%, rgba(255, 190, 90, 0.2), transparent 55%),
+    radial-gradient(ellipse at center, rgba(10, 8, 20, 0.55), rgba(4, 3, 10, 0.92));
+}
+.title-menu .btn.primary {
+  animation: primary-breathe 3.6s ease-in-out infinite;
+}
+@keyframes primary-breathe {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 rgba(255, 217, 138, 0),
+      inset 0 1px 0 rgba(255, 245, 210, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgba(255, 217, 138, 0.32),
+      inset 0 1px 0 rgba(255, 245, 210, 0.3);
+  }
 }
 .subtitle {
   font-family: var(--serif);
@@ -594,6 +739,25 @@
     0 0 18px rgba(255, 77, 94, 0.4),
     0 2px 8px #000;
   letter-spacing: 0.16em;
+  animation: dead-settle 1.6s ease-out both;
+}
+@keyframes dead-settle {
+  from {
+    opacity: 0;
+    letter-spacing: 0.34em;
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.16em;
+    filter: blur(0);
+  }
+}
+/* A crimson bloom lights the defeat scene from above. */
+.screen:has(> .heading.dead) {
+  background:
+    radial-gradient(ellipse at 50% 14%, rgba(255, 77, 94, 0.16), transparent 55%),
+    radial-gradient(ellipse at center, rgba(10, 8, 20, 0.8), rgba(4, 3, 10, 0.97));
 }
 .menu {
   display: grid;
@@ -649,6 +813,10 @@
   font-size: 13px;
   color: var(--ink-dim);
   text-align: center;
+  /* A paragraph the width of the whole screen is unreadable; 880px stays under ~110 characters. */
+  max-width: min(880px, 92vw);
+  line-height: 1.45;
+  text-wrap: pretty;
 }
 .meta-line b {
   color: var(--gold);
@@ -656,6 +824,7 @@
 
 .cards {
   display: flex;
+  align-items: stretch;
   gap: 18px;
   flex-wrap: wrap;
   justify-content: center;
@@ -677,7 +846,9 @@
   color: var(--ink);
   font-family: var(--sans);
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 0 1px rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.6),
+    inset 0 0 1px rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(6px);
   transition:
     transform 0.15s ease,
@@ -713,7 +884,7 @@
   outline: none;
 }
 .card:active {
-  transform: translateY(-4px) scale(1.0);
+  transform: translateY(-4px) scale(1);
 }
 .card .rarity {
   font-size: 11px;
@@ -729,10 +900,14 @@
   justify-content: center;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.35) 75%);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.5),
+    inset 0 0 8px rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.16);
   margin: 2px 0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .card:hover .card-emblem {
   transform: scale(1.1);
@@ -778,6 +953,12 @@
   font-size: 20px;
   font-weight: 600;
   letter-spacing: 0.04em;
+  line-height: 1.3;
+  /* Two title lines are reserved, so descriptions line up across cards. */
+  min-height: calc(20px * 1.3 * 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .card.rare .name {
   text-shadow: 0 0 12px rgba(111, 231, 255, 0.35);
@@ -879,17 +1060,23 @@
 .card:hover.common,
 .card:focus-visible.common {
   border-color: #fff;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75), 0 0 20px rgba(200, 205, 225, 0.3);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.75),
+    0 0 20px rgba(200, 205, 225, 0.3);
 }
 .card:hover.rare,
 .card:focus-visible.rare {
   border-color: #9df3ff;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8), 0 0 30px rgba(111, 231, 255, 0.45);
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(111, 231, 255, 0.45);
 }
 .card:hover.epic,
 .card:focus-visible.epic {
   border-color: #ffe6aa;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85), 0 0 36px rgba(255, 217, 138, 0.55);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.85),
+    0 0 36px rgba(255, 217, 138, 0.55);
 }
 
 .stats {
@@ -985,12 +1172,56 @@
   color: var(--ink-dim);
   font-size: 13px;
 }
+.memory-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.memory-pips {
+  display: inline-flex;
+  gap: 7px;
+  flex: none;
+}
+.memory-pips .pip {
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  border: 1px solid rgba(255, 217, 138, 0.35);
+  background: transparent;
+}
+.memory-pips .pip.on {
+  border-color: #ffe9b0;
+  background: linear-gradient(135deg, #fff3cf, var(--gold));
+  box-shadow: 0 0 8px rgba(255, 217, 138, 0.7);
+}
+.memory.complete {
+  padding-left: 12px;
+  border-left: 2px solid var(--gold);
+  background: linear-gradient(90deg, rgba(255, 217, 138, 0.07), transparent 60%);
+}
+.memory .frag.found {
+  color: var(--ink);
+  padding-left: 10px;
+  margin-top: 3px;
+  border-left: 1px solid rgba(255, 217, 138, 0.4);
+}
+.memory .frag.sealed {
+  opacity: 0.45;
+  letter-spacing: 0.3em;
+  margin-top: 2px;
+}
 .controls {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 8px 18px;
   font-size: 14px;
   align-items: center;
+}
+/* The key list must show every row: on short or narrow screens the screen scrolls, not the panel. */
+.panel:has(> .controls) {
+  max-height: none;
+  flex-shrink: 0;
 }
 .setting {
   display: grid;
@@ -1009,10 +1240,18 @@
   accent-color: var(--gold);
   justify-self: start;
 }
+/* The UA focus ring on form controls computes to near-black, which disappears on the dark panel. */
+.setting input[type='range']:focus-visible,
+.setting input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
 .setting-options {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  /* No value column on this row: let the buttons use it, so they stay on one line. */
+  grid-column: 2 / -1;
 }
 .setting-hint {
   display: block;
@@ -1020,6 +1259,13 @@
   color: var(--ink-dim);
   letter-spacing: 0.02em;
   margin-top: 2px;
+}
+/* Toggle rows: label, box, then a hint with the room to read on one line. */
+.setting:has(input[type='checkbox']) {
+  grid-template-columns: 130px 22px 1fr;
+}
+.setting .setting-hint {
+  color: var(--ink-dim);
 }
 /* Overhead speech balloons for sanctuary residents. */
 .npc-balloon.hidden {
@@ -1229,7 +1475,10 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
   background: linear-gradient(180deg, rgba(20, 17, 36, 0.92), rgba(10, 8, 20, 0.95));
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .restoration:hover {
   transform: translateY(-2px);
@@ -1238,7 +1487,9 @@
 }
 .restoration.lit {
   border-color: rgba(255, 217, 138, 0.55);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), inset 0 0 18px rgba(255, 217, 138, 0.12);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.5),
+    inset 0 0 18px rgba(255, 217, 138, 0.12);
 }
 .rest-head {
   display: flex;
@@ -1301,6 +1552,9 @@
   min-width: 0;
 }
 .cp-name {
+  /* A span is inline, where text-overflow does nothing: the longest checkpoint name ran into its
+     Start button instead of ellipsizing. */
+  display: block;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -1432,10 +1686,22 @@
   text-transform: uppercase;
   color: var(--ink-dim);
 }
+.gear-copy {
+  /* Long relic names must not set the grid's min-content width and push the row off-screen. */
+  min-width: 0;
+}
 .gear-name {
   font-family: var(--serif);
   font-size: 14px;
   color: var(--ink);
+}
+/* Rarity is also text: the coloured left edge alone is unreadable for colour-blind players. */
+.rarity-tag {
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
 }
 .gear-desc {
   font-size: 11px;
@@ -1634,7 +1900,9 @@
   border-radius: 50%;
   border: 2px solid var(--gold);
   background: radial-gradient(circle, rgba(56, 44, 82, 0.95), rgba(16, 12, 28, 0.98));
-  box-shadow: 0 0 16px rgba(255, 217, 138, 0.28), 0 4px 12px rgba(0, 0, 0, 0.7);
+  box-shadow:
+    0 0 16px rgba(255, 217, 138, 0.28),
+    0 4px 12px rgba(0, 0, 0, 0.7);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -1760,8 +2028,8 @@
 }
 @media (max-width: 1120px) {
   .hud-map {
-    right: 10px;
-    top: 10px;
+    right: calc(10px + var(--safe-right));
+    top: calc(10px + var(--safe-top));
     transform: scale(0.82);
     transform-origin: top right;
   }
@@ -2161,9 +2429,16 @@
 /* Feats: a mastery ladder grid; locked feats show as quiet dots. */
 .feats-panel {
   display: flex;
+  flex-shrink: 0;
   flex-wrap: wrap;
-  gap: 6px;
+  /* 'safe' keeps the first chip reachable when the row scrolls on short screens. */
+  justify-content: safe center;
+  gap: 6px 8px;
   margin-top: 4px;
+  width: 100%;
+  max-width: 1180px;
+  box-sizing: border-box;
+  padding: 10px 14px;
 }
 .feat {
   font-size: 12px;
@@ -2176,12 +2451,21 @@
   color: var(--gold);
   border-color: rgba(255, 217, 138, 0.5);
   background: rgba(255, 217, 138, 0.08);
+  box-shadow: 0 0 10px rgba(255, 217, 138, 0.12);
+}
+.feat.unlocked::before {
+  content: '◆';
+  margin-right: 6px;
+  font-size: 9px;
+  vertical-align: 1px;
+  color: #ffe9b0;
 }
 .feat.locked {
   color: var(--ink-dim);
-  border-color: rgba(255, 255, 255, 0.12);
-  background: transparent;
-  opacity: 0.6;
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.015);
+  opacity: 0.7;
 }
 .history-entry {
   display: inline-flex;
@@ -2302,11 +2586,6 @@
   }
   50% {
     box-shadow: 0 0 10px rgba(120, 220, 140, 0.45);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .quest-badge.ready {
-    animation: none;
   }
 }
 .building-art {
@@ -2600,15 +2879,19 @@
 }
 
 /* --- Bag slots, selling, and the Set Out relic market --------------------- */
+/* An open bag slot reads as empty from its dashed outline and bare background. It used to fade the
+   whole row to 60% and paint the number at 40% white, which put "Empty slot" and its hint near 2:1
+   contrast; the text now keeps --ink-dim (about 10:1) and only the outline is softened. */
 .gear-row.empty {
   border-style: dashed;
   border-left-width: 1px;
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
   background: transparent;
-  opacity: 0.6;
 }
-.gear-row.empty .gear-slot {
-  color: rgba(255, 255, 255, 0.4);
+.gear-row.empty .gear-slot,
+.gear-row.empty .gear-name,
+.gear-row.empty .gear-desc {
+  color: var(--ink-dim);
 }
 .gear-note {
   font-size: 11px;
@@ -2650,14 +2933,60 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .toast,
-  .lore,
-  .banner,
+  /* Screens appear instead of fading; entrances and loops that only exist for flavour are off.
+     Toasts, the lore card and the floor banner keep their timing (they must still disappear), so
+     only their travel is written out in the keyframes below. */
   .screen,
   .card,
   .card.epic .card-emblem,
-  .gear-row.attuned {
+  .gear-row.attuned,
+  .chip.stalked,
+  .quest-badge.ready,
+  .boss-bar.enraged .bar-fill {
     animation: none;
+  }
+  /* The lore card is centred by its animation's translate(-50%), so the X must stay. */
+  @keyframes lore {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, 0);
+    }
+    8%,
+    85% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, 0);
+    }
+  }
+  @keyframes toast {
+    0% {
+      opacity: 0;
+      transform: none;
+    }
+    12%,
+    75% {
+      opacity: 1;
+      transform: none;
+    }
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+  }
+  @keyframes banner {
+    0% {
+      opacity: 0;
+    }
+    15%,
+    75% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
   }
   .card:hover,
   .card:focus-visible,
@@ -2694,7 +3023,17 @@
   .feats-panel {
     flex-wrap: wrap;
     overflow-x: visible;
-    padding-bottom: 0;
+    padding-bottom: 10px;
+    width: 100%;
+  }
+  /* Wide screens have the width and spare height: bring the facades back as a
+     compact strip, so residents keep their faces at 720p. */
+  .building-art {
+    display: flex;
+    height: 60px;
+  }
+  .building-art img {
+    height: 56px;
   }
 }
 
@@ -2733,7 +3072,7 @@
     right: 0;
     bottom: 0;
     z-index: 20;
-    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+    padding: 8px calc(12px + var(--safe-right)) calc(8px + var(--safe-bottom)) calc(12px + var(--safe-left));
     background: linear-gradient(180deg, rgba(8, 7, 16, 0.86), rgba(8, 7, 16, 0.98));
     border-top: 1px solid rgba(255, 217, 138, 0.22);
   }
@@ -2792,8 +3131,8 @@
   }
 
   .hud-vitals {
-    width: calc(100vw - 24px);
-    bottom: 10px;
+    width: calc(100vw - 24px - var(--safe-left) - var(--safe-right));
+    bottom: calc(10px + var(--safe-bottom));
   }
   .hud-row {
     flex-wrap: wrap;
@@ -2810,5 +3149,298 @@
   .minimap {
     width: 104px;
     height: 76px;
+  }
+}
+
+/* Settled-run stats arrive row by row. */
+.stats-panel .stats > * {
+  animation: stat-in 0.45s ease-out both;
+  /* --i is the row number, set in the markup, so any number of rows cascades. */
+  animation-delay: calc(var(--i, 0) * 70ms + 350ms);
+}
+@keyframes stat-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Phone top HUD: the centred pills ran under the minimap (the section name and objectives were cut
+   off behind it), so they sit left of it, capped to the space it leaves. */
+@media (max-width: 560px) {
+  .hud-floor,
+  .hud-objectives {
+    left: calc(10px + var(--safe-left));
+    transform: none;
+    max-width: calc(100vw - 140px);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .hud-floor {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* Tablet hint: the bottom-left controls hint ran into the centred vitals panel (248px wide at
+   this size), so it wraps in the space the panel leaves. */
+@media (min-width: 561px) and (max-width: 1120px) {
+  .hint {
+    max-width: max(120px, calc(50vw - 154px));
+  }
+  /* The wrapped hint is up to three lines tall, so the checklist sits above it. */
+  .hint.checklist {
+    bottom: 104px;
+  }
+}
+
+/* Phone relic rows: with the button beside the text, names and mods wrapped over four to six lines, so
+   rows that carry an action put it on its own full-width line instead. */
+@media (max-width: 560px) {
+  /* A bare 1fr keeps its min-content floor, so three action buttons (about 328px) forced the row to
+     grow to 352px and clip 3px past a 390px viewport. minmax(0, 1fr) plus shrinking buttons lets the
+     row stay inside its panel and the labels wrap instead. */
+  .gear-row:has(.gear-actions) {
+    grid-template-columns: 52px minmax(0, 1fr);
+  }
+  .gear-row:has(.gear-actions) .gear-actions {
+    grid-column: 1 / -1;
+    flex-wrap: wrap;
+  }
+  .gear-row:has(.gear-actions) .gear-actions .btn {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+/* Phone difficulty row: beside its label the three buttons had about 210px, so Nightmare wrapped (and
+   clipped when wrapping was forbidden). The label takes its own line and the buttons the full width. */
+@media (max-width: 560px) {
+  .setting:has(.setting-options) {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .setting:has(.setting-options) .setting-options {
+    grid-column: 1;
+    flex-wrap: nowrap;
+  }
+  .setting-options .btn {
+    flex: 1;
+  }
+}
+
+/* Short title: on a landscape phone six stacked buttons ran past the screen, so the menu becomes two
+   columns with the primary action across the top, and the small kicker line above the title goes. */
+@media (max-height: 480px) {
+  .title-menu {
+    width: min(560px, 92vw);
+    padding: 10px;
+  }
+  .title-menu .menu {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .title-menu .btn {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  .title-menu .btn.primary {
+    grid-column: 1 / -1;
+  }
+  .screen:has(> .title) > .subtitle:first-child {
+    display: none;
+  }
+}
+
+/* Short choice: at 390px tall the cards, reroll button and hint came to 464px, so the reroll and the hint
+   fell off the bottom mid-fight. Cards lose their minimum height, padding and emblem size. */
+@media (max-height: 480px) {
+  .card {
+    min-height: 0;
+    padding: 10px 14px;
+    gap: 6px;
+  }
+  .card .card-emblem {
+    width: 36px;
+    height: 36px;
+  }
+  .card .name {
+    min-height: calc(20px * 1.3);
+    font-size: 17px;
+  }
+  .cards {
+    gap: 12px;
+  }
+}
+
+/* Short controls: thirteen stacked rows made the list 697px tall on a 390px screen, so on short screens the
+   key and action pairs sit two to a row in a wider panel. */
+@media (max-height: 480px) {
+  .panel:has(> .controls) {
+    width: min(920px, 96vw);
+    padding: 12px 16px;
+  }
+  .controls {
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 6px 14px;
+    font-size: 13px;
+  }
+}
+
+/* Short hub: at 844x390 the six residents wrapped to a second row and the page ran to 651px, so on
+   wide, short screens they sit in one row like they do on a desktop. */
+@media (min-width: 700px) and (max-height: 480px) {
+  .building-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+  .building-name {
+    font-size: 13px;
+  }
+}
+
+/* Short expedition: at 844x390 the panels were flex-shrunk to strips, the checkpoint list came to 26px
+   and its Start buttons painted outside the clip, so taps hit the meta line instead. The panels keep
+   their content height and the screen itself scrolls. */
+@media (max-height: 480px) {
+  .screen.hub.set-out > * {
+    flex-shrink: 0;
+  }
+  .screen.hub.set-out .panel {
+    max-height: none;
+    overflow: visible;
+  }
+  /* On a short screen each row keeps its name and button on one line and drops the flavour note,
+     which halves the list height. */
+  .screen.hub.set-out > .subtitle {
+    display: none;
+  }
+  /* One-line rows: the name ellipsizes and the button keeps its width, so the flavour note goes. */
+  .screen.hub.set-out .checkpoint {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    gap: 2px 10px;
+    padding: 6px 10px;
+  }
+  .screen.hub.set-out .cp-note {
+    display: none;
+  }
+  .screen.hub.set-out .checkpoint-start {
+    grid-row: auto;
+    width: auto;
+    margin-top: 0;
+    padding: 6px 12px;
+  }
+}
+
+/* Wide, short Set Out: with nine checkpoints the list still ran past the fold, so the screen becomes a
+   two-column grid. The saved run, the list and the footer keep the full width, the two daily panels
+   share one row, and the checkpoint list itself pairs its rows. */
+@media (min-width: 700px) and (max-height: 480px) {
+  .screen.hub.set-out {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-content: start;
+    /* The base .screen rule centres its children; in a grid that leaves the two daily panels
+       centred in their row at different heights. Stretch makes the pair share one card height. */
+    align-items: stretch;
+    justify-items: center;
+    gap: 10px 12px;
+    padding: 12px 16px;
+  }
+  .screen.hub.set-out > .heading,
+  .screen.hub.set-out > .subtitle,
+  .screen.hub.set-out > .pending-run,
+  .screen.hub.set-out > .checkpoint-list,
+  .screen.hub.set-out > .vault-sell,
+  .screen.hub.set-out > .meta-line,
+  .screen.hub.set-out > .menu {
+    grid-column: 1 / -1;
+  }
+  .screen.hub.set-out > .daily-panel {
+    width: 100%;
+    justify-self: stretch;
+  }
+  /* Halved, the daily panel squeezed the daily button into three stacked lines. */
+  .screen.hub.set-out > .daily-panel .btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .screen.hub.set-out .checkpoint-list {
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+  .screen.hub.set-out .checkpoint {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 2px 0;
+    padding: 5px 8px;
+  }
+  /* The base rule pins the button to grid column 2, which would create a phantom second column and
+     squeeze every name; stacking gives the name the full cell width. */
+  .screen.hub.set-out .checkpoint-start {
+    grid-column: 1;
+    width: 100%;
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+}
+
+/* Touch controls (shown only on coarse-pointer screens): sticks at the bottom corners, buttons above the aim
+   stick. In portrait the full-width vitals plate owns the bottom edge, so they sit above it. */
+@media (pointer: coarse) {
+  .touch-controls {
+    display: block;
+  }
+  /* The keyboard and mouse hints mean nothing on a touch screen and sat under the move stick. */
+  .hint {
+    display: none;
+  }
+  /* The field manual is the one hint a touch player still needs: it names their buttons, and it
+     sits in the free band above the move stick rather than under it. */
+  .hint.checklist {
+    display: block;
+    left: calc(12px + var(--safe-left));
+    bottom: calc(var(--touch-bottom, 16px) + 122px + var(--safe-bottom));
+    max-width: min(260px, 34vw);
+  }
+}
+@media (pointer: coarse) and (max-width: 560px) {
+  :root {
+    --touch-bottom: 196px;
+  }
+  /* Portrait pins the floor and objective pills to the left edge, so the rail drops below them. */
+  .touch-utility {
+    top: calc(68px + var(--safe-top));
+  }
+  /* The right-hand cluster would cover the walker at screen centre in portrait, so the buttons sit in
+     the gap between the two sticks. */
+  .touch-buttons {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: calc(var(--touch-bottom, 16px) + var(--safe-bottom));
+    grid-template-columns: repeat(3, 40px);
+    gap: 6px;
+  }
+  .touch-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title,
+  .title-menu .btn.primary,
+  .heading.dead,
+  .stats-panel .stats > * {
+    animation: none;
   }
 }

@@ -406,8 +406,20 @@ export class Sound {
         case 'victory':
           this.arpeggio([523, 659, 784, 1047, 1319], 0.16, 0.15);
           break;
-        default:
+        // Silent by design: these drive the renderer, a screen change or scene setup, not audio.
+        case 'shake':
+        case 'sanctuary':
+        case 'buildingExit':
+        case 'secretOpened':
+        case 'floorExit':
           break;
+        default: {
+          // Exhaustiveness: a new SimEvent type must choose a cue or join the silent list above,
+          // otherwise this assignment fails to compile instead of the event being ignored.
+          const unhandled: never = e;
+          void unhandled;
+          break;
+        }
       }
     }
   }

@@ -4341,6 +4341,358 @@
      "max": 1
     }
    ]
+  },
+  {
+   "id": "rubble_slinger",
+   "name": "Rubble Slinger",
+   "description": "A hollow that learned the ruins by throwing stones from them. Keeps its distance and flinches when approached.",
+   "type": "rubble_slinger",
+   "biome": "ruins",
+   "stats": {
+    "health": 48,
+    "maxHealth": 48,
+    "damage": 9,
+    "speed": 84,
+    "armor": 0,
+    "resistance": 0,
+    "knockbackResistance": 0,
+    "xpValue": 40,
+    "memoryValue": 5
+   },
+   "ai": {
+    "behavior": "ranged_support",
+    "aggroRange": 320,
+    "attackRange": 230,
+    "attackCooldown": 2.4,
+    "patrolRadius": 140
+   },
+   "hitbox": {
+    "width": 26,
+    "height": 40,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "width": 44,
+    "height": 44,
+    "texture": "enemy_rubble_slinger"
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.6,
+     "min": 1,
+     "max": 3
+    }
+   ]
+  },
+  {
+   "id": "rime_thrall",
+   "name": "Rime Thrall",
+   "description": "A servant frozen mid-bow. The frost kept its oath long after its master thawed and left.",
+   "type": "rime_thrall",
+   "biome": "frost",
+   "stats": {
+    "health": 150,
+    "maxHealth": 150,
+    "damage": 18,
+    "speed": 102,
+    "armor": 12,
+    "resistance": 5,
+    "knockbackResistance": 15,
+    "xpValue": 90,
+    "memoryValue": 10
+   },
+   "ai": {
+    "behavior": "chase",
+    "aggroRange": 300,
+    "attackRange": 48,
+    "attackCooldown": 1.6,
+    "patrolRadius": 150
+   },
+   "hitbox": {
+    "width": 30,
+    "height": 44,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "width": 34,
+    "height": 56,
+    "texture": "enemy_rime_thrall"
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.7,
+     "min": 2,
+     "max": 4
+    }
+   ]
+  },
+  {
+   "id": "trench_lurker",
+   "name": "Trench Lurker",
+   "description": "It waits where the light gives up, and arrives before the sound of it does.",
+   "type": "trench_lurker",
+   "biome": "abyss",
+   "stats": {
+    "health": 140,
+    "maxHealth": 140,
+    "damage": 26,
+    "speed": 112,
+    "armor": 6,
+    "resistance": 5,
+    "knockbackResistance": 15,
+    "xpValue": 100,
+    "memoryValue": 12
+   },
+   "ai": {
+    "behavior": "ambush",
+    "aggroRange": 300,
+    "attackRange": 56,
+    "attackCooldown": 1.7,
+    "patrolRadius": 140
+   },
+   "hitbox": {
+    "width": 28,
+    "height": 40,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "width": 36,
+    "height": 52,
+    "texture": "enemy_trench_lurker"
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.7,
+     "min": 2,
+     "max": 4
+    }
+   ]
+  },
+  {
+   "id": "thorn_spitter",
+   "name": "Thorn Spitter",
+   "description": "It grows its ammunition. Do not stand where the brambles lean toward you.",
+   "type": "thorn_spitter",
+   "biome": "forest",
+   "stats": {
+    "health": 58,
+    "maxHealth": 58,
+    "damage": 10,
+    "speed": 86,
+    "armor": 0,
+    "resistance": 0,
+    "knockbackResistance": 0,
+    "xpValue": 48,
+    "memoryValue": 6
+   },
+   "ai": {
+    "behavior": "ranged_support",
+    "aggroRange": 320,
+    "attackRange": 220,
+    "attackCooldown": 2.4,
+    "patrolRadius": 140
+   },
+   "hitbox": {
+    "width": 26,
+    "height": 40,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "width": 44,
+    "height": 44,
+    "texture": "enemy_thorn_spitter"
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.6,
+     "min": 1,
+     "max": 3
+    }
+   ]
+  },
+  {
+   "id": "cavern_glowmoth",
+   "name": "Cavern Glowmoth",
+   "description": "A lure of cold light in the dark. What follows the light is rarely the moth.",
+   "type": "cavern_glowmoth",
+   "biome": "caves",
+   "stats": {
+    "health": 72,
+    "maxHealth": 72,
+    "damage": 12,
+    "speed": 90,
+    "armor": 0,
+    "resistance": 0,
+    "knockbackResistance": 0,
+    "xpValue": 58,
+    "memoryValue": 7
+   },
+   "ai": {
+    "behavior": "ranged_support",
+    "aggroRange": 320,
+    "attackRange": 240,
+    "attackCooldown": 2.3,
+    "patrolRadius": 140
+   },
+   "hitbox": {
+    "width": 28,
+    "height": 36,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "width": 40,
+    "height": 40,
+    "texture": "enemy_cavern_glowmoth"
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.6,
+     "min": 1,
+     "max": 3
+    }
+   ]
+  },
+  {
+   "id": "pressure_husk",
+   "name": "Pressure Husk",
+   "description": "A walker the deep pressed flat and then reinflated. It moves like a held breath.",
+   "type": "pressure_husk",
+   "biome": "abyss",
+   "stats": {
+    "health": 230,
+    "maxHealth": 230,
+    "damage": 24,
+    "speed": 48,
+    "armor": 28,
+    "resistance": 10,
+    "knockbackResistance": 40,
+    "xpValue": 130,
+    "memoryValue": 14
+   },
+   "ai": {
+    "behavior": "tank",
+    "aggroRange": 260,
+    "attackRange": 58,
+    "attackCooldown": 2.4,
+    "patrolRadius": 150
+   },
+   "hitbox": {
+    "width": 40,
+    "height": 52,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "width": 52,
+    "height": 60,
+    "texture": "enemy_pressure_husk"
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.8,
+     "min": 3,
+     "max": 6
+    }
+   ]
+  },
+  {
+   "id": "rivet_squire",
+   "name": "Rivet Squire",
+   "description": "An apprentice the foundry never stopped drilling. It holds the line with a hammer still warm from the forge.",
+   "type": "rivet_squire",
+   "biome": "foundry",
+   "stats": {
+    "health": 150,
+    "maxHealth": 150,
+    "damage": 19,
+    "speed": 100,
+    "armor": 14,
+    "resistance": 8,
+    "knockbackResistance": 20,
+    "xpValue": 95,
+    "memoryValue": 10
+   },
+   "ai": {
+    "behavior": "chase",
+    "aggroRange": 300,
+    "attackRange": 50,
+    "attackCooldown": 1.7,
+    "patrolRadius": 150
+   },
+   "hitbox": {
+    "width": 32,
+    "height": 46,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "width": 36,
+    "height": 56,
+    "texture": "enemy_rivet_squire"
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.7,
+     "min": 2,
+     "max": 4
+    }
+   ]
+  },
+  {
+   "id": "wax_crawler",
+   "name": "Wax Crawler",
+   "description": "It darts from cell to cell, dripping honeyed wax. It strikes and is gone before the sting lands.",
+   "type": "wax_crawler",
+   "biome": "hive",
+   "stats": {
+    "health": 90,
+    "maxHealth": 90,
+    "damage": 21,
+    "speed": 135,
+    "armor": 6,
+    "resistance": 5,
+    "knockbackResistance": 0,
+    "xpValue": 110,
+    "memoryValue": 11
+   },
+   "ai": {
+    "behavior": "hit_and_run",
+    "aggroRange": 320,
+    "attackRange": 46,
+    "attackCooldown": 1.6,
+    "patrolRadius": 150
+   },
+   "hitbox": {
+    "width": 28,
+    "height": 34,
+    "offsetX": 0,
+    "offsetY": -6
+   },
+   "sprite": {
+    "width": 40,
+    "height": 40,
+    "texture": "enemy_wax_crawler"
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.7,
+     "min": 2,
+     "max": 4
+    }
+   ]
   }
   ],
   "eliteModifiers": [

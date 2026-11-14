@@ -9,3 +9,4 @@ Persisted state carries a format version. A loader refuses a version it does not
 without modifying or quarantining that file; older versions migrate when a migration exists.
 
 ## Rules
+- **G-001** (user): Do not ask a human for UI review; an agent reviews the running UI and records itself as reviewer.

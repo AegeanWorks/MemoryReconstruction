@@ -49,7 +49,9 @@ describe('responsive UI review', () => {
     expect(narrow).toMatch(/\.hub-expedition\s*\{[^}]*position:\s*fixed/s);
     expect(narrow).toContain('.hub-expedition .btn:disabled');
     expect(narrow).toMatch(/\.hud-kit\s*\{[^}]*white-space:\s*normal/s);
-    expect(narrow).toMatch(/\.hud-vitals\s*\{[^}]*calc\(100vw - 24px\)/s);
+    expect(narrow).toMatch(
+      /\.hud-vitals\s*\{[^}]*calc\(100vw - 24px - var\(--safe-left\) - var\(--safe-right\)\)/s
+    );
   });
 
   it('wraps wide feats and bounds toasts and the loading title', () => {

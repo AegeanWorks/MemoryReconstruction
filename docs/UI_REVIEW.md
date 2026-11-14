@@ -158,3 +158,77 @@ top-aligned by the deliberate `safe center` rule that keeps tall shrine screens
 on screen at 800x600. Centering short screens would require a separate
 container-size rule and a fresh tall-screen check; it is left as a design
 decision rather than changed in this pass.
+
+## 2026-11-14 audit: geometry, contrast and focus
+
+Method: the running Vite build was driven in Chromium at **390x844**, **768x1024** and **1440x900**.
+Every screen reachable without combat (title, hub, Set Out, Settings, Controls, Notice Board, Training
+Yard, Meditation Stone, Reliquary, Cairn, Aspect Shrine, Reforge, Memories) plus the in-run Pause, Map,
+Relics and Quest screens was measured: every button was hit-tested with `elementFromPoint`, pairs of
+visible buttons were checked for rect overlap, and panels/headings/buttons were checked for horizontal
+overflow past the viewport. Elements clipped by a scroll container were excluded from the overlap
+check, because their client rects extend outside the scrollport even though they cannot be clicked.
+
+Results:
+
+- No horizontal overflow and no clickable-button overlap on any of the 17 screens at the three widths.
+- The Relics bag and the Quest log at 390x844 report their lower `Equip` / `Sell` / `Discard` / `Back`
+  buttons below the fold. They sit inside the scrolling `.screen`, so scrolling reaches them; this is
+  expected on a tall phone and not a defect.
+- One Set Out overlap was a false positive: at `scrollTop 0` five of the nine checkpoint rows are
+  scrolled out of the `.checkpoint-list` scrollport, and their rects still cross the daily panels below.
+  `elementFromPoint` confirmed only the five visible rows are reachable.
+- Text contrast: a DOM sweep compositing every text colour over its painted ancestors found one failure
+  in the whole UI, the empty bag slot ("Empty slot" and its hint at 2.08:1). It now uses `--ink-dim`
+  (10.29:1). All palette tokens clear AA on both the page and a composited panel; `--ink-dim` clears 7:1
+  because it is used at 10-11px.
+- Focus: every button, card and clickable gear row shows a 2px cyan ring; sliders and checkboxes had only
+  Chromium's near-black UA ring and now share the cyan ring. Settings opens focus on the Master volume
+  slider, and Tab then visits the sliders, difficulty buttons, four checkboxes and Back in order.
+
+A second pass measured the three screens no menu path reaches directly, rendered through the real
+builders with a synthetic `RunState`: the level-up choice screen, the death summary and the victory
+screen, at all four sizes. All three were clean (no overlap, overflow or covered buttons). The choice
+screen needs about 225px of scroll at 390x844 because three 210px cards plus the reroll row exceed the
+viewport; widening the cards to 300px was tried and does not reduce their height, so the scroll is
+intrinsic and was left alone. The death screen needs 33px of scroll at 844x390, once the stats panel and
+three menu buttons are laid out.
+
+### Runtime check
+
+Probe hygiene matters: port 4173 was already held by an unrelated app, and an earlier version of this
+check used `!document.querySelector('.hud')?.classList.contains('hidden')`, which evaluates to true on a
+page with no HUD at all. That attempt reported "in run" for the wrong app and typed its test keys into
+it, so its clean result was meaningless. The numbers below were taken on a fresh port after asserting
+`document.title === 'Memory Reconstruction'` and a real HUD (present and not hidden).
+
+A 20-second played session at 1280x800 (walking, swinging, dashing, stance swaps, flask) collected zero
+`pageerror` events and zero console errors, and the HUD stayed on Section 1.
+
+A 60-second session sampled DOM nodes and the JS heap: nodes held at 103-104 throughout, and the heap
+oscillated between 25 MB and 50 MB as the collector ran with no monotonic climb. Six Pause to Resume and
+six Map to Close cycles each opened the expected screen ("Paused", "Section 1 - Forgotten Ruins") and
+left the node count at 103-104, so screen teardown does not leak nodes.
+
+### Second pass: every screen, three widths
+
+A wider sweep opened **11 hub screens** (Set Out, Settings, Controls, Memories, Notice Board, Training
+Yard, Meditation Stone, Reliquary, Cairn, Aspect Shrine, Reforge) and **4 in-run screens** (Relics bag,
+Pause, map, Quests) at **390x844, 600x900 and 768x1024**, scanning every visible element whose client
+rect leaves the viewport after excluding anything clipped by a scroll container. The bag run injected a
+rank-3 "Colossus Plate" and a second relic so long names were stressed.
+
+Result: 48 of 48 scans clean, no horizontal overflow or scroll (`scrollWidth === clientWidth`).
+
+Method notes, because the first attempt at this sweep produced a misleading "clean":
+
+- The hub's station buttons are `<button class="btn station-button">` whose accessible name is the title
+  followed by the description ("Notice BoardRead the tasks..."), so exact-name role lookup fails at every
+  width. The first sweep silently recorded those seven screens as "NOT OPENED" while still reporting
+  "clean" for the rest. The corrected sweep clicks by text prefix and asserts a screen with the expected
+  heading actually opened, so a screen cannot be counted without being visited.
+- At 390 the hub is a 2200px scroll of building cards and a two-column station grid (179px tiles), not a
+  row of named buttons; the earlier desktop-only navigation never reached the stations at all.
+
+The audit is ad hoc (no Playwright dependency in the project); it is recorded here so the method and the
+clean baseline can be repeated after layout changes.

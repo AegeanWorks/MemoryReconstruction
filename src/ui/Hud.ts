@@ -84,6 +84,9 @@ export class Hud {
   private readonly written = new Map<HTMLElement | CSSStyleDeclaration, string>();
   /** Field-manual checklist, visible on the first section until complete. */
   private readonly checklist = h('div', { class: 'hint checklist hidden' });
+  /** True on touch-first screens, where the manual must name the on-screen controls. */
+  private readonly touch =
+    typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
   private time = 0;
   private mapTimer = 0;
   private objectiveTimer = 0;
@@ -277,9 +280,12 @@ export class Hud {
 
     this.stalked.classList.toggle('hidden', !world.isStalked);
     // Field manual (cyberpulse ADR-037): the next unlearned basic, shown on
-    // the first section until the checklist is complete.
+    // the first section until the checklist is complete. Touch screens name
+    // their on-screen buttons instead of keys they do not have.
     const nextStep =
-      world.run.depth === 0 ? nextOnboardingStep(world.run.stats.onboarding) : undefined;
+      world.run.depth === 0
+        ? nextOnboardingStep(world.run.stats.onboarding, this.touch)
+        : undefined;
     this.checklist.classList.toggle('hidden', nextStep === undefined);
     if (nextStep !== undefined) this.setText(this.checklist, `Field manual — next: ${nextStep}`);
 

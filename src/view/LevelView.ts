@@ -8,7 +8,7 @@ import type { FloorMap } from '../sim/dungeon';
 import type { RoomState } from '../sim/world';
 import { Deco, Tile, TILE_SIZE, type TileGrid } from '../sim/tiles';
 import { fxTextures } from './fxArt';
-import { BIOME_ART, hex } from './palette';
+import { BIOME_ART, floorTone, hex } from './palette';
 import { tileTextures } from './tileArt';
 
 const CHUNK = 16;
@@ -96,6 +96,9 @@ export class LevelView {
   private readonly chunks: Chunk[] = [];
   private readonly doors = new Graphics();
   private readonly torchGfx = new Graphics();
+  /** Pooled additive halos: two per visible torch (wide wash, bright core). */
+  private readonly torchLights = new Container();
+  private readonly torchPool: Sprite[] = [];
   private readonly glyphs: Sprite[] = [];
   private readonly torches: Array<{ x: number; y: number; tint: number; seed: number }> = [];
   private readonly accent: number;
@@ -115,7 +118,7 @@ export class LevelView {
     if (backdrop) this.addBackdrop(backdrop);
     this.build(biome);
     if (dressRooms) this.addDressing(biome);
-    this.root.addChild(this.torchGfx, this.doors);
+    this.root.addChild(this.torchLights, this.torchGfx, this.doors);
   }
 
   /**
@@ -220,10 +223,11 @@ export class LevelView {
     ty: number
   ): boolean {
     const tile = grid.get(tx, ty);
-    const put = (texture: Texture, alpha = 1): void => {
+    const put = (texture: Texture, alpha = 1, tint = 0xffffff): void => {
       const s = new Sprite(texture);
       s.position.set(tx * T, ty * T);
       s.alpha = alpha;
+      s.tint = tint;
       container.addChild(s);
     };
     const isFace = (x: number, y: number): boolean =>
@@ -231,7 +235,7 @@ export class LevelView {
       (grid.isWalkable(x, y + 1) || grid.get(x, y + 1) === Tile.Gate);
 
     if (tile === Tile.Floor || tile === Tile.Door || tile === Tile.Gate) {
-      put(tex.floor[variantAt(tx, ty, tex.floor.length)]);
+      put(tex.floor[variantAt(tx, ty, tex.floor.length)], 1, floorTone(tx, ty));
       const deco = grid.deco[grid.index(tx, ty)] as Deco;
       const decoVariants = tex.deco[deco];
       if (decoVariants && decoVariants.length > 0) {
@@ -339,10 +343,35 @@ export class LevelView {
     this.drawTorches(viewX, viewY, viewW, viewH);
   }
 
+  /** Places pooled halo `index`: a soft additive glow, tinted and breathing with the flame. */
+  private torchLight(
+    index: number,
+    x: number,
+    y: number,
+    size: number,
+    alpha: number,
+    tint: number
+  ): void {
+    let sprite = this.torchPool[index];
+    if (!sprite) {
+      sprite = new Sprite(fxTextures().glow);
+      sprite.anchor.set(0.5);
+      sprite.blendMode = 'add';
+      this.torchLights.addChild(sprite);
+      this.torchPool[index] = sprite;
+    }
+    sprite.visible = true;
+    sprite.position.set(x, y);
+    sprite.width = sprite.height = size;
+    sprite.tint = tint;
+    sprite.alpha = alpha;
+  }
+
   /** Flickering wall torches and sconces with warm radial ambient light. */
   private drawTorches(viewX: number, viewY: number, viewW: number, viewH: number): void {
     const g = this.torchGfx;
     g.clear();
+    let lit = 0;
     const margin = 48;
     const t = this.time;
     for (const torch of this.torches) {
@@ -359,15 +388,9 @@ export class LevelView {
       const px = torch.x;
       const py = torch.y;
 
-      // 1. Ambient warm radial light cast onto the wall and floor (wide soft wash + bright core)
-      g.circle(px, py + 8, 64).fill({
-        color: torch.tint,
-        alpha: 0.05 * flicker,
-      });
-      g.circle(px, py + 8, 36).fill({
-        color: torch.tint,
-        alpha: 0.14 * flicker,
-      });
+      // 1. Soft additive halo cast onto the wall and floor (wide wash + warm core)
+      this.torchLight(lit++, px, py + 10, 200, 0.42 * flicker, torch.tint);
+      this.torchLight(lit++, px, py + 4, 96, 0.6 * flicker, torch.tint);
 
       // 2. Iron wall bracket / sconce mount
       g.rect(px - 2, py + 5, 4, 6).fill({ color: 0x222028 });
@@ -412,6 +435,7 @@ export class LevelView {
         });
       }
     }
+    for (let i = lit; i < this.torchPool.length; i++) this.torchPool[i].visible = false;
   }
 
   private drawDoors(): void {

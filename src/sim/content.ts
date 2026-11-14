@@ -234,6 +234,17 @@ const SPRITE_KEYS: Record<string, string> = {
   ember_squire: 'guardian',
   pale_blademaster: 'crystalGuardian',
   mire_halberdier: 'boneKnight',
+  // Frail first-floor slinger: the catacomb archer's sheet, tinted to ruin stone.
+  rubble_slinger: 'catacombArcher',
+  // Frost bruiser on the bone knight sheet, deep-water ambusher on the gloom stalker's.
+  rime_thrall: 'boneKnight',
+  // Frail casters for the forest and caves, on the wildling and prism wisp sheets.
+  thorn_spitter: 'wildling',
+  pressure_husk: 'brineHulk',
+  rivet_squire: 'boneKnight',
+  wax_crawler: 'cogHound',
+  cavern_glowmoth: 'prismWisp',
+  trench_lurker: 'gloomStalker',
   // The Drowned Court trial boss borrows the leviathan sheet.
   abyssal_revenant: 'leviathan',
 };
@@ -270,6 +281,14 @@ const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
     first_memory: 0xffd98a,
     abyssal_revenant: 0x7fd8e8,
     ember_squire: 0xffb070,
+    rubble_slinger: 0xc8a878,
+    rime_thrall: 0xbfeaff,
+    thorn_spitter: 0xa8e070,
+    pressure_husk: 0x6fa0b8,
+    rivet_squire: 0xffb347,
+    wax_crawler: 0xffd25a,
+    cavern_glowmoth: 0xffd070,
+    trench_lurker: 0x5fd0e8,
     pale_blademaster: 0xbfeaff,
     mire_halberdier: 0x9fd0a0,
     lost_self: 0x9fd8ff,
@@ -308,6 +327,14 @@ const ENEMY_SCALE_OVERRIDES: Record<string, number> = {
   first_memory: 1.0,
   abyssal_revenant: 1.15,
   ember_squire: 1.05,
+  rubble_slinger: 0.9,
+  rime_thrall: 1.1,
+  thorn_spitter: 0.95,
+  pressure_husk: 1.2,
+  rivet_squire: 1.05,
+  wax_crawler: 0.95,
+  cavern_glowmoth: 0.95,
+  trench_lurker: 1.05,
   pale_blademaster: 1.1,
   mire_halberdier: 1.15,
   lost_self: 1.0,
@@ -372,7 +399,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 0,
     biome: 'ruins',
-    roster: ['scavenger', 'memory_echo', 'gutter_runner'],
+    roster: ['scavenger', 'memory_echo', 'gutter_runner', 'rubble_slinger'],
     boss: 'guardian',
     roomCount: 7,
     finale: false,
@@ -381,7 +408,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 1,
     biome: 'forest',
-    roster: ['wildling', 'scavenger', 'memory_echo', 'briar_wolf'],
+    roster: ['wildling', 'scavenger', 'memory_echo', 'briar_wolf', 'thorn_spitter'],
     boss: 'spirit',
     roomCount: 8,
     finale: false,
@@ -390,7 +417,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 2,
     biome: 'caves',
-    roster: ['cave_dweller', 'shadow', 'wildling', 'gloom_stalker'],
+    roster: ['cave_dweller', 'shadow', 'wildling', 'gloom_stalker', 'cavern_glowmoth'],
     boss: 'crystal_golem',
     roomCount: 9,
     finale: false,
@@ -435,7 +462,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 6,
     biome: 'foundry',
-    roster: ['cog_hound', 'solder_wisp', 'bombardier', 'slag_golem'],
+    roster: ['cog_hound', 'solder_wisp', 'bombardier', 'slag_golem', 'rivet_squire'],
     boss: 'clockwork_regent',
     roomCount: 10,
     finale: false,
@@ -454,7 +481,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 8,
     biome: 'abyss',
-    roster: ['drowned', 'tide_caller', 'cinder_wisp'],
+    roster: ['drowned', 'tide_caller', 'trench_lurker', 'pressure_husk'],
     boss: 'leviathan',
     roomCount: 10,
     finale: false,
@@ -483,7 +510,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
     roster: [
       'frost_stalker',
       'glass_sentinel',
-      'drowned',
+      'rime_thrall',
       'frost_oracle',
       'rime_duelist',
       'pale_blademaster',
@@ -535,7 +562,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 15,
     biome: 'hive',
-    roster: ['hive_drone', 'hive_guard', 'hive_oracle', 'hive_slinger'],
+    roster: ['hive_drone', 'hive_guard', 'hive_oracle', 'hive_slinger', 'wax_crawler'],
     boss: 'hive_queen',
     roomCount: 12,
     finale: false,

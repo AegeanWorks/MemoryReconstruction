@@ -1,212 +1,28 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "gameplay-polish-2",
+    "task_id": "visual-and-content-polish-28-51",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1794164112.114453,
-    "owner": "commandcode:mr-audit",
-    "started_by": "commandcode:mr-audit",
-    "continuations": [],
-    "completed_at": 1794164112.4407227
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1794683931.0496855,
+    "owner": "kilo:goal",
+    "started_by": "claude:1",
+    "continuations": [
+      {
+        "agent": "kilo:goal",
+        "from": "claude:1",
+        "at": 1794643250.2449334
+      }
+    ],
+    "workspaces": [
+      {
+        "name": "MemoryReconstruction",
+        "path": "projects/MemoryReconstruction"
+      }
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "commit-range-audit-v35",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified 1 -> 195: bossAuraTier follows the 60/30 sim phases (ui-boss-aura 2/2); spiralAngles feeds sim and markers (spiral-telegraph 3/3); blinkLanding is locked at windup (blink-target 2/2); no finding; 447 vitest (78 files), 361 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794158071.8461874,
-      "timestamp_str": "2026-11-08 20:14:31",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v35",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'commit-range-audit-v35' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794158072.193044,
-      "timestamp_str": "2026-11-08 20:14:32",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v36",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Deep-dive range 1 -> 198: verify the true lunge lane, the summon add cap and quake warnings for blasts that reach inside",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794158084.9502664,
-      "timestamp_str": "2026-11-08 20:14:44",
-      "agent": "commandcode:mr-audit",
-      "impact_assessment": {
-        "why": "The curated deep dives stop at 1 -> 195; 1 -> 198 was only batch-mapped.",
-        "benefits": "The report covers the lunge, summon and quake fixes with current evidence.",
-        "risks": "contract: docs only; dependency: none; concurrency: none; state: none",
-        "mitigation": "Lunge, summon and quake suites plus the full gates."
-      },
-      "plan_digest": "0f6b37c9faabe25bfd4e2048659c7fbebf751fe20cdbdd36c2d914cb1fbc5e1d"
-    },
-    {
-      "task_id": "commit-range-audit-v36",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified 1 -> 198: lungeRange feeds the lane (lunge-telegraph 2/2); summon checks summonCount (summon-cap 1/1); quakeRingPoints uses blast intersection (ui-quake-clip 3/3); no finding; 447 vitest (78 files), 361 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794158137.0393825,
-      "timestamp_str": "2026-11-08 20:15:37",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v36",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'commit-range-audit-v36' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794158137.377087,
-      "timestamp_str": "2026-11-08 20:15:37",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v37",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Deep-dive range 1 -> 201 (End): verify the Crystal Golem beam, volley timing and Ruin Warlord armor, and resync the assets enemies mirror with the 83-enemy runtime copy",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794158175.7703521,
-      "timestamp_str": "2026-11-08 20:16:15",
-      "agent": "commandcode:mr-audit",
-      "impact_assessment": {
-        "why": "The final cumulative range was only batch-mapped. src/data/enemies.json has 83 records (matching the README) while assets/data/enemies.json still has 76, so the distribution mirror is stale for the late-content enemies.",
-        "benefits": "The runtime bestiary and its assets mirror agree, guarded by a parity test, and every cumulative range through End is deep-dived.",
-        "risks": "contract: one assets data sync plus one test; dependency: none; concurrency: enemies data/content test carry the slice; state: none",
-        "mitigation": "Failing-first mirror test, content/assets suites, full npm test/mechanics, typecheck/lint/build and AIKit 8/8."
-      },
-      "plan_digest": "23dca935198d7879ccf24f96a05d4d1da0c169f695718f647002ddbba6f8c61f"
-    },
-    {
-      "task_id": "commit-range-audit-v37",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified 1 -> 201 (End): Crystal Golem beam (crystal-golem-pattern 2/2), volley timing 1/1 and Ruin Warlord armor (1/1, assets 4/4) pass; fixed the runtime/mirror bestiary drift by syncing assets/data/enemies.json and adding a parity test (content 18/18); all 67 cumulative ranges are now deep-dived; 448 vitest (78 files), 362 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794158365.3704755,
-      "timestamp_str": "2026-11-08 20:19:25",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "commit-range-audit-v37",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'commit-range-audit-v37' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794158365.7039413,
-      "timestamp_str": "2026-11-08 20:19:25",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "ui-health-bar-decision",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Close the audit's unblessed .bar restyle by keeping the verified 18px combat bar and pinning it with a CSS regression test",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794159632.9774582,
-      "timestamp_str": "2026-11-08 20:40:32",
-      "agent": "commandcode:mr-audit",
-      "impact_assessment": {
-        "why": "Commit 2918da8 bundled a 16px -> 18px .bar restyle into a short-window hub commit and explicitly left it unblessed; the audit report kept it as an open human-review item. The current UI and screenshots use 18px, so reverting would invalidate the verified layout.",
-        "benefits": "The health-bar height becomes deliberate and regression-guarded, and the audit's last open presentation item closes.",
-        "risks": "contract: one test and one ADR, no runtime change; dependency: none; concurrency: ui.css test/audit report carry the slice; state: none",
-        "mitigation": "New CSS test, full npm test/mechanics, typecheck/lint/build and AIKit 8/8."
-      },
-      "plan_digest": "4bd5e6311c20d70ab0c8cbcb399a224a96e786af2815f0ef88865d95fccc1ae4"
-    },
-    {
-      "task_id": "ui-health-bar-decision",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Kept the verified 18px .bar and pinned it in tests/ui-health-bar.test.ts (2/2; .bar.thin 5px); ADR-174 closes the audit's last open item; 450 vitest (79 files), 362 mechanics (52 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794159776.847719,
-      "timestamp_str": "2026-11-08 20:42:56",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "ui-health-bar-decision",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'ui-health-bar-decision' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794159777.9947937,
-      "timestamp_str": "2026-11-08 20:42:57",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "audit-inventory-self-reference",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Make the generated range inventory omit its own audit-only refresh commit so audit:ranges:check stays current at HEAD",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794161987.014673,
-      "timestamp_str": "2026-11-08 21:19:47",
-      "agent": "commandcode:mr-audit",
-      "impact_assessment": {
-        "why": "A tracked inventory generated from git log is stale by one immediately after the commit that contains it; the strict delivery check therefore failed on audit:ranges:check even though all gates passed.",
-        "benefits": "The checked-in map matches HEAD with a clean tree, and only future content commits require a refresh.",
-        "risks": "contract: one tooling script, one report section and one ADR; dependency: none; concurrency: audit script/report/inventory carry the slice; state: none",
-        "mitigation": "Before/after audit:ranges:check, full npm test/mechanics, typecheck/lint/build, AIKit 8/8 and strict delivery."
-      },
-      "plan_digest": "08f3ef2c7d99f7f3f679c7cc057d98116508be89374ade0b0f3c9b716e594e0c"
-    },
-    {
-      "task_id": "audit-inventory-self-reference",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: audit:ranges generated 68 rows (0 blanks, End 1 -> 203) and audit:ranges:check is green before commit; 450 vitest (79 files), 363 mechanics (53 files), typecheck/lint/build clean, 8/8 AIKit; after this refresh commit the audit-only filter omits it so the map stays current; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794162085.866938,
-      "timestamp_str": "2026-11-08 21:21:25",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "audit-inventory-self-reference",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'audit-inventory-self-reference' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794162086.542982,
-      "timestamp_str": "2026-11-08 21:21:26",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "state-machine-audit",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Audit implicit state machines across app, sim, view, audio and save; verify the high-impact defects; implement the low-risk UX/DX/AX proposals and document deferred/risky ones",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794162749.927371,
-      "timestamp_str": "2026-11-08 21:32:29",
-      "agent": "commandcode:mr-audit",
-      "impact_assessment": {
-        "why": "State is spread across App strings, DOM classes and plain sim records with no transition guards. The verified set includes double run settlement, state-blind floor/victory events, prologue skip, gameplay input latching behind menus, an understated ring telegraph, settings/audio drops and unvalidated restored weapons.",
-        "benefits": "Removes impossible or duplicate transitions, keeps overlay exits consistent, restores tutorial and audio/settings UX, and leaves a documented state catalog with pure helpers and tests.",
-        "risks": "contract: App lifecycle guards, input gate, view/audio settings, restore validation, hazard reset; dependency: none; concurrency: App/Input/ActorView/Renderer/Sound/SaveStore/W; state: no save schema or wire-format change",
-        "mitigation": "Targeted tests for input gating, ring radius, restore weapon and hazard disarm; full npm test/mechanics, typecheck/lint/build, AIKit 8/8."
-      },
-      "plan_digest": "db8debee4566f60c5c026d2925cd1c7bc06e1c2c8ac8e12a9ea50140c6fc11c5"
-    },
     {
       "task_id": "state-machine-audit",
       "phase": "phase 4",
@@ -266,6 +82,439 @@
       "timestamp": 1794164112.4407241,
       "timestamp_str": "2026-11-08 21:55:12",
       "agent": "commandcode:mr-audit"
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Plan: polish UI, graphics, room layouts and mobs from the user's goals; record each cycle (28-51) in docs/IMPROVEMENT_CYCLES.md with failing-first tests and live captures; no commit until the user asks",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794587378.9365604,
+      "timestamp_str": "2026-11-13 19:29:38",
+      "agent": "claude:1",
+      "impact_assessment": {
+        "why": "User goals: aesthetic UI/animation, better room layouts and mobs, more style and graphics",
+        "benefits": "Readable, themed screens at five viewports; richer rooms and rosters; every claim has a test or a capture",
+        "risks": "contract: chicane changes layout drawn per seed so saved daily seeds differ; dependency: none; concurrency: none; state: 78 uncommitted files could be lost without a ledger entry",
+        "mitigation": "Cycle 49 documents the seed change; ledger records the task; tests pin behaviour; commit only on request"
+      },
+      "plan_digest": "c79a8e35321bdc9387b5b11916cae267cc31aa6a143f7e708b7bc7574092b0f4"
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 75 (world fuzz over 400 mutated snapshots and all 23 depths; README drift guard for section/trial/checkpoint/biome/enemy/boss/upgrade/fragment/core/sanctuary/Cairn/Reforge numbers and the __MR__ handle); 691 vitest (160 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        ".aikit/codebase_map.md",
+        "tests/world-fuzz.test.ts",
+        "tests/docs-claims.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794668381.7880645,
+      "timestamp_str": "2026-11-14 17:59:41",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 137 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-75 and docs/UI_REVIEW.md 2026-11-14 audit"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 76 (NPC/quest/bounty/feat/modifier reference integrity, including that every daily bounty enemy is spawnable on some floor) and the extra choice/death/victory screen audit recorded in docs/UI_REVIEW.md; 700 vitest (161 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        ".aikit/codebase_map.md",
+        "tests/sim/content-references.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794669602.4469028,
+      "timestamp_str": "2026-11-14 18:20:02",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 138 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-76 and docs/UI_REVIEW.md 2026-11-14 audit"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 77 (non-finite device input sanitised at the sim boundary; a NaN aim used to poison knockback and freeze movement permanently; regression test written failing first); 704 vitest (162 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        ".aikit/codebase_map.md",
+        "src/sim/world.ts",
+        "tests/sim/input-nan.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794670845.4155087,
+      "timestamp_str": "2026-11-14 18:40:45",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 140 files uncommitted, all gates green",
+        "next": "fuzz deterministic input sequences through World.step for physics invariants",
+        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-77 and docs/UI_REVIEW.md 2026-11-14 audit"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 78 (24-seed random-play fuzz, over 3,000 steps, with non-finite input injection; positions, vitals, bounds, wall overlap and counters all hold); 705 vitest (163 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        ".aikit/codebase_map.md",
+        "tests/sim/world-input-fuzz.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794671139.5515954,
+      "timestamp_str": "2026-11-14 18:45:39",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 141 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-78 and docs/UI_REVIEW.md 2026-11-14 audit"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 79 (audio event switch made compile-exhaustive and proven by removing a case; runtime no-throw test over all 48 events with a fake AudioContext; 20-second played session with zero page errors recorded in docs/UI_REVIEW.md); 709 vitest (164 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        ".aikit/codebase_map.md",
+        "src/audio/Sound.ts",
+        "tests/audio-handle.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794673907.6146526,
+      "timestamp_str": "2026-11-14 19:31:47",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 143 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-79 and docs/UI_REVIEW.md 2026-11-14 audit"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 79 plus a 60-second leak check (DOM nodes flat at 134 across ten Pause cycles, heap oscillating 2.0-4.7 MB with no monotonic climb) recorded in docs/UI_REVIEW.md; 709 vitest (164 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        ".aikit/codebase_map.md",
+        "src/audio/Sound.ts",
+        "tests/audio-handle.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794674360.3821526,
+      "timestamp_str": "2026-11-14 19:39:20",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 143 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-79 and docs/UI_REVIEW.md 2026-11-14 audit"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 79 corrected (audio exhaustiveness proven; runtime check re-run on a verified port after the 4173 port-collision invalidated the first attempt: 26 rounds with zero page/console errors, nodes flat 103-104 across six Pause and six Map cycles, heap 25-50 MB no climb); 709 vitest (164 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        ".aikit/codebase_map.md",
+        "src/audio/Sound.ts",
+        "tests/audio-handle.test.ts",
+        "docs/qa/cycle79-played-session-1280x800.png"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794675313.5866792,
+      "timestamp_str": "2026-11-14 19:55:13",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 145 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-79 and docs/UI_REVIEW.md 2026-11-14 audit"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 80 (relic rarity now written in words on all five relic rows, WCAG 1.4.1; narrow bag rows fixed from 352px/393px right edge to 309px/349px inside a 390px viewport by minmax(0,1fr) and shrinking buttons); 714 vitest (166 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "README.md",
+        "docs/IMPROVEMENT_CYCLES.md",
+        ".aikit/codebase_map.md",
+        "src/ui/Screens.ts",
+        "src/ui/ui.css",
+        "tests/ui-rarity-text.test.ts",
+        "tests/ui-gear-row-phone.test.ts",
+        "docs/qa/cycle80-rarity-text-390x844.png",
+        "docs/qa/cycle80-rarity-text-844x390.png"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794677978.0626838,
+      "timestamp_str": "2026-11-14 20:39:38",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 148 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-80 and docs/UI_REVIEW.md 2026-11-14 audit"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 80 plus a 48-scan layout sweep (11 hub screens and 4 in-run screens at 390x844, 600x900, 768x1024) recorded in docs/UI_REVIEW.md; the first sweep was vacuous because station buttons have prefix names and seven screens were never opened, so the corrected sweep asserts each heading; 714 vitest (166 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/UI_REVIEW.md",
+        ".aikit/codebase_map.md"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794678773.9887242,
+      "timestamp_str": "2026-11-14 20:52:53",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 148 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-80 and docs/UI_REVIEW.md second-pass sweep"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 81 (every screen is a named modal dialog with role/aria-modal/aria-label from heading or title; focus-restore experiment removed after probing showed it never fires in this screen-replacing architecture); 716 vitest (167 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "README.md",
+        "docs/IMPROVEMENT_CYCLES.md",
+        ".aikit/codebase_map.md",
+        "src/ui/Screens.ts",
+        "tests/ui-screen-dialog.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794680555.674527,
+      "timestamp_str": "2026-11-14 21:22:35",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 149 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, real screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-81 and docs/UI_REVIEW.md audits"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 82 (difficulty highlight and aria-pressed now move in place instead of only after reopening Settings; the stored value was already correct); 719 vitest (168 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        ".aikit/codebase_map.md",
+        "src/ui/Screens.ts",
+        "tests/ui-difficulty-selected.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794681307.5115879,
+      "timestamp_str": "2026-11-14 21:35:07",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 150 files uncommitted, all gates green",
+        "next": "audit other in-place-updating screens for the same build-time-state class of bug",
+        "open": "real-device notch, iOS toolbar, real pads, real screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-82 and docs/UI_REVIEW.md audits"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 83 (bag and market re-renders keep panel scroll and in-list focus via data-action keys and clamped index restore; before the fix a sale reset scrollTop 763 to 0 and focus jumped to the filter row); 724 vitest (169 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        ".aikit/codebase_map.md",
+        "src/ui/Screens.ts",
+        "src/app/App.ts",
+        "tests/ui-list-state.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794682188.576872,
+      "timestamp_str": "2026-11-14 21:49:48",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 151 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, real screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-83 and docs/UI_REVIEW.md audits"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 84 (bag filter chips keep focus across the re-render and expose aria-pressed; before, Enter on weapon moved the active filter but focus jumped back to All with no pressed state); 725 vitest (169 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        ".aikit/codebase_map.md",
+        "src/ui/Screens.ts",
+        "tests/ui-list-state.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794682853.1633997,
+      "timestamp_str": "2026-11-14 22:00:53",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 151 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, real screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-84 and docs/UI_REVIEW.md audits"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: cycle 85 (training, meditation, reliquary, aspect, reforge and cairn actions all carry data-action keys and keep focus across rebuilds; restore skips disabled targets and prefers the nearest enabled action); 728 vitest (169 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
+      "files_affected": [
+        "docs/IMPROVEMENT_CYCLES.md",
+        ".aikit/codebase_map.md",
+        "src/ui/Screens.ts",
+        "src/app/App.ts",
+        "tests/ui-list-state.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794683931.0496855,
+      "timestamp_str": "2026-11-14 22:18:51",
+      "agent": "kilo:goal",
+      "checklists": "passed",
+      "handoff": {
+        "state": "about 151 files uncommitted, all gates green",
+        "next": "delivery decision belongs to the user - no commit without explicit approval",
+        "open": "real-device notch, iOS toolbar, real pads, real screen readers, and this environment cannot display images",
+        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-85 and docs/UI_REVIEW.md audits"
+      },
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
     }
   ]
 }

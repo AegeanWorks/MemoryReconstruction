@@ -3,6 +3,7 @@
  * data, so saving a run is JSON.stringify and loading is JSON.parse plus
  * `restoreRun` (which recomputes derived stats).
  */
+import { FINAL_DEPTH } from './content';
 import type { Player } from './entities';
 import { EQUIPMENT_SLOTS, emptyEquipment, equipmentExists } from './equipment';
 import { createPlayer, refreshStats } from './player';
@@ -45,19 +46,23 @@ export interface RunStats {
   onboarding: number;
 }
 
-/** Checklist steps in display order: [bit, label]. */
-export const ONBOARDING_STEPS: ReadonlyArray<readonly [number, string]> = [
-  [1, 'Strike with LMB'],
-  [2, 'Fire a bolt with RMB'],
-  [4, 'Dash through danger with Space'],
-  [8, 'Drink a flask with Q'],
-  [16, 'Equip a relic with I'],
-  [32, 'Clear a hostile room'],
+/**
+ * Checklist steps in display order: [bit, pointer label, touch label]. A phone has no LMB or
+ * keyboard, so its manual names the on-screen control instead.
+ */
+export const ONBOARDING_STEPS: ReadonlyArray<readonly [number, string, string]> = [
+  [1, 'Strike with LMB', 'Strike with the right stick'],
+  [2, 'Fire a bolt with RMB', 'Fire a bolt with the Bolt button'],
+  [4, 'Dash through danger with Space', 'Dash through danger with the Dash button'],
+  [8, 'Drink a flask with Q', 'Drink a flask with the Flask button'],
+  [16, 'Equip a relic with I', 'Equip a relic from the Relics button'],
+  [32, 'Clear a hostile room', 'Clear a hostile room'],
 ];
 
 /** First unfinished checklist step, or undefined when the manual is done. */
-export function nextOnboardingStep(done: number): string | undefined {
-  for (const [bit, label] of ONBOARDING_STEPS) if ((done & bit) === 0) return label;
+export function nextOnboardingStep(done: number, touch = false): string | undefined {
+  for (const [bit, pointerLabel, touchLabel] of ONBOARDING_STEPS)
+    if ((done & bit) === 0) return touch ? touchLabel : pointerLabel;
   return undefined;
 }
 
@@ -219,6 +224,12 @@ export function restoreRun(data: unknown): RunState | undefined {
   )
     return undefined;
   if (!run.player.upgrades || typeof run.player.health !== 'number') return undefined;
+  // Depth drives the floor plan, the section label and the score. A hand-edited or truncated
+  // save can carry a fractional, negative or absurd number, and 1e300 loaded fine but rendered
+  // "Section 1e+300" in the HUD, so keep it to a real section.
+  run.depth = Number.isFinite(run.depth)
+    ? Math.max(0, Math.min(Math.floor(run.depth), FINAL_DEPTH))
+    : 0;
   // A snapshot without a stats block is unusable, not just old: the sim
   // increments counters on it every frame, so reject instead of crashing.
   if (!run.stats || typeof run.stats !== 'object') return undefined;

@@ -927,9 +927,9 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
     'pillars',
     'scatter',
     'open',
-    'pillars',
+    'colonnade',
     'alcoves',
-    'crossing',
+    'chicane',
     'ring',
   ] as const);
   // Big multi-wave chambers (area >= 200, up to 4 waves) never roll open:
@@ -943,6 +943,16 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
     pillar(centre.x + 3, oy, 2);
     pillar(ox, centre.y + 2, 2);
     pillar(centre.x + 3, centre.y + 2, 2);
+  } else if (resolved === 'colonnade') {
+    // Two rows of columns flank the central aisle: a lane to kite along, cover to duck behind.
+    for (const dx of [-4, -2, 2, 4])
+      for (const dy of [-2, 2]) pillar(centre.x + dx, centre.y + dy, 1);
+  } else if (resolved === 'chicane') {
+    // Two offset walls on opposite sides force an S-shaped route; the centre lanes stay open.
+    for (const dy of [2, 3]) {
+      pillar(centre.x - 4, centre.y - dy, 1);
+      pillar(centre.x + 4, centre.y + dy, 1);
+    }
   } else if (resolved === 'scatter') {
     for (let i = 0; i < 5; i++) {
       pillar(rng.int(room.x + 2, room.x + room.w - 3), rng.int(room.y + 2, room.y + room.h - 3), 1);
@@ -951,15 +961,6 @@ function furnish(rng: Rng, grid: TileGrid, room: Room): void {
     // Two broad shoulders of stone: cover on the flanks, open in the middle.
     pillar(room.x + 2, centre.y - 4, 2);
     pillar(room.x + room.w - 4, centre.y + 2, 2);
-  } else if (resolved === 'crossing') {
-    // Four single stones on the diagonals around the room's heart.
-    for (const [dx, dy] of [
-      [-3, -2],
-      [3, -2],
-      [-3, 2],
-      [3, 2],
-    ])
-      pillar(centre.x + dx, centre.y + dy, 1);
   } else if (resolved === 'ring') {
     // A broken ring: four cardinal gaps keep the fight mobile.
     for (let i = 0; i < 8; i++) {

@@ -44,6 +44,7 @@ import { createRun, type RunState } from '../sim/run';
 import { equipmentDef } from '../sim/equipment';
 import { FEATS, flowMilestone, scoreRun } from '../sim/feats';
 import { buildingById } from '../sim/sanctuary';
+import { WEAPONS } from '../sim/weapons';
 import { World } from '../sim/world';
 import {
   SaveStore,
@@ -58,6 +59,7 @@ import {
 import { placeBalloon } from '../ui/balloon';
 import { h } from '../ui/dom';
 import { Hud } from '../ui/Hud';
+import { createTouchControls } from '../ui/TouchControls';
 import {
   Screens,
   aspectScreen,
@@ -149,6 +151,18 @@ export class App {
     this.screens = new Screens(ui);
     ui.append(this.hud.root, this.sanctuaryTitle, this.balloon, this.prompt, this.fade);
     this.input = new Input(renderer.canvas, (action) => this.onMenu(action));
+    // On-screen sticks and buttons for touch devices; CSS shows them only on coarse pointers.
+    this.hud.root.append(
+      createTouchControls(
+        this.input.touch,
+        () =>
+          Math.max(
+            0,
+            WEAPONS.findIndex((weapon) => weapon.id === this.world?.player.weapon)
+          ),
+        (action) => this.onMenu(action)
+      )
+    );
     // Audio needs a user gesture; any first input unlocks it.
     const unlock = (): void => {
       this.sound.unlock();
@@ -510,6 +524,42 @@ export class App {
     this.showHub();
   }
 
+  /**
+   * Long lists are rebuilt after every sale, which threw the reader back to the top of the bag and
+   * put focus on the filter row. Capture the panel scroll and the focused action before the rebuild,
+   * then restore both, clamping the action index when the sold row no longer exists.
+   */
+  private captureListState(): { scrollTop: number; index: number } {
+    const active = document.activeElement as HTMLElement | null;
+    const actions = [...document.querySelectorAll<HTMLElement>('.screen [data-action]')];
+    const panel =
+      active?.closest<HTMLElement>('.panel') ??
+      document.querySelector<HTMLElement>('.screen .panel');
+    return { scrollTop: panel?.scrollTop ?? 0, index: active ? actions.indexOf(active) : -1 };
+  }
+
+  private restoreListState(state: { scrollTop: number; index: number }): void {
+    const panel = document.querySelector<HTMLElement>('.screen .panel');
+    if (panel) panel.scrollTop = state.scrollTop;
+    if (state.index < 0) return;
+    const actions = [...document.querySelectorAll<HTMLElement>('.screen [data-action]')];
+    if (actions.length === 0) return;
+    // The action at this index may have become disabled (picking a weapon turns its button into
+    // "Equipped", a boon into "Meditating"), and a disabled button cannot take focus. Prefer the
+    // nearest usable action after it, then the nearest before it, rather than jumping to the top.
+    const start = Math.min(state.index, actions.length - 1);
+    const order = [
+      ...actions.slice(start + 1),
+      ...actions.slice(0, start + 1).reverse(),
+      actions[start],
+    ];
+    for (const el of order) {
+      if (el instanceof HTMLButtonElement && el.disabled) continue;
+      el.focus({ preventScroll: true });
+      return;
+    }
+  }
+
   private showExpedition(): void {
     this.state = 'hub';
     this.input.releaseAll();
@@ -554,6 +604,7 @@ export class App {
           onSellRelic: (defId) => {
             const next = sellRelic(this.meta, defId);
             if (!next) return;
+            const list = this.captureListState();
             this.sound.click();
             this.meta = {
               ...this.meta,
@@ -564,6 +615,7 @@ export class App {
             };
             this.store.saveMeta(this.meta);
             render();
+            this.restoreListState(list);
           },
           onBack: () => this.click(() => this.closeHubPanel()),
         })
@@ -620,11 +672,13 @@ export class App {
         trainingScreen(
           this.meta,
           (id) => {
+            const list = this.captureListState();
             this.sound.click();
             this.meta = { ...this.meta, startingWeapon: id };
             if (this.world) this.world.player.weapon = id;
             this.store.saveMeta(this.meta);
             render();
+            this.restoreListState(list);
           },
           () => this.click(() => this.closeHubPanel())
         )
@@ -643,10 +697,12 @@ export class App {
           this.meta,
           (boon) => {
             if (this.meta.echoes < 20) return;
+            const list = this.captureListState();
             this.sound.click();
             this.meta = { ...this.meta, echoes: this.meta.echoes - 20, boon };
             this.store.saveMeta(this.meta);
             render();
+            this.restoreListState(list);
           },
           () => this.click(() => this.closeHubPanel())
         )
@@ -822,7 +878,11 @@ export class App {
   private showReliquary(): void {
     this.state = 'hub';
     this.input.releaseAll();
-    const reopen = (): void => this.showReliquary();
+    const reopen = (): void => {
+      const list = this.captureListState();
+      this.showReliquary();
+      this.restoreListState(list);
+    };
     this.screens.show(
       reliquaryScreen({
         meta: this.meta,
@@ -843,7 +903,11 @@ export class App {
   private showAspects(): void {
     this.state = 'hub';
     this.input.releaseAll();
-    const reopen = (): void => this.showAspects();
+    const reopen = (): void => {
+      const list = this.captureListState();
+      this.showAspects();
+      this.restoreListState(list);
+    };
     this.screens.show(
       aspectScreen({
         current: this.meta.aspect,
@@ -864,7 +928,11 @@ export class App {
   private showReforge(): void {
     this.state = 'hub';
     this.input.releaseAll();
-    const reopen = (): void => this.showReforge();
+    const reopen = (): void => {
+      const list = this.captureListState();
+      this.showReforge();
+      this.restoreListState(list);
+    };
     this.screens.show(
       reforgeScreen({
         meta: this.meta,
@@ -889,7 +957,11 @@ export class App {
   private showCairn(): void {
     this.state = 'hub';
     this.input.releaseAll();
-    const reopen = (): void => this.showCairn();
+    const reopen = (): void => {
+      const list = this.captureListState();
+      this.showCairn();
+      this.restoreListState(list);
+    };
     this.screens.show(
       cairnScreen({
         meta: this.meta,
@@ -1113,18 +1185,20 @@ export class App {
       else this.resume();
     };
     let status = 'Click a carried relic to equip it, ↑↓ to browse, or sell what you will not wear.';
-    const render = (): void => {
+    const render = (list?: { scrollTop: number; index: number }): void => {
       this.screens.show(
         inventoryScreen(
           world,
           () => this.click(close),
           (message) => {
+            const state = this.captureListState();
             if (message) status = message;
-            render();
+            render(state);
           },
           status
         )
       );
+      if (list) this.restoreListState(list);
     };
     render();
   }

@@ -650,9 +650,23 @@ export class ActorView {
         ? Math.sin(this.time * 40) * 1.5
         : 0;
     const grow = e.state === 'spawning' ? Math.max(0.1, 1 - e.stateTime / 0.7) : 1;
+    // A slow, per-mob desynced breath while nothing else poses the body.
+    const calm =
+      !moving &&
+      !windup &&
+      !attacking &&
+      !staggered &&
+      e.state !== 'spawning' &&
+      e.state !== 'dying';
+    const breathe = calm ? 1 + Math.sin(this.time * 2.6 + e.id) * 0.022 : 1;
     a.body.scale.set(
-      a.baseScale * facing * grow * (windup ? 1.08 : staggered ? 0.94 : 1 + lunge * 0.5),
-      a.baseScale * grow * (1 + bob) * (windup ? 0.92 : staggered ? 1.06 : 1 - lunge * 0.2)
+      (a.baseScale * facing * grow * (windup ? 1.08 : staggered ? 0.94 : 1 + lunge * 0.5)) /
+        breathe,
+      a.baseScale *
+        grow *
+        (1 + bob) *
+        (windup ? 0.92 : staggered ? 1.06 : 1 - lunge * 0.2) *
+        breathe
     );
     // Kinetic knockback recoil tilt away from the impact vector
     const knockSpeed = Math.abs(e.knockX) + Math.abs(e.knockY);

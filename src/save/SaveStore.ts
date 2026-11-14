@@ -30,15 +30,31 @@ const DEFAULT_SETTINGS = {
   screenFlash: true,
 };
 
+/** True when the player asked their operating system to reduce motion. */
+function prefersReducedMotion(): boolean {
+  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/**
+ * First-run settings. A player who asked their OS to reduce motion starts with the camera
+ * shake and hurt flash already off, and can turn either back on in Settings. A stored save
+ * always wins, so nobody's existing choice changes.
+ */
+export function defaultSettings(): Settings {
+  const calm = prefersReducedMotion();
+  return { ...DEFAULT_SETTINGS, screenShake: !calm, screenFlash: !calm };
+}
+
 const SettingsSchema = z.object({
   masterVolume: z.number().min(0).max(1).default(DEFAULT_SETTINGS.masterVolume),
   musicVolume: z.number().min(0).max(1).default(DEFAULT_SETTINGS.musicVolume),
   sfxVolume: z.number().min(0).max(1).default(DEFAULT_SETTINGS.sfxVolume),
-  screenShake: z.boolean().default(DEFAULT_SETTINGS.screenShake),
+  // Lazy defaults, so a save that predates these fields still picks up the OS motion preference.
+  screenShake: z.boolean().default(() => defaultSettings().screenShake),
   difficulty: z.enum(['story', 'normal', 'nightmare']).default('normal'),
   damageNumbers: z.boolean().default(true),
   autoPause: z.boolean().default(true),
-  screenFlash: z.boolean().default(true),
+  screenFlash: z.boolean().default(() => defaultSettings().screenFlash),
 });
 
 const QuestSchema = z.object({
@@ -127,7 +143,7 @@ const MetaSchema = z.object({
     .default([]),
   /** Daily-descent retention: best score per day plus streak tracking. */
   daily: DailySchema.default({ best: {}, streak: 0, bestStreak: 0, lastKey: '' }),
-  settings: SettingsSchema.default(DEFAULT_SETTINGS),
+  settings: SettingsSchema.default(() => defaultSettings()),
 });
 
 export type Settings = z.infer<typeof SettingsSchema>;
@@ -163,7 +179,7 @@ export function defaultMeta(): Meta {
     offerings: 0,
     relicRanks: {},
     quests: { accepted: [], claimed: [], acceptedAt: {} },
-    settings: { ...DEFAULT_SETTINGS },
+    settings: defaultSettings(),
   };
 }
 
@@ -250,6 +266,9 @@ function recoverFields<T extends Record<string, unknown>>(
   const obj = raw as Record<string, unknown>;
   const result: Record<string, unknown> = { ...fallback };
   for (const [key, schema] of Object.entries(shape)) {
+    // An absent field keeps the fallback rather than the schema default: the fallback is
+    // defaultSettings(), which already folds in the OS reduced-motion preference.
+    if (obj[key] === undefined) continue;
     const parsed = schema.safeParse(obj[key]);
     if (parsed.success) result[key] = parsed.data;
   }

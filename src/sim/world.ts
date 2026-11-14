@@ -120,6 +120,30 @@ export interface FloorObjectives {
   claimed: boolean;
 }
 
+/**
+ * Device input is untrusted: a faulty gamepad axis can report NaN, and one NaN aim used to make the
+ * swing's forward step add NaN to knockback, after which `moveAndCollide` took zero steps forever and
+ * the run was frozen. A non-finite stick stops movement for that frame, a non-finite aim keeps the
+ * current facing, and an ordinary frame is passed through untouched.
+ */
+function safeInput(input: InputFrame, player: RunState['player']): InputFrame {
+  const { moveX, moveY, aimX, aimY } = input;
+  if (
+    Number.isFinite(moveX) &&
+    Number.isFinite(moveY) &&
+    Number.isFinite(aimX) &&
+    Number.isFinite(aimY)
+  )
+    return input;
+  return {
+    ...input,
+    moveX: Number.isFinite(moveX) ? moveX : 0,
+    moveY: Number.isFinite(moveY) ? moveY : 0,
+    aimX: Number.isFinite(aimX) ? aimX : player.x + Math.cos(player.aim),
+    aimY: Number.isFinite(aimY) ? aimY : player.y + Math.sin(player.aim),
+  };
+}
+
 export class World implements Arena {
   readonly floor: FloorMap;
   readonly plan: FloorPlan;
@@ -307,7 +331,7 @@ export class World implements Arena {
    * call, including any raised between steps (e.g. by tests or debug tools).
    */
   step(input: InputFrame, dt: number): SimEvent[] {
-    this.advance(input, dt);
+    this.advance(safeInput(input, this.player), dt);
     const events = this.events;
     this.events = [];
     return events;

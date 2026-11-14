@@ -1,11 +1,12 @@
 /**
- * Keyboard, mouse and gamepad input, turned into one InputFrame per sim step.
+ * Keyboard, mouse, gamepad and touch input, turned into one InputFrame per sim step.
  *
  * Held buttons (move, attack, bolt) are sampled; one-shot actions (dash,
  * potion, interact) latch until a sim step consumes them, so a tap between
  * two steps is never lost.
  */
 import type { InputFrame } from '../sim/entities';
+import { TouchState } from './touch';
 
 export type MenuAction = 'pause' | 'confirm' | 'map' | 'inventory';
 
@@ -31,6 +32,7 @@ export class Input {
   private mouseX = 0;
   private mouseY = 0;
   private mouseLeft = false;
+  private lastPointerTouch = false;
   private mouseRight = false;
   private latched = {
     attack: false,
@@ -43,6 +45,8 @@ export class Input {
     trap: false,
     art: false,
   };
+  /** Virtual sticks and buttons, fed by the on-screen overlay on touch devices. */
+  readonly touch = new TouchState();
   private padButtons: boolean[] = [];
   private padAim: { x: number; y: number } | undefined;
   /** True after the last aim came from a gamepad stick rather than the mouse. */
@@ -60,7 +64,12 @@ export class Input {
       this.mouseY = e.clientY;
       this.usingPad = false;
     });
+    // A touch tap is followed by compatibility mouse events; remember it so they are not read as clicks.
+    target.addEventListener('pointerdown', (e) => {
+      this.lastPointerTouch = e.pointerType === 'touch';
+    });
     target.addEventListener('mousedown', (e) => {
+      if (this.lastPointerTouch) return;
       if (e.button === 0) {
         this.mouseLeft = true;
         this.latched.attack = true;
@@ -124,6 +133,7 @@ export class Input {
     this.held.clear();
     this.mouseLeft = false;
     this.mouseRight = false;
+    this.touch.reset();
     this.latched = {
       attack: false,
       bolt: false,
@@ -150,18 +160,22 @@ export class Input {
     }
     const pressed = pad.buttons.map((b) => b.pressed);
     const edge = (i: number): boolean => !!pressed[i] && !this.padButtons[i];
-    if (edge(0) || edge(5)) this.latched.dash = true; // A / RB
-    if (edge(2)) this.latched.potion = true; // X
-    if (edge(3)) this.latched.interact = true; // Y
-    if (edge(10)) this.latched.bomb = true; // L3
-    if (edge(11)) this.latched.trap = true; // R3
-    if (edge(4)) this.latched.art = true; // LB
-    if (edge(12)) this.latched.weapon = 0; // D-pad up
-    if (edge(14)) this.latched.weapon = 1; // D-pad left
-    if (edge(15)) this.latched.weapon = 2; // D-pad right
+    // A DOM screen owns the gamepad too: only menu edges while it is open, so a combat button
+    // pressed in a menu cannot fire the moment the screen closes.
     if (edge(9)) this.onMenu('pause'); // Start
     if (edge(8)) this.onMenu('map'); // Back
     if (edge(1)) this.onMenu('confirm'); // B
+    if (!document.querySelector('.screen')) {
+      if (edge(0) || edge(5)) this.latched.dash = true; // A / RB
+      if (edge(2)) this.latched.potion = true; // X
+      if (edge(3)) this.latched.interact = true; // Y
+      if (edge(10)) this.latched.bomb = true; // L3
+      if (edge(11)) this.latched.trap = true; // R3
+      if (edge(4)) this.latched.art = true; // LB
+      if (edge(12)) this.latched.weapon = 0; // D-pad up
+      if (edge(14)) this.latched.weapon = 1; // D-pad left
+      if (edge(15)) this.latched.weapon = 2; // D-pad right
+    }
     this.padButtons = pressed;
     const rx = pad.axes[2] ?? 0;
     const ry = pad.axes[3] ?? 0;
@@ -187,6 +201,10 @@ export class Input {
       moveX = pad.axes[0];
       moveY = pad.axes[1];
     }
+    if (this.touch.move.x !== 0 || this.touch.move.y !== 0) {
+      moveX = this.touch.move.x;
+      moveY = this.touch.move.y;
+    }
 
     let aim = toWorld(this.mouseX, this.mouseY);
     if (this.usingPad) {
@@ -195,21 +213,39 @@ export class Input {
       aim = { x: playerX + dir.x * 100, y: playerY + dir.y * 100 };
     }
 
+    // The right touch stick aims relative to the walker and wins over the mouse while it is down.
+    if (this.touch.aim) {
+      aim = { x: playerX + this.touch.aim.x * 100, y: playerY + this.touch.aim.y * 100 };
+    }
+
+    const touch = this.touch.consume();
     const padHeld = (i: number): boolean => !!pad?.buttons[i]?.pressed;
     const frame: InputFrame = {
       moveX,
       moveY,
       aimX: aim.x,
       aimY: aim.y,
-      attack: this.mouseLeft || this.any(KEYS.attack) || padHeld(7) || this.latched.attack,
-      bolt: this.mouseRight || this.any(KEYS.bolt) || padHeld(6) || this.latched.bolt,
-      dash: this.latched.dash,
-      potion: this.latched.potion,
-      interact: this.latched.interact,
-      weapon: this.latched.weapon,
-      bomb: this.latched.bomb,
-      trap: this.latched.trap,
-      art: this.latched.art,
+      attack:
+        this.mouseLeft ||
+        this.any(KEYS.attack) ||
+        padHeld(7) ||
+        this.latched.attack ||
+        this.touch.attackHeld ||
+        touch.attack,
+      bolt:
+        this.mouseRight ||
+        this.any(KEYS.bolt) ||
+        padHeld(6) ||
+        this.latched.bolt ||
+        this.touch.boltHeld ||
+        touch.bolt,
+      dash: this.latched.dash || touch.dash,
+      potion: this.latched.potion || touch.potion,
+      interact: this.latched.interact || touch.interact,
+      weapon: this.latched.weapon >= 0 ? this.latched.weapon : touch.weapon,
+      bomb: this.latched.bomb || touch.bomb,
+      trap: this.latched.trap || touch.trap,
+      art: this.latched.art || touch.art,
     };
     this.latched = {
       attack: false,
