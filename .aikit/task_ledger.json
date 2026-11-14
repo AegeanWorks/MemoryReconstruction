@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794698236.9113626,
+    "updated_at": 1794698976.216757,
     "owner": "kiro:1",
     "started_by": "claude:1",
     "continuations": [
@@ -87,41 +87,6 @@
       "timestamp": 1794164112.4407241,
       "timestamp_str": "2026-11-08 21:55:12",
       "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: cycle 86 (Meditation Stone uses the place-screen layout, shows echoes and why a boon is unavailable; MEDITATION_COST shared); new test red then green; browser probe 1280x720 and 390x844 clean; 8/8 gates; ADR-206; UI task closed under G-001",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794687624.2026558,
-      "timestamp_str": "2026-11-14 23:20:24",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Sanctuary program milestone 1, inventory grid and paper doll: (1) pure drag logic in src/ui/inventoryDrag.ts (resolveDrop, bagCells, drag threshold) with failing-first unit tests; (2) src/ui/InventoryGrid.ts builds a paper doll (three slot boxes around the player idle frame) and a 5x2 bag grid with pointer-event drag and drop (mouse and touch), click still equips, worn relic dragged to the bag unequips, wrong slot shows a rejection; mounted at the top of inventoryScreen, list rows stay as the detail and keyboard path; (3) CSS, probe at 1280x720 and 390x844, ADR, README, UI task. Later milestones: armor and trinket overlays on the player, NPCs, room layouts, graphics.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794687897.8570776,
-      "timestamp_str": "2026-11-14 23:24:57",
-      "agent": "kiro:1",
-      "plan_digest": "bd3fecceb000e7565a65f1ecd3fd5559b9b77603712eb2cdf2e839822f1385ef",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
     },
     {
       "task_id": "visual-and-content-polish-28-51",
@@ -323,6 +288,47 @@
       "status": "in_progress",
       "timestamp": 1794698236.9113626,
       "timestamp_str": "2026-11-15 02:17:16",
+      "agent": "kiro:1",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Milestone 5 part 2, room props: fix Gardener, Warden and Lamplighter routes that walk through furniture and test that no route segment crosses furniture; one signature prop per resident (lectern, bellows, seed trays, training dummy, lamp ladder, pantry) added to the main generator and rendered with its own functions, appended to both atlas mirrors and graphics.assets.json in generator order; failing-first tests; probe; docs; ADR.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794698611.4212692,
+      "timestamp_str": "2026-11-15 02:23:31",
+      "agent": "kiro:1",
+      "impact_assessment": {
+        "why": "All six rooms share one furniture set, and three residents walk through furniture.",
+        "benefits": "Each room has an object only its resident uses; residents walk around furniture.",
+        "risks": "contract: sprite_atlas.json props gains six keys; dependency: the main generator rebuilds the atlas, so new props must be in its list; concurrency: none; state: no save data changes",
+        "mitigation": "Props added to the generator's own list and palette; atlas round-trip verified byte-identical; tests require each prop in the atlas and in its room, on floor, off routes."
+      },
+      "plan_digest": "c584bfc856a88dfff5075cf84b3e222f86a2cb6c10a37f7e9bf7fd04fecd6f21",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/2] Verified: six resident props in the main generator (palette, drawing, prop list), rendered with its own functions, appended to both atlas mirrors and graphics.assets.json; 8/8 gates with the art alone",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794698976.216757,
+      "timestamp_str": "2026-11-15 02:29:36",
       "agent": "kiro:1",
       "workspaces": [
         {

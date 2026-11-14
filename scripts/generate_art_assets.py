@@ -2659,6 +2659,12 @@ def prop_image(kind: str) -> Image.Image:
         "furn_chandelier": ((40, 34, 30), (150, 130, 100), (255, 214, 140)),
         "furn_tapestry": ((48, 36, 44), (148, 116, 140), (255, 214, 150)),
         "cairn_stack": ((40, 38, 36), (118, 116, 112), (255, 196, 110)),
+        "furn_lectern": ((44, 34, 26), (150, 116, 78), (240, 226, 190)),
+        "furn_bellows": ((52, 36, 24), (150, 104, 62), (255, 150, 70)),
+        "furn_seed_trays": ((48, 38, 28), (132, 100, 66), (150, 220, 110)),
+        "furn_dummy": ((54, 42, 28), (182, 150, 104), (200, 60, 60)),
+        "furn_ladder": ((46, 36, 26), (150, 116, 78), (255, 214, 130)),
+        "furn_pantry": ((45, 36, 26), (124, 92, 58), (220, 140, 90)),
     }[kind]
     dark, light, accent = palette
     ellipse(draw, cell, 0.18, 0.82, 0.82, 0.94, fill=Shadow)
@@ -3163,6 +3169,71 @@ def prop_image(kind: str) -> Image.Image:
         line(draw, cell, [(0.50, 0.48), (0.50, 0.40)], dark, 2)
         ellipse(draw, cell, 0.44, 0.28, 0.56, 0.42, fill=accent, outline=Outline, width=1)
         ellipse(draw, cell, 0.33, 0.16, 0.67, 0.50, fill=(255, 220, 140, 55))
+    elif kind == "furn_lectern":
+        # The Archivist's reading stand: a slanted top holding an open book on one post.
+        rect(draw, cell, 0.30, 0.86, 0.70, 0.94, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.45, 0.48, 0.55, 0.88, fill=light, outline=Outline, width=2)
+        poly(draw, cell, [(0.16, 0.50), (0.84, 0.40), (0.86, 0.48), (0.18, 0.58)], fill=light, outline=Outline, width=2)
+        poly(draw, cell, [(0.22, 0.46), (0.50, 0.40), (0.50, 0.30), (0.24, 0.36)], fill=accent, outline=Outline, width=1)
+        poly(draw, cell, [(0.50, 0.40), (0.78, 0.36), (0.76, 0.26), (0.50, 0.30)], fill=accent, outline=Outline, width=1)
+        for i in range(3):
+            line(draw, cell, [(0.28, 0.40 - i * 0.025), (0.46, 0.36 - i * 0.025)], dark, 1)
+        line(draw, cell, [(0.50, 0.40), (0.52, 0.56)], (200, 60, 60), 2)
+    elif kind == "furn_bellows":
+        # The Smith's bellows: two boards with a pleated leather bag and a brass nozzle.
+        poly(draw, cell, [(0.16, 0.50), (0.70, 0.40), (0.86, 0.54), (0.70, 0.66), (0.16, 0.60)], fill=light, outline=Outline, width=2)
+        for x in (0.30, 0.42, 0.54):
+            line(draw, cell, [(x, 0.48), (x + 0.02, 0.62)], dark, 2)
+        rect(draw, cell, 0.84, 0.51, 0.96, 0.57, fill=(214, 170, 90), outline=Outline, width=1)
+        line(draw, cell, [(0.16, 0.50), (0.06, 0.36)], dark, 3)
+        line(draw, cell, [(0.16, 0.60), (0.06, 0.74)], dark, 3)
+        rect(draw, cell, 0.20, 0.70, 0.76, 0.92, fill=dark, outline=Outline, width=2, radius=0.02)
+        glow(draw._image, lambda d: ellipse(d, cell, 0.80, 0.42, 1.0, 0.66, fill=(255, 150, 70, 70)), blur=3.0)
+    elif kind == "furn_seed_trays":
+        # The Gardener's seed trays: three wooden flats of seedlings on a low trestle.
+        for x in (0.20, 0.80):
+            rect(draw, cell, x - 0.03, 0.62, x + 0.03, 0.92, fill=dark, outline=Outline, width=2)
+        for i, y in enumerate((0.36, 0.48, 0.60)):
+            rect(draw, cell, 0.10 + i * 0.03, y, 0.90 - i * 0.03, y + 0.08, fill=light, outline=Outline, width=2)
+            for k in range(5):
+                x = 0.18 + i * 0.03 + k * 0.14
+                line(draw, cell, [(x, y + 0.01), (x, y - 0.05)], accent, 2)
+                ellipse(draw, cell, x - 0.025, y - 0.08, x + 0.025, y - 0.04, fill=accent)
+    elif kind == "furn_dummy":
+        # The Warden's training dummy: a straw body on a post, with a painted target.
+        rect(draw, cell, 0.46, 0.60, 0.54, 0.92, fill=dark, outline=Outline, width=2)
+        rect(draw, cell, 0.30, 0.86, 0.70, 0.94, fill=dark, outline=Outline, width=2)
+        ellipse(draw, cell, 0.30, 0.34, 0.70, 0.70, fill=light, outline=Outline, width=2)
+        line(draw, cell, [(0.16, 0.44), (0.84, 0.44)], dark, 4)
+        ellipse(draw, cell, 0.38, 0.12, 0.62, 0.36, fill=light, outline=Outline, width=2)
+        ellipse(draw, cell, 0.41, 0.44, 0.59, 0.62, outline=accent, width=2)
+        ellipse(draw, cell, 0.47, 0.50, 0.53, 0.56, fill=accent)
+        for x in (0.36, 0.64):
+            line(draw, cell, [(x, 0.66), (x + (0.04 if x > 0.5 else -0.04), 0.74)], (214, 190, 130), 1)
+    elif kind == "furn_ladder":
+        # The Lamplighter's ladder with an oil can hooked on a rung.
+        for x in (0.32, 0.62):
+            line(draw, cell, [(x, 0.92), (x + 0.06, 0.08)], light, 3)
+        for i in range(6):
+            y = 0.82 - i * 0.13
+            line(draw, cell, [(0.33 + (0.82 - y) * 0.07, y), (0.63 + (0.82 - y) * 0.07, y)], dark, 3)
+        rect(draw, cell, 0.66, 0.40, 0.80, 0.56, fill=(120, 118, 128), outline=Outline, width=2, radius=0.02)
+        line(draw, cell, [(0.80, 0.44), (0.88, 0.38)], (120, 118, 128), 2)
+        ellipse(draw, cell, 0.68, 0.30, 0.78, 0.40, fill=accent, outline=Outline, width=1)
+        glow(draw._image, lambda d: ellipse(d, cell, 0.58, 0.20, 0.88, 0.50, fill=(255, 214, 130, 60)), blur=4.0)
+    elif kind == "furn_pantry":
+        # The Hearthkeeper's pantry: an open cupboard of jars, a cheese and hanging herbs.
+        rect(draw, cell, 0.14, 0.16, 0.86, 0.94, fill=dark, outline=Outline, width=3, radius=0.02)
+        for y in (0.40, 0.64):
+            rect(draw, cell, 0.16, y, 0.84, y + 0.04, fill=light, outline=Outline, width=1)
+        jars = ((0.22, 0.26, accent), (0.38, 0.28, (200, 170, 90)), (0.54, 0.26, (150, 70, 110)),
+                (0.70, 0.30, accent), (0.24, 0.52, (200, 170, 90)), (0.44, 0.50, (150, 70, 110)))
+        for x, y, c in jars:
+            rect(draw, cell, x, y, x + 0.11, 0.40 if y < 0.40 else 0.64, fill=c, outline=Outline, width=1, radius=0.02)
+            rect(draw, cell, x + 0.01, y - 0.03, x + 0.10, y, fill=light, outline=Outline, width=1)
+        poly(draw, cell, [(0.60, 0.64), (0.80, 0.64), (0.80, 0.54)], fill=(240, 210, 110), outline=Outline, width=1)
+        for x in (0.30, 0.50, 0.70):
+            line(draw, cell, [(x, 0.68), (x, 0.84)], (110, 150, 80), 2)
     elif kind == "furn_anvil":
         rect(draw, cell, 0.30, 0.82, 0.70, 0.94, fill=dark, outline=Outline, width=2)
         rect(draw, cell, 0.40, 0.64, 0.60, 0.84, fill=dark, outline=Outline, width=2)
@@ -3696,6 +3767,7 @@ def build() -> None:
         "furn_desk", "furn_cauldron", "furn_strings", "furn_chandelier", "furn_tapestry",
         "building_archive", "building_forge", "building_garden", "building_barracks",
         "building_lamphouse", "building_hearth", "npc_hearthkeeper",
+        "furn_lectern", "furn_bellows", "furn_seed_trays", "furn_dummy", "furn_ladder", "furn_pantry",
     ]
     prop_meta = {}
     for prop in props:

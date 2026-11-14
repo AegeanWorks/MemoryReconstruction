@@ -173,7 +173,13 @@
       "building_barracks": "sprites/props/building_barracks.png",
       "building_lamphouse": "sprites/props/building_lamphouse.png",
       "building_hearth": "sprites/props/building_hearth.png",
-      "npc_hearthkeeper": "sprites/props/npc_hearthkeeper.png"
+      "npc_hearthkeeper": "sprites/props/npc_hearthkeeper.png",
+      "furn_lectern": "sprites/props/furn_lectern.png",
+      "furn_bellows": "sprites/props/furn_bellows.png",
+      "furn_seed_trays": "sprites/props/furn_seed_trays.png",
+      "furn_dummy": "sprites/props/furn_dummy.png",
+      "furn_ladder": "sprites/props/furn_ladder.png",
+      "furn_pantry": "sprites/props/furn_pantry.png"
     },
     "ui": {
       "health": "sprites/ui/health.png",

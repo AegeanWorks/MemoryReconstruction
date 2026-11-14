@@ -10,7 +10,7 @@
 - **Total Classes**: `0`
 - **Total Top-Level Functions**: `91`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `4661`
+- **Total Source Lines**: `4733`
 
 ## 🧭 Map Coverage
 - **Indexed**: python (`6` module(s))
@@ -39,7 +39,7 @@
 ### [`scripts/generate_art_assets.py`](scripts/generate_art_assets.py)
 > *Generate the Memory Reconstruction art set.*
 
-**Size**: `3821` lines (`205740` bytes)
+**Size**: `3893` lines (`211167` bytes)
 
 **Functions:**
 - `def rgba(color, alpha)`
