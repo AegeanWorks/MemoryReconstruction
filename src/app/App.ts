@@ -74,6 +74,7 @@ import {
   prologueScreen,
   inventoryScreen,
   mapScreen,
+  MEDITATION_COST,
   meditationScreen,
   memoriesScreen,
   pauseScreen,
@@ -696,10 +697,10 @@ export class App {
         meditationScreen(
           this.meta,
           (boon) => {
-            if (this.meta.echoes < 20) return;
+            if (this.meta.echoes < MEDITATION_COST) return;
             const list = this.captureListState();
             this.sound.click();
-            this.meta = { ...this.meta, echoes: this.meta.echoes - 20, boon };
+            this.meta = { ...this.meta, echoes: this.meta.echoes - MEDITATION_COST, boon };
             this.store.saveMeta(this.meta);
             render();
             this.restoreListState(list);

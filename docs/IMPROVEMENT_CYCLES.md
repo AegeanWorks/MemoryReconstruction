@@ -3879,3 +3879,26 @@ third boon back to the first; browser probing caught it and the ordering was cha
 ### Gate results
 
 See the task summary.
+
+## Cycle 86 - The Meditation Stone looked unfinished next to its sibling place screens
+### FIND
+Reviewing every sanctuary screen at 1280x720 and 390x844: the Reliquary, Reforge and Cairn are centred
+with a scene panel and an explanation. The Meditation Stone sat at the top of the screen with about 60%
+of it empty, had no art even though `station_meditation.png` exists, never showed how many echoes the
+player held, and dimmed all three Meditate buttons at 0 echoes without saying why.
+### IMPLEMENT
+- `src/ui/Screens.ts`: `meditationScreen` uses the `place-screen` layout (art panel with the station
+  sprite and a caption that names the carried boon, echo balance, single-column boon list, a note that
+  reads "You need N more echoes to meditate." or "Meditating again replaces the boon you carry.").
+  `MEDITATION_COST` is exported and replaces the literal 20 in the screen.
+- `src/app/App.ts`: the purchase uses `MEDITATION_COST` too, so the label, the disabled state and the
+  charge cannot drift apart.
+- `src/ui/ui.css`: `.meditation-list`.
+- Tests: `tests/ui-meditation-layout.test.ts` (5 source assertions; 4 failed before the change).
+### RECORD
+Browser probe at 1280x720 and 390x844, no console errors, no horizontal overflow. At 0 echoes all three
+buttons are disabled and the note says 20 more are needed. At 200 echoes, Enter on the second boon left
+180 echoes, disabled that boon as "Meditating", moved focus to `boon:flow` and changed the caption to
+"Sharper Intent rests in you." The cycle 85 focus keys are unchanged.
+### Gate results
+See the task summary.

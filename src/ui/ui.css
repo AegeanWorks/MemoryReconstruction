@@ -2412,6 +2412,12 @@
 .place-content .place-empty {
   width: 100%;
 }
+.meditation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
 @media (max-width: 760px) {
   .place-body {
     grid-template-columns: 1fr;

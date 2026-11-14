@@ -1900,3 +1900,10 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 
 
 
+
+## ADR-206: Meditation Stone adopts the place-screen layout and explains unaffordable boons
+- **Date**: 2026-11-14
+- **Status**: Accepted (Cycle 86, UI / Sanctuary places)
+- **Context**: The Meditation Stone was top-aligned with about 60% of the screen empty, had no art although station_meditation.png exists, did not show the echo balance, and dimmed every boon at 0 echoes without a reason. The Reliquary, Reforge and Cairn already use the place-screen layout.
+- **Decision**: meditationScreen uses place-screen with the station art panel, an echo balance, a single-column boon list that keeps the oon:<id> action keys, and a note stating how many more echoes are needed. MEDITATION_COST is one exported constant used by the screen and by the purchase in App.ts.
+- **Consequences**: The four sanctuary place screens look alike and the disabled state is explained. A browser probe at 1280x720 and 390x844 showed no overflow or console errors, and focus still lands on the nearest enabled boon after a purchase. Tests: 	ests/ui-meditation-layout.test.ts.

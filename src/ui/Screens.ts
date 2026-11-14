@@ -1767,6 +1767,9 @@ export function trainingScreen(
   );
 }
 
+/** Echoes one meditation costs; the purchase in App checks the same number. */
+export const MEDITATION_COST = 20;
+
 export function meditationScreen(
   meta: Meta,
   onBuy: (boon: 'vitality' | 'edge' | 'flow') => void,
@@ -1784,11 +1787,11 @@ export function meditationScreen(
   const rows = options.map((option) => {
     const active = meta.boon === option.id;
     const buy = button(
-      active ? 'Meditating' : 'Meditate · 20 echoes',
+      active ? 'Meditating' : `Meditate · ${MEDITATION_COST} echoes`,
       () => onBuy(option.id),
       'btn small'
     );
-    buy.disabled = active || meta.echoes < 20;
+    buy.disabled = active || meta.echoes < MEDITATION_COST;
     buy.dataset.action = `boon:${option.id}`;
     return h(
       'div',
@@ -1798,13 +1801,42 @@ export function meditationScreen(
       buy
     );
   });
+  const chosen = options.find((option) => option.id === meta.boon);
+  const note =
+    meta.echoes < MEDITATION_COST
+      ? `You need ${MEDITATION_COST - meta.echoes} more echoes to meditate.`
+      : 'Meditating again replaces the boon you carry.';
   return h(
     'div',
-    { class: 'screen hub' },
+    { class: 'screen place-screen' },
     h('div', { class: 'heading' }, 'The Meditation Stone'),
     h('div', { class: 'subtitle' }, 'One boon carries into your next expedition.'),
-    h('div', { class: 'hub-grid' }, ...rows),
-    h('div', { class: 'menu' }, button('Back', onBack, 'btn primary'))
+    h(
+      'div',
+      { class: 'place-body' },
+      h(
+        'div',
+        { class: 'place-art' },
+        h('img', { src: assetUrl('sprites/props/station_meditation.png'), alt: '' }),
+        h(
+          'div',
+          { class: 'place-art-caption' },
+          chosen ? `${chosen.name} rests in you.` : 'The stone waits in silence.'
+        )
+      ),
+      h(
+        'div',
+        { class: 'place-content' },
+        h(
+          'div',
+          { class: 'panel place-panel' },
+          h('div', { class: 'cairn-total' }, `${meta.echoes} echoes`),
+          h('div', { class: 'meditation-list' }, ...rows),
+          h('div', { class: 'place-note' }, note)
+        ),
+        h('div', { class: 'menu' }, button('Back', onBack))
+      )
+    )
   );
 }
 
