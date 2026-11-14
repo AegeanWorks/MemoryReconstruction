@@ -273,6 +273,10 @@ export interface Interactable {
   mimic?: boolean;
   /** A cursed cache whose seal has been strained once (breaks on re-use). */
   armed?: boolean;
+  /** What a Sanctuary resident is doing: working, walking its route, or attending the walker. */
+  pose?: 'work' | 'walk' | 'attend';
+  /** Which way a Sanctuary resident faces: 1 right, -1 left. */
+  facing?: 1 | -1;
 }
 
 export type HazardKind =

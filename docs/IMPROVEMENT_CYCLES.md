@@ -3954,3 +3954,33 @@ with Sun Core showed purple with a gold glow, and dragging Crystal Mail onto the
 console errors. A dash afterimage was not captured; the change there is one line.
 ### Gate results
 See the task summary.
+
+## Cycle 89 - Residents work their rooms instead of standing on one tile
+### FIND
+All six residents stood on the same tile behind the same desk spot, bobbing 1.5 px. The Hearthkeeper was
+drawn with the Smith's sprite: `ActorView` kept its own resident-to-sprite map, which had no Hearthkeeper
+entry, so the fallback `npc_smith` was used although `npc_hearthkeeper.png` exists. Name labels measured
+their distance from where the interactable was created, which would break as soon as a resident moved.
+### IMPLEMENT
+- `src/sim/residents.ts` (pure): `stepResident` works at a stop, walks the fixed route at 38 px/s, and
+  stops and turns to the walker inside 96 px (the talk radius is 44 px), resuming when they leave. No
+  randomness, so a room plays the same way every visit.
+- `src/sim/sanctuary.ts`: each building names its `residentSprite` and a looping `route` that starts at
+  the old post, so the spawn position and the existing tests hold. Stops sit beside each resident's own
+  furniture: the Smith at anvil, hearth and armory, the Gardener among the planters and herbs, the
+  Lamplighter at four lanterns, the Hearthkeeper between the cauldron and the two tables.
+- `src/sim/world.ts`: the resident is stepped in sanctuary mode and its position, pose and facing are
+  written onto the npc interactable, so talking, the balloon and the prompt follow it unchanged.
+- `src/view/ActorView.ts`: the sprite comes from the building data; `residentMotion` flips to the facing
+  and gives each pose its own motion (stepping bob and sway, a slow working dip, an upright attend); labels
+  keep a reference to the live interactable.
+- Tests: `tests/sim/residents.test.ts` (10), two world tests in `tests/sim/sanctuary.test.ts`, and
+  `tests/view-residents.test.ts` (4). All failed before the change; the view test was also run against the
+  previous `ActorView` and failed 4 of 4.
+### RECORD
+Hearth and Forge sampled every 2.5 s with the walker at the door: both residents alternated work and walk and
+faced the way they walked. The Hearth now shows the Hearthkeeper. With the walker placed 40 px left of the
+Smith, the Smith stopped, faced left, and the quest balloon read "new task: Edges for the Wall". No console
+errors. 784 tests.
+### Gate results
+See the task summary.

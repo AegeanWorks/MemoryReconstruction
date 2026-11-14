@@ -8,6 +8,7 @@
  */
 import { AnimatedSprite, Container, Graphics, Sprite, Text, type Texture } from 'pixi.js';
 import type { Enemy, Hazard, Interactable, Pickup, Player, Projectile } from '../sim/entities';
+import { SANCTUARY_BUILDINGS } from '../sim/sanctuary';
 import {
   dashStrikeRange,
   lungeRange,
@@ -102,6 +103,30 @@ function play(actor: ActorSprite, anim: Animation, rate = 1): void {
   }
 }
 
+/**
+ * A resident's body language: a stepping bob and sway while walking, a slow working dip at a
+ * station, an upright stillness while attending the walker, all facing the way the sim says.
+ * Wayfarers and ferrymen have no pose and keep the gentle breathing bob.
+ */
+function residentMotion(sprite: Sprite, it: Interactable, time: number): void {
+  const facing = it.facing ?? 1;
+  sprite.scale.x = Math.abs(sprite.scale.x) * facing;
+  const phase = time + it.id;
+  if (it.pose === 'walk') {
+    sprite.y = -Math.abs(Math.sin(phase * 9)) * 2.5;
+    sprite.rotation = Math.sin(phase * 9) * 0.05;
+  } else if (it.pose === 'work') {
+    sprite.y = Math.max(0, Math.sin(phase * 3.2)) * 2;
+    sprite.rotation = Math.max(0, Math.sin(phase * 3.2)) * 0.06 * facing;
+  } else if (it.pose === 'attend') {
+    sprite.y = -1 + Math.sin(phase * 2) * 0.5;
+    sprite.rotation = 0;
+  } else {
+    sprite.y = Math.sin(phase * 2.2) * 1.5;
+    sprite.rotation = 0;
+  }
+}
+
 /** Which prop sheet (and glow) an interactable uses. */
 function interactableLook(it: Interactable): { prop: string; size: number; glow: number } {
   if (it.kind === 'chest') return { prop: 'memory_chest', size: 64, glow: 0xffd98a };
@@ -119,14 +144,10 @@ function interactableLook(it: Interactable): { prop: string; size: number; glow:
   // The doorway back out to the Sanctuary hub.
   if (it.kind === 'door') return { prop: 'ruins_door', size: 84, glow: 0xffd98a };
   if (it.kind === 'npc') {
-    const NPC_PROPS: Record<string, string> = {
-      archivist: 'npc_archivist',
-      smith: 'npc_smith',
-      gardener: 'npc_gardener',
-      warden: 'npc_warden',
-      lamplighter: 'npc_lamplighter',
-    };
-    return { prop: NPC_PROPS[it.npcId ?? ''] ?? 'npc_smith', size: 58, glow: 0x9df3ff };
+    // Each building names its resident's sprite; the old hand-kept map had no Hearthkeeper entry
+    // and drew the Smith in the Hearth.
+    const building = SANCTUARY_BUILDINGS.find((b) => b.id === it.npcId);
+    return { prop: building?.residentSprite ?? 'npc_smith', size: 58, glow: 0x9df3ff };
   }
   if (it.kind === 'structure') {
     // Every restored station has its own silhouette, so the hall reads as a
@@ -185,7 +206,8 @@ export class ActorView {
   private readonly previous = new Map<number, { x: number; y: number }>();
   private previousPlayer = { x: 0, y: 0 };
   private readonly accent: number;
-  private readonly labels: Array<{ text: Text; x: number; y: number }> = [];
+  /** Name labels; `at` is the live interactable, so a walking resident's label distance stays true. */
+  private readonly labels: Array<{ text: Text; at: { x: number; y: number } }> = [];
   private labelsEnabled = true;
   private time = 0;
   /** The player's own strips, cut for the stance the mirror should copy. */
@@ -1825,7 +1847,7 @@ export class ActorView {
           // The exit sign sits above its arch so it never covers the doorway.
           label.position.set(0, it.kind === 'npc' ? -70 : -112);
           root.addChild(label);
-          this.labels.push({ text: label, x: it.x, y: it.y });
+          this.labels.push({ text: label, at: it });
         }
         return root;
       },
@@ -1852,7 +1874,7 @@ export class ActorView {
             root.children[2].alpha = it.used ? 0.55 : 1;
             if (it.kind === 'npc' || it.kind === 'wayfarer' || it.kind === 'ferryman') {
               const resident = root.children[2] as Sprite | undefined;
-              if (resident) resident.y = Math.sin(this.time * 2.2 + it.id) * 1.5;
+              if (resident) residentMotion(resident, it, this.time);
             }
           }
           if (it.kind === 'chest') {
@@ -1951,7 +1973,7 @@ export class ActorView {
   private updateLabels(): void {
     const p = this.world.player;
     for (const label of this.labels) {
-      const distance = Math.hypot(label.x - p.x, label.y - p.y);
+      const distance = Math.hypot(label.at.x - p.x, label.at.y - p.y);
       const near = this.labelsEnabled && distance > 54 && distance < 260;
       label.text.visible = near;
       if (near) label.text.alpha = Math.min(1, (260 - distance) / 60);

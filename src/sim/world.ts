@@ -25,6 +25,7 @@ import {
   spotToPixels,
   type SanctuaryBuilding,
 } from './sanctuary';
+import { createResident, stepResident, type ResidentState, type RoutePoint } from './residents';
 import {
   createEnemy,
   killEnemy,
@@ -161,6 +162,8 @@ export class World implements Arena {
   readonly pickups: Pickup[] = [];
   readonly interactables: Interactable[] = [];
   readonly hazards: Hazard[] = [];
+  /** The resident of a building interior, walking its route; undefined everywhere else. */
+  private resident: { npc: Interactable; route: RoutePoint[]; state: ResidentState } | undefined;
   /** Non-interactive furniture in the Sanctuary. */
   readonly decor: Array<{
     x: number;
@@ -346,6 +349,7 @@ export class World implements Arena {
     this.time += dt;
     if (this.mode === 'sanctuary') {
       updatePlayer(this, { ...input, bolt: false, bomb: false, trap: false, potion: false }, dt);
+      this.updateResident(dt);
       if (input.interact) this.interact();
       return;
     }
@@ -795,6 +799,17 @@ export class World implements Arena {
     return item;
   }
 
+  /** Walks the room's resident along its route and copies where it stands onto its interactable. */
+  private updateResident(dt: number): void {
+    const resident = this.resident;
+    if (!resident) return;
+    stepResident(resident.state, resident.route, dt, this.player);
+    resident.npc.x = resident.state.x;
+    resident.npc.y = resident.state.y;
+    resident.npc.pose = resident.state.pose;
+    resident.npc.facing = resident.state.facing;
+  }
+
   /** Places the resident and the doorway back to the hub in this one room. */
   private placeBuilding(building: SanctuaryBuilding): void {
     for (const item of building.decor) {
@@ -808,10 +823,15 @@ export class World implements Arena {
       });
     }
     const resident = spotToPixels(INTERIOR_RESIDENT);
-    this.addInteractable('npc', resident.x, resident.y, 0, {
+    const npc = this.addInteractable('npc', resident.x, resident.y, 0, {
       npcId: building.id,
       label: NPCS[building.id]?.name.replace(/^The /, ''),
     });
+    const route = building.route.map((stop) => ({ ...spotToPixels(stop), work: stop.work }));
+    const state = createResident(route);
+    npc.pose = state.pose;
+    npc.facing = state.facing;
+    this.resident = { npc, route, state };
     const exit = spotToPixels(INTERIOR_EXIT);
     this.addInteractable('door', exit.x, exit.y, 0, {
       buildingId: building.id,

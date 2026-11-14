@@ -30,6 +30,13 @@ export interface SanctuaryDecorSpot {
   layer?: 'ground';
 }
 
+/** A stop on a resident's route: a tile and the seconds spent working there. */
+export interface ResidentStop {
+  tx: number;
+  ty: number;
+  work: number;
+}
+
 export interface SanctuaryBuilding {
   /** Resident id; also the building id used by the UI and events. */
   id: string;
@@ -47,6 +54,10 @@ export interface SanctuaryBuilding {
   cardProp: string;
   /** Furniture inside the room, in this interior's tile coordinates. */
   decor: readonly SanctuaryDecorSpot[];
+  /** Prop key of the resident's own sprite. */
+  residentSprite: string;
+  /** Where the resident works, in order and looping; the first stop is the post at INTERIOR_RESIDENT. */
+  route: readonly ResidentStop[];
 }
 
 export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
@@ -59,6 +70,13 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'Shelves of salvaged pages, and a table kept clear for you. The Archivist can tell which expedition ' +
       'a scrap came from by the smell of it — ash, brine, ozone — and files them all the same.',
     theme: 'crystal',
+    residentSprite: 'npc_archivist',
+    route: [
+      { tx: 12, ty: 5, work: 4 },
+      { tx: 5, ty: 6, work: 5 },
+      { tx: 12, ty: 5, work: 3 },
+      { tx: 19, ty: 6, work: 5 },
+    ],
     cardProp: 'furn_shelf',
     decor: [
       { prop: 'furn_shelf', tx: 4, ty: 4, size: 66 },
@@ -93,6 +111,15 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'Heat, hammer and a rack of half-finished blades. The Smith quenches every edge in well water and ' +
       'tests it on silence — if the ring sounds true, it is ready for the deep.',
     theme: 'foundry',
+    residentSprite: 'npc_smith',
+    route: [
+      { tx: 12, ty: 5, work: 3 },
+      { tx: 11, ty: 8, work: 5 },
+      { tx: 12, ty: 5, work: 2 },
+      { tx: 17, ty: 6, work: 4 },
+      { tx: 12, ty: 5, work: 2 },
+      { tx: 7, ty: 6, work: 4 },
+    ],
     cardProp: 'furn_anvil',
     decor: [
       { prop: 'station_armory', tx: 6, ty: 4, size: 84 },
@@ -123,6 +150,13 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'Green things that survived the dark, and a bench to sit on. The Gardener grafts cuttings from every ' +
       'section — frost moss beside bloom petals — to prove the Sanctuary can hold them all at once.',
     theme: 'forest',
+    residentSprite: 'npc_gardener',
+    route: [
+      { tx: 12, ty: 5, work: 3 },
+      { tx: 9, ty: 6, work: 5 },
+      { tx: 14, ty: 10, work: 4 },
+      { tx: 16, ty: 6, work: 5 },
+    ],
     cardProp: 'ancient_tree',
     decor: [
       { prop: 'ancient_tree', tx: 5, ty: 4, size: 96 },
@@ -154,6 +188,13 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'A drill mat, a shield on the wall, and no dust anywhere. The Warden runs the same three forms every ' +
       'morning and insists the walkers do likewise — the deep rewards the rehearsed.',
     theme: 'frost',
+    residentSprite: 'npc_warden',
+    route: [
+      { tx: 12, ty: 5, work: 3 },
+      { tx: 7, ty: 6, work: 5 },
+      { tx: 12, ty: 5, work: 2 },
+      { tx: 17, ty: 7, work: 5 },
+    ],
     cardProp: 'station_bulwark',
     decor: [
       { prop: 'station_bulwark', tx: 6, ty: 4, size: 84 },
@@ -184,6 +225,15 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'Every lamp in the Sanctuary is trimmed from this one room. The workbench smells of oil and hot glass, ' +
       'and the candle by the door is never allowed to go out — it is the first light every expedition sees coming home.',
     theme: 'catacomb',
+    residentSprite: 'npc_lamplighter',
+    route: [
+      { tx: 12, ty: 5, work: 2 },
+      { tx: 7, ty: 5, work: 3 },
+      { tx: 5, ty: 10, work: 3 },
+      { tx: 12, ty: 5, work: 2 },
+      { tx: 19, ty: 10, work: 3 },
+      { tx: 17, ty: 5, work: 3 },
+    ],
     cardProp: 'furn_lantern',
     decor: [
       { prop: 'furn_lantern', tx: 6, ty: 4, size: 58 },
@@ -215,6 +265,13 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'Soup, stories and a chair by the fire for walkers between descents. The Hearthkeeper remembers every ' +
       'expedition by what it ordered, and swears the stew tastes of whichever section you survived.',
     theme: 'bloom',
+    residentSprite: 'npc_hearthkeeper',
+    route: [
+      { tx: 12, ty: 5, work: 4 },
+      { tx: 10, ty: 8, work: 4 },
+      { tx: 12, ty: 5, work: 3 },
+      { tx: 14, ty: 8, work: 4 },
+    ],
     cardProp: 'furn_brazier',
     decor: [
       { prop: 'furn_cauldron', tx: 12, ty: 4, size: 60 },

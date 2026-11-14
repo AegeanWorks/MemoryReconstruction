@@ -1048,5 +1048,29 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "601bfb4626437264f17ecad6a593ed3f48c40ebd3d68dbf2f91e0f64ae1ffd11"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [
+      "src/sim/entities.ts",
+      "src/sim/sanctuary.ts",
+      "src/sim/world.ts",
+      "src/view/ActorView.ts",
+      "src/sim/residents.ts"
+    ],
+    "no_visual_reason": "",
+    "baseline_commit": "fcc60f7f561af6724d376ac36de891aed0da20e9",
+    "contract_hash": "95160ade0a890d579eb44f504bc03a7e4a2f5a819e32114c9f380064423b4042",
+    "started_at": 1794691285.762266,
+    "finished_at": 1794691311.3835773,
+    "strikes": 0,
+    "reviewer": "agent:unidentified",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "d3b9a698d54c9cf81f6b78f47255011724400ef823b77097789a26355ced18ed"
   }
 ]

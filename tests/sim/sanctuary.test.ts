@@ -180,3 +180,43 @@ describe('sanctuary rooms', () => {
     }
   });
 });
+
+describe('residents move about their rooms', () => {
+  const far = (w: World): void => {
+    w.player.x = (INTERIOR_EXIT.tx + 0.5) * TILE_SIZE;
+    w.player.y = (INTERIOR_EXIT.ty + 0.5) * TILE_SIZE;
+  };
+  it('leaves the post to work while the walker keeps away', () => {
+    for (const building of SANCTUARY_BUILDINGS) {
+      const w = room(building.id);
+      far(w);
+      const npc = w.interactables.find((i) => i.kind === 'npc')!;
+      const start = { x: npc.x, y: npc.y };
+      let moved = false;
+      for (let i = 0; i < 60 * 20 && !moved; i++) {
+        far(w);
+        w.step(NO_INPUT, DT);
+        moved = Math.hypot(npc.x - start.x, npc.y - start.y) > TILE_SIZE;
+      }
+      expect(moved, `${building.id} never left the post`).toBe(true);
+      expect(['walk', 'work']).toContain(npc.pose);
+    }
+  });
+  it('stops and faces a walker who comes to talk, and can be talked to there', () => {
+    const w = room('smith');
+    far(w);
+    const npc = w.interactables.find((i) => i.kind === 'npc')!;
+    for (let i = 0; i < 60 * 8; i++) w.step(NO_INPUT, DT);
+    w.player.x = npc.x - 30;
+    w.player.y = npc.y;
+    w.step(NO_INPUT, DT);
+    const held = { x: npc.x, y: npc.y };
+    for (let i = 0; i < 60; i++) w.step(NO_INPUT, DT);
+    expect(npc.pose).toBe('attend');
+    expect(npc.facing).toBe(-1);
+    expect(npc.x).toBe(held.x);
+    expect(npc.y).toBe(held.y);
+    const talk = w.step({ ...NO_INPUT, interact: true }, DT);
+    expect(talk.some((e) => e.type === 'sanctuary' && e.id === 'smith')).toBe(true);
+  });
+});
