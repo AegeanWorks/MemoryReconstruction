@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794691442.9629085,
+    "updated_at": 1794695264.966766,
     "owner": "kiro:1",
     "started_by": "claude:1",
     "continuations": [
@@ -87,65 +87,6 @@
       "timestamp": 1794164112.4407241,
       "timestamp_str": "2026-11-08 21:55:12",
       "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: cycle 81 (every screen is a named modal dialog with role/aria-modal/aria-label from heading or title; focus-restore experiment removed after probing showed it never fires in this screen-replacing architecture); 716 vitest (167 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
-      "files_affected": [
-        "README.md",
-        "docs/IMPROVEMENT_CYCLES.md",
-        ".aikit/codebase_map.md",
-        "src/ui/Screens.ts",
-        "tests/ui-screen-dialog.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794680555.674527,
-      "timestamp_str": "2026-11-14 21:22:35",
-      "agent": "kilo:goal",
-      "checklists": "passed",
-      "handoff": {
-        "state": "about 149 files uncommitted, all gates green",
-        "next": "delivery decision belongs to the user - no commit without explicit approval",
-        "open": "real-device notch, iOS toolbar, real pads, real screen readers, and this environment cannot display images",
-        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-81 and docs/UI_REVIEW.md audits"
-      },
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: cycle 82 (difficulty highlight and aria-pressed now move in place instead of only after reopening Settings; the stored value was already correct); 719 vitest (168 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
-      "files_affected": [
-        "docs/IMPROVEMENT_CYCLES.md",
-        ".aikit/codebase_map.md",
-        "src/ui/Screens.ts",
-        "tests/ui-difficulty-selected.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794681307.5115879,
-      "timestamp_str": "2026-11-14 21:35:07",
-      "agent": "kilo:goal",
-      "checklists": "passed",
-      "handoff": {
-        "state": "about 150 files uncommitted, all gates green",
-        "next": "audit other in-place-updating screens for the same build-time-state class of bug",
-        "open": "real-device notch, iOS toolbar, real pads, real screen readers, and this environment cannot display images",
-        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-82 and docs/UI_REVIEW.md audits"
-      },
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
     },
     {
       "task_id": "visual-and-content-polish-28-51",
@@ -409,6 +350,41 @@
       "status": "in_progress",
       "timestamp": 1794691442.9629085,
       "timestamp_str": "2026-11-15 00:24:02",
+      "agent": "kiro:1",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Sanctuary program milestone 4, room layouts (recorded after implementation, before commit): per-building ASCII plan inside the shared 21x13 footprint, walls only on tiles free of furniture, routes, spawn, exit and lane; tests for plan shape, uniqueness, floor for every visitor tile, route segments, connectivity; one existing test changed from all-floor to matches-plan, named in ADR-210.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794692129.4179611,
+      "timestamp_str": "2026-11-15 00:35:29",
+      "agent": "kiro:1",
+      "plan_digest": "259da7eb42d777358423613c7e70f5154e79779426ed1da99ed8fbd40fc75fcc",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: per-room floor plans in all six interiors; 5 new layout tests (4 failed first); existing all-floor test changed to matches-plan with user approval, named in ADR-210; blocked UI task aborted (it protects tests) and plans restored from backup; browser check of all six rooms; 787 tests; 8/8 gates",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794695264.966766,
+      "timestamp_str": "2026-11-15 01:27:44",
       "agent": "kiro:1",
       "workspaces": [
         {

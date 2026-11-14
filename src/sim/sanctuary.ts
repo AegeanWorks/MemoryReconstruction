@@ -54,6 +54,11 @@ export interface SanctuaryBuilding {
   cardProp: string;
   /** Furniture inside the room, in this interior's tile coordinates. */
   decor: readonly SanctuaryDecorSpot[];
+  /**
+   * The room's floor plan, 13 rows of 21 tiles from the top-left floor tile: '#' is wall (a pillar,
+   * a partition, a rounded corner), '.' is floor. The outer walls are always added around it.
+   */
+  plan: readonly string[];
   /** Prop key of the resident's own sprite. */
   residentSprite: string;
   /** Where the resident works, in order and looping; the first stop is the post at INTERIOR_RESIDENT. */
@@ -70,6 +75,21 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'Shelves of salvaged pages, and a table kept clear for you. The Archivist can tell which expedition ' +
       'a scrap came from by the smell of it — ash, brine, ozone — and files them all the same.',
     theme: 'crystal',
+    plan: [
+      '##.................##',
+      '#...................#',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '###...............###',
+      '.....................',
+      '.....................',
+      '#.....#.......#.....#',
+      '##.................##',
+    ],
     residentSprite: 'npc_archivist',
     route: [
       { tx: 12, ty: 5, work: 4 },
@@ -111,6 +131,21 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'Heat, hammer and a rack of half-finished blades. The Smith quenches every edge in well water and ' +
       'tests it on silence — if the ring sounds true, it is ready for the deep.',
     theme: 'foundry',
+    plan: [
+      '##.................##',
+      '#..................##',
+      '...................##',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '...................##',
+      '.....................',
+      '.....................',
+      '.....................',
+      '##....#.......#......',
+      '###..................',
+    ],
     residentSprite: 'npc_smith',
     route: [
       { tx: 12, ty: 5, work: 3 },
@@ -150,6 +185,21 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'Green things that survived the dark, and a bench to sit on. The Gardener grafts cuttings from every ' +
       'section — frost moss beside bloom petals — to prove the Sanctuary can hold them all at once.',
     theme: 'forest',
+    plan: [
+      '###...............###',
+      '#...................#',
+      '#...................#',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '..................##.',
+      '#...................#',
+      '#...................#',
+      '###...............###',
+    ],
     residentSprite: 'npc_gardener',
     route: [
       { tx: 12, ty: 5, work: 3 },
@@ -188,6 +238,21 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'A drill mat, a shield on the wall, and no dust anywhere. The Warden runs the same three forms every ' +
       'morning and insists the walkers do likewise — the deep rewards the rehearsed.',
     theme: 'frost',
+    plan: [
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '#...................#',
+      '.....................',
+      '.....................',
+      '.....................',
+      '....#...........#....',
+      '.....................',
+      '....#...........#....',
+      '.....................',
+      '.....................',
+    ],
     residentSprite: 'npc_warden',
     route: [
       { tx: 12, ty: 5, work: 3 },
@@ -225,6 +290,21 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'Every lamp in the Sanctuary is trimmed from this one room. The workbench smells of oil and hot glass, ' +
       'and the candle by the door is never allowed to go out — it is the first light every expedition sees coming home.',
     theme: 'catacomb',
+    plan: [
+      '#...................#',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '..#...#.......#...#..',
+      '..#...#.......#...#..',
+    ],
     residentSprite: 'npc_lamplighter',
     route: [
       { tx: 12, ty: 5, work: 2 },
@@ -265,6 +345,21 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
       'Soup, stories and a chair by the fire for walkers between descents. The Hearthkeeper remembers every ' +
       'expedition by what it ordered, and swears the stew tastes of whichever section you survived.',
     theme: 'bloom',
+    plan: [
+      '......###...###......',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '.....................',
+      '..#...............#..',
+      '.....................',
+      '.....................',
+      '#...................#',
+      '##.................##',
+    ],
     residentSprite: 'npc_hearthkeeper',
     route: [
       { tx: 12, ty: 5, work: 4 },
@@ -413,6 +508,10 @@ function carveRoom(grid: TileGrid, decoAt: (tx: number, ty: number) => Deco | un
 export function buildBuildingFloor(building: SanctuaryBuilding): FloorMap {
   const grid = new TileGrid(GRID_W, GRID_H);
   carveRoom(grid, (tx, ty) => interiorDeco(building, tx, ty));
+  building.plan.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++)
+      if (row[x] === '#') grid.set(ROOM_X + x, ROOM_Y + y, Tile.Wall);
+  });
   // Keep the door approach and the spot in front of the resident plain.
   for (let tx = INTERIOR_EXIT.tx - 2; tx <= INTERIOR_EXIT.tx + 2; tx++) {
     for (let ty = INTERIOR_EXIT.ty - 2; ty < ROOM_Y + ROOM_H; ty++)

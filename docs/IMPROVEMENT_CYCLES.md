@@ -3984,3 +3984,29 @@ Smith, the Smith stopped, faced left, and the quest balloon read "new task: Edge
 errors. 784 tests.
 ### Gate results
 See the task summary.
+
+## Cycle 90 - Every resident room gets its own floor plan
+### FIND
+The six interiors were the same 21x13 open box, told apart only by palette and furniture.
+### IMPLEMENT
+- `src/sim/sanctuary.ts`: each building carries a `plan`, 13 rows of 21 tiles where `#` is wall and `.` is floor,
+  applied after the room is carved. The footprint, spawn, exit, post and camera framing stay shared, so
+  nothing outside the room changes. Walls were placed only on tiles that the occupancy map of the room showed
+  free of furniture, route stops, route paths, the spawn mat, the exit and the walk lane:
+  Archive chamfered corners, two bookstack stubs and two reading-nook pillars; Forge furnace bay, storage stub
+  between the crates, coal corner and two pillars; Garden rounded corners and a boulder; Barracks four drill
+  columns and two buttresses; Lamp House crypt niches along the bottom wall; Hearth alcove either side of the
+  chandelier, two pillars and rounded corners. The renderer already draws freestanding walls as the biome's
+  pillar prop and runs as wall faces.
+- Tests in `tests/sim/sanctuary.test.ts`: plan shape, six different plans with at least 4 walls, the built
+  grid matches the plan, spawn, exit, walk lane, every prop and every route stop on floor, every route segment
+  crosses floor only, and every floor tile is reachable from the spawn. Four of the five failed before the
+  change. The existing test "builds the same sealed, walkable room for every resident" required all interior
+  tiles to be floor; it now requires each tile to match the plan exactly and keeps its outer-wall checks
+  (ADR-210).
+### RECORD
+All six rooms at 1280x720: each reads as its own space, the biome draws the pillars (crystals, gears, ice,
+trees), no console errors, 787 tests. The Hearth alcove sits right under the room title; the title stays
+readable.
+### Gate results
+See the task summary.

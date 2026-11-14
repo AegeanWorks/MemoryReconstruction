@@ -62,16 +62,19 @@ describe('sanctuary rooms', () => {
     ]);
   });
 
-  it('builds the same sealed, walkable room for every resident', () => {
+  it('builds a sealed room of the shared footprint, laid out tile for tile by its plan', () => {
     for (const building of SANCTUARY_BUILDINGS) {
       const floor = buildBuildingFloor(building);
       const grid = floor.grid;
       expect(floor.rooms).toHaveLength(1);
       const room = floor.rooms[0];
-      // Interior is walkable, the ring around it is solid.
+      // Inside, every tile is exactly what the plan says (cycle 90: rooms got their own layouts;
+      // this used to require all floor). The ring around it is solid.
       for (let ty = room.y; ty < room.y + room.h; ty++)
         for (let tx = room.x; tx < room.x + room.w; tx++)
-          expect(grid.get(tx, ty), `${building.id} ${tx},${ty}`).toBe(Tile.Floor);
+          expect(grid.get(tx, ty), `${building.id} ${tx},${ty}`).toBe(
+            building.plan[ty - room.y][tx - room.x] === '#' ? Tile.Wall : Tile.Floor
+          );
       for (let tx = room.x - 1; tx <= room.x + room.w; tx++) {
         expect(grid.get(tx, room.y - 1)).toBe(Tile.Wall);
         expect(grid.get(tx, room.y + room.h)).toBe(Tile.Wall);
@@ -218,5 +221,71 @@ describe('residents move about their rooms', () => {
     expect(npc.y).toBe(held.y);
     const talk = w.step({ ...NO_INPUT, interact: true }, DT);
     expect(talk.some((e) => e.type === 'sanctuary' && e.id === 'smith')).toBe(true);
+  });
+});
+
+describe('each room has its own floor plan', () => {
+  it('describes every plan as 13 rows of 21 tiles, walls and floor only', () => {
+    for (const b of SANCTUARY_BUILDINGS) {
+      expect(b.plan, b.id).toHaveLength(13);
+      for (const row of b.plan) expect(row, b.id).toMatch(/^[#.]{21}$/);
+    }
+  });
+  it('gives every room a different plan with real architecture in it', () => {
+    const plans = SANCTUARY_BUILDINGS.map((b) => b.plan.join('\n'));
+    expect(new Set(plans).size).toBe(plans.length);
+    for (const b of SANCTUARY_BUILDINGS) {
+      const walls = b.plan.join('').split('#').length - 1;
+      expect(walls, `${b.id} is still a plain box`).toBeGreaterThanOrEqual(4);
+    }
+  });
+  it('builds the plan into the floor and keeps everything a visitor needs on open floor', () => {
+    for (const b of SANCTUARY_BUILDINGS) {
+      const grid = buildBuildingFloor(b).grid;
+      b.plan.forEach((row, y) =>
+        [...row].forEach((c, x) => {
+          expect(grid.get(x + 2, y + 2), `${b.id} ${x + 2},${y + 2}`).toBe(
+            c === '#' ? Tile.Wall : Tile.Floor
+          );
+        })
+      );
+      const open = (tx: number, ty: number, what: string): void =>
+        expect(grid.get(tx, ty), `${b.id}: ${what} at ${tx},${ty}`).toBe(Tile.Floor);
+      open(INTERIOR_SPAWN.tx, INTERIOR_SPAWN.ty, 'spawn');
+      open(INTERIOR_EXIT.tx, INTERIOR_EXIT.ty, 'exit');
+      for (let ty = INTERIOR_RESIDENT.ty; ty <= INTERIOR_EXIT.ty; ty++)
+        open(INTERIOR_EXIT.tx, ty, 'walk lane');
+      for (const d of b.decor) open(d.tx, d.ty, d.prop);
+      for (const s of b.route) open(s.tx, s.ty, 'route stop');
+    }
+  });
+  it('lets every resident walk its whole route without crossing a wall', () => {
+    for (const b of SANCTUARY_BUILDINGS) {
+      const grid = buildBuildingFloor(b).grid;
+      b.route.forEach((a, i) => {
+        const c = b.route[(i + 1) % b.route.length];
+        for (let s = 0; s <= 40; s++) {
+          const x = Math.floor(a.tx + 0.5 + ((c.tx - a.tx) * s) / 40);
+          const y = Math.floor(a.ty + 0.5 + ((c.ty - a.ty) * s) / 40);
+          expect(grid.get(x, y), `${b.id} route ${i} crosses ${x},${y}`).toBe(Tile.Floor);
+        }
+      });
+    }
+  });
+  it('leaves no sealed pocket: every floor tile is reachable from the spawn', () => {
+    for (const b of SANCTUARY_BUILDINGS) {
+      const grid = buildBuildingFloor(b).grid;
+      const seen = new Set<string>();
+      const queue: Array<[number, number]> = [[INTERIOR_SPAWN.tx, INTERIOR_SPAWN.ty]];
+      while (queue.length > 0) {
+        const [x, y] = queue.pop()!;
+        const key = `${x},${y}`;
+        if (seen.has(key) || grid.get(x, y) !== Tile.Floor) continue;
+        seen.add(key);
+        queue.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+      }
+      const floor = b.plan.join('').split('.').length - 1;
+      expect(seen.size, `${b.id} has unreachable floor`).toBe(floor);
+    }
   });
 });
