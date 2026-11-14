@@ -6,14 +6,14 @@
 ---
 
 ## 📊 Codebase Metrics
-- **Total Python Modules**: `5`
+- **Total Python Modules**: `6`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `67`
+- **Total Top-Level Functions**: `91`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `4374`
+- **Total Source Lines**: `4661`
 
 ## 🧭 Map Coverage
-- **Indexed**: python (`5` module(s))
+- **Indexed**: python (`6` module(s))
 - **Not indexed by this map**: javascript (`1` file(s)), typescript (`231` file(s))
 
 > Only Python symbols are catalogued. A language above is reported as not indexed, never as verified by this map.
@@ -120,6 +120,39 @@
 - `def create_tileset_sprite(name, palette)`
 - `def create_ui_icon(name, palette)`
 - `def create_particle_sprite(name, palette)`
+- `def main()`
+
+---
+
+### [`scripts/generate_relic_icons.py`](scripts/generate_relic_icons.py)
+> *Draw one icon per relic in src/data/equipment.json into assets/sprites/ui/relic_<id>.png.*
+
+**Size**: `287` lines (`14490` bytes)
+
+**Functions:**
+- `def _diagonal_blade(d, tip, hilt, half_width, fill, edge, guard, grip, pommel)` - *A straight blade from hilt to tip with a crossguard, grip and pommel.*
+- `def rusted_edge(img, d)`
+- `def echo_dagger(img, d)`
+- `def choir_staff(img, d)`
+- `def void_cleaver(img, d)`
+- `def ember_core(img, d)`
+- `def _torso(d, fill, trim, collar)`
+- `def scavenger_vest(img, d)`
+- `def crystal_mail(img, d)`
+- `def void_shroud(img, d)`
+- `def mire_talisman(img, d)`
+- `def colossus_plate(img, d)`
+- `def duelist_mantle(img, d)`
+- `def _cord(d)`
+- `def ember_charm(img, d)`
+- `def tide_lens(img, d)`
+- `def thorn_ring(img, d)`
+- `def clockwork_gear(img, d)`
+- `def sun_core(img, d)`
+- `def bog_crown(img, d)`
+- `def soul_anchor(img, d)`
+- `def storm_dial(img, d)`
+- `def ember_ward(img, d)`
 - `def main()`
 
 ---

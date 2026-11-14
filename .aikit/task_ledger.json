@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794695264.966766,
+    "updated_at": 1794698081.0630727,
     "owner": "kiro:1",
     "started_by": "claude:1",
     "continuations": [
@@ -87,65 +87,6 @@
       "timestamp": 1794164112.4407241,
       "timestamp_str": "2026-11-08 21:55:12",
       "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: cycle 83 (bag and market re-renders keep panel scroll and in-list focus via data-action keys and clamped index restore; before the fix a sale reset scrollTop 763 to 0 and focus jumped to the filter row); 724 vitest (169 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
-      "files_affected": [
-        "docs/IMPROVEMENT_CYCLES.md",
-        ".aikit/codebase_map.md",
-        "src/ui/Screens.ts",
-        "src/app/App.ts",
-        "tests/ui-list-state.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794682188.576872,
-      "timestamp_str": "2026-11-14 21:49:48",
-      "agent": "kilo:goal",
-      "checklists": "passed",
-      "handoff": {
-        "state": "about 151 files uncommitted, all gates green",
-        "next": "delivery decision belongs to the user - no commit without explicit approval",
-        "open": "real-device notch, iOS toolbar, real pads, real screen readers, and this environment cannot display images",
-        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-83 and docs/UI_REVIEW.md audits"
-      },
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: cycle 84 (bag filter chips keep focus across the re-render and expose aria-pressed; before, Enter on weapon moved the active filter but focus jumped back to All with no pressed state); 725 vitest (169 files), 410 mechanics, typecheck/lint/build clean, aikit check 8/8; strict still needs a commit and a finished UI task; checklists: passed",
-      "files_affected": [
-        "docs/IMPROVEMENT_CYCLES.md",
-        ".aikit/codebase_map.md",
-        "src/ui/Screens.ts",
-        "tests/ui-list-state.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794682853.1633997,
-      "timestamp_str": "2026-11-14 22:00:53",
-      "agent": "kilo:goal",
-      "checklists": "passed",
-      "handoff": {
-        "state": "about 151 files uncommitted, all gates green",
-        "next": "delivery decision belongs to the user - no commit without explicit approval",
-        "open": "real-device notch, iOS toolbar, real pads, real screen readers, and this environment cannot display images",
-        "evidence": "docs/IMPROVEMENT_CYCLES.md cycles 63-84 and docs/UI_REVIEW.md audits"
-      },
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
     },
     {
       "task_id": "visual-and-content-polish-28-51",
@@ -385,6 +326,41 @@
       "status": "in_progress",
       "timestamp": 1794695264.966766,
       "timestamp_str": "2026-11-15 01:27:44",
+      "agent": "kiro:1",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Sanctuary program milestone 5, graphics: (1) relic icons: scripts/generate_relic_icons.py (deterministic, reuses the generate_art_assets drawing helpers) draws one 64 px icon per relic in equipment.json into assets/sprites/ui/relic_<id>.png; failing-first test that every relic has a distinct, non-empty icon; (2) the bag grid, worn slots and the list rows show the icon instead of the slot glyph, the glyph stays as the empty-slot mark; probe, docs, ADR. Room props are left for a later pass.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794697499.7717795,
+      "timestamp_str": "2026-11-15 02:04:59",
+      "agent": "kiro:1",
+      "plan_digest": "24523f75aad2c233a3220c297b205306c4bf91918ff3a3c7c663da8e5cf883ee",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/2] Verified: scripts/generate_relic_icons.py writes 20 distinct 64 px relic icons and touches no existing asset; three icons redrawn after review (Ember Core, Thorn Ring, Rusted Edge); 8/8 gates with the art alone",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794698081.0630727,
+      "timestamp_str": "2026-11-15 02:14:41",
       "agent": "kiro:1",
       "workspaces": [
         {
