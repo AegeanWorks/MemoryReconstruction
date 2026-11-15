@@ -19,6 +19,8 @@ import {
   QUESTS,
   questProgress,
   questsForNpc,
+  relicRequestStatus,
+  requestForNpc,
   type DailyBounty,
   type QuestSnapshot,
 } from '../sim/quests';
@@ -43,7 +45,7 @@ import {
   type AspectId,
   type SanctuaryProgress,
 } from '../sim/hub';
-import { resonanceMultiplier, type RunState, type UpgradeChoice } from '../sim/run';
+import { bankSummary, resonanceMultiplier, type RunState, type UpgradeChoice } from '../sim/run';
 import { SANCTUARY_BUILDINGS, SANCTUARY_STATIONS } from '../sim/sanctuary';
 import { computeStats, upgradeDef, type PlayerStats } from '../sim/upgrades';
 import { WEAPONS, weaponDef } from '../sim/weapons';
@@ -405,6 +407,20 @@ export function sanctuaryScreen(opts: {
           : accepted
             ? h('span', { class: 'quest-badge active' }, `${progress}/${quest.target}`)
             : h('span', { class: 'quest-badge new' }, 'New task');
+    const request = requestForNpc(building.id);
+    const requestState = relicRequestStatus(meta, building.id);
+    const requestBadge =
+      !request || requestState === 'none'
+        ? null
+        : requestState === 'done'
+          ? h('span', { class: 'quest-badge done' }, 'Relic given')
+          : requestState === 'ready'
+            ? h('span', { class: 'quest-badge ready' }, `Give ${equipmentDef(request.defId).name}`)
+            : h(
+                'span',
+                { class: 'quest-badge relic' },
+                `Wants ${equipmentDef(request.defId).name}`
+              );
     return h(
       'div',
       { class: 'building-card', 'data-building': building.id },
@@ -440,7 +456,7 @@ export function sanctuaryScreen(opts: {
         h('div', { class: 'building-name' }, building.name),
         h('div', { class: 'building-role' }, building.role),
         h('div', { class: 'building-blurb' }, building.blurb),
-        badge
+        h('div', { class: 'building-badges' }, badge, requestBadge)
       ),
       button('Enter', () => opts.onEnter(building.id), 'btn small primary building-enter')
     );
@@ -1428,6 +1444,7 @@ export function inventoryScreen(
 ): HTMLElement {
   const p = world.player;
   const s = p.stats;
+  const bank = bankSummary(world.run);
   const statChip = (label: string, value: string): HTMLElement =>
     h('span', { class: 'gear-stat' }, h('b', {}, value), ` ${label}`);
   // One path for the grid, its double click and the detail pane, so the messages cannot drift apart.
@@ -1554,6 +1571,15 @@ export function inventoryScreen(
     grid,
     detail,
     h('div', { class: 'gear-title' }, `Carried · ${p.inventory.length}/${INVENTORY_SLOTS}`),
+    h(
+      'div',
+      { class: 'gear-note bank-note' },
+      `Checkpoint bank · ${bank.kept} relic${bank.kept === 1 ? '' : 's'} kept · ${
+        bank.atRisk > 0
+          ? `${bank.atRisk} new relic${bank.atRisk === 1 ? '' : 's'} at risk until the next checkpoint`
+          : 'everything carried is safe'
+      }.`
+    ),
     junkButton,
     bagFull
       ? h('div', { class: 'gear-note' }, 'The bag is full — relics found now are sold for shards.')

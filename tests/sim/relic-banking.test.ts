@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import equipmentJson from '../../src/data/equipment.json';
 import { emptyEquipment } from '../../src/sim/equipment';
-import { bankCarriedRelics, createRun, restoreRun } from '../../src/sim/run';
+import { bankCarriedRelics, bankSummary, createRun, restoreRun } from '../../src/sim/run';
 import { defaultMeta, recordRun } from '../../src/save/SaveStore';
 
 const RELIC_IDS = (equipmentJson as { items: Array<{ id: string }> }).items.map((item) => item.id);
@@ -77,5 +77,24 @@ describe('checkpoints bank carried relics', () => {
     const restored = restoreRun(odd)!;
     expect(restored.bankedRelics).toEqual(['sun_core']);
     expect(RELIC_IDS).toContain('sun_core');
+  });
+});
+
+describe('checkpoint bank summary', () => {
+  it('separates kept relics from those found since the checkpoint', () => {
+    const run = carriedRun();
+    expect(bankSummary(run)).toEqual({ kept: 0, atRisk: 4 });
+    bankCarriedRelics(run);
+    expect(bankSummary(run)).toEqual({ kept: 4, atRisk: 0 });
+    run.player.inventory.push({ uid: 5, defId: 'void_visor' });
+    expect(bankSummary(run)).toEqual({ kept: 4, atRisk: 1 });
+  });
+
+  it('counts duplicate relics once', () => {
+    const run = carriedRun();
+    run.player.inventory.push({ uid: 9, defId: 'sun_core' });
+    const summary = bankSummary(run);
+    expect(summary.atRisk).toBe(4);
+    expect(summary.kept).toBe(0);
   });
 });

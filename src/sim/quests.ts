@@ -379,6 +379,19 @@ export function requestForNpc(npcId: string): RelicRequestDef | undefined {
   return RELIC_REQUESTS[npcId];
 }
 
+/** Where a resident's relic request stands, for the hub card badge. */
+export type RelicRequestStatus = 'none' | 'wanted' | 'ready' | 'done';
+
+export function relicRequestStatus(
+  meta: { vault: string[]; relicRequests?: string[] },
+  npcId: string
+): RelicRequestStatus {
+  const request = requestForNpc(npcId);
+  if (!request) return 'none';
+  if ((meta.relicRequests ?? []).includes(npcId)) return 'done';
+  return meta.vault.includes(request.defId) ? 'ready' : 'wanted';
+}
+
 /**
  * Settles a relic request: the wanted relic leaves the vault, echoes and one
  * heart of trust arrive, and the request is recorded so it cannot be farmed.

@@ -70,13 +70,23 @@ function importButton(slot: SlotSummary, opts: SavesScreenOptions): HTMLElement 
   return h('span', {}, trigger, input);
 }
 
+/** What the slot's primary action says and whether it is disabled. An active
+ * slot is never an action, and an empty active slot must not claim to be
+ * playing; the player starts it from the title screen's Set Out instead. */
+export function playSlotAction(slot: Pick<SlotSummary, 'active' | 'empty'>): {
+  label: string;
+  disabled: boolean;
+} {
+  if (slot.active) {
+    return { label: slot.empty ? 'Active slot' : 'Playing', disabled: true };
+  }
+  return { label: slot.empty ? 'Start here' : 'Play', disabled: false };
+}
+
 function slotCard(slot: SlotSummary, opts: SavesScreenOptions): HTMLElement {
-  const play = button(
-    slot.active ? 'Playing' : slot.empty ? 'Start here' : 'Play',
-    () => opts.onPlay(slot.slot),
-    'btn small primary'
-  );
-  play.disabled = slot.active;
+  const action = playSlotAction(slot);
+  const play = button(action.label, () => opts.onPlay(slot.slot), 'btn small primary');
+  play.disabled = action.disabled;
   const exportBtn = button(
     'Export',
     () => {

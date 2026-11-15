@@ -208,6 +208,20 @@ export function bankCarriedRelics(run: RunState): number {
   return fresh;
 }
 
+/**
+ * How many distinct relics the checkpoint bank holds, and how many different
+ * relics the walker carries that a death would lose (found since the bank).
+ */
+export function bankSummary(run: RunState): { kept: number; atRisk: number } {
+  const banked = new Set(run.bankedRelics);
+  const carried = new Set(carriedRelicIds(run));
+  let atRisk = 0;
+  for (const defId of carried) {
+    if (!banked.has(defId)) atRisk++;
+  }
+  return { kept: banked.size, atRisk };
+}
+
 /** XP needed to go from `level` to `level + 1`; slower than the old 30/1.36 and 42/1.42 curves. */
 export function xpForLevel(level: number): number {
   return Math.round(42 * Math.pow(1.5, level - 1));

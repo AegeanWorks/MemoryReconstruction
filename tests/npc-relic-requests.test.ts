@@ -5,6 +5,7 @@ import {
   RELIC_REQUESTS,
   ROAD_HINTS,
   applyRelicRequest,
+  relicRequestStatus,
   requestForNpc,
   type TributeMeta,
 } from '../src/sim/quests';
@@ -77,5 +78,15 @@ describe('more to talk about', () => {
 
   it('stores answered requests in the save defaults', () => {
     expect(defaultMeta().relicRequests).toEqual([]);
+  });
+});
+
+describe('relic request status for the hub cards', () => {
+  it('says wanted, ready and done around the vault', () => {
+    expect(relicRequestStatus(base({}), 'nobody')).toBe('none');
+    expect(relicRequestStatus(base({ vault: [] }), 'archivist')).toBe('wanted');
+    expect(relicRequestStatus(base({ vault: ['choir_staff'] }), 'archivist')).toBe('ready');
+    const done = applyRelicRequest(base({ vault: ['choir_staff'] }), 'archivist')!;
+    expect(relicRequestStatus(done, 'archivist')).toBe('done');
   });
 });
