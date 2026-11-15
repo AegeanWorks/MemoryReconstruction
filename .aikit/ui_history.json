@@ -1232,5 +1232,24 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "cc8e1550280fb936719624323e9fe397de005c79c69d9e30f665c0d8a828a47b"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the committed cycle 97 surface in Edge at 1280x720 and 390x844: hub request badges (Wants/Give/Relic given), the 344px badge row inside a 366px card with no overflow, and both checkpoint-bank states in the Relics screen; evidence is recorded in docs/UI_REVIEW.md and docs/qa/cycle97-*.png.",
+    "baseline_commit": "db4b5c97f964de5ab912a9a4025b0206368f9467",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794769956.5244236,
+    "finished_at": 1794770051.19798,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "e4014eb157b564474809875d99c872219509e1da88224fe548f8c3634f939bf6"
   }
 ]

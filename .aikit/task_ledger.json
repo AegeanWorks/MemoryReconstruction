@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "npc-requests-checkpoint-banking",
+    "task_id": "polish-hub-bank-saves",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794765098.282465,
+    "updated_at": 1794769797.9951904,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,65 +17,14 @@
     ],
     "forced_completion": {
       "agent": "kilo:1",
-      "reason": "All gates and check --strict pass at 30b2ecd; both milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; real-input Edge runs used). Not pushed (not authorized).",
-      "at": 1794765128.8677564
+      "reason": "All gates and check --strict pass at db4b5c9; both milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; real-input Edge runs used). Not pushed (not authorized).",
+      "at": 1794770078.6368363
     },
-    "completed_at": 1794765128.867758,
-    "completed_head": "30b2ecd716e2af2e63523a9e6a206a483e7d32a6",
-    "completed_tree": "472f682f9f11174b0247622fdc581c7a35c5f188"
+    "completed_at": 1794770078.6368377,
+    "completed_head": "db4b5c97f964de5ab912a9a4025b0206368f9467",
+    "completed_tree": "6dade48ad5ae314714cf6c9dd772d6d120d694c2"
   },
   "checkpoints": [
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[2/2] Verified: signature props placed in each room; Gardener, Warden and Lamplighter routes no longer walk through furniture; two failing-first tests (route segments vs furniture, signature prop per room); all six rooms checked at 1280x720; 793 tests; UI task closed first try; README, cycle 92, ADR-212; milestone 5 complete",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794699079.578544,
-      "timestamp_str": "2026-11-15 02:31:19",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[2/2] Post-Flight: all gates and check --strict pass at ed75f15; PRINCIPLE-002 failed once (milestone 4 plan recorded after implementation, before commit); PRINCIPLE-015 skipped (scripts/dogfood.py drives AIKit, not the game; game dogfooded by real-input CDP browser runs, golden path only, no chaos pass); no push (not authorized).",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794733045.9478736,
-      "timestamp_str": "2026-11-15 11:57:25",
-      "agent": "kiro:1",
-      "checklists": "failed:PRINCIPLE-002,skipped:PRINCIPLE-015",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'visual-and-content-polish-28-51' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794733069.2224138,
-      "timestamp_str": "2026-11-15 11:57:49",
-      "agent": "kiro:1",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": true
-      }
-    },
     {
       "task_id": "saves-slots-inventory-grid",
       "phase": "phase 2",
@@ -387,6 +336,64 @@
       "status": "completed",
       "timestamp": 1794765128.9362788,
       "timestamp_str": "2026-11-15 20:52:08",
+      "agent": "kilo:1",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": true
+      }
+    },
+    {
+      "task_id": "polish-hub-bank-saves",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Surface the Cycle 96 systems where decisions are made: relic requests become hub-card badges (Wants / Give / Relic given) via relicRequestStatus, the Relics screen gains a checkpoint-bank line from bankSummary (kept vs at-risk), and the Saves screen stops calling an empty active slot Playing via the pure playSlotAction. Failing-first tests: two new files (ui-hub-requests, ui-save-slot-action) plus new cases in the existing banking and request suites.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794769679.0536075,
+      "timestamp_str": "2026-11-15 22:07:59",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "Requests and banking were only visible after entering a room or reading a toast; the save-slot label was misleading.",
+        "benefits": "Players can see who wants what and how exposed their new relics are without opening another screen.",
+        "risks": "contract: Meta and RunState unchanged (read-only helpers); dependency: none; concurrency: none; state: UI only.",
+        "mitigation": "Pure helpers tested in isolation, source/CSS wiring tests, and browser checks at 1280x720 and 390x844; no persisted shape changes."
+      },
+      "plan_digest": "83d82a8243ce18b89b5033390173d236d499379d72cad826270deb9e4568c375",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "polish-hub-bank-saves",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/2] Verified: relicRequestStatus drives Wants / Give / Relic given badges from the vault and answered requests; bankSummary reports 1 kept / 0 at risk and 1 kept / 2 at risk after new finds; playSlotAction keeps the active slot disabled and labels it Active slot when empty. 865 tests (185 files), 464 mechanics, lint/typecheck/build clean, 8/8 gates; Edge at 1280x720 and 390x844 showed six badge pairs (Archivist Relic given, Gardener flipped to Give Bog Crown after adding the relic), a 344px badge row in a 366px card with 390/390 overflow, the bank line in both safe and at-risk states, and no console errors.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794769797.9951904,
+      "timestamp_str": "2026-11-15 22:09:57",
+      "agent": "kilo:1",
+      "checklists": "skipped:PRINCIPLE-015",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "polish-hub-bank-saves",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'polish-hub-bank-saves' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794770078.7108617,
+      "timestamp_str": "2026-11-15 22:14:38",
       "agent": "kilo:1",
       "delivery": {
         "roots": [
