@@ -4147,3 +4147,50 @@ and 24 boxes (4 worn + 20 bag). Screenshots `docs/qa/cycle95-headwear-1280x720.p
 `cycle95-headwear-390x844.png`.
 ### Gate results
 See the task summary.
+
+## Cycle 96 - Five-percent sections, readable residents, top balloons and checkpoint banking
+### FIND
+The player reported five things: section steps should be +5% additive (section 2 = 1.05x, section 3 = 1.10x)
+rather than the old 10%; Sanctuary resident descriptions showed "..." instead of the whole message; NPC
+message boxes sat under the residents instead of at the top; trust and the tribute button crowded each
+other; and NPCs should have more interactions, including asking for a specific item. The player also asked
+that reaching a checkpoint keep the items carried into the Sanctuary, while dying before the next checkpoint
+loses the new, unsaved items. The code confirmed every point: `ENEMY_DAMAGE_DEPTH_SCALE` was 0.1;
+`.building-blurb` was clamped to 4 lines (2 at some breakpoints) and hidden entirely at max-height 820;
+the balloon flipped below the resident and clipped its text to 140 characters; the tribute button shared a
+text block with the trust line; NPCs had tasks but no item requests; and `recordRun` never copied carried
+relics into the vault, while the death screen falsely said it did.
+### IMPLEMENT
+- `src/sim/content.ts`: `ENEMY_DAMAGE_DEPTH_SCALE` is 0.05, so the formula is
+  `1 + 0.05 * section + 0.05 * roomsCleared + 0.1 * (wave - 1)`; section 20 is 1.95x.
+- `src/sim/run.ts`: `RunState.bankedRelics`, `carriedRelicIds` and `bankCarriedRelics`; old snapshots load
+  an empty bank and phantom ids are filtered.
+- `src/save/SaveStore.ts`: `Meta.relicRequests`, and `recordRun` adds the bank on death/abandon, every
+  carried relic on victory, deduplicated against the existing vault.
+- `src/sim/quests.ts`: six `RELIC_REQUESTS` (one per resident), `requestForNpc`, `applyRelicRequest` (relic
+  leaves the vault, echoes and one heart arrive, full-trust gift still possible) and `ROAD_HINTS`.
+- `src/app/App.ts`: banks carried relics in `enterFloor` and reports the count in the checkpoint toast; the
+  dialogue passes the wanted relic, the give callback and the road hint; the balloon no longer flips below
+  and no longer truncates its line.
+- `src/ui/Screens.ts`: dialogue header splits trust and tribute into `.dialogue-titles` (flex column) and
+  `.dialogue-actions`; adds the wanted-relic panel with a **Give** button and a hidden **Ask about the road**
+  panel; the death recap tells the truth about checkpoint banking.
+- `src/ui/balloon.ts`: top-pinned placement; `ui.css`: no line clamps anywhere, no hidden blurb at short
+  heights, dialogue column rules, hidden hint rule and no `.below` balloon rules.
+- `src/sim/sanctuary.ts`: six one-sentence blurbs (<=96 chars).
+- Tests: `tests/sim/relic-banking.test.ts` (6), `tests/npc-relic-requests.test.ts` (7),
+  `tests/ui-dialogue.test.ts` (5), `tests/ui-balloon.test.ts` rewritten (4), `difficulty-ramp.test.ts`
+  updated for the 5% section step, and `ui-hub-layout.test.ts` now asserts no clamp (the request changed the
+  old intended behavior; ADR-219).
+### RECORD
+In Edge at 1280x720 and 390x844 with real input: all six hub descriptions rendered whole (clientHeight ==
+scrollHeight, 6/6 visible, 0 clamped) and the document never scrolled horizontally; the expedition bar
+stayed visible at 1280x720 (bottom 716.7). The Archivist balloon measured top 91.94, bottom 170, with the
+room title ending at 65, no `below` class and the full greeting text. The Smith page showed trust and
+tribute stacked with no overlap (6px gap at desktop, 8px at 390px), the wanted-relic panel read "not in the
+vault yet", and **Ask about the road** toggled the full hint (display grid). Giving the Choir Staff removed
+it from the vault, paid +140 echoes (1424 → 1564), recorded `archivist` in `relicRequests` and changed the
+panel to "Delivered. The Sanctuary remembers." Screenshots `docs/qa/cycle96-dialogue-1280x720.png`,
+`cycle96-dialogue-390x844.png`, `cycle96-hub-390x844.png`.
+### Gate results
+See the task summary.

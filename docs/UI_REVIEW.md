@@ -244,3 +244,26 @@ Circlet in the bag, Rusted Edge in the weapon box) reported `complete` at 64 px.
 so the doll keeps its 128 px figure height and the panel still scrolls inside its 460 px cap.
 
 Captures: `docs/qa/cycle95-headwear-1280x720.png`, `docs/qa/cycle95-headwear-390x844.png`.
+
+## 2026-11-15 review: resident pages, hub copy, balloons and banking (agent reviewer: kilo:1)
+
+The running Vite build was driven in Edge at **1280x720**, **390x844** and **844x390** (short landscape).
+- **Hub copy**: all six `.building-blurb` nodes reported `clientHeight === scrollHeight` (none clamped) at
+  both 1280x720 and 390x844; all six stayed visible at short landscape (`display: block`), where the old
+  rule hid them. At 1280x720 the hub root scrolled to 762px but the expedition bar ended at 716.7px inside
+  the 720px viewport. No horizontal overflow at any size (`scrollWidth === innerWidth`).
+- **Balloon**: standing next to the Archivist, `.npc-balloon` had no `below` class, top 91.94px and bottom
+  170px, while the Sanctuary title ended at 65px; the full greeting (140+ chars) was rendered with no
+  ellipsis. The down arrow still points at the speaker.
+- **Dialogue**: on the Smith page (trust 0), `.trust-line` used 104.36-120.36px and the tribute button
+  126.36-155.36px: a 6px gap, no overlap. At 390px the same pair measured 87-103px and 111-140px (8px gap),
+  the dialogue panel was 358.8px wide and the document stayed at 390px. `Ask about the road` starts hidden
+  (display none) and toggles the full hint panel (display grid).
+- **Relic request**: injecting the Choir Staff into the vault turned the Archivist's panel from "not in the
+  vault yet" into a **Give Choir Staff** button. Giving it removed the relic, added 140 echoes
+  (1424 -> 1564), stored `archivist` in `relicRequests` and showed "Delivered. The Sanctuary remembers."
+- **Banking**: covered by the sim tests (`tests/sim/relic-banking.test.ts`); the death recap copy was
+  reviewed in source because forcing a death through the UI would discard the working save.
+
+Captures: `docs/qa/cycle96-dialogue-1280x720.png`, `docs/qa/cycle96-dialogue-390x844.png`,
+`docs/qa/cycle96-hub-390x844.png`.
