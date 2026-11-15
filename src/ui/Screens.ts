@@ -63,7 +63,7 @@ const CONFIRM_WINDOW_MS = 2600;
  * cannot sell a relic or end a run. It disarms itself after a short window, and if the screen is
  * closed before then the timer simply finds a detached element.
  */
-function confirmButton(
+export function confirmButton(
   label: string,
   confirmLabel: string,
   onConfirm: () => void,
@@ -148,6 +148,9 @@ export function titleScreen(opts: {
   onNew: () => void;
   onContinue: () => void;
   onMemories: () => void;
+  onSaves: () => void;
+  /** The save slot in play, shown on the Saves button. */
+  slot: number;
   onSettings: () => void;
   onControls: () => void;
   onPrologue: () => void;
@@ -172,6 +175,7 @@ export function titleScreen(opts: {
         continueBtn,
         button(`Memories  ${recovered}/${MEMORY_FRAGMENTS.length}`, opts.onMemories),
         button('Prologue', opts.onPrologue),
+        button(`Saves · Slot ${opts.slot}`, opts.onSaves),
         button('Settings', opts.onSettings),
         button('Controls', opts.onControls)
       )

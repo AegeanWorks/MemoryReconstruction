@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794733750.5909107,
+    "updated_at": 1794734673.31617,
     "owner": "kiro:1",
     "started_by": "kiro:1",
     "continuations": [],
@@ -17,24 +17,6 @@
     ]
   },
   "checkpoints": [
-    {
-      "task_id": "gameplay-polish-2",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Improve story feedback, mob fairness and fight/UI state: preserve core-memory rewards and toast completion, add a stagger guard against stun-lock, emit every crossed boss phase, align banner timing and guard stale choice cards",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794163833.1118112,
-      "timestamp_str": "2026-11-08 21:50:33",
-      "agent": "commandcode:mr-audit",
-      "impact_assessment": {
-        "why": "The state-machine audit deferred these as safe, evidence-backed follow-ups; core memory rewards are dropped at the data boundary, every hit staggers non-bosses, a double boss phase jump emits one cue, and the banner timing is split.",
-        "benefits": "Story completion is felt in-run, casters cannot be permanently stun-locked, phase jumps announce each phase, and UI timers/choice cards stop disagreeing.",
-        "risks": "contract: content mapping, enemy field/transition, boss phase return type, Hud default, App choice guard; dependency: none; concurrency: content/enemies/world/Hud/App; state: no save schema change",
-        "mitigation": "Pure content test, stagger and boss-phase sim tests, full npm test/mechanics, typecheck/lint/build, AIKit 8/8 and strict delivery."
-      },
-      "plan_digest": "cfecb06fbab2579bd3f0715dfd53dc0f05cc632ff9f21282bf1f466761da6d82"
-    },
     {
       "task_id": "gameplay-polish-2",
       "phase": "phase 4",
@@ -355,6 +337,23 @@
       "status": "in_progress",
       "timestamp": 1794733750.5909107,
       "timestamp_str": "2026-11-15 12:09:10",
+      "agent": "kiro:1",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "saves-slots-inventory-grid",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/3] Verified: Saves screen on the title (slot cards, play, real-download export, file-picker import with 1 MB cap and overwrite confirm, two-click delete), active-slot reload, save note; 8 failing-first tests; full export/import/switch/delete round trip in Edge with real input; 817 tests; UI task closed; README, cycle 93, ADR-214; 8/8 gates",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794734673.31617,
+      "timestamp_str": "2026-11-15 12:24:33",
       "agent": "kiro:1",
       "workspaces": [
         {

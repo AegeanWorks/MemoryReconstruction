@@ -88,6 +88,8 @@ import {
   titleScreen,
   victoryScreen,
 } from '../ui/Screens';
+import { exportFileName, savesScreen } from '../ui/SavesScreen';
+import { createSaveIndicator } from '../ui/saveIndicator';
 import type { Renderer } from '../view/Renderer';
 
 export type AppState =
@@ -151,6 +153,7 @@ export class App {
     this.applySettings(this.meta.settings);
     this.screens = new Screens(ui);
     ui.append(this.hud.root, this.sanctuaryTitle, this.balloon, this.prompt, this.fade);
+    this.store.onWrite = createSaveIndicator(ui);
     this.input = new Input(renderer.canvas, (action) => this.onMenu(action));
     // On-screen sticks and buttons for touch devices; CSS shows them only on coarse pointers.
     this.hud.root.append(
@@ -396,9 +399,50 @@ export class App {
               this.showHub();
             })
           ),
+        onSaves: () => this.click(() => this.showSaves()),
+        slot: this.store.activeSlot,
         onSettings: () => this.click(() => this.showSettings(() => this.showTitle())),
         onControls: () =>
           this.click(() => this.screens.show(controlsScreen(() => this.showTitle()))),
+      })
+    );
+  }
+
+  /** Save slots: play, export, import or delete one. Reached from the title only, never mid-run. */
+  private showSaves(status = ''): void {
+    const reloadIfActive = (slot: number): void => {
+      if (slot !== this.store.activeSlot) return;
+      this.meta = this.store.loadMeta();
+      this.applySettings(this.meta.settings);
+    };
+    this.screens.show(
+      savesScreen({
+        slots: this.store.listSlots(),
+        status,
+        onPlay: (slot) =>
+          this.click(() => {
+            this.store.selectSlot(slot);
+            this.meta = this.store.loadMeta();
+            this.applySettings(this.meta.settings);
+            this.showTitle();
+          }),
+        onExport: (slot) => {
+          const text = this.store.exportSlot(slot);
+          return text ? { name: exportFileName(slot, new Date()), text } : undefined;
+        },
+        onImport: (slot, text) => {
+          const result = this.store.importSlot(slot, text);
+          if (result.ok) reloadIfActive(slot);
+          this.showSaves(result.ok ? `Imported into slot ${slot}.` : result.reason);
+        },
+        onDelete: (slot) =>
+          this.click(() => {
+            this.store.deleteSlot(slot);
+            reloadIfActive(slot);
+            this.showSaves(`Slot ${slot} deleted.`);
+          }),
+        onStatus: (message) => this.showSaves(message),
+        onBack: () => this.click(() => this.showTitle()),
       })
     );
   }

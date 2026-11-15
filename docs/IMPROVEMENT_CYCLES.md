@@ -4055,3 +4055,30 @@ Lamplighter through a chair and two candles.
 All six rooms at 1280x720: each new prop is in place and reads as what it is; no console errors; 793 tests.
 ### Gate results
 See the task summary.
+
+## Cycle 93 - Save slots, export and import, and a save note
+### FIND
+The game kept one save per browser in localStorage. Clearing site data or switching browsers lost it, there
+was no way to keep a second playthrough, and nothing told the player a save had happened or failed.
+### IMPLEMENT
+- `src/save/SaveStore.ts` (milestone 1, ADR-213): three slots, an index of the active slot and save times,
+  shared settings, migration of the old single save into slot 1 (old keys kept), strict export and import,
+  delete, and an `onWrite` listener.
+- `src/ui/SavesScreen.ts`: one card per slot (echoes, restorations, expeditions, deepest section, memories,
+  expedition in progress, last save time) with Play or Start here, Export (a real file download named
+  `memory-reconstruction-slot<N>-<date>.json`), Import (a file picker; files over 1 MB are refused unread, and
+  importing over progress needs a second click) and Delete (two clicks). The result of the last action shows
+  under the cards.
+- `src/ui/saveIndicator.ts`: a corner note, "Saved" for 1.2 s, or "Could not save: browser storage may be full
+  or blocked" for 6 s; no transition under reduced motion.
+- `src/app/App.ts`: **Saves · Slot N** on the title; switching, deleting or importing the active slot reloads
+  progress and settings. Saves is reachable from the title only, never during an expedition.
+- Tests: `tests/save-slots.test.ts` (16) and `tests/ui-saves-screen.test.ts` (8); both failed before the change.
+### RECORD
+In Edge at 1280x720 with real input: slot 1 holding 321 echoes exported through the browser's download
+path; that file, chosen in slot 3's file picker, imported 321 echoes; a foreign JSON file was refused with
+"This file is not a Memory Reconstruction save."; Play on slot 3 switched the title button and the loaded
+progress; one click on Delete only armed it and the second emptied the slot; "Saved" showed after a save; the
+active slot survived a reload. Layout checked at 390x844. No console errors.
+### Gate results
+See the task summary.
