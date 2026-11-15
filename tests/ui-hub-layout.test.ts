@@ -31,12 +31,13 @@ describe('Sanctuary hub responsive layout', () => {
     const medium = mediaBlock('(min-width: 1180px) and (max-height: 1000px)');
     expect(medium).toContain('.building-art');
     expect(medium).toMatch(/height:\s*72px/);
-    expect(medium).toContain('-webkit-line-clamp: 2');
+    // Descriptions are short enough to show whole; the clamp was the "..." the player reported.
+    expect(medium).not.toContain('-webkit-line-clamp');
 
     const compact = mediaBlock('(max-height: 820px)');
     expect(compact).toContain('.building-art');
     expect(compact).toMatch(/display:\s*none/);
-    expect(compact).toContain('.building-blurb');
+    expect(compact).not.toContain('.building-blurb');
     expect(compact).toContain('overflow-x: auto');
   });
 

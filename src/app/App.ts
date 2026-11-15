@@ -25,7 +25,9 @@ import {
 import {
   NPCS,
   NPC_AMBIENT,
+  ROAD_HINTS,
   applyQuestClaim,
+  applyRelicRequest,
   applyTribute,
   bountyForDay,
   claimDailyBounty,
@@ -35,12 +37,13 @@ import {
   questStateFor,
   questsForNpc,
   questSnapshot,
+  requestForNpc,
   rushMinutesLeft,
   tributeCost,
   trustBonus,
   trustLevel,
 } from '../sim/quests';
-import { createRun, type RunState } from '../sim/run';
+import { bankCarriedRelics, createRun, type RunState } from '../sim/run';
 import { equipmentDef } from '../sim/equipment';
 import { FEATS, flowMilestone, scoreRun } from '../sim/feats';
 import { buildingById } from '../sim/sanctuary';
@@ -791,6 +794,16 @@ export class App {
       const state = questStateFor(quest, accepted, claimed, progress);
       const stories = npcStories(npcId, snapshot, this.meta.victories, state);
       const trust = trustLevel(this.meta, npcId);
+      const request = requestForNpc(npcId);
+      const wantedRelic = request
+        ? {
+            name: equipmentDef(request.defId).name,
+            echoes: request.echoes,
+            line: request.line,
+            owned: this.meta.vault.includes(request.defId),
+            done: this.meta.relicRequests.includes(npcId),
+          }
+        : undefined;
       this.screens.show(
         dialogueScreen({
           npcId,
@@ -806,6 +819,33 @@ export class App {
           tributeCost:
             trust < 3 && this.meta.echoes >= tributeCost(trust) ? tributeCost(trust) : undefined,
           stories,
+          wantedRelic,
+          hint: ROAD_HINTS[npcId] ?? '',
+          onGiveRelic: () => {
+            const settled = applyRelicRequest(this.meta, npcId);
+            if (!settled || !request) return;
+            this.sound.click();
+            this.meta = { ...this.meta, ...settled };
+            this.hud.toast(
+              `Relic delivered · +${request.echoes} echoes · trust ${'♥'.repeat(
+                trustLevel(this.meta, npcId)
+              )}`
+            );
+            if (settled.gift) {
+              let name = settled.gift;
+              try {
+                name = equipmentDef(settled.gift).name;
+              } catch {
+                /* keep the raw id */
+              }
+              this.hud.toast(
+                `A parting gift from ${NPCS[npcId]?.name ?? 'an old friend'}: ${name}`,
+                true
+              );
+            }
+            this.store.saveMeta(this.meta);
+            render();
+          },
           onTribute: () => {
             const settled = applyTribute(this.meta, npcId);
             if (!settled) return;
@@ -1143,18 +1183,17 @@ export class App {
     const name = document.createElement('span');
     name.className = 'npc-balloon-name';
     name.textContent = data.name;
+    // The whole line is shown; clipping it to a fixed length cut residents off mid-sentence.
     const line = document.createElement('span');
-    line.textContent = text.length > 140 ? `${text.slice(0, 140)}...` : text;
+    line.textContent = text;
     this.balloon.append(name, line);
-    // Float above the resident's world-space name label, not on top of it.
-    // Near the top of a resident room the balloon would cross the room title
-    // and clip off-screen, so it flips below the resident instead.
+    // The message sits at the top of the screen, above the resident's
+    // world-space name label rather than beneath their feet.
     this.balloon.classList.remove('hidden');
     const above = this.renderer.worldToScreen(npc.x, npc.y - 108);
     const below = this.renderer.worldToScreen(npc.x, npc.y + 54);
     const height = this.balloon.offsetHeight || 64;
     const placement = placeBalloon(above.y, below.y, height, this.ui.clientHeight);
-    this.balloon.classList.toggle('below', placement.below);
     this.balloon.style.left = `${above.x}px`;
     this.balloon.style.top = `${placement.top}px`;
   }
@@ -1205,6 +1244,11 @@ export class App {
       floorBanner(run.depth, this.world.plan.trialName ?? biomeInfo(this.world.plan.biome).name)
     );
     this.hud.showBanner();
+    // Every section entrance is a checkpoint: the Sanctuary keeps what the
+    // walker carries. Relics found after this are at risk until the next one.
+    const bankedNow = bankCarriedRelics(run);
+    const bankNote =
+      bankedNow > 0 ? ` · ${bankedNow} relic${bankedNow === 1 ? '' : 's'} banked` : '';
     const reached = checkpointForDepth(run.depth);
     if (reached > this.meta.checkpoint) {
       this.meta = { ...this.meta, checkpoint: reached };
@@ -1219,8 +1263,10 @@ export class App {
           this.run === scheduledRun &&
           this.run?.depth === scheduledDepth
         )
-          this.hud.toast(`Checkpoint · Section ${sectionNumber(reached)}`);
+          this.hud.toast(`Checkpoint · Section ${sectionNumber(reached)}${bankNote}`);
       }, 3650);
+    } else if (bankedNow > 0) {
+      this.hud.toast(`Sanctuary bank · ${bankedNow} relic${bankedNow === 1 ? '' : 's'} kept`);
     }
     this.state = 'playing';
     if (this.world.awaitingChoice) this.showChoice();

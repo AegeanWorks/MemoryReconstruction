@@ -1180,7 +1180,7 @@ function supplyRow(name: string, count: string, hint: string): HTMLElement {
   );
 }
 
-/** Talking to a Sanctuary NPC, with accept/claim. */
+/** Talking to a Sanctuary NPC, with accept/claim, a relic request and a road hint. */
 export function dialogueScreen(opts: {
   npcId: string;
   progress: number;
@@ -1191,15 +1191,24 @@ export function dialogueScreen(opts: {
   tributeCost: number | undefined;
   rushMinutes: number | undefined;
   stories: readonly string[];
+  /** The relic this resident wants, with whether the vault holds it. */
+  wantedRelic?: { name: string; echoes: number; line: string; owned: boolean; done: boolean };
+  /** One practical line about the road ahead, revealed on request. */
+  hint: string;
   onAccept: () => void;
   onClaim: () => void;
   onTribute: () => void;
+  onGiveRelic: () => void;
   onClose: () => void;
 }): HTMLElement {
   const npc = NPCS[opts.npcId] ?? { name: 'A quiet resident', role: '', greeting: '...' };
   const quest = questsForNpc(opts.npcId);
   const ready = quest ? opts.progress >= quest.target : false;
   const portraitUrl = assetUrl(`sprites/props/npc_${opts.npcId}.png`);
+  const hintPanel = h('div', { class: 'panel dialogue-panel dialogue-hint hidden' }, opts.hint);
+  const hintButton = button('Ask about the road', () => {
+    hintPanel.classList.toggle('hidden');
+  });
   return h(
     'div',
     { class: 'screen hub' },
@@ -1229,17 +1238,21 @@ export function dialogueScreen(opts: {
             ? h('span', {}, ` · +${opts.trustBonus} echo friends' share on claims`)
             : null
         ),
-        opts.tributeCost !== undefined
-          ? (() => {
-              const tribute = button(
-                `Offer tribute · ${opts.tributeCost} echoes`,
-                opts.onTribute,
-                'btn small'
-              );
-              tribute.title = 'A gift of echoes deepens trust. Full trust earns a parting gift.';
-              return tribute;
-            })()
-          : null
+        h(
+          'div',
+          { class: 'dialogue-actions' },
+          opts.tributeCost !== undefined
+            ? (() => {
+                const tribute = button(
+                  `Offer tribute · ${opts.tributeCost} echoes`,
+                  opts.onTribute,
+                  'btn small'
+                );
+                tribute.title = 'A gift of echoes deepens trust. Full trust earns a parting gift.';
+                return tribute;
+              })()
+            : null
+        )
       )
     ),
     h('div', { class: 'panel dialogue-panel' }, h('p', { class: 'dialogue-line' }, npc.greeting)),
@@ -1282,7 +1295,28 @@ export function dialogueScreen(opts: {
           ...opts.stories.map((line) => h('p', { class: 'dialogue-line' }, `“${line}”`))
         )
       : null,
-    h('div', { class: 'menu' }, button('Step away', opts.onClose, 'btn primary'))
+    opts.wantedRelic
+      ? h(
+          'div',
+          { class: 'panel dialogue-panel relic-request' },
+          h('div', { class: 'gear-name' }, `Wanted: ${opts.wantedRelic.name}`),
+          h('p', { class: 'dialogue-line' }, `“${opts.wantedRelic.line}”`),
+          h(
+            'div',
+            { class: 'cp-note' },
+            opts.wantedRelic.done
+              ? 'Delivered. The Sanctuary remembers.'
+              : `Reward ${opts.wantedRelic.echoes} echoes · one heart of trust${
+                  opts.wantedRelic.owned ? '' : ' · not in the vault yet'
+                }`
+          ),
+          opts.wantedRelic.done || !opts.wantedRelic.owned
+            ? null
+            : button(`Give ${opts.wantedRelic.name}`, opts.onGiveRelic, 'btn small primary')
+        )
+      : null,
+    hintPanel,
+    h('div', { class: 'menu' }, hintButton, button('Step away', opts.onClose, 'btn primary'))
   );
 }
 
@@ -2157,7 +2191,13 @@ export function deathScreen(
           { class: 'meta-line' },
           `Fell${run.deathRoom ? ` in the ${run.deathRoom} room` : ''}${
             run.deathSection !== undefined ? ` · Section ${run.deathSection}` : ''
-          }. The Sanctuary keeps what you carried.`
+          }. ${
+            run.bankedRelics.length > 0
+              ? `The Sanctuary keeps the ${run.bankedRelics.length} relic${
+                  run.bankedRelics.length === 1 ? '' : 's'
+                } you banked at the last checkpoint; what you found after it is lost.`
+              : 'Nothing was banked since the last checkpoint, so the relics you carried are lost.'
+          }`
         )
       : null,
     h('div', { class: 'echo-earned' }, `Echoes banked · +${opts.echoes}`),

@@ -14,7 +14,7 @@ import { z } from 'zod';
 import { equipmentExists } from '../sim/equipment';
 import { checkpointForDepth, echoesEarned } from '../sim/hub';
 import { evaluateFeats, scoreRun } from '../sim/feats';
-import { MODIFIER_DEFS, restoreRun, type RunState } from '../sim/run';
+import { MODIFIER_DEFS, carriedRelicIds, restoreRun, type RunState } from '../sim/run';
 
 const META_KEY = 'memory-reconstruction.meta.v1'; // aikit:allow-secret
 const RUN_KEY = 'memory-reconstruction.run.v1';
@@ -108,6 +108,8 @@ const MetaSchema = z.object({
   trust: z.record(z.string(), z.number().int().min(0).max(3)).default({}),
   /** NPC ids whose full-trust parting gift has already been given. */
   trustGifted: z.array(z.string()).default([]),
+  /** NPC ids whose specific-relic request has been answered. */
+  relicRequests: z.array(z.string()).default([]),
   /** Daily bounty progress; keyed so a new day starts clean. */
   dailyBounty: BountySchema.default({ key: '', kills: 0, claimed: false }),
   /** Settlement-evaluated mastery ladder; idempotent set union per run. */
@@ -173,6 +175,7 @@ export function defaultMeta(): Meta {
     daily: { best: {}, streak: 0, bestStreak: 0, lastKey: '' },
     trust: {},
     trustGifted: [],
+    relicRequests: [],
     dailyBounty: { key: '', kills: 0, claimed: false },
     vault: [],
     attunedRelic: null,
@@ -526,6 +529,12 @@ export function dropPhantomRelics(meta: Meta): Meta {
  */
 export function recordRun(meta: Meta, run: RunState, won: boolean): Meta {
   const fragments = Array.from(new Set([...meta.fragments, ...run.fragmentsFound]));
+  // Checkpoints bank the carried relics; a victor brings home everything still
+  // carried, while a death keeps only what the last checkpoint stored.
+  const carried = won ? carriedRelicIds(run) : run.bankedRelics;
+  const vault = Array.from(
+    new Set([...meta.vault, ...carried.filter((defId) => equipmentExists(defId))])
+  );
   const next: Meta = {
     ...meta,
     fragments,
@@ -536,6 +545,7 @@ export function recordRun(meta: Meta, run: RunState, won: boolean): Meta {
     checkpoint: Math.max(meta.checkpoint, checkpointForDepth(run.depth)),
     kills: meta.kills + run.stats.kills,
     bossKills: meta.bossKills + run.stats.bossKills,
+    vault,
   };
   // Feats evaluate after counters update, as a set union: re-settling the
   // same run can never farm unlocks (cyberpulse ADR-028).

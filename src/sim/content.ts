@@ -118,8 +118,8 @@ export const ENEMY_WINDUP_SCALE = 1.1;
 export const ENEMY_COUNT_SCALE = 1.1;
 /** Kill XP is deliberately scarce: levels should be earned, not showered. */
 export const ENEMY_XP_SCALE = 0.4;
-/** Extra incoming-damage growth per section (was 0.08). */
-export const ENEMY_DAMAGE_DEPTH_SCALE = 0.1;
+/** Extra incoming-damage growth per section past the first: section 2 is 1.05, section 3 is 1.10. */
+export const ENEMY_DAMAGE_DEPTH_SCALE = 0.05;
 /** Enemy damage added (additive) for every room cleared this run: twenty rooms double it. */
 export const ROOM_DAMAGE_STEP = 0.05;
 /** Enemy damage added (additive) for every wave after a room's first. */

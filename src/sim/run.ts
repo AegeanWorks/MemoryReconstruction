@@ -143,6 +143,12 @@ export interface RunState {
   /** Fragments already owned (from earlier runs) when this run began. */
   knownFragments: string[];
   pendingChoices: UpgradeChoice[];
+  /**
+   * Relic def ids carried when a checkpoint (section entrance) was reached.
+   * They are copied into the Sanctuary vault when the run settles, even in
+   * death; relics found after the last checkpoint are lost with the run.
+   */
+  bankedRelics: string[];
 }
 
 export function createRun(
@@ -173,7 +179,33 @@ export function createRun(
     fragmentsFound: [],
     knownFragments: [...knownFragments],
     pendingChoices: [],
+    bankedRelics: [],
   };
+}
+
+/** Every relic the walker is wearing or carrying right now, as def ids. */
+export function carriedRelicIds(run: RunState): string[] {
+  const worn = EQUIPMENT_SLOTS.map((slot) => run.player.equipment[slot]?.defId).filter(
+    (id): id is string => !!id
+  );
+  return [...worn, ...run.player.inventory.map((item) => item.defId)];
+}
+
+/**
+ * Reaching a checkpoint stores the carried relics in the Sanctuary: their
+ * def ids join the run's bank, which survives death. Returns how many were
+ * newly banked, so callers can tell the walker what was kept.
+ */
+export function bankCarriedRelics(run: RunState): number {
+  const banked = new Set(run.bankedRelics);
+  let fresh = 0;
+  for (const defId of carriedRelicIds(run)) {
+    if (!equipmentExists(defId) || banked.has(defId)) continue;
+    banked.add(defId);
+    fresh++;
+  }
+  run.bankedRelics = [...banked];
+  return fresh;
 }
 
 /** XP needed to go from `level` to `level + 1`; slower than the old 30/1.36 and 42/1.42 curves. */
@@ -309,5 +341,9 @@ export function restoreRun(data: unknown): RunState | undefined {
   // during play; an older snapshot without them would crash on load.
   run.fragmentsFound = Array.isArray(run.fragmentsFound) ? run.fragmentsFound : [];
   run.knownFragments = Array.isArray(run.knownFragments) ? run.knownFragments : [];
+  // A snapshot written before checkpoint banking has no bank; treat it as empty.
+  run.bankedRelics = Array.isArray(run.bankedRelics)
+    ? run.bankedRelics.filter((id): id is string => typeof id === 'string' && equipmentExists(id))
+    : [];
   return run;
 }

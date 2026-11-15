@@ -71,9 +71,7 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Archive',
     role: 'Lorekeeper',
     facade: 'building_archive',
-    blurb:
-      'Shelves of salvaged pages, and a table kept clear for you. The Archivist can tell which expedition ' +
-      'a scrap came from by the smell of it — ash, brine, ozone — and files them all the same.',
+    blurb: 'Shelves of salvaged pages, and a table kept clear for you.',
     theme: 'crystal',
     plan: [
       '##.................##',
@@ -128,9 +126,7 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Forge',
     role: 'Weaponsmith',
     facade: 'building_forge',
-    blurb:
-      'Heat, hammer and a rack of half-finished blades. The Smith quenches every edge in well water and ' +
-      'tests it on silence — if the ring sounds true, it is ready for the deep.',
+    blurb: 'Heat, hammer and a rack of half-finished blades.',
     theme: 'foundry',
     plan: [
       '##.................##',
@@ -183,9 +179,7 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Garden House',
     role: 'Grower',
     facade: 'building_garden',
-    blurb:
-      'Green things that survived the dark, and a bench to sit on. The Gardener grafts cuttings from every ' +
-      'section — frost moss beside bloom petals — to prove the Sanctuary can hold them all at once.',
+    blurb: 'Green things that survived the dark, and a bench to sit on.',
     theme: 'forest',
     plan: [
       '###...............###',
@@ -238,9 +232,7 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Barracks',
     role: 'Warden',
     facade: 'building_barracks',
-    blurb:
-      'A drill mat, a shield on the wall, and no dust anywhere. The Warden runs the same three forms every ' +
-      'morning and insists the walkers do likewise — the deep rewards the rehearsed.',
+    blurb: 'A drill mat, a shield on the wall, and no dust anywhere.',
     theme: 'frost',
     plan: [
       '.....................',
@@ -291,9 +283,7 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Lamp House',
     role: 'Lamplighter',
     facade: 'building_lamphouse',
-    blurb:
-      'Every lamp in the Sanctuary is trimmed from this one room. The workbench smells of oil and hot glass, ' +
-      'and the candle by the door is never allowed to go out — it is the first light every expedition sees coming home.',
+    blurb: 'Every lamp in the Sanctuary is trimmed from this one room.',
     theme: 'catacomb',
     plan: [
       '#...................#',
@@ -350,9 +340,7 @@ export const SANCTUARY_BUILDINGS: readonly SanctuaryBuilding[] = [
     name: 'The Hearth',
     role: 'Hearthkeeper',
     facade: 'building_hearth',
-    blurb:
-      'Soup, stories and a chair by the fire for walkers between descents. The Hearthkeeper remembers every ' +
-      'expedition by what it ordered, and swears the stew tastes of whichever section you survived.',
+    blurb: 'Soup, stories and a chair by the fire for walkers between descents.',
     theme: 'bloom',
     plan: [
       '......###...###......',

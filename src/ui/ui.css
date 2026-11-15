@@ -1298,19 +1298,8 @@
   border-right: 1px solid rgba(255, 217, 138, 0.45);
   border-bottom: 1px solid rgba(255, 217, 138, 0.45);
 }
-/* Resident rooms frame the NPC near the title band; hang the balloon below
-   the resident there and point the arrow up. */
-.npc-balloon.below {
-  transform: translate(-50%, 0);
-}
-.npc-balloon.below::after {
-  top: -6px;
-  bottom: auto;
-  border-right: none;
-  border-bottom: none;
-  border-left: 1px solid rgba(255, 217, 138, 0.45);
-  border-top: 1px solid rgba(255, 217, 138, 0.45);
-}
+/* Resident rooms frame the NPC near the title band, so the balloon is pinned
+   to the top of the screen and its arrow keeps pointing down at the speaker. */
 .npc-balloon .npc-balloon-name {
   display: block;
   font-family: var(--serif);
@@ -1620,10 +1609,7 @@
   padding: 10px 12px;
 }
 .hub .rest-lore {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  line-height: 1.45;
 }
 
 .hub-saved {
@@ -1917,7 +1903,17 @@
   transform: translateY(3px);
 }
 .dialogue-titles {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   text-align: left;
+}
+.dialogue-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
 }
 .dialogue-titles .subtitle {
   margin: 0;
@@ -1939,6 +1935,9 @@
     0 12px 32px rgba(0, 0, 0, 0.75),
     inset 0 0 1px rgba(255, 217, 138, 0.25);
   backdrop-filter: blur(10px);
+}
+.dialogue-hint.hidden {
+  display: none;
 }
 .dialogue-line {
   margin: 0;
@@ -2193,11 +2192,7 @@
   font-size: 12px;
   line-height: 1.45;
   color: var(--ink-dim);
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  min-height: calc(12px * 1.45 * 4);
+  min-height: calc(12px * 1.45 * 2);
 }
 .building-enter {
   align-self: stretch;
@@ -2787,7 +2782,6 @@
     height: 68px;
   }
   .building-blurb {
-    -webkit-line-clamp: 2;
     min-height: calc(12px * 1.45 * 2);
   }
   .building-copy {
@@ -2843,7 +2837,6 @@
   .building-copy {
     min-height: 0;
   }
-  .building-blurb,
   .station-hint {
     display: none;
   }
@@ -3066,7 +3059,6 @@
     height: 68px;
   }
   .building-blurb {
-    -webkit-line-clamp: 2;
     min-height: calc(12px * 1.45 * 2);
   }
   .building-copy {

@@ -326,7 +326,106 @@ export interface TributeMeta {
   vault: string[];
   trust: Record<string, number>;
   trustGifted: string[];
+  /** NPC ids whose specific-relic request has already been answered. */
+  relicRequests?: string[];
 }
+
+/** A resident's specific-relic request: one relic from the vault, handed over for good. */
+export interface RelicRequestDef {
+  defId: string;
+  echoes: number;
+  line: string;
+}
+
+/**
+ * Every resident wants one particular relic for their own work. Handing it
+ * over removes it from the vault, deepens trust by one heart and pays echoes,
+ * so a player's collection becomes a set of errands rather than a trophy shelf.
+ */
+export const RELIC_REQUESTS: Record<string, RelicRequestDef> = {
+  archivist: {
+    defId: 'choir_staff',
+    echoes: 140,
+    line: 'A staff that still holds a voice in it. The index can quote what it hears.',
+  },
+  smith: {
+    defId: 'void_cleaver',
+    echoes: 150,
+    line: 'A blade that cuts memory cleanly. I want to learn how it keeps an edge.',
+  },
+  gardener: {
+    defId: 'bog_crown',
+    echoes: 130,
+    line: 'Something that grew in the mire and refused to stop. I have a bed for it.',
+  },
+  warden: {
+    defId: 'colossus_plate',
+    echoes: 160,
+    line: 'A wall that learned to walk. My recruits should study the seams.',
+  },
+  lamplighter: {
+    defId: 'tide_lens',
+    echoes: 140,
+    line: 'A lens from the drowned harbor. One lamp on the coast has been dark too long.',
+  },
+  hearthkeeper: {
+    defId: 'ember_core',
+    echoes: 150,
+    line: 'A hearth that never went out. The kitchen fire could use a coal of it.',
+  },
+};
+
+export function requestForNpc(npcId: string): RelicRequestDef | undefined {
+  return RELIC_REQUESTS[npcId];
+}
+
+/**
+ * Settles a relic request: the wanted relic leaves the vault, echoes and one
+ * heart of trust arrive, and the request is recorded so it cannot be farmed.
+ * Returns undefined when the resident wants nothing, the vault lacks the relic
+ * or the request is already answered.
+ */
+export function applyRelicRequest(
+  meta: TributeMeta,
+  npcId: string
+): (TributeMeta & { gift?: string }) | undefined {
+  const request = requestForNpc(npcId);
+  if (!request) return undefined;
+  const answered = meta.relicRequests ?? [];
+  if (answered.includes(npcId)) return undefined;
+  if (!meta.vault.includes(request.defId)) return undefined;
+  const vault = new Set(meta.vault);
+  vault.delete(request.defId);
+  const gifted = new Set(meta.trustGifted);
+  const trust = trustLevel({ trust: meta.trust }, npcId);
+  const newTrust = Math.min(3, trust + 1);
+  const gift = maybeTrustGift(vault, gifted, npcId, newTrust);
+  return {
+    echoes: meta.echoes + request.echoes,
+    vault: [...vault],
+    trust: { ...meta.trust, [npcId]: newTrust },
+    trustGifted: [...gifted],
+    relicRequests: [...answered, npcId],
+    gift,
+  };
+}
+
+/**
+ * One practical line per resident about the road ahead, offered on their page
+ * beside the task and the relic request.
+ */
+export const ROAD_HINTS: Record<string, string> = {
+  archivist:
+    'Fragments cluster near sealed doors. If a room looks empty, look up — the index always does.',
+  smith: 'Every guardian flinches after its third swing. Learn the rhythm before you answer it.',
+  gardener:
+    'Clear a whole floor and the Sanctuary grows back stronger. The bonus is worth the extra room.',
+  warden: 'Checkpoints bank what you carry. Descend a section before you gamble on a new relic.',
+  lamplighter:
+    'A graze is a near miss that feeds your flow. Step close, then step out — do not run away.',
+  hearthkeeper:
+    'Rest before a long descent. Elders say the stew remembers the section you survived.',
+};
 
 /**
  * Gift-giving: echoes for trust, one tribute per heart. Pure; the hub

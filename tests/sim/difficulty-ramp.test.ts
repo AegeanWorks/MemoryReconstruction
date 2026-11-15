@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ENEMY_DAMAGE_DEPTH_SCALE,
   ENEMY_XP_SCALE,
   ROOM_DAMAGE_STEP,
   WAVE_DAMAGE_STEP,
@@ -21,13 +22,23 @@ describe('a slower climb and a crueller expedition', () => {
     expect(ENEMY_XP_SCALE).toBeLessThanOrEqual(0.45);
   });
 
+  it('adds 5% enemy damage for every section past the first, additively', () => {
+    expect(ENEMY_DAMAGE_DEPTH_SCALE).toBe(0.05);
+    // Section 1 is depth 0; section 2 multiplies by 1.05, section 3 by 1.10, and so on.
+    expect(enemyDamageMultiplier(0, 0)).toBe(1);
+    expect(enemyDamageMultiplier(1, 0)).toBeCloseTo(1.05);
+    expect(enemyDamageMultiplier(2, 0)).toBeCloseTo(1.1);
+    expect(enemyDamageMultiplier(19, 0)).toBeCloseTo(1.95);
+    expect(enemyDamageMultiplier(20, 0)).toBeCloseTo(2);
+  });
+
   it('adds 5% enemy damage for every cleared room, so twenty rooms double it', () => {
     expect(ROOM_DAMAGE_STEP).toBe(0.05);
     expect(enemyDamageMultiplier(0, 0)).toBe(1);
     expect(enemyDamageMultiplier(0, 10)).toBeCloseTo(1.5);
     expect(enemyDamageMultiplier(0, 20)).toBe(2);
-    expect(enemyDamageMultiplier(20, 0)).toBeCloseTo(3);
-    expect(enemyDamageMultiplier(20, 20)).toBeCloseTo(4);
+    expect(enemyDamageMultiplier(20, 0)).toBeCloseTo(2);
+    expect(enemyDamageMultiplier(20, 20)).toBeCloseTo(3);
   });
 
   it('adds damage and one more enemy with each wave of a room', () => {
@@ -41,13 +52,21 @@ describe('a slower climb and a crueller expedition', () => {
     expect(waveEnemyCount(10, 8, 6)).toBe(8);
   });
 
-  it('stamps the room and wave scaling onto spawned enemies', () => {
+  it('stamps the section, room and wave scaling onto spawned enemies', () => {
     const run = createRun(3, []);
     const world = new World(run);
     const base = enemyDef('memory_echo').damage;
     const fresh = world.spawnEnemy('memory_echo', 100, 100, 0);
     expect(fresh.def.damage).toBe(base);
 
+    run.depth = 1;
+    const second = world.spawnEnemy('memory_echo', 100, 100, 0);
+    expect(second.def.damage).toBe(Math.round(base * 1.05 * (second.elite ? 1.3 : 1)));
+    run.depth = 2;
+    const third = world.spawnEnemy('memory_echo', 100, 100, 0);
+    expect(third.def.damage).toBe(Math.round(base * 1.1 * (third.elite ? 1.3 : 1)));
+
+    run.depth = 0;
     run.stats.roomsCleared = 20;
     const twenty = world.spawnEnemy('memory_echo', 100, 100, 0);
     expect(twenty.def.damage).toBe(base * 2);
