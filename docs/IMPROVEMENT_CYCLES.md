@@ -4194,3 +4194,32 @@ panel to "Delivered. The Sanctuary remembers." Screenshots `docs/qa/cycle96-dial
 `cycle96-dialogue-390x844.png`, `cycle96-hub-390x844.png`.
 ### Gate results
 See the task summary.
+
+## Cycle 97 - Requests on the hub, the bank beside the bag, an honest save slot
+### FIND
+Cycle 96 added relic requests and checkpoint banking, but both were easy to miss: a request showed only inside
+the resident's page, and the bank only in an entrance toast or the death recap. A player deciding whether to
+carry a new relic had to remember the last checkpoint. The Saves screen also labelled an empty active slot
+"Playing", which is a disabled lie. The code confirmed all three: `SavesScreen` chose the label from `active`
+alone, `hubScreen` showed only the quest badge, and `inventoryScreen` had no bank line.
+### IMPLEMENT
+- `src/sim/quests.ts`: `relicRequestStatus(meta, npcId)` returns `none | wanted | ready | done`.
+- `src/sim/run.ts`: `bankSummary(run)` counts distinct kept relics and distinct carried relics still at risk.
+- `src/ui/Screens.ts`: each resident card gains a `.building-badges` row with the quest badge plus **Wants
+  (relic)**, **Give (relic)** or **Relic given**; the Relics screen gains a checkpoint-bank line under
+  `Carried · N/20`.
+- `src/ui/SavesScreen.ts`: `playSlotAction` is the tested decision for label and disabled state; the active
+  empty slot now reads **Active slot**, not **Playing**.
+- `src/ui/ui.css`: badge-row layout and `.quest-badge.relic`.
+- Tests: `tests/ui-hub-requests.test.ts` (3), `tests/ui-save-slot-action.test.ts` (2), plus `bankSummary`
+  and `relicRequestStatus` cases in the existing sim tests.
+### RECORD
+In Edge at 1280x720: the six hub cards read `[New task, Relic given]` for the Archivist and `[New task,
+Wants (relic)]` for the other five; adding Bog Crown to the vault flipped the Gardener to **Give Bog Crown**
+with class `quest-badge ready`. The badge row measured 344 px inside a 366 px card at 390x844 with no wrap
+and no horizontal overflow (390/390). Continuing the save showed the Relics screen bank line "1 relic kept ·
+everything carried is safe", and after adding two relics it read "1 relic kept · 2 new relics at risk until
+the next checkpoint" with `Carried · 2/20` and 24 boxes (the injected relics were removed afterwards).
+Screenshots `docs/qa/cycle97-hub-badges-1280x720.png` and `cycle97-hub-badges-390x844.png`.
+### Gate results
+See the task summary.

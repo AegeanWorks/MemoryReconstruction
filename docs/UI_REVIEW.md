@@ -267,3 +267,21 @@ The running Vite build was driven in Edge at **1280x720**, **390x844** and **844
 
 Captures: `docs/qa/cycle96-dialogue-1280x720.png`, `docs/qa/cycle96-dialogue-390x844.png`,
 `docs/qa/cycle96-hub-390x844.png`.
+
+## 2026-11-15 review: hub request badges, bank readout, save-slot action (agent reviewer: kilo:1)
+
+The running Vite build was driven in Edge at **1280x720** and **390x844**.
+- **Hub badges**: at 1280x720 the Archivist card showed `[New task, Relic given]` and the other five showed
+  `[New task, Wants (relic)]` inside a `.building-badges` row. Adding Bog Crown to the vault re-rendered the
+  Gardener as **Give Bog Crown** with class `quest-badge ready`. At 390x844 the badge row measured 344px in a
+  366px card, stayed on one line, and the document had no horizontal overflow (scrollWidth 390).
+- **Bank readout**: continuing the saved expedition showed "Checkpoint bank · 1 relic kept · everything
+  carried is safe." in the Relics screen; injecting Void Visor and Sun Core and reopening the bag changed it
+  to "1 relic kept · 2 new relics at risk until the next checkpoint" with `Carried · 2/20` and 24 boxes.
+  The injected relics were removed before leaving, so the saved run was not polluted.
+- **Save-slot action**: covered by `tests/ui-save-slot-action.test.ts` (active empty reads **Active slot**,
+  active with progress reads **Playing**, non-active reads **Start here** or **Play**); the screen was not
+  re-driven because switching slots would touch the working save.
+No console errors were observed.
+
+Captures: `docs/qa/cycle97-hub-badges-1280x720.png`, `docs/qa/cycle97-hub-badges-390x844.png`.
