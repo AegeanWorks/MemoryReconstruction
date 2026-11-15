@@ -41,9 +41,12 @@ describe('long lists keep their place across a re-render', () => {
     expect(market).toContain('this.restoreListState(list);');
   });
 
-  it('gives the filter chips a stable key and pressed state too', () => {
-    expect(screens).toContain('chip.dataset.action = `filter:${f}`');
-    expect(screens).toContain("chip.setAttribute('aria-pressed', bagFilter === f ? 'true' : 'false')");
+  // Replaced in the saves-and-inventory task (ADR-215): the bag filter chips were removed with the
+  // list; the grid boxes now carry the stable key and the pressed state.
+  it('gives the grid boxes a stable key and pressed state', () => {
+    const grid = readFileSync(join(__dirname, '../src/ui/InventoryGrid.ts'), 'utf8');
+    expect(grid).toContain('box.dataset.action = key');
+    expect(grid).toContain("box.setAttribute('aria-pressed', key === selected ? 'true' : 'false')");
   });
 
   it('keys the place-screen actions too, so their rebuilds keep focus', () => {
@@ -74,5 +77,21 @@ describe('long lists keep their place across a re-render', () => {
     expect(screens).toContain('sell.dataset.action = `sell:${item.uid}`');
     expect(screens).toContain('discard.dataset.action = `discard:${item.uid}`');
     expect(screens).toContain('sell.dataset.action = `market:${defId}`');
+  });
+});
+
+describe('focus comes back to the same control, not merely the same place', () => {
+  const src = readFileSync(join(__dirname, '../src/app/App.ts'), 'utf8');
+  const restore = src.slice(src.indexOf('private restoreListState('), src.indexOf('private showExpedition('));
+  it('remembers the focused control by its key and finds it again first', () => {
+    const capture = src.slice(src.indexOf('private captureListState('), src.indexOf('private restoreListState('));
+    expect(capture).toContain('key: active?.dataset.action');
+    expect(restore).toContain('actions.find((el) => el.dataset.action === state.key)');
+  });
+  it('falls back to the picked box when the focused control is gone, as after Upgrade', () => {
+    expect(restore).toContain('.screen [data-action][aria-pressed="true"]');
+  });
+  it('tries the remembered position itself before its neighbours', () => {
+    expect(restore).toContain('actions[start],\n      ...actions.slice(start + 1)');
   });
 });

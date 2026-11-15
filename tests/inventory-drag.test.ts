@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { bagCells, dragStarted, parseDropTarget, resolveDrop } from '../src/ui/inventoryDrag';
+import {
+  bagCells,
+  dragStarted,
+  nextInDirection,
+  parseDropTarget,
+  resolveDrop,
+} from '../src/ui/inventoryDrag';
 describe('parseDropTarget', () => {
   it('reads the three kinds of drop zone', () => {
     expect(parseDropTarget('slot:trinket')).toEqual({ kind: 'slot', slot: 'trinket' });
@@ -63,5 +69,31 @@ describe('dragStarted', () => {
     expect(dragStarted(3, 3)).toBe(false);
     expect(dragStarted(6, 0)).toBe(true);
     expect(dragStarted(-4, 5)).toBe(true);
+  });
+});
+
+describe('nextInDirection', () => {
+  // A 3x2 grid of box centres, 60 px apart, then one box far below on its own.
+  const boxes = [
+    { x: 0, y: 0 }, { x: 60, y: 0 }, { x: 120, y: 0 },
+    { x: 0, y: 60 }, { x: 60, y: 60 }, { x: 120, y: 60 },
+    { x: 30, y: 200 },
+  ];
+  it('moves to the neighbour in each direction', () => {
+    expect(nextInDirection(boxes, 1, 'left')).toBe(0);
+    expect(nextInDirection(boxes, 1, 'right')).toBe(2);
+    expect(nextInDirection(boxes, 1, 'down')).toBe(4);
+    expect(nextInDirection(boxes, 4, 'up')).toBe(1);
+  });
+  it('prefers the box in line over a closer one off to the side', () => {
+    expect(nextInDirection(boxes, 3, 'right')).toBe(4);
+  });
+  it('reaches a box that is not in any row, such as the doll above the bag', () => {
+    expect(nextInDirection(boxes, 3, 'down')).toBe(6);
+    expect(nextInDirection(boxes, 6, 'up')).toBe(3);
+  });
+  it('stays put at an edge', () => {
+    expect(nextInDirection(boxes, 0, 'left')).toBe(0);
+    expect(nextInDirection(boxes, 2, 'up')).toBe(2);
   });
 });

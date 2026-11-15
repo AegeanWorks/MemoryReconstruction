@@ -574,29 +574,51 @@ export class App {
    * put focus on the filter row. Capture the panel scroll and the focused action before the rebuild,
    * then restore both, clamping the action index when the sold row no longer exists.
    */
-  private captureListState(): { scrollTop: number; index: number } {
+  private captureListState(): { scrollTop: number; index: number; key?: string } {
     const active = document.activeElement as HTMLElement | null;
     const actions = [...document.querySelectorAll<HTMLElement>('.screen [data-action]')];
     const panel =
       active?.closest<HTMLElement>('.panel') ??
       document.querySelector<HTMLElement>('.screen .panel');
-    return { scrollTop: panel?.scrollTop ?? 0, index: active ? actions.indexOf(active) : -1 };
+    return {
+      scrollTop: panel?.scrollTop ?? 0,
+      index: active ? actions.indexOf(active) : -1,
+      key: active?.dataset.action,
+    };
   }
 
-  private restoreListState(state: { scrollTop: number; index: number }): void {
+  private restoreListState(state: { scrollTop: number; index: number; key?: string }): void {
     const panel = document.querySelector<HTMLElement>('.screen .panel');
     if (panel) panel.scrollTop = state.scrollTop;
     if (state.index < 0) return;
     const actions = [...document.querySelectorAll<HTMLElement>('.screen [data-action]')];
     if (actions.length === 0) return;
+    const usable = (el: HTMLElement | null | undefined): el is HTMLElement =>
+      !!el && !(el instanceof HTMLButtonElement && el.disabled);
+    // The same control, found by its key, survives a reorder (an equipped relic leaves the bag).
+    const same = actions.find((el) => el.dataset.action === state.key);
+    if (usable(same)) {
+      same.focus({ preventScroll: true });
+      return;
+    }
+    // A control that is gone (Upgrade, once used) hands focus to the picked box, if the screen has one.
+    if (!same) {
+      const picked = document.querySelector<HTMLElement>(
+        '.screen [data-action][aria-pressed="true"]'
+      );
+      if (picked) {
+        picked.focus({ preventScroll: true });
+        return;
+      }
+    }
     // The action at this index may have become disabled (picking a weapon turns its button into
     // "Equipped", a boon into "Meditating"), and a disabled button cannot take focus. Prefer the
     // nearest usable action after it, then the nearest before it, rather than jumping to the top.
     const start = Math.min(state.index, actions.length - 1);
     const order = [
+      actions[start],
       ...actions.slice(start + 1),
       ...actions.slice(0, start + 1).reverse(),
-      actions[start],
     ];
     for (const el of order) {
       if (el instanceof HTMLButtonElement && el.disabled) continue;
@@ -1229,7 +1251,8 @@ export class App {
       if (inSanctuary) this.resumeRoom();
       else this.resume();
     };
-    let status = 'Click a carried relic to equip it, ↑↓ to browse, or sell what you will not wear.';
+    let status =
+      'Pick a relic to see it. Drag it onto its slot or your wanderer to wear it; arrow keys move, Enter picks.';
     const render = (list?: { scrollTop: number; index: number }): void => {
       this.screens.show(
         inventoryScreen(

@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794736672.9583828,
+    "updated_at": 1794736854.947151,
     "owner": "kiro:1",
     "started_by": "kiro:1",
     "continuations": [],
@@ -17,24 +17,6 @@
     ]
   },
   "checkpoints": [
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Sanctuary program milestone 2, player model reflects worn gear: (1) pure src/view/gearLook.ts: per-armor robe palette (hue/sat/val remap limited to the blue robe band so skin, gold, cyan cape and outline stay), per-trinket orb colour and size by rarity, completeness test over equipment.json; (2) in-game: armorTextures.ts recolours each frame texture once (cached per frame array and armor) and ActorView mirrors the body frame on an armor layer, plus an orbiting trinket glow on the player root; (3) paper doll shows the same armor palette and a trinket orb, then ADR, README, probe at 1280x720 and 390x844, UI tasks split to stay under the 300-line budget.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794688978.1262329,
-      "timestamp_str": "2026-11-14 23:42:58",
-      "agent": "kiro:1",
-      "plan_digest": "7807e4b5faacabf531d2be21d4043dda7c5c427f4cc978675446688eb0724768",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "visual-and-content-polish-28-51",
       "phase": "phase 4",
@@ -373,6 +355,23 @@
       "status": "in_progress",
       "timestamp": 1794736672.9583828,
       "timestamp_str": "2026-11-15 12:57:52",
+      "agent": "kiro:1",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "saves-slots-inventory-grid",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Verified: grid-only inventory with detail pane, in-place pick, double-click, positional arrow keys, key-first focus restore; 9 failing-first tests, four list tests replaced with user approval (ADR-216); 825 tests, lint, typecheck; real-input probe at 1280x720 and 390x844; UI task aborted after its fast proof ran the old list tests against the new code (2 strikes), files restored with matching hashes; 8/8 gates; README, cycle 94",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794736854.947151,
+      "timestamp_str": "2026-11-15 13:00:54",
       "agent": "kiro:1",
       "workspaces": [
         {

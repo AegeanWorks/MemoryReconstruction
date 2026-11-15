@@ -5,7 +5,6 @@
 import { CORE_MEMORIES, FLOOR_PLANS, MEMORY_FRAGMENTS, biomeInfo } from '../sim/content';
 import { FEATS, featProgress, type FeatDef } from '../sim/feats';
 import {
-  EQUIPMENT_SLOTS,
   INVENTORY_SLOTS,
   applyEquipment,
   equipmentDef,
@@ -52,7 +51,7 @@ import type { World } from '../sim/world';
 import { dailyModifier, type Meta, type Settings } from '../save/SaveStore';
 import { assetUrl, button, h, relicIconUrl } from './dom';
 import { drawMap } from './Minimap';
-import { inventoryGrid } from './InventoryGrid';
+import { inventoryGrid, markSelected } from './InventoryGrid';
 import { reliquaryCaption } from './reliquary';
 
 /** How long a destructive button stays armed before it resets. */
@@ -1314,8 +1313,10 @@ export function sanctuaryMenuScreen(opts: {
 }
 
 /** Relics carried and worn, with click-to-equip rows, live stats and safe selling. */
-/** Bag slot filter; module scope so it survives the re-render after every change. */
-let bagFilter: 'all' | EquipmentSlot = 'all';
+/** The picked relic box (`worn:<slot>`, `bag:<uid>` or `empty:<i>`); module scope so it survives each re-render. */
+let selectedRelic: string | null = null;
+/** Longer than the gap between the two clicks of a typical double click. */
+const DETAIL_SCROLL_DELAY_MS = 400;
 
 /** Short labels for stats an item can modify, used in comparison chips. */
 const STAT_LABEL: Partial<Record<keyof PlayerStats, string>> = {
@@ -1389,13 +1390,13 @@ export function inventoryScreen(
   world: World,
   onClose: () => void,
   onChanged: (message?: string) => void,
-  status = 'Click a carried relic to equip it, ↑↓ to browse, or sell what you will not wear.'
+  status = 'Pick a relic to see it. Drag it onto its slot or your wanderer to wear it; arrow keys move, Enter picks.'
 ): HTMLElement {
   const p = world.player;
   const s = p.stats;
   const statChip = (label: string, value: string): HTMLElement =>
     h('span', { class: 'gear-stat' }, h('b', {}, value), ` ${label}`);
-  // One path for the list rows and the drag grid, so the messages cannot drift apart.
+  // One path for the grid, its double click and the detail pane, so the messages cannot drift apart.
   const equipFromBag = (uid: number): void => {
     const item = p.inventory.find((i) => i.uid === uid);
     if (!item) {
@@ -1405,6 +1406,7 @@ export function inventoryScreen(
     const def = equipmentDef(item.defId);
     const worn = p.equipment[def.slot];
     world.equipItem(uid);
+    selectedRelic = `worn:${def.slot}`;
     onChanged(
       worn
         ? `Equipped ${def.name}; ${equipmentDef(worn.defId).name} returned to the bag.`
@@ -1415,143 +1417,60 @@ export function inventoryScreen(
     const worn = p.equipment[slot];
     if (!worn) return;
     const name = equipmentDef(worn.defId).name;
+    const returned = world.unequip(slot);
+    if (returned) selectedRelic = `bag:${worn.uid}`;
     onChanged(
-      world.unequip(slot)
+      returned
         ? `${name} returned to the bag.`
         : 'The bag is full. Sell or equip a carried relic first.'
     );
   };
-  const slotRows = EQUIPMENT_SLOTS.map((slot) => {
-    const item = p.equipment[slot];
-    const def = item ? equipmentDef(item.defId) : undefined;
-    return h(
-      'div',
-      { class: `gear-row${def ? ` ${def.rarity}` : ''}` },
-      h('span', { class: 'gear-slot' }, item ? relicIcon(item.defId) : null, slot),
-      h(
-        'div',
-        { class: 'gear-copy' },
-        h(
-          'div',
-          { class: 'gear-name' },
-          item ? itemName(item) : 'Empty',
-          def ? rarityTag(def.rarity) : null
-        ),
-        h('div', { class: 'gear-desc' }, def?.description ?? 'No relic worn')
-      ),
-      def ? button('Unequip', () => unequipSlot(slot), 'btn small') : null
+  const sellRelic = (uid: number): void => {
+    const item = p.inventory.find((i) => i.uid === uid);
+    const gained = world.sellItem(uid);
+    selectedRelic = null;
+    onChanged(
+      gained === undefined || !item
+        ? 'That relic is no longer carried.'
+        : `Sold ${equipmentDef(item.defId).name} for ${gained} shards.`
     );
-  });
-  // Best first within each slot: the top row is usually the right choice.
-  const slotOrder = (item: EquipmentItem): number =>
-    EQUIPMENT_SLOTS.indexOf(equipmentDef(item.defId).slot);
-  const sortedBag = [...p.inventory].sort(
-    (a, b) => slotOrder(a) - slotOrder(b) || equipmentScore(b) - equipmentScore(a)
+  };
+  const discardRelic = (uid: number): void => {
+    const item = p.inventory.find((i) => i.uid === uid);
+    const ok = world.discardItem(uid);
+    selectedRelic = null;
+    onChanged(
+      ok && item
+        ? `Discarded ${equipmentDef(item.defId).name}.`
+        : 'That relic is no longer carried.'
+    );
+  };
+  const detailActions = {
+    equip: equipFromBag,
+    unequip: unequipSlot,
+    sell: sellRelic,
+    discard: discardRelic,
+  };
+  let detail = relicDetail(p, selectedRelic, detailActions);
+  // A pick updates the grid and the pane in place; rebuilding would break a double click on the box.
+  const select = (key: string): void => {
+    selectedRelic = key;
+    markSelected(grid, key);
+    const next = relicDetail(p, key, detailActions);
+    detail.replaceWith(next);
+    detail = next;
+    // The pane sits under the grid; on a short screen it starts below the panel's fold. Scrolling at
+    // once moved the box under the pointer between the two clicks of a double click, so it waits out
+    // the double-click gap and gives up if that pane was replaced in the meantime.
+    window.setTimeout(() => {
+      if (detail === next && next.isConnected) next.scrollIntoView({ block: 'nearest' });
+    }, DETAIL_SCROLL_DELAY_MS);
+  };
+  const grid = inventoryGrid(
+    p,
+    { equip: equipFromBag, unequip: unequipSlot, reject: (m) => onChanged(m), select },
+    selectedRelic
   );
-  const visibleBag =
-    bagFilter === 'all'
-      ? sortedBag
-      : sortedBag.filter((i) => equipmentDef(i.defId).slot === bagFilter);
-  // Stats with the candidate swapped in, so each row can show worn → new deltas.
-  const baseStats = computeStats(p.upgrades);
-  const bagRows = visibleBag.map((item) => {
-    const def = equipmentDef(item.defId);
-    const worn = p.equipment[def.slot];
-    const wornDef = worn ? equipmentDef(worn.defId) : undefined;
-    const hypo = applyEquipment(baseStats, { ...p.equipment, [def.slot]: item });
-    const deltas = worn
-      ? (Object.keys(def.mods) as Array<keyof PlayerStats>)
-          .map((key) => deltaChip(key, s[key] as number, hypo[key] as number))
-          .filter((chip): chip is HTMLElement => chip !== null)
-      : [];
-    const equip = (): void => equipFromBag(item.uid);
-    const price = relicSellShards(def);
-    const sell = confirmButton(
-      `Sell · ${price}`,
-      'Confirm sale',
-      () => {
-        const gained = world.sellItem(item.uid);
-        onChanged(
-          gained === undefined
-            ? 'That relic is no longer carried.'
-            : `Sold ${def.name} for ${gained} shards.`
-        );
-      },
-      'btn small'
-    );
-    sell.title = `Sell for ${price} shards`;
-    const discard = confirmButton(
-      'Discard',
-      'Confirm',
-      () => {
-        const ok = world.discardItem(item.uid);
-        onChanged(ok ? `Discarded ${def.name}.` : 'That relic is no longer carried.');
-      },
-      'btn small'
-    );
-    discard.title = 'Destroy this relic for nothing (frees a bag slot)';
-    // Score hint: Upgrade only when the candidate beats what is worn.
-    const better = !worn || equipmentScore(item) > equipmentScore(worn);
-    const equipBtn = button(
-      worn ? (better ? 'Upgrade' : 'Swap') : 'Equip',
-      equip,
-      'btn small primary'
-    );
-    // Stable key so a re-render can return focus to the same control.
-    equipBtn.dataset.action = `equip:${item.uid}`;
-    sell.dataset.action = `sell:${item.uid}`;
-    discard.dataset.action = `discard:${item.uid}`;
-    const row = h(
-      'div',
-      {
-        class: `gear-row clickable ${def.rarity}`,
-        role: 'button',
-        tabindex: '0',
-        title: `Equip ${def.name}`,
-      },
-      h('span', { class: 'gear-slot' }, relicIcon(item.defId), def.slot),
-      h(
-        'div',
-        { class: 'gear-copy' },
-        h('div', { class: 'gear-name' }, itemName(item), rarityTag(def.rarity)),
-        h(
-          'div',
-          { class: 'gear-desc' },
-          def.description,
-          wornDef ? h('span', { class: 'gear-swap' }, ` · swaps with ${itemName(worn!)}`) : null
-        ),
-        deltas.length > 0 ? h('div', { class: 'gear-deltas' }, ...deltas) : null
-      ),
-      h('div', { class: 'gear-actions' }, equipBtn, sell, discard)
-    );
-    row.addEventListener('click', (event) => {
-      if ((event.target as HTMLElement).closest('button')) return;
-      equip();
-    });
-    row.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        equip();
-      }
-    });
-    return row;
-  });
-  const emptyRows =
-    bagFilter === 'all'
-      ? Array.from({ length: Math.max(0, INVENTORY_SLOTS - p.inventory.length) }, (_, index) =>
-          h(
-            'div',
-            { class: 'gear-row empty' },
-            h('span', { class: 'gear-slot' }, `${p.inventory.length + index + 1}`),
-            h(
-              'div',
-              { class: 'gear-copy' },
-              h('div', { class: 'gear-name' }, 'Empty slot'),
-              h('div', { class: 'gear-desc' }, 'Relics picked up fill the next open slot.')
-            )
-          )
-        )
-      : [];
   const bagFull = p.inventory.length >= INVENTORY_SLOTS;
   const commons = p.inventory.filter((i) => equipmentDef(i.defId).rarity === 'common');
   const junkButton =
@@ -1571,6 +1490,7 @@ export function inventoryScreen(
                   sold++;
                 }
               }
+              selectedRelic = null;
               onChanged(
                 sold > 0
                   ? `Sold ${sold} common relics for ${gained} shards.`
@@ -1582,51 +1502,6 @@ export function inventoryScreen(
           return h('div', { class: 'gear-filters' }, btn);
         })()
       : null;
-  const filterOptions: Array<'all' | EquipmentSlot> = ['all', ...EQUIPMENT_SLOTS];
-  const filterRow = h(
-    'div',
-    { class: 'gear-filters' },
-    ...filterOptions.map((f) => {
-      const count =
-        f === 'all'
-          ? p.inventory.length
-          : p.inventory.filter((i) => equipmentDef(i.defId).slot === f).length;
-      const chip = button(`${f === 'all' ? 'All' : f} · ${count}`, () => {
-        bagFilter = f;
-        onChanged();
-      });
-      chip.className = `btn small filter-chip${bagFilter === f ? ' active' : ''}`;
-      // A stable key and pressed state: the bag re-renders on every filter change, and without a key
-      // the rebuild dropped focus back to the first chip, which is "All".
-      chip.dataset.action = `filter:${f}`;
-      chip.setAttribute('aria-pressed', bagFilter === f ? 'true' : 'false');
-      return chip;
-    })
-  );
-  // Grouped by slot when unfiltered, so the best weapon/armor/trinket each
-  // sit at the top of their own section.
-  const bagSection: HTMLElement[] = [];
-  if (bagFilter === 'all') {
-    for (const slot of EQUIPMENT_SLOTS) {
-      const group = bagRows.filter((_, i) => equipmentDef(visibleBag[i].defId).slot === slot);
-      if (group.length === 0) continue;
-      bagSection.push(h('div', { class: 'gear-group' }, `${slot} · best first`));
-      bagSection.push(...group);
-    }
-  } else {
-    bagSection.push(...bagRows);
-  }
-  if (visibleBag.length === 0) {
-    bagSection.push(
-      h(
-        'div',
-        { class: 'gear-note' },
-        bagFilter === 'all'
-          ? 'The bag is empty. Relics picked up fill the open slots.'
-          : `No carried ${bagFilter} relics.`
-      )
-    );
-  }
   const panel = h(
     'div',
     { class: 'panel gear-panel' },
@@ -1642,7 +1517,13 @@ export function inventoryScreen(
       statChip('AtkSpd', `${s.attackSpeed.toFixed(2)}x`),
       statChip('Mana', `${s.maxMana}`)
     ),
-    inventoryGrid(p, { equip: equipFromBag, unequip: unequipSlot, reject: (m) => onChanged(m) }),
+    grid,
+    detail,
+    h('div', { class: 'gear-title' }, `Carried · ${p.inventory.length}/${INVENTORY_SLOTS}`),
+    junkButton,
+    bagFull
+      ? h('div', { class: 'gear-note' }, 'The bag is full — relics found now are sold for shards.')
+      : null,
     h('div', { class: 'gear-title' }, 'Active Weapon & Stance'),
     h(
       'div',
@@ -1678,16 +1559,6 @@ export function inventoryScreen(
         )
       )
     ),
-    h('div', { class: 'gear-title' }, 'Worn'),
-    ...slotRows,
-    h('div', { class: 'gear-title' }, `Carried · ${p.inventory.length}/${INVENTORY_SLOTS}`),
-    filterRow,
-    junkButton,
-    ...bagSection,
-    ...emptyRows,
-    bagFull && bagRows.length > 0
-      ? h('div', { class: 'gear-note' }, 'The bag is full — relics found now are sold for shards.')
-      : null,
     h('div', { class: 'gear-title' }, 'Supplies'),
     h(
       'div',
@@ -1697,19 +1568,6 @@ export function inventoryScreen(
       supplyRow('Traps', `${p.traps}`, 'T — place')
     )
   );
-  // Arrow keys walk the bag rows; Enter/Space on a row still equips.
-  panel.addEventListener('keydown', (event) => {
-    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
-    const rows = [...panel.querySelectorAll('.gear-row.clickable')] as HTMLElement[];
-    if (rows.length === 0) return;
-    const current = rows.indexOf(document.activeElement as HTMLElement);
-    event.preventDefault();
-    const next =
-      event.key === 'ArrowDown'
-        ? (rows[current + 1] ?? rows[0])
-        : (rows[current - 1] ?? rows[rows.length - 1]);
-    next?.focus();
-  });
   return h(
     'div',
     { class: 'screen' },
@@ -1718,6 +1576,108 @@ export function inventoryScreen(
     panel,
     h('div', { class: 'gear-status' }, status),
     h('div', { class: 'menu' }, button('Close', onClose, 'btn primary'))
+  );
+}
+
+interface DetailActions {
+  equip: (uid: number) => void;
+  unequip: (slot: EquipmentSlot) => void;
+  sell: (uid: number) => void;
+  discard: (uid: number) => void;
+}
+
+/**
+ * What the picked box holds, with its actions. A carried relic shows its stat changes against what
+ * is worn in its slot and offers Equip (Upgrade or Swap), Sell and Discard; a worn one offers
+ * Unequip. Every action button carries a key so the re-render can keep focus on it.
+ */
+function relicDetail(p: World['player'], key: string | null, act: DetailActions): HTMLElement {
+  const empty = (title: string, text: string): HTMLElement =>
+    h(
+      'div',
+      { class: 'relic-detail empty' },
+      h('div', { class: 'gear-name' }, title),
+      h('div', { class: 'gear-desc' }, text)
+    );
+  const [kind, id] = (key ?? '').split(':');
+  if (kind === 'worn') {
+    const slot = id as EquipmentSlot;
+    const item = p.equipment[slot];
+    if (!item) {
+      return empty(
+        `Nothing worn as ${slot}`,
+        `Drag a ${slot} relic here or onto your wanderer, or pick one in the bag.`
+      );
+    }
+    const unequip = button('Unequip', () => act.unequip(slot), 'btn small');
+    unequip.dataset.action = `unequip:${slot}`;
+    return detailCard(item, `Worn · ${slot}`, [], unequip);
+  }
+  const item = kind === 'bag' ? p.inventory.find((i) => `${i.uid}` === id) : undefined;
+  if (!item) {
+    return empty(
+      'No relic picked',
+      'Pick a relic in the bag or on your wanderer to compare it, wear it, sell it or discard it.'
+    );
+  }
+  const def = equipmentDef(item.defId);
+  const worn = p.equipment[def.slot];
+  const hypo = applyEquipment(computeStats(p.upgrades), { ...p.equipment, [def.slot]: item });
+  const deltas = worn
+    ? (Object.keys(def.mods) as Array<keyof PlayerStats>)
+        .map((stat) => deltaChip(stat, p.stats[stat] as number, hypo[stat] as number))
+        .filter((chip): chip is HTMLElement => chip !== null)
+    : [];
+  const better = !worn || equipmentScore(item) > equipmentScore(worn);
+  const equipBtn = button(
+    worn ? (better ? 'Upgrade' : 'Swap') : 'Equip',
+    () => act.equip(item.uid),
+    'btn small primary'
+  );
+  equipBtn.dataset.action = `equip:${item.uid}`;
+  const price = relicSellShards(def);
+  const sell = confirmButton(
+    `Sell · ${price}`,
+    'Confirm sale',
+    () => act.sell(item.uid),
+    'btn small'
+  );
+  sell.title = `Sell for ${price} shards`;
+  sell.dataset.action = `sell:${item.uid}`;
+  const discard = confirmButton('Discard', 'Confirm', () => act.discard(item.uid), 'btn small');
+  discard.title = 'Destroy this relic for nothing (frees a bag slot)';
+  discard.dataset.action = `discard:${item.uid}`;
+  const note = worn
+    ? `Carried · swaps with ${itemName(worn)}`
+    : `Carried · fills the empty ${def.slot} slot`;
+  return detailCard(item, note, deltas, equipBtn, sell, discard);
+}
+
+function detailCard(
+  item: EquipmentItem,
+  note: string,
+  deltas: HTMLElement[],
+  ...actions: HTMLElement[]
+): HTMLElement {
+  const def = equipmentDef(item.defId);
+  return h(
+    'div',
+    { class: `relic-detail ${def.rarity}`, 'aria-live': 'polite' },
+    h('img', {
+      class: 'relic-detail-icon',
+      src: relicIconUrl(item.defId),
+      alt: '',
+      draggable: 'false',
+    }),
+    h(
+      'div',
+      { class: 'gear-copy' },
+      h('div', { class: 'gear-name' }, itemName(item), rarityTag(def.rarity)),
+      h('div', { class: 'gear-slot' }, note),
+      h('div', { class: 'gear-desc' }, def.description),
+      deltas.length > 0 ? h('div', { class: 'gear-deltas' }, ...deltas) : null
+    ),
+    h('div', { class: 'gear-actions' }, ...actions)
   );
 }
 

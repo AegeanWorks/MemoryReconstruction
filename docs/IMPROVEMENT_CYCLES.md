@@ -4082,3 +4082,34 @@ progress; one click on Delete only armed it and the second emptied the slot; "Sa
 active slot survived a reload. Layout checked at 390x844. No console errors.
 ### Gate results
 See the task summary.
+
+## Cycle 94 - The grid is the whole inventory
+### FIND
+Since cycle 87 the relic screen showed the drag grid and, below it, the old list of worn and carried rows with
+filters, so every relic appeared twice. The rows were also the only keyboard path.
+### IMPLEMENT
+- `src/ui/Screens.ts`: the worn rows, carried rows, slot filters, group headers and row arrow keys are gone. A
+  picked box opens a detail pane under the grid: icon, name and rarity, where it is, its description, the stat
+  changes against the worn relic in that slot, and Equip (Upgrade or Swap), Sell and Discard for a carried relic
+  or Unequip for a worn one. Picking updates the grid and the pane in place; the pane scrolls into view 400 ms
+  later, after the double-click gap. Equipping moves the pick to the worn slot and unequipping back to the bag.
+  Sell-all-commons, the stance and the supplies stay.
+- `src/ui/InventoryGrid.ts`: one tab stop for the grid; arrow keys move to the nearest box in that direction
+  (`nextInDirection` in `inventoryDrag.ts`), so the doll beside the bag and the doll above it both work; Enter and
+  Space pick; a plain click picks; a double click wears or takes off; drag is unchanged. `markSelected` marks the
+  pick in place.
+- `src/app/App.ts`: the shared focus restore finds the focused control by its key first, then the picked box when
+  the control is gone (as after Upgrade), then the remembered position itself before its neighbours. Before, it
+  always tried the next position first, which put focus one box off in the grid.
+- Tests: 4 direction tests, 3 restore tests and 2 grid keyboard tests, all failing first; four list tests
+  replaced (ADR-216).
+### RECORD
+In Edge with real mouse and keys at 1280x720 and 390x844: a click picked Void Cleaver and showed four stat
+changes; Upgrade wore it and the pick and focus followed to the weapon slot; arrows moved between doll and bag;
+Enter picked; a double click wore Crystal Mail; one click on Sell only armed it and the second sold; a drag put Sun
+Core on the doll; the pane was in view after a pick; no list rows remained; no overflow or console errors.
+Three bugs were found this way and fixed before commit: the double click never fired because each click rebuilt
+the screen, focus landed one box off after an action, and on a phone the pane's scroll moved the box between the
+two clicks of a double click.
+### Gate results
+See the task summary.

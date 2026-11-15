@@ -17,8 +17,10 @@ import { assetUrl, h, relicIconUrl } from './dom';
 import {
   bagCells,
   dragStarted,
+  nextInDirection,
   parseDropTarget,
   resolveDrop,
+  type Direction,
   type DragSource,
 } from './inventoryDrag';
 
@@ -33,6 +35,71 @@ export interface GridActions {
   unequip: (slot: EquipmentSlot) => void;
   /** A drop that cannot work; the message says why. */
   reject: (message: string) => void;
+  /** A box was picked by click, Enter or Space: `worn:<slot>`, `bag:<uid>` or `empty:<i>`. */
+  select: (key: string) => void;
+}
+
+const ARROWS: Record<string, Direction> = {
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+};
+
+/**
+ * Shows which box is picked, in place: the screen calls this on a pick instead of rebuilding, so the
+ * boxes stay in the page and a double click on them still reaches the same element.
+ */
+export function markSelected(root: ParentNode, selected: string | null): void {
+  const boxes = [...root.querySelectorAll<HTMLElement>('.relic-box[data-key]')];
+  const focusKey = boxes.some((b) => b.dataset.key === selected)
+    ? selected
+    : (boxes[0]?.dataset.key ?? null);
+  for (const box of boxes) {
+    const key = box.dataset.key;
+    box.setAttribute('aria-pressed', key === selected ? 'true' : 'false');
+    box.classList.toggle('selected', key === selected);
+    box.tabIndex = key === focusKey ? 0 : -1;
+  }
+}
+
+/**
+ * Makes the boxes one keyboard stop: the selected box (or the first) takes Tab, arrow keys move by
+ * position, Enter and Space select. Each box carries its key as `data-action`, so the re-render after
+ * an action can put focus back with the screens' shared list-state restore.
+ */
+function wireKeys(
+  root: HTMLElement,
+  boxes: ReadonlyArray<{ box: HTMLElement; key: string }>,
+  selected: string | null,
+  actions: GridActions
+): void {
+  for (const { box, key } of boxes) {
+    box.dataset.key = key;
+    box.dataset.action = key;
+    box.setAttribute('role', 'button');
+  }
+  markSelected(root, selected);
+  root.addEventListener('keydown', (event) => {
+    const at = boxes.findIndex((b) => b.box === document.activeElement);
+    if (at < 0) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      actions.select(boxes[at].key);
+      return;
+    }
+    const dir = ARROWS[event.key];
+    if (!dir) return;
+    event.preventDefault();
+    const centres = boxes.map(({ box }) => {
+      const r = box.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    });
+    const next = boxes[nextInDirection(centres, at, dir)];
+    boxes[at].box.tabIndex = -1;
+    next.box.tabIndex = 0;
+    next.box.focus();
+  });
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -157,25 +224,39 @@ function makeDraggable(
 }
 
 /** The doll and the bag grid for one player, wired to the three inventory actions. */
-export function inventoryGrid(player: GridPlayer, actions: GridActions): HTMLElement {
+export function inventoryGrid(
+  player: GridPlayer,
+  actions: GridActions,
+  selected: string | null = null
+): HTMLElement {
   const root = h('div', { class: 'inv-grid' });
   const apply = (outcome: ReturnType<typeof resolveDrop>, run: () => void): void => {
     if (outcome.action === 'equip' || outcome.action === 'unequip') run();
     else if (outcome.action === 'reject') actions.reject(outcome.reason);
   };
 
+  const keyed: Array<{ box: HTMLElement; key: string }> = [];
+  /** A plain click selects; a double click does the box's main action; empty boxes only select. */
+  const pickable = (box: HTMLElement, key: string, primary?: () => void): void => {
+    keyed.push({ box, key });
+    if (!primary) box.addEventListener('click', () => actions.select(key));
+    else box.addEventListener('dblclick', primary);
+  };
+
   const slotBoxes = EQUIPMENT_SLOTS.map((slot) => {
     const item = player.equipment[slot];
     const box = relicBox(item, slot, `slot:${slot}`);
+    const key = `worn:${slot}`;
     if (item) {
       makeDraggable(
         box,
         root,
         { from: 'worn', slot },
-        () => actions.unequip(slot),
+        () => actions.select(key),
         (outcome) => apply(outcome, () => actions.unequip(slot))
       );
-    }
+      pickable(box, key, () => actions.unequip(slot));
+    } else pickable(box, key);
     return box;
   });
 
@@ -206,18 +287,20 @@ export function inventoryGrid(player: GridPlayer, actions: GridActions): HTMLEle
     slotBoxes[2]
   );
 
-  const cells = bagCells(player.inventory, INVENTORY_SLOTS).map((item) => {
+  const cells = bagCells(player.inventory, INVENTORY_SLOTS).map((item, index) => {
     const box = relicBox(item, null, null);
     if (item) {
       const slot = equipmentDef(item.defId).slot;
+      const key = `bag:${item.uid}`;
       makeDraggable(
         box,
         root,
         { from: 'bag', slot },
-        () => actions.equip(item.uid),
+        () => actions.select(key),
         (outcome) => apply(outcome, () => actions.equip(item.uid))
       );
-    }
+      pickable(box, key, () => actions.equip(item.uid));
+    } else pickable(box, `empty:${index}`);
     return box;
   });
   const bag = h('div', { class: 'bag-grid', 'data-drop': 'bag' }, ...cells);
@@ -231,5 +314,6 @@ export function inventoryGrid(player: GridPlayer, actions: GridActions): HTMLEle
       'Drag a relic onto its slot or onto your wanderer to wear it. Drag a worn relic back to the bag to take it off.'
     )
   );
+  wireKeys(root, keyed, selected, actions);
   return root;
 }

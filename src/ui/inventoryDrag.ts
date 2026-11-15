@@ -55,6 +55,39 @@ export function parseDropTarget(value: string | null | undefined): DropTarget {
   return { kind: 'none' };
 }
 
+export type Direction = 'left' | 'right' | 'up' | 'down';
+
+/**
+ * The box an arrow key moves to: the nearest box centre that lies in that direction, with distance
+ * off the line counted double so a box in the same row or column wins. Works from the boxes' real
+ * positions, so the doll beside the bag on a wide screen and above it on a phone both navigate.
+ * Returns `from` when nothing lies that way.
+ */
+export function nextInDirection(
+  boxes: ReadonlyArray<{ x: number; y: number }>,
+  from: number,
+  dir: Direction
+): number {
+  const origin = boxes[from];
+  if (!origin) return from;
+  let best = from;
+  let bestScore = Infinity;
+  boxes.forEach((box, i) => {
+    if (i === from) return;
+    const dx = box.x - origin.x;
+    const dy = box.y - origin.y;
+    const along = dir === 'left' ? -dx : dir === 'right' ? dx : dir === 'up' ? -dy : dy;
+    if (along <= 1) return;
+    const across = dir === 'left' || dir === 'right' ? Math.abs(dy) : Math.abs(dx);
+    const score = along + across * 2;
+    if (score < bestScore) {
+      bestScore = score;
+      best = i;
+    }
+  });
+  return best;
+}
+
 export function dragStarted(dx: number, dy: number): boolean {
   return Math.hypot(dx, dy) >= DRAG_THRESHOLD;
 }

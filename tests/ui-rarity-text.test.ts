@@ -9,9 +9,13 @@ describe('relic rarity is readable without colour', () => {
   it('renders rarity as text in every relic row', () => {
     expect(screens).toContain('function rarityTag(');
     expect(screens).toContain("class: 'rarity-tag'");
-    // Five relic row sites: reliquary, reforge, relic market, equipped slots, carried relics.
+    // Four relic display sites: reliquary, reforge, relic market and the inventory detail pane. The
+    // inventory's equipped and carried rows became one detail pane (ADR-215); its grid boxes name
+    // the rarity in their accessible label instead.
     const uses = screens.match(/rarityTag\(/g) ?? [];
-    expect(uses.length).toBe(6); // one definition plus five call sites
+    expect(uses.length).toBe(5); // one definition plus four call sites
+    const grid = readFileSync(join(__dirname, '../src/ui/InventoryGrid.ts'), 'utf8');
+    expect(grid).toContain('· ${def.rarity} ${def.slot}');
   });
 
   it('separates the tag from the name in the DOM, not only with CSS margin', () => {

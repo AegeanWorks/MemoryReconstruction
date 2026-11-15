@@ -7,12 +7,15 @@ const screens = read('../src/ui/Screens.ts');
 const css = read('../src/ui/ui.css');
 describe('inventory grid wiring', () => {
   it('mounts the grid in the inventory panel with the shared actions', () => {
-    expect(screens).toContain("import { inventoryGrid } from './InventoryGrid';");
-    expect(screens).toContain('inventoryGrid(p, { equip: equipFromBag, unequip: unequipSlot');
+    expect(screens).toMatch(/import \{ inventoryGrid[^}]*\} from '\.\/InventoryGrid';/);
+    expect(screens).toMatch(/inventoryGrid\(\s*p,\s*\{ equip: equipFromBag, unequip: unequipSlot/);
   });
-  it('routes the list rows through the same equip and unequip helpers', () => {
-    expect(screens).toContain('const equip = (): void => equipFromBag(item.uid);');
-    expect(screens).toContain("button('Unequip', () => unequipSlot(slot), 'btn small')");
+  // Replaced in the saves-and-inventory task (ADR-215): the list rows are gone; the detail pane is the
+  // other path to the same helpers.
+  it('routes the detail pane through the same equip and unequip helpers', () => {
+    expect(screens).toContain('equip: equipFromBag,\n    unequip: unequipSlot,');
+    expect(screens).toContain('() => act.equip(item.uid)');
+    expect(screens).toContain('() => act.unequip(slot)');
   });
   it('drags with pointer events so touch works, and ignores non-primary mouse buttons', () => {
     for (const event of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel']) {
@@ -22,10 +25,20 @@ describe('inventory grid wiring', () => {
     expect(grid).toContain("event.pointerType === 'mouse' && event.button !== 0");
     expect(css).toMatch(/\.relic-box\.draggable\s*\{[^}]*touch-action:\s*none/);
   });
-  it('leaves the list rows as the keyboard path: no action keys or tab stops on the boxes', () => {
-    expect(grid).not.toContain('data-action');
-    expect(grid).not.toContain('dataset.action');
-    expect(grid).not.toContain('tabindex');
+  // Replaced in the saves-and-inventory task (ADR-215): the grid is now the keyboard path.
+  it('makes the grid the keyboard path: one tab stop, arrow keys, Enter selects', () => {
+    expect(grid).toContain("box.tabIndex = key === focusKey ? 0 : -1");
+    expect(grid).toContain('nextInDirection(');
+    for (const key of ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']) {
+      expect(grid).toContain(`${key}: '`);
+    }
+    expect(grid).toContain("event.key === 'Enter' || event.key === ' '");
+    expect(grid).toContain('box.dataset.action = key');
+    expect(grid).toContain("box.setAttribute('aria-pressed', key === selected ? 'true' : 'false')");
+  });
+  it('selects on a plain click and wears or removes on a double click', () => {
+    expect(grid).toContain('() => actions.select(key)');
+    expect(grid).toContain("box.addEventListener('dblclick'");
   });
   it('declares the three drop zones the pure rules understand', () => {
     expect(grid).toContain('`slot:${slot}`');
