@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "headwear-bag-difficulty-ramp",
+    "task_id": "npc-requests-checkpoint-banking",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794755113.6696498,
+    "updated_at": 1794765098.282465,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,88 +17,14 @@
     ],
     "forced_completion": {
       "agent": "kilo:1",
-      "reason": "All gates and check --strict pass at e01f211; the two milestones and the docs commit are in, and the UI task was finished with an agent review recorded. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; real-input browser runs used). Not pushed (not authorized).",
-      "at": 1794755186.0781567
+      "reason": "All gates and check --strict pass at 30b2ecd; both milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; real-input Edge runs used). Not pushed (not authorized).",
+      "at": 1794765128.8677564
     },
-    "completed_at": 1794755186.0781586,
-    "completed_head": "e01f21104f586bd62e073a447f6bdd1eb235d68d"
+    "completed_at": 1794765128.867758,
+    "completed_head": "30b2ecd716e2af2e63523a9e6a206a483e7d32a6",
+    "completed_tree": "472f682f9f11174b0247622fdc581c7a35c5f188"
   },
   "checkpoints": [
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: scripts/generate_relic_icons.py writes 20 distinct 64 px relic icons and touches no existing asset; three icons redrawn after review (Ember Core, Thorn Ring, Rusted Edge); 8/8 gates with the art alone",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794698081.0630727,
-      "timestamp_str": "2026-11-15 02:14:41",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[2/2] Verified: relic icons in grid boxes and in bag, worn, Reliquary, Reforge and market rows (relicIconUrl in dom.ts); relic-icons test failed 4/4 first; 20/20 icons loaded at 1280x720 and 390x844, no overflow; 791 tests; UI task closed first try; README, cycle 91, ADR-211; milestone 5 icon part complete",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794698236.9113626,
-      "timestamp_str": "2026-11-15 02:17:16",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/1] Milestone 5 part 2, room props: fix Gardener, Warden and Lamplighter routes that walk through furniture and test that no route segment crosses furniture; one signature prop per resident (lectern, bellows, seed trays, training dummy, lamp ladder, pantry) added to the main generator and rendered with its own functions, appended to both atlas mirrors and graphics.assets.json in generator order; failing-first tests; probe; docs; ADR.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794698611.4212692,
-      "timestamp_str": "2026-11-15 02:23:31",
-      "agent": "kiro:1",
-      "impact_assessment": {
-        "why": "All six rooms share one furniture set, and three residents walk through furniture.",
-        "benefits": "Each room has an object only its resident uses; residents walk around furniture.",
-        "risks": "contract: sprite_atlas.json props gains six keys; dependency: the main generator rebuilds the atlas, so new props must be in its list; concurrency: none; state: no save data changes",
-        "mitigation": "Props added to the generator's own list and palette; atlas round-trip verified byte-identical; tests require each prop in the atlas and in its room, on floor, off routes."
-      },
-      "plan_digest": "c584bfc856a88dfff5075cf84b3e222f86a2cb6c10a37f7e9bf7fd04fecd6f21",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: six resident props in the main generator (palette, drawing, prop list), rendered with its own functions, appended to both atlas mirrors and graphics.assets.json; 8/8 gates with the art alone",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794698976.216757,
-      "timestamp_str": "2026-11-15 02:29:36",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "visual-and-content-polish-28-51",
       "phase": "phase 4",
@@ -385,6 +311,82 @@
       "status": "completed",
       "timestamp": 1794755186.1627614,
       "timestamp_str": "2026-11-15 18:06:26",
+      "agent": "kilo:1",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": true
+      }
+    },
+    {
+      "task_id": "npc-requests-checkpoint-banking",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Section damage step drops from 10% to 5% additive (section 2 = 1.05x, section 3 = 1.10x), keeping the room and wave steps. Sanctuary residents get one specific-relic request each (handing it over pays echoes and a heart of trust), an Ask about the road hint toggle, and a dialogue header that stacks trust above tribute instead of crowding them. Building blurbs are cut to one short sentence and the CSS line-clamp/hidden blurbs are removed, so hub cards never show an ellipsis; the overhead speech balloon is pinned to the top band above the resident instead of flipping below, and its text is no longer clipped to 140 chars. Checkpoints bank the worn and carried relics into the run; death keeps only the bank, victory keeps everything. Failing-first tests: section scaling, relic banking, NPC requests/hints, dialogue layout and balloon placement.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794763868.0295308,
+      "timestamp_str": "2026-11-15 20:31:08",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "The player asked for 5% additive damage per section, readable resident text, top-placed message boxes, tidy tribute/trust, more NPC interactions including item requests, and keeping relics at checkpoints while losing unsaved ones on death.",
+        "benefits": "Readable Sanctuary cards and dialogue, a second way to build NPC trust, and a clear risk/reward loop for carrying newly found relics.",
+        "risks": "contract: Meta gains relicRequests and RunState gains bankedRelics; dependency: equipment def ids in requests must exist; concurrency: none; state: old saves have neither field and must default safely; balance: death now returns only checkpoint-banked relics.",
+        "mitigation": "Defaults on both schemas, phantom-id filters at load, pure settlement functions covered by tests, and browser checks of the dialogue, hint toggle, relic hand-in, hub cards and balloon placement at desktop and phone sizes."
+      },
+      "plan_digest": "5bdf2afdbee2ebaafd26c2e550ae0bf284514d4ce571c6cb2cd4c83228778b2e",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "npc-requests-checkpoint-banking",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/2] Verified: section scaling is 1 + 0.05*section + 0.05*roomsCleared + 0.1*(wave-1); six residents each request one valid relic (applyRelicRequest removes it from the vault, pays echoes and a heart, records it, refuses repeats and missing relics), road hints exist for all six, hub blurbs are <=96 chars with no CSS clamp or hiding, dialogue trust/tribute stack, balloons pin above the resident without text clipping, and checkpoints bank worn+carried relics while death keeps only the bank and victory keeps everything. 857 tests (183 files), 462 mechanics, lint/typecheck/build clean, 8/8 gates before the docs refresh; browser checks at 1280x720, 390x844 and 844x390 verified full blurbs, the top balloon (top 91.9, title ends 65), a 6-8px trust/tribute gap with no overlap, the hint toggle, and a Choir Staff hand-in (+140 echoes, vault removed, request recorded).",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794764610.5123663,
+      "timestamp_str": "2026-11-15 20:43:30",
+      "agent": "kilo:1",
+      "checklists": "skipped:PRINCIPLE-015",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "npc-requests-checkpoint-banking",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/2] Post-Flight at 30b2ecd: check --strict 8/8 and delivery-ready. Milestones 6ea155c (sim, requests, banking, UI and tests) and 30b2ecd (cycle 96, ADRs 219-220, README, UI review, screenshots, map). The committed UI surface was reviewed in a clean UI task closed with --no-change and the recorded Edge evidence (full blurbs, top balloon, stacked trust/tribute, relic hand-in, hint toggle, no phone overflow). PRINCIPLE-015 skipped: scripts/dogfood.py drives AIKit, not the game; the game was driven with real input. Not pushed: push needs explicit approval.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794765098.282465,
+      "timestamp_str": "2026-11-15 20:51:38",
+      "agent": "kilo:1",
+      "checklists": "skipped:PRINCIPLE-015",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "npc-requests-checkpoint-banking",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'npc-requests-checkpoint-banking' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794765128.9362788,
+      "timestamp_str": "2026-11-15 20:52:08",
       "agent": "kilo:1",
       "delivery": {
         "roots": [

@@ -1213,5 +1213,24 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "c55d2d4cc63549784bf8f6f55883c5ee7a90ce26353141c52fc5996e58deee2f"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the committed cycle 96 UI in Edge at 1280x720 and 390x844: full hub descriptions, top-pinned resident balloon, trust/tribute stacking, the relic request panel, the road-hint toggle and phone overflow; evidence is recorded in docs/UI_REVIEW.md and docs/qa/cycle96-*.png.",
+    "baseline_commit": "30b2ecd716e2af2e63523a9e6a206a483e7d32a6",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794764812.6216633,
+    "finished_at": 1794764940.630978,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "cc8e1550280fb936719624323e9fe397de005c79c69d9e30f665c0d8a828a47b"
   }
 ]
