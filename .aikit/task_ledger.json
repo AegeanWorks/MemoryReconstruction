@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "polish-hub-bank-saves",
+    "task_id": "cape-quest-shop-mana",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794769797.9951904,
+    "updated_at": 1794780162.597231,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,72 +17,14 @@
     ],
     "forced_completion": {
       "agent": "kilo:1",
-      "reason": "All gates and check --strict pass at db4b5c9; both milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; real-input Edge runs used). Not pushed (not authorized).",
-      "at": 1794770078.6368363
+      "reason": "All gates and check --strict pass at b0f49fa; the code and docs milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; real-input Edge runs used). Not pushed (not authorized).",
+      "at": 1794780665.8884504
     },
-    "completed_at": 1794770078.6368377,
-    "completed_head": "db4b5c97f964de5ab912a9a4025b0206368f9467",
-    "completed_tree": "6dade48ad5ae314714cf6c9dd772d6d120d694c2"
+    "completed_at": 1794780665.8884513,
+    "completed_head": "b0f49fa8aac8e4360ef24c6ec410a4956c309f19",
+    "completed_tree": "653003f24db146865d470077f16feee0458745d0"
   },
   "checkpoints": [
-    {
-      "task_id": "saves-slots-inventory-grid",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] User-approved: (1) save slots in SaveStore: 3 slots each with meta and run, a slot index written last, settings shared across slots, migration of the legacy single save into slot 1 that leaves the legacy keys as a backup, export to and strict import from a versioned JSON file, delete; failing-first tests. (2) Saves screen from the title (slot summaries, play, new, export, import, delete with confirm), App switches slots and reloads, a Saved / Could not save indicator; probe. (3) Inventory: the grid becomes the main view with a detail pane (stats, deltas, equip, sell, discard) and arrow-key navigation; the row list is removed and its tests replaced (user approved), named in an ADR.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794733136.395205,
-      "timestamp_str": "2026-11-15 11:58:56",
-      "agent": "kiro:1",
-      "impact_assessment": {
-        "why": "The user asked for save slots and a save system, and for the inventory to use the grid only.",
-        "benefits": "Several playthroughs per browser, backups that survive clearing site data, visible save feedback, one inventory view instead of two.",
-        "risks": "contract: localStorage keys change (memory-reconstruction.slotN.*), settings move to a shared key; dependency: zod schemas and restoreRun reused for import; concurrency: two tabs could write the same slot; state: an interrupted migration or bad import could lose progress",
-        "mitigation": "Legacy keys never deleted; index written last so migration repeats if interrupted; import validated in full and confirmed before overwriting; tests for migration, round-trip export/import, corrupt and foreign files, settings sharing; the second tab risk is noted in the ADR."
-      },
-      "plan_digest": "88e266e8868e6f8e85869c0d08ca57bddb2329036353096010882ef0f5c5c240",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "saves-slots-inventory-grid",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/3] Verified: SaveStore slots, shared settings, legacy migration into slot 1 that keeps the legacy keys, strict export and import, delete, write listener; 16 failing-first tests; all 809 tests pass with no existing test changed; UI task closed; ADR-213; 8/8 gates",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794733750.5909107,
-      "timestamp_str": "2026-11-15 12:09:10",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "saves-slots-inventory-grid",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[2/3] Verified: Saves screen on the title (slot cards, play, real-download export, file-picker import with 1 MB cap and overwrite confirm, two-click delete), active-slot reload, save note; 8 failing-first tests; full export/import/switch/delete round trip in Edge with real input; 817 tests; UI task closed; README, cycle 93, ADR-214; 8/8 gates",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794734673.31617,
-      "timestamp_str": "2026-11-15 12:24:33",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "saves-slots-inventory-grid",
       "phase": "phase 3",
@@ -395,6 +337,65 @@
       "timestamp": 1794770078.7108617,
       "timestamp_str": "2026-11-15 22:14:38",
       "agent": "kilo:1",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": true
+      }
+    },
+    {
+      "task_id": "cape-quest-shop-mana",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Cape becomes a fifth worn slot with four capes and a separate cyan-band recolour so it changes the cloak on the actor and the doll without touching the robe; the relic panel grows from min(60vh,460px) to min(74vh,600px) and the doll to a three-row grid. The quest screen becomes an RPG journal with counts, five filter tabs, portraits, progress bars and the daily mark. Maze merchants open a five-line stall (healing, mana, bombs, traps, relic) with section-scaled prices and one sale per line. Mana flasks are drinkable with R, drop from kills/urns/crystals/chests, are sold by merchants and saved. Leveling is steeper (42*1.6, 0.3 kill XP). Level cards ignore the swing click, double-clicks and stationary pointers via a 550ms/8px/1.5s guard. Failing-first tests: inventory-cape, ui-choice-guard, merchant-shop, mana-potion, ui-quest-log, plus updates to balance, systems and input fuzz fixtures.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794780099.2872174,
+      "timestamp_str": "2026-11-16 01:01:39",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "Player request for capes, a taller bag, an RPG quest UI, maze consumable vendors, harder leveling, safe level-up clicks and mana potions.",
+        "benefits": "Five gear choices with visible cloak colour, a journal that reads like an RPG, a reason to spend shards in the maze, a second consumable resource, and no lost levels from attack spam.",
+        "risks": "contract: EquipmentSlot gains cape, InputFrame gains manaPotion, SimEvent gains shop/manaPotion, Player gains manaPotions and RunState saves it; dependency: cloak hue band 175-202 must not overlap the robe band 205-255; concurrency: none; state: old saves lack cape and manaPotions; balance: level 5 now costs 275 and kills pay 30%.",
+        "mitigation": "Defaults for old saves, hue-band separation tested through gearLooks and sprite palettes, pure guard/shop/bank tests, browser checks at 1280x720, 768x1024 and 390x844, and an ADR naming the intentional test updates."
+      },
+      "plan_digest": "69e2ec4d211d5b77b4984b0e329419ab0697041ce16b94c0f44ec22771a51bf7",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "cape-quest-shop-mana",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/2] Verified: 25 relic boxes (5 worn + 20 bag), cape box and recoloured doll sheet at 1280x720/768x1024/390x844 with no horizontal overflow; the quest journal filtered four sections behind five tabs with portrait cards and progress bars; a maze stall sold five lines once each (mana draught 500->470 shards, flasks 1->2, Sold); R restored 60/60 mana and spent a flask; a forced level card ignored a 17ms click but accepted one after 1.6s (vitality); 896 tests across 190 files, 476 mechanics, lint/typecheck/build clean, 8/8 gates; four browser screenshots recorded.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794780162.597231,
+      "timestamp_str": "2026-11-16 01:02:42",
+      "agent": "kilo:1",
+      "checklists": "skipped:PRINCIPLE-015",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "cape-quest-shop-mana",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'cape-quest-shop-mana' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794780665.965433,
+      "timestamp_str": "2026-11-16 01:11:05",
+      "agent": "kilo:1",
+      "head": "b0f49fa8aac8e4360ef24c6ec410a4956c309f19",
       "delivery": {
         "roots": [
           "."

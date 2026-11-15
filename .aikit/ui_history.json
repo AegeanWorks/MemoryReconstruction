@@ -1251,5 +1251,24 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "e4014eb157b564474809875d99c872219509e1da88224fe548f8c3634f939bf6"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the committed cycle 98 surface in Edge at 1280x720, 768x1024 and 390x844: five worn boxes plus the cape with a recoloured doll sheet, the taller 74vh/600px relic panel with no horizontal overflow, the RPG quest journal with tabs and progress bars, the maze stall purchase flow, the mana HUD chip and the level-card guard (17ms click ignored, 1.6s click accepted); evidence is recorded in docs/UI_REVIEW.md and docs/qa/cycle98-*.png.",
+    "baseline_commit": "b0f49fa8aac8e4360ef24c6ec410a4956c309f19",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794780542.527636,
+    "finished_at": 1794780607.1122315,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "2aa29dd847acff6d2be5a51650d520d37d498b9c4ab0481ecc819d7b4a55ea80"
   }
 ]
