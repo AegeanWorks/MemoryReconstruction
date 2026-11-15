@@ -4113,3 +4113,37 @@ the screen, focus landed one box off after an action, and on a phone the pane's 
 two clicks of a double click.
 ### Gate results
 See the task summary.
+
+## Cycle 95 - Headwear, a twenty-slot bag, and a crueller deep
+### FIND
+The player asked for a Headwear section, more inventory space and a harder climb. The bag held ten relics and the
+armoury recognised only weapon, armor and trinket; the level curve grew by 1.42 and kills paid 55% of their XP; and
+every wave of a room was the same size and damage, while enemy damage only rose 10% per section.
+### IMPLEMENT
+- `src/sim/equipment.ts`: `EquipmentSlot` gains `head`, the worn slots are weapon, armor, trinket and head, and
+  `INVENTORY_SLOTS` is 20.
+- `src/data/equipment.json`: four head relics (Scout Hood, Iron Helm, Oracle Circlet, Void Visor) with stat mods.
+- `scripts/generate_relic_icons.py`: a drawing for each head relic; 24 icons, all distinct.
+- `src/ui/InventoryGrid.ts` and `src/ui/ui.css`: a head box on the doll (head above the weapon, armor above the
+  trinket) and four rows of five bag boxes.
+- `src/ui/inventoryDrag.ts`: `slot:head` is a drop target.
+- `src/sim/run.ts`: a snapshot without a head key loads with `head: null`; every slot is filled on restore.
+- `src/sim/run.ts`: `xpForLevel` is `42 * 1.5^(level-1)` (steeper than 1.42, and level 5 now costs 213 instead of
+  171); `ENEMY_XP_SCALE` is 0.4, so kills pay about a quarter less than before.
+- `src/sim/content.ts`: `ROOM_DAMAGE_STEP` 0.05, `WAVE_DAMAGE_STEP` 0.1, `WAVE_EXTRA_ENEMIES` 1, and the pure
+  helpers `enemyDamageMultiplier` and `waveEnemyCount`. Damage is additive: 20 cleared rooms are exactly +100%,
+  and section depth and wave number add their own steps on top.
+- `src/sim/world.ts`: `spawnEnemy` takes the wave number and applies the shared multiplier; `spawnWave` uses
+  `waveEnemyCount`, so wave 2 brings one more enemy than wave 1 and 10% more damage, wave 3 another step, up to
+  the room cap.
+- Tests: `tests/inventory-headwear.test.ts` (7) and `tests/sim/difficulty-ramp.test.ts` (5), all failing first.
+  `tests/hub.test.ts` builds its vault from `EQUIPMENT` (the old ten-item fixture could not fill twenty cells), and
+  `tests/gear-look.test.ts` gained `head: null` in its typed fixtures; no assertion was weakened (ADR-217/218).
+### RECORD
+In Edge at 1280x720 and 390x844 with real input: the Relics screen showed the Iron Helm in the new head box plus
+Void Visor, Scout Hood and Oracle Circlet in the bag; all five icons loaded at 64 px; the doll was 278 px wide on
+the phone, the bag 334 px, and the document did not scroll horizontally (390/390). The bag reported Carried 3/20
+and 24 boxes (4 worn + 20 bag). Screenshots `docs/qa/cycle95-headwear-1280x720.png` and
+`cycle95-headwear-390x844.png`.
+### Gate results
+See the task summary.

@@ -8,13 +8,13 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `6`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `91`
+- **Total Top-Level Functions**: `95`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `4733`
+- **Total Source Lines**: `4784`
 
 ## 🧭 Map Coverage
 - **Indexed**: python (`6` module(s))
-- **Not indexed by this map**: javascript (`1` file(s)), typescript (`236` file(s))
+- **Not indexed by this map**: javascript (`1` file(s)), typescript (`238` file(s))
 
 > Only Python symbols are catalogued. A language above is reported as not indexed, never as verified by this map.
 
@@ -127,7 +127,7 @@
 ### [`scripts/generate_relic_icons.py`](scripts/generate_relic_icons.py)
 > *Draw one icon per relic in src/data/equipment.json into assets/sprites/ui/relic_<id>.png.*
 
-**Size**: `287` lines (`14490` bytes)
+**Size**: `338` lines (`17349` bytes)
 
 **Functions:**
 - `def _diagonal_blade(d, tip, hilt, half_width, fill, edge, guard, grip, pommel)` - *A straight blade from hilt to tip with a crossguard, grip and pommel.*
@@ -153,6 +153,10 @@
 - `def soul_anchor(img, d)`
 - `def storm_dial(img, d)`
 - `def ember_ward(img, d)`
+- `def scout_hood(img, d)`
+- `def iron_helm(img, d)`
+- `def oracle_circlet(img, d)`
+- `def void_visor(img, d)`
 - `def main()`
 
 ---

@@ -232,3 +232,15 @@ Method notes, because the first attempt at this sweep produced a misleading "cle
 
 The audit is ad hoc (no Playwright dependency in the project); it is recorded here so the method and the
 clean baseline can be repeated after layout changes.
+
+## 2026-11-15 review: headwear box and twenty-slot bag (agent reviewer: kilo:1)
+
+The running Vite build was driven in Edge at **1280x720** and **390x844**. Slot 1 was loaded, the expedition
+continued, and three head relics plus a worn Iron Helm were injected through the documented `window.__MR__.world`
+handle before opening **I**. All five relic images (Iron Helm in the head box, Void Visor, Scout Hood and Oracle
+Circlet in the bag, Rusted Edge in the weapon box) reported `complete` at 64 px. The phone layout measured a
+278 px doll and a 334 px bag inside a 390 px viewport, `scrollWidth === clientWidth === 390`, and 24 boxes
+(4 worn + 20 bag); "Carried 3/20" matched the bag. No console errors. The head box sits above the weapon box,
+so the doll keeps its 128 px figure height and the panel still scrolls inside its 460 px cap.
+
+Captures: `docs/qa/cycle95-headwear-1280x720.png`, `docs/qa/cycle95-headwear-390x844.png`.
