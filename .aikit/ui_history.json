@@ -1133,5 +1133,25 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "9881328f3f00c8c97038e247f96f61fa58d427756a4bc7cc1ff40c58b89fd435"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [
+      "src/save/SaveStore.ts"
+    ],
+    "no_visual_reason": "",
+    "baseline_commit": "0420b8d677e189f77972c2ff76583ac949df0a58",
+    "contract_hash": "95160ade0a890d579eb44f504bc03a7e4a2f5a819e32114c9f380064423b4042",
+    "started_at": 1794733561.92195,
+    "finished_at": 1794733601.2460291,
+    "strikes": 0,
+    "reviewer": "agent:unidentified",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "a9aa5667736298a55b8f8cbb7e8cbac7f0ee8c4b88b75a59398d2f4cbe869d93"
   }
 ]

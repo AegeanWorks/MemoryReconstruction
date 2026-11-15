@@ -198,56 +198,257 @@ function browserStorage(): KeyValueStore | undefined {
   }
 }
 
-export class SaveStore {
-  constructor(private readonly storage: KeyValueStore | undefined = browserStorage()) {}
+/** Save slots a browser keeps; each holds its own progress and its own expedition. */
+export const SLOT_COUNT = 3;
+/** Marks an exported save file; import refuses anything without it. */
+export const SAVE_FORMAT = 'memory-reconstruction-save';
+const SAVE_FILE_VERSION = 1;
+const INDEX_KEY = 'memory-reconstruction.slots.v1'; // aikit:allow-secret -- localStorage key name, not a credential
+/** Settings belong to the player and the device, not to a playthrough, so every slot shares them. */
+const SETTINGS_KEY = 'memory-reconstruction.settings.v1'; // aikit:allow-secret -- localStorage key name, not a credential
+const slotMetaKey = (slot: number): string => `memory-reconstruction.slot${slot}.meta.v1`;
+const slotRunKey = (slot: number): string => `memory-reconstruction.slot${slot}.run.v1`;
 
-  private read(key: string): unknown {
+const IndexSchema = z.object({
+  version: z.literal(1),
+  active: z.number().int().min(1).max(SLOT_COUNT),
+  savedAt: z.record(z.string(), z.string()).default({}),
+});
+type SlotIndex = z.infer<typeof IndexSchema>;
+
+/** What the Saves screen shows for one slot. */
+export interface SlotSummary {
+  slot: number;
+  empty: boolean;
+  active: boolean;
+  /** ISO time of the last write, or '' when unknown (a save moved in from before slots). */
+  savedAt: string;
+  echoes: number;
+  runs: number;
+  bestDepth: number;
+  /** Sum of restoration levels across the Sanctuary. */
+  restorations: number;
+  fragments: number;
+  hasRun: boolean;
+}
+
+export type ImportResult = { ok: true } | { ok: false; reason: string };
+
+const isSlot = (slot: number): boolean => Number.isInteger(slot) && slot >= 1 && slot <= SLOT_COUNT;
+
+export class SaveStore {
+  /** Told about every save write: true when it was stored, false when storage refused it. */
+  onWrite: ((ok: boolean) => void) | undefined;
+  private opened: SlotIndex | undefined;
+
+  constructor(
+    private readonly storage: KeyValueStore | undefined = browserStorage(),
+    private readonly now: () => Date = () => new Date()
+  ) {}
+
+  /** Opened on first use, not at construction, so whatever storage holds by then is migrated. */
+  private get index(): SlotIndex {
+    this.opened ??= this.openIndex();
+    return this.opened;
+  }
+
+  get activeSlot(): number {
+    return this.index.active;
+  }
+
+  private readRaw(key: string): string | undefined {
     try {
-      const raw = this.storage?.getItem(key);
-      return raw ? (JSON.parse(raw) as unknown) : undefined;
+      return this.storage?.getItem(key) ?? undefined;
     } catch {
       return undefined;
     }
   }
 
-  private write(key: string, value: unknown): boolean {
+  private read(key: string): unknown {
+    const raw = this.readRaw(key);
+    if (!raw) return undefined;
     try {
-      this.storage?.setItem(key, JSON.stringify(value));
+      return JSON.parse(raw) as unknown;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private writeRaw(key: string, value: string): boolean {
+    try {
+      this.storage?.setItem(key, value);
       return true;
     } catch {
       return false;
     }
   }
 
-  loadMeta(): Meta {
-    const raw = this.read(META_KEY);
+  private remove(key: string): void {
+    try {
+      this.storage?.removeItem(key);
+    } catch {
+      // Nothing to remove when storage is unavailable.
+    }
+  }
+
+  /**
+   * Reads the slot index, or builds it. Before slots there was one save under the legacy keys; it is
+   * copied into slot 1 byte for byte (so field-wise recovery still applies) and never deleted, which
+   * keeps it as a backup. The index is written last: a crash before that just repeats the copy.
+   */
+  private openIndex(): SlotIndex {
+    const parsed = IndexSchema.safeParse(this.read(INDEX_KEY));
+    if (parsed.success) return parsed.data;
+    const index: SlotIndex = { version: 1, active: 1, savedAt: {} };
+    const legacyMeta = this.readRaw(META_KEY);
+    if (legacyMeta !== undefined && this.readRaw(slotMetaKey(1)) === undefined) {
+      this.writeRaw(slotMetaKey(1), legacyMeta);
+      const legacyRun = this.readRaw(RUN_KEY);
+      if (legacyRun !== undefined) this.writeRaw(slotRunKey(1), legacyRun);
+      index.savedAt['1'] = '';
+    }
+    this.writeRaw(INDEX_KEY, JSON.stringify(index));
+    return index;
+  }
+
+  private stamp(slot: number, ok: boolean): boolean {
+    if (ok) {
+      this.index.savedAt[String(slot)] = this.now().toISOString();
+      this.writeRaw(INDEX_KEY, JSON.stringify(this.index));
+    }
+    this.onWrite?.(ok);
+    return ok;
+  }
+
+  private sharedSettings(): Settings | undefined {
+    const parsed = SettingsSchema.safeParse(this.read(SETTINGS_KEY));
+    return parsed.success ? parsed.data : undefined;
+  }
+
+  private parseMeta(raw: unknown): Meta {
     const parsed = MetaSchema.safeParse(raw);
-    if (!parsed.success) return recoverMeta(raw);
-    return dropPhantomRelics(parsed.data);
+    return parsed.success ? dropPhantomRelics(parsed.data) : recoverMeta(raw);
+  }
+
+  loadMeta(slot = this.activeSlot): Meta {
+    const meta = this.parseMeta(this.read(slotMetaKey(slot)));
+    const settings = this.sharedSettings();
+    return settings ? { ...meta, settings } : meta;
   }
 
   saveMeta(meta: Meta): boolean {
-    return this.write(META_KEY, meta);
+    const slot = this.activeSlot;
+    const ok = this.writeRaw(slotMetaKey(slot), JSON.stringify(meta));
+    if (ok) this.writeRaw(SETTINGS_KEY, JSON.stringify(meta.settings));
+    return this.stamp(slot, ok);
   }
 
-  loadRun(): RunState | undefined {
-    return restoreRun(this.read(RUN_KEY));
+  loadRun(slot = this.activeSlot): RunState | undefined {
+    return restoreRun(this.read(slotRunKey(slot)));
   }
 
-  hasRun(): boolean {
-    return this.loadRun() !== undefined;
+  hasRun(slot = this.activeSlot): boolean {
+    return this.loadRun(slot) !== undefined;
   }
 
   saveRun(run: RunState): boolean {
-    return this.write(RUN_KEY, run);
+    const slot = this.activeSlot;
+    return this.stamp(slot, this.writeRaw(slotRunKey(slot), JSON.stringify(run)));
   }
 
   clearRun(): void {
+    this.remove(slotRunKey(this.activeSlot));
+  }
+
+  /** Makes `slot` the one every load and save uses; out-of-range numbers are ignored. */
+  selectSlot(slot: number): void {
+    if (!isSlot(slot)) return;
+    this.index.active = slot;
+    this.writeRaw(INDEX_KEY, JSON.stringify(this.index));
+  }
+
+  listSlots(): SlotSummary[] {
+    return Array.from({ length: SLOT_COUNT }, (_, i) => {
+      const slot = i + 1;
+      const empty = this.readRaw(slotMetaKey(slot)) === undefined;
+      const meta = empty ? defaultMeta() : this.loadMeta(slot);
+      return {
+        slot,
+        empty,
+        active: slot === this.activeSlot,
+        savedAt: this.index.savedAt[String(slot)] ?? '',
+        echoes: meta.echoes,
+        runs: meta.runs,
+        bestDepth: meta.bestDepth,
+        restorations: Object.values(meta.restorations).reduce((sum, level) => sum + level, 0),
+        fragments: meta.fragments.length,
+        hasRun: !empty && this.hasRun(slot),
+      };
+    });
+  }
+
+  /** Empties a slot; the shared settings and the legacy backup stay. */
+  deleteSlot(slot: number): void {
+    if (!isSlot(slot)) return;
+    this.remove(slotMetaKey(slot));
+    this.remove(slotRunKey(slot));
+    delete this.index.savedAt[String(slot)];
+    this.writeRaw(INDEX_KEY, JSON.stringify(this.index));
+  }
+
+  /** The slot as a save file, or undefined for an empty slot. */
+  exportSlot(slot: number): string | undefined {
+    if (!isSlot(slot) || this.readRaw(slotMetaKey(slot)) === undefined) return undefined;
+    const file = {
+      format: SAVE_FORMAT,
+      version: SAVE_FILE_VERSION,
+      exportedAt: this.now().toISOString(),
+      meta: this.loadMeta(slot),
+      run: this.loadRun(slot) ?? null,
+    };
+    return JSON.stringify(file, null, 2);
+  }
+
+  /**
+   * Replaces a slot with a save file. Unlike loading, import is strict: a file that is not a save,
+   * is from a newer version, or has any damaged field is refused with a reason and the slot is left
+   * as it was. The device's shared settings are kept.
+   */
+  importSlot(slot: number, text: string): ImportResult {
+    if (!isSlot(slot)) return { ok: false, reason: `There is no slot ${slot}.` };
+    let file: unknown;
     try {
-      this.storage?.removeItem(RUN_KEY);
+      file = JSON.parse(text);
     } catch {
-      // Nothing to clear when storage is unavailable.
+      return { ok: false, reason: 'This is not a save file: it is not readable JSON.' };
     }
+    const head = file as {
+      format?: unknown;
+      version?: unknown;
+      meta?: unknown;
+      run?: unknown;
+    } | null;
+    if (!head || typeof head !== 'object' || head.format !== SAVE_FORMAT) {
+      return { ok: false, reason: 'This file is not a Memory Reconstruction save.' };
+    }
+    if (typeof head.version !== 'number' || head.version > SAVE_FILE_VERSION) {
+      return { ok: false, reason: 'This save comes from a newer version of the game.' };
+    }
+    const meta = MetaSchema.safeParse(head.meta);
+    if (!meta.success) {
+      const where = meta.error.issues[0]?.path.join('.') || 'meta';
+      return { ok: false, reason: `This save is damaged (${where}).` };
+    }
+    const run = head.run === null || head.run === undefined ? undefined : restoreRun(head.run);
+    if (head.run !== null && head.run !== undefined && !run) {
+      return { ok: false, reason: 'This save is damaged (expedition).' };
+    }
+    const ok = this.writeRaw(slotMetaKey(slot), JSON.stringify(dropPhantomRelics(meta.data)));
+    if (!ok) return { ok: false, reason: 'The browser refused to store the save; it may be full.' };
+    if (run) this.writeRaw(slotRunKey(slot), JSON.stringify(run));
+    else this.remove(slotRunKey(slot));
+    this.stamp(slot, true);
+    return { ok: true };
   }
 }
 
