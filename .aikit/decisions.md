@@ -1963,3 +1963,10 @@ un.stats.surges and triggering lootSurge audiovisual fanfare.
 - **Context**: Switching or importing a slot replaces the progress the running game holds. Doing it mid-expedition would leave a world built from one slot's run while the store points at another.
 - **Decision**: The Saves screen opens from the title only. Play, a delete of the active slot and an import into it reload `meta` and the settings, then return to the title. Export is a browser download of the slot's file; import reads a chosen file of at most 1 MB and hands it to `SaveStore.importSlot`, which validates it in full (ADR-213). Overwriting a non-empty slot and deleting a slot both take a second click through the existing `confirmButton`, now exported from `Screens.ts`. A corner note reports every write.
 - **Consequences**: A player cannot back up mid-run without returning to the title; the run itself is still saved at each section's entrance. The save time is shown in the browser's locale.
+
+## ADR-215: The UI task budget rises from 300 to 750 changed lines
+- **Date**: 2026-11-15
+- **Status**: Accepted (user decision: "Increase the limit to 750 in aikit permanently")
+- **Context**: `.aikit/ui.json` capped one UI task at 12 files and 300 changed lines, counting added plus deleted lines. Cycles 87, 88, 91 and 92 had to be split into two commits to fit, and the grid inventory (ADR-216) changes about 580 lines, 370 of them in `src/ui/Screens.ts`, where the new detail pane and the removed list depend on each other and cannot be committed apart without a transitional state.
+- **Decision**: `limits.max_lines` is 750. `max_files` stays 12. The change is permanent for this project. AIKit's own default for new contracts (`scripts/ui_contract.py`) is a separate change in the AIKit repository and is not part of this commit.
+- **Consequences**: One UI task can hold a screen rewrite. A 750-line diff is harder to review than a 300-line one, so the cycle log and the ADRs carry more of the explanation.

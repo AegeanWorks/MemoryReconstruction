@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794734673.31617,
+    "updated_at": 1794736672.9583828,
     "owner": "kiro:1",
     "started_by": "kiro:1",
     "continuations": [],
@@ -17,27 +17,6 @@
     ]
   },
   "checkpoints": [
-    {
-      "task_id": "gameplay-polish-2",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Verified: core rewards preserved + completion toast, stagger guard 3/3, crossed boss phases 2/2, banner timing and stale-choice guard; lore-completeness 5/5, world 44/44, systems 80/80; 462 vitest (83 files), 370 mechanics (55 files), typecheck/lint/build clean, 8/8 AIKit; checklists: passed",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794164112.114453,
-      "timestamp_str": "2026-11-08 21:55:12",
-      "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "gameplay-polish-2",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'gameplay-polish-2' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794164112.4407241,
-      "timestamp_str": "2026-11-08 21:55:12",
-      "agent": "commandcode:mr-audit"
-    },
     {
       "task_id": "visual-and-content-polish-28-51",
       "phase": "phase 2",
@@ -354,6 +333,46 @@
       "status": "in_progress",
       "timestamp": 1794734673.31617,
       "timestamp_str": "2026-11-15 12:24:33",
+      "agent": "kiro:1",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "saves-slots-inventory-grid",
+      "phase": "phase 3",
+      "phase_num": 3,
+      "description": "[3/3] In progress, uncommitted and verified: grid is the main inventory view with a detail pane (pick in place, double-click wears, arrow keys by position, focus restore by key), list removed; 825 tests, lint and typecheck pass; real-input probe at 1280x720 and 390x844 passes. Blocked: src diff is about 580 changed lines (Screens.ts alone 370) against the UI contract's 300-line budget; asked the user whether to allow a one-time limit raise or build transitional commits. Test replacements so far: ui-list-state filter chips, ui-inventory-grid list routing and no-tab-stop, ui-rarity-text count 6 to 5.",
+      "files_affected": [
+        "src/ui/Screens.ts",
+        "src/ui/InventoryGrid.ts",
+        "src/ui/inventoryDrag.ts",
+        "src/app/App.ts",
+        "src/ui/ui.css"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794736514.1102223,
+      "timestamp_str": "2026-11-15 12:55:14",
+      "agent": "kiro:1",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "saves-slots-inventory-grid",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] Budget: .aikit/ui.json max_lines 300 to 750 on the user's decision, ADR-215; committed alone before the inventory change",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794736672.9583828,
+      "timestamp_str": "2026-11-15 12:57:52",
       "agent": "kiro:1",
       "workspaces": [
         {

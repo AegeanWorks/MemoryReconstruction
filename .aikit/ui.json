@@ -24,6 +24,6 @@
   },
   "limits": {
     "max_files": 12,
-    "max_lines": 300
+    "max_lines": 750
   }
 }
