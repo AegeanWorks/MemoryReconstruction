@@ -53,7 +53,8 @@ export function parseDropTarget(value: string | null | undefined): DropTarget {
     value === 'slot:weapon' ||
     value === 'slot:armor' ||
     value === 'slot:trinket' ||
-    value === 'slot:head'
+    value === 'slot:head' ||
+    value === 'slot:cape'
   ) {
     return { kind: 'slot', slot: value.slice(5) as EquipmentSlot };
   }

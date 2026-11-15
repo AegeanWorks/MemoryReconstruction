@@ -53,6 +53,7 @@ function play(run: RunState): void {
         bolt: false,
         dash: false,
         potion: false,
+        manaPotion: false,
         interact: false,
         weapon: -1,
         bomb: false,

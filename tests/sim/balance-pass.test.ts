@@ -17,13 +17,14 @@ const DT = 1 / 60;
 describe('frontier balance pass', () => {
   it('makes each level cost more than the old 30/1.36 curve', () => {
     expect(xpForLevel(1)).toBeGreaterThanOrEqual(40);
-    expect(xpForLevel(5)).toBeGreaterThan(150);
+    expect(xpForLevel(5)).toBeGreaterThan(250);
+    // The curve is now steep enough that 200 XP no longer buys three levels.
     const run = createRun(1, []);
-    expect(grantXp(run, 200, () => ['x'])).toBe(3);
+    expect(grantXp(run, 200, () => ['x'])).toBe(2);
   });
 
   it('pays much less kill XP and slows mobs slightly while raising damage', () => {
-    expect(ENEMY_XP_SCALE).toBeLessThanOrEqual(0.6);
+    expect(ENEMY_XP_SCALE).toBeLessThanOrEqual(0.35);
     expect(ENEMY_SPEED_SCALE).toBeLessThan(1.15);
     expect(ENEMY_SPEED_SCALE).toBeGreaterThan(1);
     expect(ENEMY_DAMAGE_SCALE).toBeGreaterThan(1);

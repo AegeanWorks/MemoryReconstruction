@@ -18,8 +18,8 @@ const read = (path: string): string => readFileSync(join(__dirname, path), 'utf8
 const HEAD_IDS = ['scout_hood', 'iron_helm', 'oracle_circlet', 'void_visor'];
 
 describe('headwear is a worn slot of its own', () => {
-  it('adds a head slot beside weapon, armor and trinket', () => {
-    expect(EQUIPMENT_SLOTS).toEqual(['weapon', 'armor', 'trinket', 'head']);
+  it('adds a head slot beside the other worn slots', () => {
+    expect(EQUIPMENT_SLOTS).toEqual(['weapon', 'armor', 'trinket', 'head', 'cape']);
     expect(emptyEquipment().head).toBeNull();
   });
 
@@ -58,7 +58,7 @@ describe('headwear reaches the doll, the CSS and old saves', () => {
     const css = read('../src/ui/ui.css');
     expect(grid).toContain('EQUIPMENT_SLOTS.map');
     expect(css).toContain('.doll .slot-head');
-    expect(css).toMatch(/grid-template-areas:[\s\S]*'head figure armor'/);
+    expect(css).toMatch(/grid-template-areas:[\s\S]*'weapon figure armor'/);
   });
 
   it('loads a save without a head key and keeps a worn head relic', () => {
@@ -79,7 +79,7 @@ describe('headwear reaches the doll, the CSS and old saves', () => {
   it('parses the head drop target like the other slots', () => {
     const drag = read('../src/ui/inventoryDrag.ts');
     expect(drag).toContain("value === 'slot:head'");
-    expect(drag).toContain("value.slice(5) as EquipmentSlot");
+    expect(drag).toContain('value.slice(5) as EquipmentSlot');
     const slot: EquipmentSlot = 'head';
     expect(slot).toBe('head');
   });

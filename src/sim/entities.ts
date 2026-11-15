@@ -42,6 +42,8 @@ export interface Player {
   xp: number;
   shards: number;
   potions: number;
+  /** Mana flasks carried; drink one with R to refill part of the mana bar. */
+  manaPotions: number;
   /** Dash charges, fractional while recharging. */
   dashCharges: number;
   /** Combo step of the current or last swing (0..2). */
@@ -210,7 +212,8 @@ export interface Mine {
   life: number;
 }
 
-export type PickupKind = 'shard' | 'health' | 'potion' | 'fragment' | 'equipment' | 'bomb' | 'trap';
+export type PickupKind =
+  'shard' | 'health' | 'potion' | 'mana' | 'fragment' | 'equipment' | 'bomb' | 'trap';
 
 export interface Pickup {
   id: number;
@@ -322,6 +325,8 @@ export interface InputFrame {
   bolt: boolean;
   dash: boolean;
   potion: boolean;
+  /** Drink a mana flask this frame. */
+  manaPotion: boolean;
   interact: boolean;
   /** Weapon index to switch to, or -1 to keep the current one. */
   weapon: number;
@@ -342,6 +347,7 @@ export const NO_INPUT: Readonly<InputFrame> = {
   bolt: false,
   dash: false,
   potion: false,
+  manaPotion: false,
   interact: false,
   weapon: -1,
   bomb: false,

@@ -108,6 +108,7 @@ const GLYPHS: Record<EquipmentSlot, string> = {
   armor: 'M12 3 L20 6 V12 C20 17 16 20 12 22 C8 20 4 17 4 12 V6 Z',
   trinket: 'M12 3 L19 9 L12 21 L5 9 Z M5 9 H19',
   head: 'M5 13 C5 7 8 3.5 12 3.5 C16 3.5 19 7 19 13 L19 16 H14 L12 12.5 L10 16 H5 Z',
+  cape: 'M12 3 C16 3 19 6 19 10 L20 21 L16 18 L14 21 L12 18 L10 21 L8 18 L4 21 L5 10 C5 6 8 3 12 3 Z',
 };
 
 function glyph(slot: EquipmentSlot): SVGElement {
@@ -266,9 +267,11 @@ export function inventoryGrid(
   const looks = gearLooks(player.equipment);
   const figure = h('div', { class: 'doll-figure' });
   figure.style.backgroundImage = `url('${sheetUrl}')`;
-  if (looks.armor && looks.armorId) {
-    // Plain sheet first, the armoured one as soon as it is painted, so the doll never flashes empty.
-    void recolorSheetUrl(sheetUrl, looks.armorId, looks.armor).then((url) => {
+  if (looks.armor !== null || looks.cape !== null) {
+    // Plain sheet first, the recoloured one as soon as it is painted, so the
+    // doll never flashes empty. The same pass colours robe and cloak.
+    const key = `${looks.armorId ?? '-'}|${looks.capeId ?? '-'}`;
+    void recolorSheetUrl(sheetUrl, key, looks.armor, looks.cape).then((url) => {
       figure.style.backgroundImage = `url('${url}')`;
     });
   }
@@ -286,7 +289,8 @@ export function inventoryGrid(
     figure,
     slotBoxes[0],
     slotBoxes[1],
-    slotBoxes[2]
+    slotBoxes[2],
+    slotBoxes[4]
   );
 
   const cells = bagCells(player.inventory, INVENTORY_SLOTS).map((item, index) => {

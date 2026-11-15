@@ -222,9 +222,9 @@ export function bankSummary(run: RunState): { kept: number; atRisk: number } {
   return { kept: banked.size, atRisk };
 }
 
-/** XP needed to go from `level` to `level + 1`; slower than the old 30/1.36 and 42/1.42 curves. */
+/** XP needed to go from `level` to `level + 1`; deliberately steep: 42, 67, 108, 172, 275, ... */
 export function xpForLevel(level: number): number {
-  return Math.round(42 * Math.pow(1.5, level - 1));
+  return Math.round(42 * Math.pow(1.6, level - 1));
 }
 
 /** Adds XP, queues one level-up choice per level gained, and returns levels gained. */
@@ -355,6 +355,11 @@ export function restoreRun(data: unknown): RunState | undefined {
   // during play; an older snapshot without them would crash on load.
   run.fragmentsFound = Array.isArray(run.fragmentsFound) ? run.fragmentsFound : [];
   run.knownFragments = Array.isArray(run.knownFragments) ? run.knownFragments : [];
+  // A snapshot written before mana flasks existed starts with the default flask.
+  run.player.manaPotions =
+    typeof run.player.manaPotions === 'number' && Number.isFinite(run.player.manaPotions)
+      ? Math.max(0, Math.floor(run.player.manaPotions))
+      : 1;
   // A snapshot written before checkpoint banking has no bank; treat it as empty.
   run.bankedRelics = Array.isArray(run.bankedRelics)
     ? run.bankedRelics.filter((id): id is string => typeof id === 'string' && equipmentExists(id))

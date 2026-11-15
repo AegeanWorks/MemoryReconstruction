@@ -17,9 +17,9 @@ const DT = 1 / 60;
 
 describe('a slower climb and a crueller expedition', () => {
   it('makes every level beyond the first cost more than the old curve', () => {
-    expect(xpForLevel(5)).toBeGreaterThanOrEqual(200);
+    expect(xpForLevel(5)).toBeGreaterThanOrEqual(250);
     expect(xpForLevel(10)).toBeGreaterThan(42 * Math.pow(1.42, 9));
-    expect(ENEMY_XP_SCALE).toBeLessThanOrEqual(0.45);
+    expect(ENEMY_XP_SCALE).toBeLessThanOrEqual(0.35);
   });
 
   it('adds 5% enemy damage for every section past the first, additively', () => {
@@ -126,8 +126,7 @@ describe('a slower climb and a crueller expedition', () => {
     expect(secondWave.length).toBeGreaterThan(0);
     for (const enemy of secondWave) {
       const expected = Math.round(
-        enemyDef(enemy.def.id).damage *
-          enemyDamageMultiplier(run.depth, run.stats.roomsCleared, 2)
+        enemyDef(enemy.def.id).damage * enemyDamageMultiplier(run.depth, run.stats.roomsCleared, 2)
       );
       expect(enemy.def.damage, enemy.def.id).toBe(expected);
     }

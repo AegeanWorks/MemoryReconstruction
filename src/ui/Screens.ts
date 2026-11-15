@@ -46,10 +46,11 @@ import {
   type SanctuaryProgress,
 } from '../sim/hub';
 import { bankSummary, resonanceMultiplier, type RunState, type UpgradeChoice } from '../sim/run';
+import { choiceArmed, deliberateClick } from './choiceGuard';
 import { SANCTUARY_BUILDINGS, SANCTUARY_STATIONS } from '../sim/sanctuary';
 import { computeStats, upgradeDef, type PlayerStats } from '../sim/upgrades';
 import { WEAPONS, weaponDef } from '../sim/weapons';
-import type { World } from '../sim/world';
+import type { ShopItem, ShopItemId, World } from '../sim/world';
 import { dailyModifier, type Meta, type Settings } from '../save/SaveStore';
 import { assetUrl, button, h, relicIconUrl } from './dom';
 import { drawMap } from './Minimap';
@@ -1624,6 +1625,7 @@ export function inventoryScreen(
       'div',
       { class: 'supplies-grid' },
       supplyRow('Memory Flasks', `${p.potions}/${s.maxPotions}`, 'Q — drink'),
+      supplyRow('Mana Flasks', `${p.manaPotions}`, 'R — drink'),
       supplyRow('Bombs', `${p.bombs}`, 'G — throw'),
       supplyRow('Traps', `${p.traps}`, 'T — place')
     )
@@ -1885,75 +1887,240 @@ export function questLogScreen(
   opts: { onClaimDaily: () => void },
   onBack: () => void
 ): HTMLElement {
-  const rows = QUESTS.map((quest) => {
+  interface View {
+    quest: (typeof QUESTS)[number];
+    accepted: boolean;
+    claimed: boolean;
+    ready: boolean;
+    progress: number;
+  }
+  const views: View[] = QUESTS.map((quest) => {
     const accepted = meta.quests.accepted.includes(quest.id);
     const claimed = meta.quests.claimed.includes(quest.id);
     const progress = questProgress(quest, snapshot);
-    const ready = accepted && !claimed && progress >= quest.target;
-    const status = claimed
-      ? 'Completed'
-      : ready
-        ? 'Ready to claim'
-        : accepted
-          ? 'In progress'
-          : 'Available';
-    const tone = claimed || ready ? ' lit' : '';
+    return {
+      quest,
+      accepted,
+      claimed,
+      ready: accepted && !claimed && progress >= quest.target,
+      progress,
+    };
+  });
+  const active = views.filter((view) => view.accepted && !view.claimed && !view.ready);
+  const ready = views.filter((view) => view.ready);
+  const done = views.filter((view) => view.claimed);
+  const available = views.filter((view) => !view.accepted && !view.claimed);
+
+  const card = (view: View): HTMLElement => {
+    const { quest } = view;
+    const name = NPCS[quest.npcId]?.name ?? quest.npcId;
+    const state = view.claimed
+      ? { label: 'Completed', tone: 'done' }
+      : view.ready
+        ? { label: 'Ready to claim', tone: 'ready' }
+        : view.accepted
+          ? { label: 'In progress', tone: 'active' }
+          : { label: 'Available', tone: 'new' };
+    const pct = Math.min(
+      100,
+      Math.round((Math.min(view.progress, quest.target) / quest.target) * 100)
+    );
     return h(
-      'div',
-      { class: `restoration${tone}` },
+      'article',
+      { class: `quest-card${view.claimed ? ' done' : view.ready ? ' lit' : ''}` },
       h(
         'div',
-        { class: 'rest-head' },
-        h('span', { class: 'rest-name' }, quest.name),
-        h('span', { class: 'rest-level' }, status)
+        { class: 'quest-avatar' },
+        h('img', {
+          src: assetUrl(`sprites/props/npc_${quest.npcId}.png`),
+          alt: name,
+          draggable: 'false',
+        })
       ),
-      h('p', { class: 'rest-desc' }, quest.text),
       h(
-        'p',
-        { class: 'rest-lore' },
-        `${NPCS[quest.npcId]?.name ?? quest.npcId} · ${progress}/${quest.target} · ${quest.rewardEchoes} echoes${quest.rewardItem ? ' + relic' : ''}`
+        'div',
+        { class: 'quest-body' },
+        h(
+          'div',
+          { class: 'quest-top' },
+          h('span', { class: 'quest-name' }, quest.name),
+          h('span', { class: `quest-state ${state.tone}` }, state.label)
+        ),
+        h('p', { class: 'quest-text' }, quest.text),
+        h(
+          'div',
+          { class: 'quest-giver' },
+          `${name} · reward ${quest.rewardEchoes} echoes${quest.rewardItem ? ' + a relic' : ''}`
+        ),
+        h(
+          'div',
+          { class: 'quest-progress' },
+          h('span', { class: 'quest-bar' }, h('span', { style: `width:${pct}%` })),
+          h(
+            'span',
+            { class: 'quest-numbers' },
+            `${Math.min(view.progress, quest.target)}/${quest.target}`
+          )
+        )
       )
     );
-  });
-  const ready = !daily.progress.claimed && daily.progress.kills >= daily.contract.target;
+  };
+
+  const section = (key: string, label: string, items: View[]): HTMLElement =>
+    h(
+      'section',
+      { class: 'quest-section', 'data-section': key },
+      h(
+        'div',
+        { class: 'quest-section-head' },
+        h('span', {}, label),
+        h('span', { class: 'quest-count' }, `${items.length}`)
+      ),
+      ...(items.length > 0
+        ? items.map((view) => card(view))
+        : [h('div', { class: 'quest-empty' }, 'Nothing here yet.')])
+    );
+
+  const dailyReady = !daily.progress.claimed && daily.progress.kills >= daily.contract.target;
+  const dailyPct = Math.min(
+    100,
+    Math.round(
+      (Math.min(daily.progress.kills, daily.contract.target) / daily.contract.target) * 100
+    )
+  );
   const dailyCard = h(
-    'div',
-    { class: `restoration${ready || daily.progress.claimed ? ' lit' : ''}` },
+    'article',
+    { class: `quest-card daily${dailyReady || daily.progress.claimed ? ' lit' : ''}` },
     h(
       'div',
-      { class: 'rest-head' },
-      h('span', { class: 'rest-name' }, `Daily mark · ${daily.contract.name}`),
+      { class: 'quest-body' },
       h(
-        'span',
-        { class: 'rest-level' },
-        daily.progress.claimed ? 'Claimed' : ready ? 'Ready to claim' : 'Hunting'
-      )
-    ),
-    h(
-      'p',
-      { class: 'rest-desc' },
-      `Put down ${daily.contract.target} ${daily.contract.name.toLowerCase()} before the day turns. Same mark for everyone.`
-    ),
-    h(
-      'p',
-      { class: 'rest-lore' },
-      `${Math.min(daily.progress.kills, daily.contract.target)}/${daily.contract.target} · reward ${daily.contract.reward} echoes`
-    ),
-    ready
-      ? h(
-          'div',
-          { class: 'gear-actions' },
-          button('Claim the mark', opts.onClaimDaily, 'btn small primary')
+        'div',
+        { class: 'quest-top' },
+        h('span', { class: 'quest-name' }, `Daily mark · ${daily.contract.name}`),
+        h(
+          'span',
+          {
+            class: `quest-state ${daily.progress.claimed ? 'done' : dailyReady ? 'ready' : 'active'}`,
+          },
+          daily.progress.claimed ? 'Claimed' : dailyReady ? 'Ready to claim' : 'Hunting'
         )
-      : null
+      ),
+      h(
+        'p',
+        { class: 'quest-text' },
+        `Put down ${daily.contract.target} ${daily.contract.name.toLowerCase()} before the day turns. Same mark for everyone.`
+      ),
+      h(
+        'div',
+        { class: 'quest-giver' },
+        `Reward ${daily.contract.reward} echoes · resets with the day`
+      ),
+      h(
+        'div',
+        { class: 'quest-progress' },
+        h('span', { class: 'quest-bar' }, h('span', { style: `width:${dailyPct}%` })),
+        h(
+          'span',
+          { class: 'quest-numbers' },
+          `${Math.min(daily.progress.kills, daily.contract.target)}/${daily.contract.target}`
+        )
+      ),
+      dailyReady
+        ? h(
+            'div',
+            { class: 'gear-actions' },
+            button('Claim the mark', opts.onClaimDaily, 'btn small primary')
+          )
+        : null
+    )
   );
+
+  const tabs: Array<{ key: string; label: string }> = [
+    { key: 'all', label: 'All' },
+    { key: 'active', label: 'Active' },
+    { key: 'ready', label: 'Ready' },
+    { key: 'available', label: 'Available' },
+    { key: 'done', label: 'Completed' },
+  ];
+  const tabButtons: HTMLButtonElement[] = [];
+  const el = h(
+    'div',
+    { class: 'screen clear hub quest-log' },
+    h('div', { class: 'heading' }, 'Quest Log'),
+    h(
+      'div',
+      { class: 'subtitle' },
+      `${active.length} active · ${ready.length} ready · ${done.length} completed · ${available.length} available`
+    ),
+    h(
+      'div',
+      { class: 'quest-tabs' },
+      ...tabs.map((tab) => {
+        const b = button(tab.label, () => show(tab.key), 'btn small quest-tab');
+        tabButtons.push(b);
+        return b;
+      })
+    ),
+    dailyCard,
+    section('active', 'In progress', active),
+    section('ready', 'Ready to claim', ready),
+    section('available', 'Available from residents', available),
+    section('done', 'Completed', done),
+    h('div', { class: 'menu' }, button('Back', onBack, 'btn primary'))
+  );
+  function show(view: string): void {
+    el.querySelectorAll<HTMLElement>('.quest-section').forEach((node) => {
+      const sectionKey = node.getAttribute('data-section');
+      node.classList.toggle('hidden', view !== 'all' && sectionKey !== view);
+    });
+    tabButtons.forEach((b, index) => b.classList.toggle('active', tabs[index].key === view));
+  }
+  show('all');
+  return el;
+}
+
+/** A maze merchant's stall: consumables and one relic, priced in shards. */
+export function shopScreen(opts: {
+  stock: readonly ShopItem[];
+  shards: number;
+  onBuy: (id: ShopItemId) => void;
+  onClose: () => void;
+}): HTMLElement {
+  const rows = opts.stock.map((item) => {
+    const affordable = opts.shards >= item.cost;
+    const buy = button(
+      item.sold ? 'Sold' : `${item.cost} shards`,
+      () => opts.onBuy(item.id),
+      'btn small primary'
+    );
+    buy.disabled = item.sold || !affordable;
+    return h(
+      'div',
+      { class: `shop-row${item.sold ? ' sold' : ''}` },
+      h(
+        'div',
+        { class: 'shop-copy' },
+        h('div', { class: 'gear-name' }, item.name),
+        h('div', { class: 'gear-note' }, item.detail)
+      ),
+      buy
+    );
+  });
   return h(
     'div',
-    { class: 'screen clear hub' },
-    h('div', { class: 'heading' }, 'Quests'),
-    h('div', { class: 'subtitle' }, 'Talk to a resident in the Sanctuary to accept or claim.'),
-    h('div', { class: 'hub-grid' }, dailyCard, ...rows),
-    h('div', { class: 'menu' }, button('Back', onBack, 'btn primary'))
+    { class: 'screen hub' },
+    h('div', { class: 'subtitle' }, 'A merchant at the edge of the maze'),
+    h('div', { class: 'title small' }, 'Wares for shards'),
+    h(
+      'div',
+      { class: 'meta-line' },
+      `You carry ${opts.shards} shard${opts.shards === 1 ? '' : 's'}.`
+    ),
+    opts.stock.length > 0
+      ? h('div', { class: 'shop-grid' }, ...rows)
+      : h('div', { class: 'panel' }, 'The stall is bare.'),
+    h('div', { class: 'menu' }, button('Leave the stall', opts.onClose, 'btn primary'))
   );
 }
 
@@ -2078,20 +2245,26 @@ export function choiceScreen(
       )
     );
   });
-  // One deliberate click takes the card. The screen arms after a short grace
-  // moment so the swing click that was still mid-air when the levelup fired
-  // cannot spend the level, and non-primary buttons (right/bolt) are ignored.
-  let armed = false;
-  window.setTimeout(() => {
-    armed = true;
-  }, 320);
+  // A level-up lands on top of a fight, so its cards must not be taken by the
+  // click that was already swinging. One deliberate click takes a card: the
+  // screen arms after a grace, ignores double-clicks, and a mouse click only
+  // counts once the pointer has travelled toward a card (or after a long,
+  // stationary pause). Keyboard digits and gamepad confirm bypass the guard.
+  const openedAt = performance.now();
+  let pointerTravel = 0;
+  let entry: { x: number; y: number } | null = null;
+  let lastPointer = 'mouse';
   const pick = (id: string): void => {
-    if (!armed) return;
     onPick(id);
   };
   cards.forEach((card, index) =>
     card.addEventListener('click', (event) => {
       if (event.button !== 0) return;
+      if (!deliberateClick(event.detail)) return;
+      const now = performance.now();
+      const touch = lastPointer === 'touch';
+      const armed = touch ? now - openedAt >= 550 : choiceArmed(now, openedAt, pointerTravel);
+      if (!armed) return;
       pick(choice.options[index]);
     })
   );
@@ -2113,6 +2286,16 @@ export function choiceScreen(
       rerollButton ? 'Click a card · 1 / 2 / 3 · R rerolls' : 'Click a card · 1 / 2 / 3'
     )
   );
+  el.addEventListener('pointerdown', (event) => {
+    lastPointer = event.pointerType;
+  });
+  el.addEventListener('pointermove', (event) => {
+    if (!entry) entry = { x: event.clientX, y: event.clientY };
+    pointerTravel = Math.max(
+      pointerTravel,
+      Math.hypot(event.clientX - entry.x, event.clientY - entry.y)
+    );
+  });
   // The canvas treats a right press as the bolt; inside the choice screen it
   // must never flash the browser context menu or re-trigger combat input.
   el.addEventListener('contextmenu', (event) => event.preventDefault());
@@ -2436,7 +2619,8 @@ export function controlsScreen(onBack: () => void): HTMLElement {
     ['Right click / K', 'Memory bolt, costs mana (LT)'],
     ['Space / Shift', 'Dash through attacks; brief invulnerability (A)'],
     ['Q', 'Drink a potion (X)'],
-    ['E / F', 'Interact: chests, wells, levers, fountains, NPCs, the gate (Y)'],
+    ['R', 'Drink a mana flask (touch: Mana)'],
+    ['E / F', 'Interact: chests, wells, levers, fountains, NPCs, merchants, the gate (Y)'],
     ['1 / 2 / 3', 'Switch weapon: sword, spear, greatsword'],
     ['I', 'Relics and supplies: equip, swap, discard'],
     ['G / T', 'Throw a bomb / place a trap (hurts everyone)'],
@@ -2461,7 +2645,7 @@ export function controlsScreen(onBack: () => void): HTMLElement {
       'div',
       { class: 'meta-line' },
       [
-        'Red shapes warn of an attack, and floor traps warn before they spring — dash through the edge for a Graze, or pull the lever to disarm a room. Barrels and bombs explode when struck, crates and urns spill shards, and a shattered memory crystal sears nearby echoes. A blast lights nearby breakables, so clusters cook off in a chain. Your own trap does not care whose feet find it. Three stances trade reach, width and speed; bosses leave relics. Hollow selves and rime duellists fight like you: three-swing combos, closing dashes and thin bolts. The Mirror of Self waits at the end of the road, wearing your stance. In the Sanctuary, structures rebuild with echoes, NPCs give tasks, the Training Yard sets your stance, the Meditation Stone grants a boon, and the Notice Board lists quests. Upgrade cards: 1 / 2 / 3 selects, the same number or Enter confirms, R rerolls.',
+        'Red shapes warn of an attack, and floor traps warn before they spring — dash through the edge for a Graze, or pull the lever to disarm a room. Barrels and bombs explode when struck, crates and urns spill shards, and a shattered memory crystal sears nearby echoes. A blast lights nearby breakables, so clusters cook off in a chain. Your own trap does not care whose feet find it. Three stances trade reach, width and speed; bosses leave relics. Hollow selves and rime duellists fight like you: three-swing combos, closing dashes and thin bolts. The Mirror of Self waits at the end of the road, wearing your stance. In the Sanctuary, structures rebuild with echoes, NPCs give tasks, the Training Yard sets your stance, the Meditation Stone grants a boon, and the Notice Board lists quests. Upgrade cards ignore the swing click and double-clicks; a deliberate click or 1 / 2 / 3 takes a card, and R rerolls.',
       ].join('')
     ),
     h('div', { class: 'menu' }, button('Back', onBack))

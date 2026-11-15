@@ -24,6 +24,8 @@ const BOLT_SPEED = 560;
 const BOLT_COOLDOWN = 0.3;
 const BOLT_SPREAD = 0.2;
 const POTION_HEAL = 0.45;
+/** Fraction of max mana a mana flask restores. */
+const MANA_POTION_RESTORE = 0.6;
 const SHOCKWAVE_RADIUS = 90;
 /** Extra reach beyond the bodies for a dash to count as a near miss (tunable). */
 const GRAZE_REACH = ENGAGEMENT_TUNING.grazeReach;
@@ -51,6 +53,7 @@ export function createPlayer(x: number, y: number): Player {
     xp: 0,
     shards: 0,
     potions: 2,
+    manaPotions: 1,
     dashCharges: stats.dashCharges,
     combo: 0,
     swingTime: -1,
@@ -144,6 +147,7 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
     arena.run.stats.onboarding |= 8;
     drinkPotion(arena);
   }
+  if (input.manaPotion) drinkManaPotion(arena);
   if (input.dash && !staggered) {
     if (p.dashTime > 0) {
       if (p.dashCharges >= 1) p.dashBuffer = DASH_BUFFER;
@@ -219,6 +223,18 @@ function drinkPotion(arena: Arena): void {
   p.health += healed;
   if (p.health > p.stats.maxHealth * ENGAGEMENT_TUNING.clutchThreshold) p.clutchUsed = false;
   arena.emit({ type: 'potion', healed });
+}
+
+function drinkManaPotion(arena: Arena): void {
+  const p = arena.player;
+  if (p.manaPotions <= 0 || p.mana >= p.stats.maxMana) return;
+  const restored = Math.min(
+    p.stats.maxMana - p.mana,
+    Math.round(p.stats.maxMana * MANA_POTION_RESTORE)
+  );
+  p.manaPotions--;
+  p.mana += restored;
+  arena.emit({ type: 'manaPotion', restored });
 }
 
 function startDash(arena: Arena, dirX: number, dirY: number): void {

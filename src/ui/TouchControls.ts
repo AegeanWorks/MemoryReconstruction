@@ -122,6 +122,7 @@ export function createTouchControls(
       () => touch.hold('bolt', false)
     ),
     makeButton('touch-btn potion', 'Flask', tap('potion')),
+    makeButton('touch-btn mana', 'Mana', tap('manaPotion')),
     makeButton('touch-btn interact', 'Use', tap('interact')),
     makeButton('touch-btn stance', 'Stance', () => {
       touch.nextWeapon(currentWeapon());

@@ -88,6 +88,7 @@ import {
   sanctuaryScreen,
   trainingScreen,
   settingsScreen,
+  shopScreen,
   titleScreen,
   victoryScreen,
 } from '../ui/Screens';
@@ -332,6 +333,9 @@ export class App {
         case 'victory':
           if (this.state !== 'playing') break;
           this.endRun(true);
+          return;
+        case 'shop':
+          if (this.world) this.openShop(e.targetId);
           return;
         case 'sanctuary':
           if (e.kind === 'npc') this.showNpc(e.id);
@@ -1414,6 +1418,29 @@ export class App {
             onSanctuary: sanctuary,
           })
     );
+  }
+
+  /** Opens a maze merchant's stall; the room holds while the player shops. */
+  private openShop(targetId: number): void {
+    const world = this.world;
+    if (!world) return;
+    this.state = 'paused';
+    this.sound.setSuspended(true);
+    this.input.releaseAll();
+    const render = (): void => {
+      this.screens.show(
+        shopScreen({
+          stock: world.shopStock(targetId),
+          shards: world.player.shards,
+          onBuy: (id) => {
+            if (world.buyFromShop(targetId, id)) this.sound.click();
+            render();
+          },
+          onClose: () => this.resume(),
+        })
+      );
+    };
+    render();
   }
 
   private pause(): void {

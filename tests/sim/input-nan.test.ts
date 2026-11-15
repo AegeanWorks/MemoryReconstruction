@@ -14,6 +14,7 @@ function frame(over: Partial<Frame> = {}): Frame {
     bolt: false,
     dash: false,
     potion: false,
+    manaPotion: false,
     interact: false,
     weapon: -1,
     bomb: false,

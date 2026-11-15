@@ -106,6 +106,17 @@ const SURGE_RICH = ENGAGEMENT_TUNING.surgeRich;
 const isBreakable = (kind: HazardKind): boolean =>
   kind === 'barrel' || kind === 'crate' || kind === 'crystal' || kind === 'urn';
 
+/** One thing a maze merchant sells. */
+export type ShopItemId = 'health' | 'mana' | 'bomb' | 'trap' | 'relic';
+
+export interface ShopItem {
+  id: ShopItemId;
+  name: string;
+  detail: string;
+  cost: number;
+  sold: boolean;
+}
+
 /** Progress of the optional full-clear objective on this floor. */
 export interface FloorObjectives {
   roomsCleared: number;
@@ -190,6 +201,8 @@ export class World implements Arena {
   private nextId = 1;
   private freeze = 0;
   private events: SimEvent[] = [];
+  /** Purchases already taken from each maze merchant, keyed `${interactableId}:${itemId}`. */
+  private readonly shopSold = new Set<string>();
   private fragmentQueue: string[];
   private victoryDelay = -1;
   private readonly flow: FlowField;
@@ -461,6 +474,55 @@ export class World implements Arena {
     if (options.length === 0) return false;
     this.player.shards -= cost;
     choice.options = options;
+    return true;
+  }
+
+  /** The merchant's stock; costs rise with the section, and sold lines stay sold. */
+  shopStock(targetId: number): ShopItem[] {
+    const target = this.interactables.find((i) => i.id === targetId && i.kind === 'merchant');
+    if (!target) return [];
+    const d = this.run.depth;
+    const lines: Array<Omit<ShopItem, 'sold'>> = [
+      { id: 'health', name: 'Healing draught', detail: 'One red flask.', cost: 24 + 6 * d },
+      { id: 'mana', name: 'Mana draught', detail: 'One blue flask.', cost: 30 + 7 * d },
+      { id: 'bomb', name: 'Bomb bundle', detail: 'Two bombs.', cost: 40 + 8 * d },
+      { id: 'trap', name: 'Trap bundle', detail: 'Two traps.', cost: 40 + 8 * d },
+      { id: 'relic', name: 'Merchant relic', detail: 'A relic from the road.', cost: 110 + 22 * d },
+    ];
+    return lines.map((item) => ({
+      ...item,
+      sold: this.shopSold.has(`${targetId}:${item.id}`),
+    }));
+  }
+
+  /** Buys one stock line; false when unaffordable, sold, or the flask rack is full. */
+  buyFromShop(targetId: number, itemId: ShopItemId): boolean {
+    const target = this.interactables.find((i) => i.id === targetId && i.kind === 'merchant');
+    const item = this.shopStock(targetId).find((line) => line.id === itemId);
+    if (!target || !item || item.sold) return false;
+    const p = this.player;
+    if (p.shards < item.cost) return false;
+    if (itemId === 'health' && p.potions >= p.stats.maxPotions) return false;
+    p.shards -= item.cost;
+    switch (itemId) {
+      case 'health':
+        p.potions++;
+        break;
+      case 'mana':
+        p.manaPotions++;
+        break;
+      case 'bomb':
+        p.bombs += 2;
+        break;
+      case 'trap':
+        p.traps += 2;
+        break;
+      case 'relic':
+        this.dropEquipment(target.x, target.y + 16);
+        break;
+    }
+    this.shopSold.add(`${targetId}:${itemId}`);
+    this.emit({ type: 'interact', kind: 'merchant', x: target.x, y: target.y });
     return true;
   }
 
@@ -771,6 +833,7 @@ export class World implements Arena {
       });
     }
     this.dropPickup('bomb', target.x - 38, target.y + 10, mult);
+    if (mult > 1 || this.rng.chance(0.5)) this.dropPickup('mana', target.x + 22, target.y - 12, 1);
     if (this.rng.chance(0.5)) this.dropPickup('trap', target.x - 46, target.y - 8, mult);
     if (this.rng.chance(0.6)) this.dropEquipment(target.x - 30, target.y);
     if (mult > 1 && this.rng.chance(0.6)) this.dropEquipment(target.x + 30, target.y);
@@ -1103,15 +1166,10 @@ export class World implements Arena {
       this.emit({ type: 'notice', text: 'The fountain still remembers clean water.' });
       this.emit({ type: 'interact', kind: 'fountain', x: target.x, y: target.y });
     } else if (target.kind === 'merchant') {
-      if (p.shards < target.cost) {
-        this.emit({ type: 'notice', text: `The merchant wants ${target.cost} shards` });
-        return;
-      }
-      p.shards -= target.cost;
-      target.used = true;
-      this.dropEquipment(target.x, target.y + 16);
-      this.emit({ type: 'notice', text: 'The merchant trades a relic for your shards.' });
+      // The merchant opens a shop instead of trading automatically: the player
+      // picks what to buy from the stall, and every line sells only once.
       this.emit({ type: 'interact', kind: 'merchant', x: target.x, y: target.y });
+      this.emit({ type: 'shop', targetId: target.id });
     } else if (target.kind === 'archive') {
       target.used = true;
       const fragment = this.fragmentQueue.shift();
@@ -1576,6 +1634,7 @@ export class World implements Arena {
     }
     if (!enemy.isBoss && this.rng.chance(0.07)) this.dropPickup('health', dropPos.x, dropPos.y, 12);
     if (!enemy.isBoss && this.rng.chance(0.025)) this.dropPickup('potion', dropPos.x, dropPos.y, 1);
+    if (!enemy.isBoss && this.rng.chance(0.02)) this.dropPickup('mana', dropPos.x, dropPos.y, 1);
     // Bosses always leave a relic; elites sometimes do.
     if (enemy.isBoss || (enemy.elite && this.rng.chance(0.4)))
       this.dropEquipment(dropPos.x, dropPos.y);
@@ -2106,6 +2165,7 @@ export class World implements Arena {
       this.emit({ type: 'lootSurge', x: at.x, y: at.y, kind: surge.kind, amount: shards });
     }
     if (this.rng.chance(0.22)) this.dropPickup('potion', at.x, at.y, 1);
+    if (this.rng.chance(0.12)) this.dropPickup('mana', at.x, at.y, 1);
   }
 
   /** An urn hides a small healing draught or a few shards. */
@@ -2121,6 +2181,7 @@ export class World implements Arena {
     }
     if (this.rng.chance(0.25)) this.dropPickup('health', at.x, at.y, 10 + this.run.depth);
     if (this.rng.chance(0.15)) this.dropPickup('potion', at.x, at.y, 1);
+    if (this.rng.chance(0.1)) this.dropPickup('mana', at.x, at.y, 1);
   }
   private updateBlasts(dt: number): void {
     const p = this.player;
@@ -2303,6 +2364,9 @@ export class World implements Arena {
           break;
         }
         p.potions++;
+        break;
+      case 'mana':
+        p.manaPotions += item.amount;
         break;
       case 'bomb':
         p.bombs += item.amount;

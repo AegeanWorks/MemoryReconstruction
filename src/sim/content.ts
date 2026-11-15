@@ -117,7 +117,7 @@ export const ENEMY_WINDUP_SCALE = 1.1;
 /** Wave size multiplier before the room-area cap; late rooms were too crowded. */
 export const ENEMY_COUNT_SCALE = 1.1;
 /** Kill XP is deliberately scarce: levels should be earned, not showered. */
-export const ENEMY_XP_SCALE = 0.4;
+export const ENEMY_XP_SCALE = 0.3;
 /** Extra incoming-damage growth per section past the first: section 2 is 1.05, section 3 is 1.10. */
 export const ENEMY_DAMAGE_DEPTH_SCALE = 0.05;
 /** Enemy damage added (additive) for every room cleared this run: twenty rooms double it. */

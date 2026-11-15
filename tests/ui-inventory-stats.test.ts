@@ -27,12 +27,12 @@ describe('relic inventory UI styling and stat pill framing', () => {
     expect(block).toContain('padding: 3px 8px');
   });
 
-  it('bounds .gear-panel max-height to min(60vh, 460px) for 720p viewports', () => {
+  it('gives the bag the taller 74vh panel the player asked for', () => {
     const panelStart = css.indexOf('.gear-panel {');
     expect(panelStart).toBeGreaterThanOrEqual(0);
     const panelEnd = css.indexOf('}', panelStart);
     const block = css.slice(panelStart, panelEnd);
 
-    expect(block).toContain('max-height: min(60vh, 460px)');
+    expect(block).toContain('max-height: min(74vh, 600px)');
   });
 });

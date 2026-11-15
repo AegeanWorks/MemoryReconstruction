@@ -491,15 +491,16 @@ export class ActorView {
     this.syncGear(p);
   }
 
-  /** Shows the worn armor's colours on the body and the worn trinket as an orbiting glow. */
+  /** Shows the worn armor's robe colours and cape's cloak colour, plus the trinket glow. */
   private syncGear(p: Player): void {
     const looks = gearLooks(p.equipment);
     const body = this.player.body;
     const layer = this.armorLayer;
-    layer.visible = looks.armor !== null && looks.armorId !== null;
+    layer.visible = (looks.armor !== null && looks.armorId !== null) || looks.cape !== null;
     body.visible = !layer.visible;
-    if (looks.armor && looks.armorId) {
-      const frames = recolorFrames(body.textures as Texture[], looks.armorId, looks.armor);
+    if (layer.visible) {
+      const key = `${looks.armorId ?? '-'}|${looks.capeId ?? '-'}`;
+      const frames = recolorFrames(body.textures as Texture[], key, looks.armor, looks.cape);
       if (frames !== this.armorFrames) {
         this.armorFrames = frames;
         layer.textures = frames;
@@ -1700,6 +1701,7 @@ export class ActorView {
         else if (item.kind === 'fragment') color = 0xffd98a;
         else if (item.kind === 'bomb') color = 0xffa060;
         else if (item.kind === 'trap') color = 0xffe08a;
+        else if (item.kind === 'mana') color = 0x4fb8ff;
         else if (item.kind === 'equipment') {
           const rarity = item.equipment ? equipmentDef(item.equipment.defId).rarity : 'common';
           color = rarity === 'epic' ? 0xd86cff : rarity === 'rare' ? 0x45caff : 0xffd060;
@@ -1742,7 +1744,9 @@ export class ActorView {
               ? ui.fragment_shard
               : item.kind === 'fragment'
                 ? ui.memory_fragment
-                : ui.health;
+                : item.kind === 'mana'
+                  ? ui.mana
+                  : ui.health;
           if (texture) {
             const s = new Sprite(texture);
             s.anchor.set(0.5);

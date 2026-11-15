@@ -41,7 +41,9 @@ function world(depth = 0, seed = 7): World {
 
 /** A world as the player actually meets it: from the matching checkpoint. */
 function checkpointWorld(depth: number, seed = 7): World {
-  return new World(createExpedition(seed, [], depth, { echoes: 0, restorations: {}, checkpoint: 0 }));
+  return new World(
+    createExpedition(seed, [], depth, { echoes: 0, restorations: {}, checkpoint: 0 })
+  );
 }
 
 /**
@@ -383,7 +385,7 @@ describe('hazards and the sanctuary', () => {
     expect(events.some((e) => e.type === 'notice' && e.text.includes('mimic'))).toBe(true);
   });
 
-  it('lets a merchant trade shards for a relic', () => {
+  it('lets a merchant open a shop and sell a relic', () => {
     let merchantWorld: World | undefined;
     for (let seed = 1; seed < 40 && !merchantWorld; seed++) {
       const candidate = world(0, seed);
@@ -392,11 +394,17 @@ describe('hazards and the sanctuary', () => {
     expect(merchantWorld).toBeDefined();
     const w = merchantWorld!;
     const merchant = w.interactables.find((i) => i.kind === 'merchant')!;
-    w.player.shards = merchant.cost + 10;
+    w.player.shards = 500;
     w.player.x = merchant.x;
     w.player.y = merchant.y + 10;
-    w.step({ ...NO_INPUT, interact: true }, DT);
-    expect(merchant.used).toBe(true);
+    const events = w.step({ ...NO_INPUT, interact: true }, DT);
+    expect(events.some((e) => e.type === 'shop')).toBe(true);
+    expect(merchant.used).toBe(false);
+    expect(w.player.shards).toBe(500);
+
+    const relic = w.shopStock(merchant.id).find((line) => line.id === 'relic')!;
+    w.player.shards = relic.cost + 10;
+    expect(w.buyFromShop(merchant.id, 'relic')).toBe(true);
     expect(w.player.shards).toBe(10);
     expect(w.pickups.some((p) => p.kind === 'equipment')).toBe(true);
   });
@@ -1006,7 +1014,9 @@ describe('engagement mechanics', () => {
     w.damageEnemy(foe, 99999, 'melee', false, 0);
     expect(w.run.stats.clutchKills).toBe(1);
     // The comeback pays out as dropped shards at the kill site.
-    expect(w.pickups.some((it) => it.kind === 'shard' && Math.hypot(it.x - foe.x, it.y - foe.y) < 120)).toBe(true);
+    expect(
+      w.pickups.some((it) => it.kind === 'shard' && Math.hypot(it.x - foe.x, it.y - foe.y) < 120)
+    ).toBe(true);
   });
 
   it('no clutch bonus when the walker is healthy', () => {
@@ -1082,7 +1092,13 @@ describe('trust and the friends share', () => {
   it('settles claims with bonus, relic, claim and deeper trust', () => {
     const quest = questDef('edges')!;
     const after = applyQuestClaim(
-      { echoes: 0, vault: [], trust: {}, trustGifted: [], quests: { accepted: ['edges'], claimed: [], acceptedAt: {} } },
+      {
+        echoes: 0,
+        vault: [],
+        trust: {},
+        trustGifted: [],
+        quests: { accepted: ['edges'], claimed: [], acceptedAt: {} },
+      },
       'smith',
       quest
     );
@@ -1090,7 +1106,17 @@ describe('trust and the friends share', () => {
     expect(after.vault).toEqual(['echo_dagger']);
     expect(after.quests.claimed).toEqual(['edges']);
     expect(after.trust).toEqual({ smith: 1 });
-    const again = applyQuestClaim({ echoes: 0, vault: ['echo_dagger'], trust: { smith: 1 }, trustGifted: [], quests: { accepted: [], claimed: [], acceptedAt: {} } }, 'smith', quest);
+    const again = applyQuestClaim(
+      {
+        echoes: 0,
+        vault: ['echo_dagger'],
+        trust: { smith: 1 },
+        trustGifted: [],
+        quests: { accepted: [], claimed: [], acceptedAt: {} },
+      },
+      'smith',
+      quest
+    );
     expect(again.echoes).toBe(50 + 13);
     expect(again.vault).toEqual(['echo_dagger']);
     expect(again.trust).toEqual({ smith: 2 });
@@ -1139,13 +1165,33 @@ describe('trust and the friends share', () => {
 
   it('hands a one-time parting gift at full trust', () => {
     const quest = questDef('edges')!;
-    const third = applyQuestClaim({ echoes: 0, vault: [], trust: { smith: 2 }, trustGifted: [], quests: { accepted: ['edges'], claimed: [], acceptedAt: {} } }, 'smith', quest);
+    const third = applyQuestClaim(
+      {
+        echoes: 0,
+        vault: [],
+        trust: { smith: 2 },
+        trustGifted: [],
+        quests: { accepted: ['edges'], claimed: [], acceptedAt: {} },
+      },
+      'smith',
+      quest
+    );
     expect(third.trust).toEqual({ smith: 3 });
     expect(third.gift).toBeDefined();
     expect(third.vault).toContain(third.gift);
     expect(third.trustGifted).toEqual(['smith']);
     // One per resident: the next claim brings no second gift.
-    const fourth = applyQuestClaim({ echoes: 0, vault: third.vault, trust: { smith: 3 }, trustGifted: ['smith'], quests: { accepted: [], claimed: [], acceptedAt: {} } }, 'smith', quest);
+    const fourth = applyQuestClaim(
+      {
+        echoes: 0,
+        vault: third.vault,
+        trust: { smith: 3 },
+        trustGifted: ['smith'],
+        quests: { accepted: [], claimed: [], acceptedAt: {} },
+      },
+      'smith',
+      quest
+    );
     expect(fourth.gift).toBeUndefined();
   });
 });
@@ -1154,9 +1200,16 @@ describe('daily mark', () => {
   it('names the same mark for a key and varies across days', () => {
     expect(dailyBounty('2026-11-02').defId).toBe(dailyBounty('2026-11-02').defId);
     const ids = new Set(
-      ['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08', '2026-11-09'].map(
-        (k) => dailyBounty(k).defId
-      )
+      [
+        '2026-11-02',
+        '2026-11-03',
+        '2026-11-04',
+        '2026-11-05',
+        '2026-11-06',
+        '2026-11-07',
+        '2026-11-08',
+        '2026-11-09',
+      ].map((k) => dailyBounty(k).defId)
     );
     expect(ids.size).toBeGreaterThan(1);
     expect(dailyBounty('2026-11-02').target).toBe(12);
@@ -1168,8 +1221,18 @@ describe('daily mark', () => {
     const settled = claimDailyBounty(meta, '2026-11-02');
     expect(settled?.echoes).toBe(contract.reward);
     expect(settled?.dailyBounty.claimed).toBe(true);
-    expect(claimDailyBounty({ echoes: 0, dailyBounty: { key: '2026-11-02', kills: 12, claimed: true } }, '2026-11-02')).toBeUndefined();
-    expect(claimDailyBounty({ echoes: 0, dailyBounty: { key: '2026-11-02', kills: 11, claimed: false } }, '2026-11-02')).toBeUndefined();
+    expect(
+      claimDailyBounty(
+        { echoes: 0, dailyBounty: { key: '2026-11-02', kills: 12, claimed: true } },
+        '2026-11-02'
+      )
+    ).toBeUndefined();
+    expect(
+      claimDailyBounty(
+        { echoes: 0, dailyBounty: { key: '2026-11-02', kills: 11, claimed: false } },
+        '2026-11-02'
+      )
+    ).toBeUndefined();
     expect(bountyForDay({ key: '2026-11-02', kills: 12, claimed: true }, '2026-11-03')).toEqual({
       key: '2026-11-03',
       kills: 0,
@@ -1220,7 +1283,8 @@ describe('hunter pressure', () => {
     w.player.x = c.x;
     w.player.y = c.y;
     const seen: string[] = [];
-    for (let i = 0; i < 10; i++) for (const e of w.step(NO_INPUT, DT)) if (e.type === 'notice') seen.push(e.text);
+    for (let i = 0; i < 10; i++)
+      for (const e of w.step(NO_INPUT, DT)) if (e.type === 'notice') seen.push(e.text);
     expect(seen.some((t) => t.includes('stalker'))).toBe(true);
     expect(w.enemies.some((e) => e.elite && e.roomId === fourth.id)).toBe(true);
   });
@@ -1276,7 +1340,9 @@ describe('hunter pressure', () => {
 describe('daily twists', () => {
   it('picks the same twist for a key and varies across days', () => {
     expect(dailyModifier('2026-11-02').id).toBe(dailyModifier('2026-11-02').id);
-    const ids = new Set(['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05'].map((k) => dailyModifier(k).id));
+    const ids = new Set(
+      ['2026-11-02', '2026-11-03', '2026-11-04', '2026-11-05'].map((k) => dailyModifier(k).id)
+    );
     expect(ids.size).toBeGreaterThan(1);
   });
 
@@ -1313,10 +1379,18 @@ describe('death recap and feat progress', () => {
   });
 
   it('previews unfinished countable feats', () => {
-    expect(featProgress('slayer', { kills: 320, bestDepth: 0, bestResonance: 0, victories: 0 })).toEqual({ current: 320, target: 500 });
-    expect(featProgress('delver', { kills: 0, bestDepth: 12, bestResonance: 0, victories: 0 })).toEqual({ current: 8, target: 8 });
-    expect(featProgress('victor', { kills: 0, bestDepth: 0, bestResonance: 0, victories: 3 })).toEqual({ current: 1, target: 1 });
-    expect(featProgress('executioner', { kills: 0, bestDepth: 0, bestResonance: 0, victories: 0 })).toBeUndefined();
+    expect(
+      featProgress('slayer', { kills: 320, bestDepth: 0, bestResonance: 0, victories: 0 })
+    ).toEqual({ current: 320, target: 500 });
+    expect(
+      featProgress('delver', { kills: 0, bestDepth: 12, bestResonance: 0, victories: 0 })
+    ).toEqual({ current: 8, target: 8 });
+    expect(
+      featProgress('victor', { kills: 0, bestDepth: 0, bestResonance: 0, victories: 3 })
+    ).toEqual({ current: 1, target: 1 });
+    expect(
+      featProgress('executioner', { kills: 0, bestDepth: 0, bestResonance: 0, victories: 0 })
+    ).toBeUndefined();
   });
 });
 

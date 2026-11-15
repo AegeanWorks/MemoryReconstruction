@@ -44,6 +44,7 @@ export class Hud {
   private readonly pips = h('div', { class: 'pips' });
   private readonly kit = h('div', { class: 'hud-kit' });
   private readonly potions = h('span');
+  private readonly manaPotions = h('span');
   private readonly floorName = h('div', { class: 'hud-floor' });
   private readonly objectives = h('div', { class: 'hud-objectives' });
   private readonly bossName = h('div', { class: 'boss-name' });
@@ -75,6 +76,8 @@ export class Hud {
       ' dash  ',
       h('span', { class: 'key' }, 'Q'),
       ' potion  ',
+      h('span', { class: 'key' }, 'R'),
+      ' mana  ',
       h('span', { class: 'key' }, 'E'),
       ' interact  ',
       h('span', { class: 'key' }, 'Tab'),
@@ -97,6 +100,7 @@ export class Hud {
   constructor() {
     const shardIcon = h('img', { src: assetUrl('sprites/ui/fragment_shard.png'), alt: '' });
     const potionIcon = h('img', { src: assetUrl('sprites/ui/health.png'), alt: '' });
+    const manaIcon = h('img', { src: assetUrl('sprites/ui/mana.png'), alt: '' });
     const vitals = h(
       'div',
       { class: 'hud-vitals' },
@@ -110,6 +114,7 @@ export class Hud {
         { class: 'hud-row' },
         h('span', { class: 'chip' }, 'Dash', this.pips),
         h('span', { class: 'chip' }, potionIcon, this.potions, h('span', { class: 'key' }, 'Q')),
+        h('span', { class: 'chip' }, manaIcon, this.manaPotions, h('span', { class: 'key' }, 'R')),
         this.stalked
       ),
       this.kit
@@ -236,6 +241,7 @@ export class Hud {
     this.setText(this.mana.text!, `${Math.floor(p.mana)} / ${s.maxMana}`);
     this.setWidth(this.xp.fill, p.xp / xpForLevel(p.level));
     this.setText(this.potions, `${p.potions}/${s.maxPotions}`);
+    this.setText(this.manaPotions, `${p.manaPotions}`);
     this.setText(this.shards, `${p.shards}`);
     this.updatePips(p.dashCharges, s.dashCharges);
     this.setText(
@@ -324,7 +330,7 @@ export class Hud {
           label = `Pay ${near.cost} shards to cross to the guardian`;
           break;
         case 'merchant':
-          label = `Trade ${near.cost} shards for a relic`;
+          label = 'Browse the merchant’s wares';
           break;
         case 'shrine':
           label = `Offer ${near.cost} shards to the Memory Well (heal + upgrade)`;

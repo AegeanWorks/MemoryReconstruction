@@ -1,7 +1,7 @@
 /**
- * How worn relics change the wanderer's look. Armor re-colours the blue robe of the player sprite
- * (a hue band, so skin, gold, the cyan cape, the blade and the dark outline stay as drawn); a trinket
- * adds an orbiting glow. Pure data and pixel maths, so it runs in tests without a canvas.
+ * How worn relics change the wanderer's look. Armor re-colours the blue robe of the player sprite,
+ * a cape re-colours its cyan cloak (a separate hue band, so the two never fight); a trinket adds
+ * an orbiting glow. Pure data and pixel maths, so it runs in tests without a canvas.
  */
 import type { EquipmentSlots } from '../sim/equipment';
 
@@ -44,10 +44,22 @@ export const TRINKET_LOOKS: Readonly<Record<string, TrinketLook>> = {
   ember_ward: { color: 0xff5a5a, scale: 1 },
 };
 
+/** Cape palettes, keyed by relic id. Every cape in equipment.json must have one. */
+export const CAPE_LOOKS: Readonly<Record<string, ArmorLook>> = {
+  tattered_cloak: { hue: 28, sat: 1.25, val: 0.95 },
+  tidecloak: { hue: 210, sat: 1.35, val: 1.2 },
+  ember_drape: { hue: 6, sat: 1.5, val: 1.15 },
+  void_mantle: { hue: 285, sat: 1.15, val: 0.72 },
+};
+
 /** The robe blue sits here in the player sheets; nothing else in the sprite does. */
 const ROBE_HUE_MIN = 205;
 const ROBE_HUE_MAX = 255;
 const ROBE_HUE_CENTRE = 230;
+/** The cloak's cyan sits well below the robe band, so cape and armor can both recolour safely. */
+const CAPE_HUE_MIN = 175;
+const CAPE_HUE_MAX = 202;
+const CAPE_HUE_CENTRE = 190;
 const ROBE_MIN_SAT = 0.25;
 /** Below this the pixel is the outline or deep shadow; leaving it keeps the silhouette crisp. */
 const ROBE_MIN_VAL = 0.14;
@@ -71,8 +83,14 @@ function hsvToRgb(h: number, s: number, v: number): [number, number, number] {
   return [Math.round((r + m) * 255), Math.round((g + m) * 255), Math.round((b + m) * 255)];
 }
 
-/** Re-colours the robe pixels of an RGBA buffer in place; alpha is never touched. */
-export function recolorPixels(data: Uint8ClampedArray, look: ArmorLook): void {
+/** Re-colours pixels inside one hue band; alpha is never touched. */
+function recolorBand(
+  data: Uint8ClampedArray,
+  look: ArmorLook,
+  hueMin: number,
+  hueMax: number,
+  hueCentre: number
+): void {
   for (let i = 0; i + 3 < data.length; i += 4) {
     if (data[i + 3] === 0) continue;
     const r = data[i] / 255;
@@ -83,9 +101,9 @@ export function recolorPixels(data: Uint8ClampedArray, look: ArmorLook): void {
     if (d === 0 || max < ROBE_MIN_VAL || d / max < ROBE_MIN_SAT) continue;
     const sector = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
     const hue = (sector * 60 + 360) % 360;
-    if (hue < ROBE_HUE_MIN || hue > ROBE_HUE_MAX) continue;
+    if (hue < hueMin || hue > hueMax) continue;
     const [nr, ng, nb] = hsvToRgb(
-      look.hue + (hue - ROBE_HUE_CENTRE) * HUE_KEEP,
+      look.hue + (hue - hueCentre) * HUE_KEEP,
       Math.min(1, (d / max) * look.sat),
       Math.min(1, max * look.val)
     );
@@ -95,23 +113,39 @@ export function recolorPixels(data: Uint8ClampedArray, look: ArmorLook): void {
   }
 }
 
+/** Re-colours the robe pixels of an RGBA buffer in place. */
+export function recolorPixels(data: Uint8ClampedArray, look: ArmorLook): void {
+  recolorBand(data, look, ROBE_HUE_MIN, ROBE_HUE_MAX, ROBE_HUE_CENTRE);
+}
+
+/** Re-colours the cloak pixels of an RGBA buffer in place; run after the robe pass. */
+export function recolorCapePixels(data: Uint8ClampedArray, look: ArmorLook): void {
+  recolorBand(data, look, CAPE_HUE_MIN, CAPE_HUE_MAX, CAPE_HUE_CENTRE);
+}
+
 export interface GearLooks {
   armorId: string | null;
   armor: ArmorLook | null;
   trinketId: string | null;
   trinket: TrinketLook | null;
+  capeId: string | null;
+  cape: ArmorLook | null;
 }
 
 /** The looks for what is worn; an id with no look is treated as nothing worn, never an error. */
 export function gearLooks(equipment: EquipmentSlots): GearLooks {
   const armorId = equipment.armor?.defId ?? null;
   const trinketId = equipment.trinket?.defId ?? null;
+  const capeId = equipment.cape?.defId ?? null;
   const armor = armorId !== null ? (ARMOR_LOOKS[armorId] ?? null) : null;
   const trinket = trinketId !== null ? (TRINKET_LOOKS[trinketId] ?? null) : null;
+  const cape = capeId !== null ? (CAPE_LOOKS[capeId] ?? null) : null;
   return {
     armorId: armor ? armorId : null,
     armor,
     trinketId: trinket ? trinketId : null,
     trinket,
+    capeId: cape ? capeId : null,
+    cape,
   };
 }

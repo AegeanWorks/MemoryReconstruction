@@ -305,6 +305,53 @@ def void_visor(img, d) -> None:
     line(d, CELL, [(0.50, 0.64), (0.50, 0.80)], (120, 70, 180), 2)
 
 
+def tattered_cloak(img, d) -> None:
+    # A patched travel cloak with a torn hem.
+    poly(d, CELL, [(0.50, 0.10), (0.78, 0.26), (0.84, 0.62), (0.72, 0.82), (0.66, 0.76), (0.58, 0.88),
+                   (0.50, 0.78), (0.42, 0.88), (0.34, 0.76), (0.28, 0.82), (0.16, 0.62), (0.22, 0.26)],
+         fill=(112, 82, 58), outline=Outline, width=2)
+    poly(d, CELL, [(0.50, 0.10), (0.60, 0.22), (0.50, 0.34), (0.40, 0.22)], fill=(72, 52, 38))
+    line(d, CELL, [(0.38, 0.42), (0.44, 0.58), (0.38, 0.62)], (150, 118, 84), 1)
+    line(d, CELL, [(0.62, 0.48), (0.57, 0.64)], (150, 118, 84), 1)
+    ellipse(d, CELL, 0.56, 0.56, 0.62, 0.62, fill=(90, 66, 46), outline=Outline, width=1)
+
+
+def tidecloak(img, d) -> None:
+    # A deep-blue cloak with a foaming hem.
+    poly(d, CELL, [(0.50, 0.10), (0.78, 0.26), (0.82, 0.60), (0.70, 0.86), (0.30, 0.86), (0.18, 0.60),
+                   (0.22, 0.26)], fill=(38, 84, 142), outline=Outline, width=2)
+    poly(d, CELL, [(0.50, 0.10), (0.60, 0.22), (0.50, 0.34), (0.40, 0.22)], fill=(22, 52, 96))
+    line(d, CELL, [(0.22, 0.64), (0.34, 0.58), (0.46, 0.66), (0.58, 0.58), (0.70, 0.66), (0.80, 0.60)],
+         (150, 214, 255), 2)
+    line(d, CELL, [(0.26, 0.74), (0.38, 0.68), (0.50, 0.76), (0.62, 0.68), (0.74, 0.76)],
+         (96, 168, 230), 1)
+    ellipse(d, CELL, 0.56, 0.30, 0.62, 0.36, fill=(180, 235, 255))
+
+
+def ember_drape(img, d) -> None:
+    # A crimson drape with a burning hem.
+    poly(d, CELL, [(0.50, 0.10), (0.78, 0.26), (0.82, 0.60), (0.70, 0.86), (0.30, 0.86), (0.18, 0.60),
+                   (0.22, 0.26)], fill=(150, 34, 34), outline=Outline, width=2)
+    poly(d, CELL, [(0.50, 0.10), (0.60, 0.22), (0.50, 0.34), (0.40, 0.22)], fill=(96, 20, 24))
+    glow(img, lambda g: ellipse(g, CELL, 0.20, 0.62, 0.80, 0.90, fill=(255, 120, 50, 120)), 2)
+    line(d, CELL, [(0.22, 0.66), (0.34, 0.60), (0.46, 0.68), (0.58, 0.60), (0.70, 0.68), (0.80, 0.62)],
+         (255, 168, 72), 2)
+    for x, y in ((0.30, 0.80), (0.50, 0.84), (0.70, 0.80)):
+        ellipse(d, CELL, x - 0.03, y - 0.03, x + 0.03, y + 0.03, fill=(255, 214, 120))
+
+
+def void_mantle(img, d) -> None:
+    # A violet mantle stitched with little stars.
+    poly(d, CELL, [(0.50, 0.10), (0.78, 0.26), (0.84, 0.62), (0.70, 0.88), (0.30, 0.88), (0.16, 0.62),
+                   (0.22, 0.26)], fill=(54, 32, 82), outline=Outline, width=2)
+    poly(d, CELL, [(0.50, 0.10), (0.60, 0.22), (0.50, 0.34), (0.40, 0.22)], fill=(30, 16, 48))
+    glow(img, lambda g: ellipse(g, CELL, 0.26, 0.36, 0.74, 0.82, fill=(150, 90, 240, 100)), 2)
+    for x, y in ((0.34, 0.44), (0.60, 0.40), (0.47, 0.58), (0.66, 0.62), (0.38, 0.70), (0.54, 0.76)):
+        ellipse(d, CELL, x - 0.018, y - 0.018, x + 0.018, y + 0.018,
+                fill=(226, 210, 255), outline=Outline, width=0)
+    line(d, CELL, [(0.22, 0.66), (0.32, 0.78)], (128, 88, 200), 1)
+
+
 DRAWINGS = {
     "rusted_edge": rusted_edge, "echo_dagger": echo_dagger, "choir_staff": choir_staff,
     "void_cleaver": void_cleaver, "ember_core": ember_core,
@@ -315,6 +362,8 @@ DRAWINGS = {
     "soul_anchor": soul_anchor, "storm_dial": storm_dial, "ember_ward": ember_ward,
     "scout_hood": scout_hood, "iron_helm": iron_helm, "oracle_circlet": oracle_circlet,
     "void_visor": void_visor,
+    "tattered_cloak": tattered_cloak, "tidecloak": tidecloak, "ember_drape": ember_drape,
+    "void_mantle": void_mantle,
 }
 
 

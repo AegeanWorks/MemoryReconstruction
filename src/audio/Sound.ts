@@ -285,6 +285,9 @@ export class Sound {
         case 'potion':
           this.chord([392, 494, 587], 0.4, 0.12);
           break;
+        case 'manaPotion':
+          this.chord([440, 554, 740], 0.35, 0.12);
+          break;
         case 'levelUp':
           this.fanfare();
           break;
@@ -408,6 +411,7 @@ export class Sound {
           break;
         // Silent by design: these drive the renderer, a screen change or scene setup, not audio.
         case 'shake':
+        case 'shop':
         case 'sanctuary':
         case 'buildingExit':
         case 'secretOpened':

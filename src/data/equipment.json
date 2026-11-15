@@ -275,6 +275,51 @@
      "critMultiplier": 0.25,
      "boltPierce": 1
     }
+   },
+   {
+    "id": "tattered_cloak",
+    "name": "Tattered Cloak",
+    "slot": "cape",
+    "rarity": "common",
+    "description": "+6% move speed, +1% critical chance.",
+    "mods": {
+     "moveSpeed": 0.06,
+     "critChance": 0.01
+    }
+   },
+   {
+    "id": "tidecloak",
+    "name": "Tidecloak",
+    "slot": "cape",
+    "rarity": "rare",
+    "description": "+8 max mana, +1 mana per second, +2% damage reduction.",
+    "mods": {
+     "maxMana": 8,
+     "manaRegen": 1,
+     "damageReduction": 0.02
+    }
+   },
+   {
+    "id": "ember_drape",
+    "name": "Ember Drape",
+    "slot": "cape",
+    "rarity": "rare",
+    "description": "+5% damage reduction, -2% move speed.",
+    "mods": {
+     "damageReduction": 0.05,
+     "moveSpeed": -0.02
+    }
+   },
+   {
+    "id": "void_mantle",
+    "name": "Void Mantle",
+    "slot": "cape",
+    "rarity": "epic",
+    "description": "+4% critical chance, +30% critical damage.",
+    "mods": {
+     "critChance": 0.04,
+     "critMultiplier": 0.3
+    }
    }
   ]
 }

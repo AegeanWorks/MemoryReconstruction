@@ -58,7 +58,7 @@ export type SimEvent =
       type: 'equipment';
       name: string;
       rarity: 'common' | 'rare' | 'epic';
-      slot: 'weapon' | 'armor' | 'trinket' | 'head';
+      slot: 'weapon' | 'armor' | 'trinket' | 'head' | 'cape';
       auto: boolean;
       /** Shards gained instead of carrying the relic because the bag was full. */
       sold?: number;
@@ -87,6 +87,8 @@ export type SimEvent =
   | { type: 'bossPhase'; phase: number; x: number; y: number }
   | { type: 'fragmentFound'; fragmentId: string }
   | { type: 'interact'; kind: InteractableKind; x: number; y: number }
+  | { type: 'shop'; targetId: number }
+  | { type: 'manaPotion'; restored: number }
   | { type: 'notice'; text: string }
   | { type: 'floorExit' }
   | { type: 'victory' }

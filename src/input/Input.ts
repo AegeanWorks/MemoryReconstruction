@@ -19,6 +19,7 @@ const KEYS = {
   bolt: ['KeyK'],
   dash: ['Space', 'ShiftLeft', 'ShiftRight'],
   potion: ['KeyQ'],
+  manaPotion: ['KeyR'],
   interact: ['KeyE', 'KeyF'],
   bomb: ['KeyG'],
   trap: ['KeyT'],
@@ -39,6 +40,7 @@ export class Input {
     bolt: false,
     dash: false,
     potion: false,
+    manaPotion: false,
     interact: false,
     weapon: -1,
     bomb: false,
@@ -112,6 +114,7 @@ export class Input {
     this.held.add(e.code);
     if (KEYS.dash.includes(e.code as never)) this.latched.dash = true;
     if (KEYS.potion.includes(e.code as never)) this.latched.potion = true;
+    if (KEYS.manaPotion.includes(e.code as never)) this.latched.manaPotion = true;
     if (KEYS.interact.includes(e.code as never)) this.latched.interact = true;
     if (KEYS.bomb.includes(e.code as never)) this.latched.bomb = true;
     if (KEYS.trap.includes(e.code as never)) this.latched.trap = true;
@@ -139,6 +142,7 @@ export class Input {
       bolt: false,
       dash: false,
       potion: false,
+      manaPotion: false,
       interact: false,
       weapon: -1,
       bomb: false,
@@ -241,6 +245,7 @@ export class Input {
         touch.bolt,
       dash: this.latched.dash || touch.dash,
       potion: this.latched.potion || touch.potion,
+      manaPotion: this.latched.manaPotion || touch.manaPotion,
       interact: this.latched.interact || touch.interact,
       weapon: this.latched.weapon >= 0 ? this.latched.weapon : touch.weapon,
       bomb: this.latched.bomb || touch.bomb,
@@ -252,6 +257,7 @@ export class Input {
       bolt: false,
       dash: false,
       potion: false,
+      manaPotion: false,
       interact: false,
       weapon: -1,
       bomb: false,
