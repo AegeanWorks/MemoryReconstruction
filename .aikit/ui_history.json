@@ -1195,5 +1195,23 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "7b967e20d2546455827eaa27753cd45cd6e7a4ae262263d7c98a182a495c7193"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "baseline_commit": "e01f21104f586bd62e073a447f6bdd1eb235d68d",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794754872.2423112,
+    "finished_at": 1794755009.5072622,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "c55d2d4cc63549784bf8f6f55883c5ee7a90ce26353141c52fc5996e58deee2f"
   }
 ]
