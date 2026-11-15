@@ -49,7 +49,12 @@ export function bagCells<T>(carried: readonly T[], capacity: number): Array<T | 
 export function parseDropTarget(value: string | null | undefined): DropTarget {
   if (value === 'doll') return { kind: 'doll' };
   if (value === 'bag') return { kind: 'bag' };
-  if (value === 'slot:weapon' || value === 'slot:armor' || value === 'slot:trinket') {
+  if (
+    value === 'slot:weapon' ||
+    value === 'slot:armor' ||
+    value === 'slot:trinket' ||
+    value === 'slot:head'
+  ) {
     return { kind: 'slot', slot: value.slice(5) as EquipmentSlot };
   }
   return { kind: 'none' };

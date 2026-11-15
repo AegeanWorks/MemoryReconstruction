@@ -30,7 +30,7 @@ import {
   sellRelic,
   type SanctuaryProgress,
 } from '../src/sim/hub';
-import { EQUIPMENT_SLOTS, INVENTORY_SLOTS } from '../src/sim/equipment';
+import { EQUIPMENT, EQUIPMENT_SLOTS, INVENTORY_SLOTS } from '../src/sim/equipment';
 import { applyChoice, createRun, restoreRun } from '../src/sim/run';
 
 function progress(overrides: Partial<SanctuaryProgress> = {}): SanctuaryProgress {
@@ -323,29 +323,17 @@ describe('Relic selling and the bag limit', () => {
   });
 
   it('carries only what the bag holds, leaving the rest in the vault', () => {
-    const vault = [
-      'rusted_edge',
-      'echo_dagger',
-      'choir_staff',
-      'void_cleaver',
-      'scavenger_vest',
-      'crystal_mail',
-      'void_shroud',
-      'mire_talisman',
-      'ember_charm',
-      'tide_lens',
-      'thorn_ring',
-      'clockwork_gear',
-      'sun_core',
-      'bog_crown',
-    ];
+    // Every relic plus one duplicate: the four worn slots and twenty bag cells fill, and the
+    // duplicate waits at home. Built from the data so a new relic cannot silently outgrow the
+    // fixture (the bag grew from ten to twenty and the worn slots from three to four).
+    const vault = [...EQUIPMENT.map((def) => def.id), 'ember_ward'];
     const run = createExpedition(21, [], 0, progress({ vault }));
     expect(EQUIPMENT_SLOTS.every((slot) => run.player.equipment[slot] !== null)).toBe(true);
     expect(run.player.inventory).toHaveLength(INVENTORY_SLOTS);
-    const carried = new Set<string>([
+    const carried = [
       ...EQUIPMENT_SLOTS.map((slot) => run.player.equipment[slot]!.defId),
       ...run.player.inventory.map((item) => item.defId),
-    ]);
-    expect(carried.has('bog_crown')).toBe(false);
+    ];
+    expect(carried.filter((id) => id === 'ember_ward')).toHaveLength(1);
   });
 });

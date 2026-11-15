@@ -256,6 +256,55 @@ def ember_ward(img, d) -> None:
     poly(d, CELL, [(0.50, 0.34), (0.58, 0.48), (0.54, 0.62), (0.46, 0.62), (0.42, 0.48)], fill=(255, 190, 90))
 
 
+def scout_hood(img, d) -> None:
+    # A soft, pointed hood with a shadowed face: light gear for a wanderer who travels fast.
+    poly(d, CELL, [(0.50, 0.10), (0.74, 0.26), (0.82, 0.58), (0.70, 0.84), (0.30, 0.84), (0.18, 0.58),
+                   (0.26, 0.26)], fill=(96, 116, 74), outline=Outline, width=2)
+    poly(d, CELL, [(0.50, 0.18), (0.66, 0.32), (0.62, 0.60), (0.38, 0.60), (0.34, 0.32)],
+         fill=(48, 58, 40), outline=Outline, width=1)
+    ellipse(d, CELL, 0.42, 0.42, 0.47, 0.47, fill=(230, 200, 120))
+    ellipse(d, CELL, 0.53, 0.42, 0.58, 0.47, fill=(230, 200, 120))
+    line(d, CELL, [(0.50, 0.10), (0.50, 0.04)], (150, 170, 110), 2)
+    line(d, CELL, [(0.30, 0.66), (0.70, 0.66)], (150, 170, 110), 1)
+
+
+def iron_helm(img, d) -> None:
+    # A kettle helm: domed crown, wide brim and a nose guard.
+    poly(d, CELL, [(0.24, 0.46), (0.30, 0.24), (0.50, 0.14), (0.70, 0.24), (0.76, 0.46)],
+         fill=(142, 152, 168), outline=Outline, width=2)
+    line(d, CELL, [(0.50, 0.14), (0.50, 0.46)], STEEL, 1)
+    poly(d, CELL, [(0.10, 0.46), (0.90, 0.46), (0.82, 0.58), (0.18, 0.58)],
+         fill=(112, 124, 142), outline=Outline, width=2)
+    poly(d, CELL, [(0.50, 0.58), (0.58, 0.66), (0.54, 0.86), (0.46, 0.86), (0.42, 0.66)],
+         fill=(166, 176, 192), outline=Outline, width=1)
+    for x in (0.34, 0.66):
+        ellipse(d, CELL, x - 0.02, 0.28, x + 0.02, 0.32, fill=(60, 66, 78))
+
+
+def oracle_circlet(img, d) -> None:
+    # A thin circlet with a raised gem and three motes of foresight.
+    ellipse(d, CELL, 0.16, 0.40, 0.84, 0.66, outline=GOLD, width=4)
+    poly(d, CELL, [(0.50, 0.16), (0.62, 0.34), (0.50, 0.48), (0.38, 0.34)], fill=(120, 220, 240),
+         outline=Outline, width=2)
+    ellipse(d, CELL, 0.46, 0.28, 0.54, 0.36, fill=(230, 250, 255))
+    for x, y in ((0.30, 0.16), (0.70, 0.16), (0.78, 0.78)):
+        ellipse(d, CELL, x - 0.025, y - 0.025, x + 0.025, y + 0.025,
+                fill=(200, 250, 255), outline=Outline, width=1)
+
+
+def void_visor(img, d) -> None:
+    # A sealed dark helm with one burning slit.
+    poly(d, CELL, [(0.28, 0.16), (0.72, 0.16), (0.84, 0.44), (0.74, 0.86), (0.26, 0.86), (0.16, 0.44)],
+         fill=(44, 32, 68), outline=Outline, width=2)
+    poly(d, CELL, [(0.30, 0.22), (0.70, 0.22), (0.76, 0.48), (0.66, 0.60), (0.34, 0.60), (0.24, 0.48)],
+         fill=(24, 18, 40))
+    glow(img, lambda g: ellipse(g, CELL, 0.22, 0.36, 0.78, 0.52, fill=(180, 90, 255, 140)), 2)
+    poly(d, CELL, [(0.28, 0.40), (0.72, 0.40), (0.64, 0.48), (0.36, 0.48)], fill=(214, 140, 255))
+    line(d, CELL, [(0.32, 0.72), (0.42, 0.66)], (150, 90, 210), 2)
+    line(d, CELL, [(0.60, 0.66), (0.68, 0.74)], (150, 90, 210), 2)
+    line(d, CELL, [(0.50, 0.64), (0.50, 0.80)], (120, 70, 180), 2)
+
+
 DRAWINGS = {
     "rusted_edge": rusted_edge, "echo_dagger": echo_dagger, "choir_staff": choir_staff,
     "void_cleaver": void_cleaver, "ember_core": ember_core,
@@ -264,6 +313,8 @@ DRAWINGS = {
     "ember_charm": ember_charm, "tide_lens": tide_lens, "thorn_ring": thorn_ring,
     "clockwork_gear": clockwork_gear, "sun_core": sun_core, "bog_crown": bog_crown,
     "soul_anchor": soul_anchor, "storm_dial": storm_dial, "ember_ward": ember_ward,
+    "scout_hood": scout_hood, "iron_helm": iron_helm, "oracle_circlet": oracle_circlet,
+    "void_visor": void_visor,
 }
 
 

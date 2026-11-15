@@ -176,9 +176,9 @@ export function createRun(
   };
 }
 
-/** XP needed to go from `level` to `level + 1`; slower than the old 30/1.36 curve. */
+/** XP needed to go from `level` to `level + 1`; slower than the old 30/1.36 and 42/1.42 curves. */
 export function xpForLevel(level: number): number {
-  return Math.round(42 * Math.pow(1.42, level - 1));
+  return Math.round(42 * Math.pow(1.5, level - 1));
 }
 
 /** Adds XP, queues one level-up choice per level gained, and returns levels gained. */
@@ -244,6 +244,8 @@ export function restoreRun(data: unknown): RunState | undefined {
   for (const slot of EQUIPMENT_SLOTS) {
     const worn = run.player.equipment[slot];
     if (worn && !equipmentExists(worn.defId)) run.player.equipment[slot] = null;
+    // A save written before the head slot existed has no key for it.
+    else if (worn === undefined) run.player.equipment[slot] = null;
   }
   const health = run.player.health;
   const mana = run.player.mana;
@@ -253,7 +255,7 @@ export function restoreRun(data: unknown): RunState | undefined {
   run.player.bombs ??= 0;
   run.player.traps ??= 0;
   run.player.artCooldown ??= 0;
-  run.player.equipment ??= { weapon: null, armor: null, trinket: null };
+  run.player.equipment ??= emptyEquipment();
   run.player.inventory ??= [];
   run.player.nextEquipmentId ??= 1;
   run.player.aspect ??= 'none';

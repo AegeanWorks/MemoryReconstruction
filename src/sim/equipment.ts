@@ -7,7 +7,7 @@ import equipmentJson from '../data/equipment.json';
 import type { Rng } from './rng';
 import type { PlayerStats } from './upgrades';
 
-export type EquipmentSlot = 'weapon' | 'armor' | 'trinket';
+export type EquipmentSlot = 'weapon' | 'armor' | 'trinket' | 'head';
 export type EquipmentRarity = 'common' | 'rare' | 'epic';
 
 export interface EquipmentDef {
@@ -28,9 +28,9 @@ export interface EquipmentItem {
 
 export type EquipmentSlots = Record<EquipmentSlot, EquipmentItem | null>;
 
-export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'trinket'];
+export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = ['weapon', 'armor', 'trinket', 'head'];
 /** Carried (unequipped) relics the bag holds before pickups start selling. */
-export const INVENTORY_SLOTS = 10;
+export const INVENTORY_SLOTS = 20;
 /** Each reforge rank multiplies a relic's numeric mods by this fraction. */
 export const REFORGE_STEP = 0.12;
 export const REFORGE_MAX = 3;
@@ -56,7 +56,7 @@ export function equipmentExists(defId: string): boolean {
 }
 
 export function emptyEquipment(): EquipmentSlots {
-  return { weapon: null, armor: null, trinket: null };
+  return { weapon: null, armor: null, trinket: null, head: null };
 }
 
 /** Percentage stats multiply; everything else is a flat add. */

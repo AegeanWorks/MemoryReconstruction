@@ -117,9 +117,34 @@ export const ENEMY_WINDUP_SCALE = 1.1;
 /** Wave size multiplier before the room-area cap; late rooms were too crowded. */
 export const ENEMY_COUNT_SCALE = 1.1;
 /** Kill XP is deliberately scarce: levels should be earned, not showered. */
-export const ENEMY_XP_SCALE = 0.55;
+export const ENEMY_XP_SCALE = 0.4;
 /** Extra incoming-damage growth per section (was 0.08). */
 export const ENEMY_DAMAGE_DEPTH_SCALE = 0.1;
+/** Enemy damage added (additive) for every room cleared this run: twenty rooms double it. */
+export const ROOM_DAMAGE_STEP = 0.05;
+/** Enemy damage added (additive) for every wave after a room's first. */
+export const WAVE_DAMAGE_STEP = 0.1;
+/** Extra enemies each wave of a room brings after the first. */
+export const WAVE_EXTRA_ENEMIES = 1;
+
+/**
+ * The one place enemy damage grows: per section, per cleared room and per wave are all
+ * additive steps, so 20 cleared rooms are exactly +100% and waves stack on top of that.
+ */
+export function enemyDamageMultiplier(depth: number, roomsCleared: number, wave = 1): number {
+  return (
+    1 +
+    ENEMY_DAMAGE_DEPTH_SCALE * depth +
+    ROOM_DAMAGE_STEP * roomsCleared +
+    WAVE_DAMAGE_STEP * Math.max(0, wave - 1)
+  );
+}
+
+/** The size of one wave: later waves of a room bring more enemies, up to the room cap. */
+export function waveEnemyCount(baseCount: number, cap: number, wave: number, restless = 0): number {
+  const grown = baseCount + WAVE_EXTRA_ENEMIES * Math.max(0, wave - 1);
+  return Math.min(cap, Math.max(1, Math.round(grown * ENEMY_COUNT_SCALE) + restless));
+}
 /** Floor bosses are their data record with this much more health. */
 const BOSS_HEALTH_SCALE = 3.2;
 

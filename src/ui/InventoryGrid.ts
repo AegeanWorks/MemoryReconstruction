@@ -107,6 +107,7 @@ const GLYPHS: Record<EquipmentSlot, string> = {
   weapon: 'M12 2 L14.5 13 L12 16 L9.5 13 Z M7 16 H17 M12 16 V22',
   armor: 'M12 3 L20 6 V12 C20 17 16 20 12 22 C8 20 4 17 4 12 V6 Z',
   trinket: 'M12 3 L19 9 L12 21 L5 9 Z M5 9 H19',
+  head: 'M5 13 C5 7 8 3.5 12 3.5 C16 3.5 19 7 19 13 L19 16 H14 L12 12.5 L10 16 H5 Z',
 };
 
 function glyph(slot: EquipmentSlot): SVGElement {
@@ -281,8 +282,9 @@ export function inventoryGrid(
   const doll = h(
     'div',
     { class: 'doll', 'data-drop': 'doll' },
-    slotBoxes[0],
+    slotBoxes[3],
     figure,
+    slotBoxes[0],
     slotBoxes[1],
     slotBoxes[2]
   );

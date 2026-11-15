@@ -87,7 +87,7 @@ describe('recolorPixels', () => {
   });
 });
 describe('gearLooks', () => {
-  const empty = { weapon: null, armor: null, trinket: null };
+  const empty = { weapon: null, armor: null, trinket: null, head: null };
   it('reports nothing for an unarmoured wanderer', () => {
     expect(gearLooks(empty)).toEqual({ armorId: null, armor: null, trinketId: null, trinket: null });
   });
@@ -96,6 +96,7 @@ describe('gearLooks', () => {
       weapon: null,
       armor: { uid: 1, defId: 'crystal_mail' },
       trinket: { uid: 2, defId: 'sun_core' },
+      head: null,
     });
     expect(looks.armorId).toBe('crystal_mail');
     expect(looks.armor).toBe(ARMOR_LOOKS.crystal_mail);
@@ -103,7 +104,7 @@ describe('gearLooks', () => {
     expect(looks.trinket).toBe(TRINKET_LOOKS.sun_core);
   });
   it('ignores a relic id it has no look for instead of throwing', () => {
-    const looks = gearLooks({ weapon: null, armor: { uid: 1, defId: 'mystery' }, trinket: null });
+    const looks = gearLooks({ weapon: null, armor: { uid: 1, defId: 'mystery' }, trinket: null, head: null });
     expect(looks.armor).toBeNull();
     expect(looks.armorId).toBeNull();
   });

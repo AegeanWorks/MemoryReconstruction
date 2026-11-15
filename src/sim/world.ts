@@ -6,13 +6,13 @@
 import { circlesTouch, inArc, type Arena, type DamageSource } from './combat';
 import {
   arenaBossFor,
-  ENEMY_COUNT_SCALE,
-  ENEMY_DAMAGE_DEPTH_SCALE,
   ENEMY_XP_SCALE,
+  enemyDamageMultiplier,
   enemyDef,
   fragmentsForFloor,
   floorPlan,
   FINAL_DEPTH,
+  waveEnemyCount,
   type FloorPlan,
 } from './content';
 import { generateFloor, roomAt, roomCentrePx, type FloorMap, type Room } from './dungeon';
@@ -40,6 +40,7 @@ import {
   relicSellShards,
   rollEquipment,
   type EquipmentItem,
+  type EquipmentSlot,
 } from './equipment';
 import { FERRYMAN_LINES, NPCS, WAYFARER_LINES } from './quests';
 import type {
@@ -632,7 +633,7 @@ export class World implements Arena {
     this.projectiles.push({ ...projectile, id: this.nextId++, hitIds: [] });
   }
 
-  spawnEnemy(defId: string, x: number, y: number, roomId: number, asBoss = false): Enemy {
+  spawnEnemy(defId: string, x: number, y: number, roomId: number, asBoss = false, wave = 1): Enemy {
     const depth = this.run.depth;
     const nightmare = this.run.difficulty === 'nightmare';
     const story = this.run.difficulty === 'story';
@@ -640,7 +641,8 @@ export class World implements Arena {
     // thickens enemy hides (and breeds more elites below).
     const scale = {
       health: (1 + 0.22 * depth) * (nightmare ? 1.25 : story ? 0.85 : 1),
-      damage: 1 + ENEMY_DAMAGE_DEPTH_SCALE * depth,
+      // The section, every cleared room and the current wave all add their step here.
+      damage: enemyDamageMultiplier(depth, this.run.stats.roomsCleared, wave),
     };
     const elite =
       !asBoss && depth > 0 && this.rng.chance(0.06 + 0.03 * depth + (nightmare ? 0.08 : 0));
@@ -1294,12 +1296,13 @@ export class World implements Arena {
     // fill a chamber six times the size of a grand hall.
     // The Restless Dead twist (daily or omen) sends one extra enemy with every wave.
     const restless = activeModifier(this.run) === 'restless_dead' ? 1 : 0;
+    const wave = Math.max(1, (state.totalWaves ?? 1) - state.wavesLeft);
     const baseCount =
       room.kind === 'colosseum'
         ? 7 + Math.floor(this.run.depth * 1.6) + this.rng.int(0, 3)
         : 3 + Math.floor(this.run.depth * 0.85) + this.rng.int(0, 2);
     const cap = enemyWaveCap(room.w * room.h, room.kind === 'colosseum');
-    const count = Math.min(cap, Math.max(1, Math.round(baseCount * ENEMY_COUNT_SCALE) + restless));
+    const count = waveEnemyCount(baseCount, cap, wave, restless);
     for (let i = 0; i < count; i++) {
       let spot: { x: number; y: number } | undefined;
       const enemyDefId = this.rng.pick(this.plan.roster);
@@ -1310,7 +1313,7 @@ export class World implements Arena {
       }
       if (!spot) spot = this.spawnPoint(room);
       if (spot) {
-        const enemy = this.spawnEnemy(enemyDefId, spot.x, spot.y, room.id);
+        const enemy = this.spawnEnemy(enemyDefId, spot.x, spot.y, room.id, false, wave);
         if (isTeleportSpawn || enemy.def.archetype === 'teleporter') {
           this.emit({ type: 'blink', x: spot.x, y: spot.y - 20, toX: spot.x, toY: spot.y });
         }
@@ -1594,7 +1597,7 @@ export class World implements Arena {
     return true;
   }
 
-  unequip(slot: 'weapon' | 'armor' | 'trinket'): boolean {
+  unequip(slot: EquipmentSlot): boolean {
     const p = this.player;
     const item = p.equipment[slot];
     if (!item) return false;

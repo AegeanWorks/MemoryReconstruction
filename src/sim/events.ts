@@ -58,7 +58,7 @@ export type SimEvent =
       type: 'equipment';
       name: string;
       rarity: 'common' | 'rare' | 'epic';
-      slot: 'weapon' | 'armor' | 'trinket';
+      slot: 'weapon' | 'armor' | 'trinket' | 'head';
       auto: boolean;
       /** Shards gained instead of carrying the relic because the bag was full. */
       sold?: number;

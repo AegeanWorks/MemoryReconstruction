@@ -3472,8 +3472,8 @@
   display: grid;
   grid-template-columns: 56px 128px 56px;
   grid-template-areas:
-    'weapon figure armor'
-    '. trinket .';
+    'head figure armor'
+    'weapon figure trinket';
   gap: 6px 8px;
   align-items: center;
   justify-items: center;
@@ -3492,6 +3492,9 @@
 }
 .doll .slot-trinket {
   grid-area: trinket;
+}
+.doll .slot-head {
+  grid-area: head;
 }
 .doll-figure {
   grid-area: figure;

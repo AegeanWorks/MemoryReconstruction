@@ -228,6 +228,53 @@
      "maxHealth": 12,
      "damageReduction": 0.04
     }
+   },
+   {
+    "id": "scout_hood",
+    "name": "Scout Hood",
+    "slot": "head",
+    "rarity": "common",
+    "description": "+2% critical chance, +4% move speed.",
+    "mods": {
+     "critChance": 0.02,
+     "moveSpeed": 0.04
+    }
+   },
+   {
+    "id": "iron_helm",
+    "name": "Iron Helm",
+    "slot": "head",
+    "rarity": "rare",
+    "description": "+12 max health, +4% damage reduction, -3% move speed.",
+    "mods": {
+     "maxHealth": 12,
+     "damageReduction": 0.04,
+     "moveSpeed": -0.03
+    }
+   },
+   {
+    "id": "oracle_circlet",
+    "name": "Oracle Circlet",
+    "slot": "head",
+    "rarity": "rare",
+    "description": "+10 max mana, +1 mana per second, +4 bolt damage.",
+    "mods": {
+     "maxMana": 10,
+     "manaRegen": 1,
+     "boltDamage": 4
+    }
+   },
+   {
+    "id": "void_visor",
+    "name": "Void Visor",
+    "slot": "head",
+    "rarity": "epic",
+    "description": "+5% critical chance, +25% critical damage, bolts pierce one more foe.",
+    "mods": {
+     "critChance": 0.05,
+     "critMultiplier": 0.25,
+     "boltPierce": 1
+    }
    }
   ]
 }
