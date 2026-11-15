@@ -3,9 +3,9 @@
   "active_task": {
     "task_id": "visual-and-content-polish-28-51",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
-    "updated_at": 1794699079.578544,
+    "active_phase": 5,
+    "status": "completed",
+    "updated_at": 1794733045.9478736,
     "owner": "kiro:1",
     "started_by": "claude:1",
     "continuations": [
@@ -25,7 +25,14 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ]
+    ],
+    "forced_completion": {
+      "agent": "kiro:1",
+      "reason": "All work committed and check --strict passes at ed75f15. Checklist recorded honestly: PRINCIPLE-002 failed once (late plan checkpoint for milestone 4), PRINCIPLE-015 skipped (no game dogfood runner; browser CDP runs used). Closing to start the saves and inventory task the user requested.",
+      "at": 1794733069.188882
+    },
+    "completed_at": 1794733069.188884,
+    "completed_head": "ed75f156a24026198cfabadecb3d0edfb7111969"
   },
   "checkpoints": [
     {
@@ -87,40 +94,6 @@
       "timestamp": 1794164112.4407241,
       "timestamp_str": "2026-11-08 21:55:12",
       "agent": "commandcode:mr-audit"
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/3] Verified: inventory drag rules and grid DOM module (inventoryDrag.ts, InventoryGrid.ts) with 11 failing-first tests; UI task A closed (276 lines, under the 300 budget); 8/8 gates",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794688576.3100605,
-      "timestamp_str": "2026-11-14 23:36:16",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "visual-and-content-polish-28-51",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[2/3] Verified: inventory grid mounted in the relic screen with shared equip helpers, CSS, wiring tests, README, cycle 87, ADR-207; real mouse drag probe at 1280x720 and 390x844 clean; UI task B closed; 8/8 gates",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794688756.3568,
-      "timestamp_str": "2026-11-14 23:39:16",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
     },
     {
       "task_id": "visual-and-content-polish-28-51",
@@ -353,6 +326,40 @@
           "path": "projects/MemoryReconstruction"
         }
       ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/2] Post-Flight: all gates and check --strict pass at ed75f15; PRINCIPLE-002 failed once (milestone 4 plan recorded after implementation, before commit); PRINCIPLE-015 skipped (scripts/dogfood.py drives AIKit, not the game; game dogfooded by real-input CDP browser runs, golden path only, no chaos pass); no push (not authorized).",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794733045.9478736,
+      "timestamp_str": "2026-11-15 11:57:25",
+      "agent": "kiro:1",
+      "checklists": "failed:PRINCIPLE-002,skipped:PRINCIPLE-015",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "visual-and-content-polish-28-51",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'visual-and-content-polish-28-51' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794733069.2224138,
+      "timestamp_str": "2026-11-15 11:57:49",
+      "agent": "kiro:1",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": true
+      }
     }
   ]
 }
