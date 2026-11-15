@@ -285,3 +285,28 @@ The running Vite build was driven in Edge at **1280x720** and **390x844**.
 No console errors were observed.
 
 Captures: `docs/qa/cycle97-hub-badges-1280x720.png`, `docs/qa/cycle97-hub-badges-390x844.png`.
+
+## 2026-11-15 review: capes, taller relic panel, quest log, maze stall and mana (agent reviewer: kilo:1)
+
+The running Vite build was driven in Edge at **1280x720**, **768x1024** and **390x844**.
+- **Relics and cape**: 25 boxes (5 worn + 20 bag) at every size; the doll measured 278x212 with head and cape boxes,
+  and the Ember Drape/Void Mantle box read its title while `.doll-figure` carried a recoloured `data:image/png`
+  background. The panel measured 481px under a 532.8px cap at 1280x720, 600px at 768x1024 and 571px at 390x844;
+  the bag was 334px wide ending at 374.6px in the 390px viewport, so there was no horizontal overflow. The bank line
+  read "1 relic kept - 3 new relics at risk until the next checkpoint".
+- **Quest Log**: header counts read 0 active / 0 ready / 0 completed / 6 available; All/Active/Ready/Available/
+  Completed tabs filtered the four sections (Active hid ready, available and done while keeping the daily mark);
+  six portrait cards showed progress bars at 25%, 59%, 100% and 67%; at 390x844 a card was 358px inside 390 with no
+  horizontal overflow and the journal scrolled 1573px inside 844px.
+- **Maze stall**: five lines (healing 24, mana 30, bombs 40, traps 40, relic 110) at section 1; buying the Mana
+  draught took shards 500 -> 470, raised flasks 1 -> 2 and flipped that line to a disabled "Sold" button. The HUD
+  prompt now reads "Browse the merchant's wares".
+- **Mana flask**: pressing R at 0 mana restored 60/60 and took flasks 2 -> 1; the HUD chip showed "1 R".
+- **Level-up guard**: a forced level card appeared 17ms after the pending choice; clicking it immediately left the
+  choice pending with no upgrade taken; clicking after 1.6s took `vitality` and resumed play. Double-clicks are
+  rejected by `deliberateClick` and covered by unit tests.
+- **Levels**: the curve and kill-XP changes are covered by the sim tests (42/1.6, 0.3 scale); no browser run was
+  needed to trust the arithmetic.
+No console errors were observed. Captures: `docs/qa/cycle98-cape-inventory-1280x720.png`,
+`cycle98-cape-inventory-390x844.png`, `cycle98-quest-log-1280x720.png`, `cycle98-quest-log-390x844.png`,
+`cycle98-merchant-shop-1280x720.png`.

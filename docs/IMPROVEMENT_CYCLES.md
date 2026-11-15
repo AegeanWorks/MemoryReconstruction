@@ -4223,3 +4223,41 @@ the next checkpoint" with `Carried · 2/20` and 24 boxes (the injected relics we
 Screenshots `docs/qa/cycle97-hub-badges-1280x720.png` and `cycle97-hub-badges-390x844.png`.
 ### Gate results
 See the task summary.
+
+## Cycle 98 - Capes, a taller bag, an RPG quest log, maze stalls, mana flasks and safe level cards
+### FIND
+The player asked for seven things: a cape item type that recolours the cape, a taller inventory, a proper RPG quest
+UI, maze NPCs that sell consumables, even harder leveling, a fix for the attack click that can take the wrong
+level-up card, and mana potions. The code showed each gap: the cyan cloak had no equipment slot and the armor pass
+left it untouched; the bag panel was capped at `min(60vh, 460px)`; the quest screen was a flat restoration list; the
+merchant charged one fixed relic trade on interact with no shop; the level curve was 42/1.5 with 40% kill XP; the
+choice screen armed after 320ms and then accepted any click, including double-clicks; and mana had no consumable.
+### IMPLEMENT
+- Cape: fifth worn slot, four capes, `CAPE_LOOKS`, a separate 175-202 hue pass (`recolorCapePixels`) beside the
+  205-255 robe pass, both applied on one canvas for actor and doll; a cape box on the doll; `slot:cape` drag target;
+  four generated icons (28 total). The panel grows to `min(74vh, 600px)` and the doll to a three-row grid.
+- Quest log: counts, All/Active/Ready/Available/Completed tabs with client-side section filtering, giver portraits,
+  reward lines, progress bars with exact numbers, and the daily mark with its claim button.
+- Maze merchants: `shopStock`/`buyFromShop` with five lines (healing, mana, bombs, traps, relic), section-scaled
+  prices, one sale per line, a paused `shopScreen`, and a truthful HUD prompt.
+- Mana flasks: `R`, 60% of max mana, one starting flask, drops from enemies/urns/crystals/chests, merchant stock,
+  HUD chip, touch button, saved with the run.
+- Leveling: `42 * 1.6^(level-1)` and `ENEMY_XP_SCALE 0.3`; the balance test now expects two levels from 200 XP,
+  which is the requested change (ADR-224).
+- Level-up guard: 550ms grace, 8px pointer travel or 1.5s settle, double-click rejection, touch grace, keyboard
+  digits bypass.
+- Tests: `inventory-cape` (8), `ui-choice-guard` (6), `merchant-shop` (7), `mana-potion` (5), `ui-quest-log` (4),
+  plus updated headwear, balance, systems and fuzz fixtures.
+### RECORD
+In Edge at 1280x720 and 390x844 with real input: the Relics screen showed 25 boxes (5 worn + 20 bag), a 278x212
+doll with the Ember Drape head/cape boxes and a recoloured sheet (`data:image/png` background), a 481px panel under
+a 532.8px cap, and the bank line "1 relic kept - 3 new relics at risk". The Quest Log showed 0 active / 0 ready / 0
+completed / 6 available, five filter tabs, the daily mark, six portrait cards with progress widths 25%, 59%, 100%
+and 67%; Active hid the other sections; at 390 the cards were 358px in a 390px viewport with no horizontal
+overflow. A maze stall listed five wares; buying the Mana draught took 500 to 470 shards, raised flasks from 1 to 2
+and flipped the line to Sold. Pressing R at 0 mana restored 60/60 and dropped the flask count from 2 to 1, with the
+HUD reading `1 R`. A forced level card appeared in 17ms; an immediate click left the choice pending and upgrades
+empty, while a click after 1.6s took `vitality`. Screenshots `docs/qa/cycle98-cape-inventory-1280x720.png`,
+`cycle98-quest-log-1280x720.png`, `cycle98-quest-log-390x844.png`, `cycle98-merchant-shop-1280x720.png`.
+### Gate results
+See the task summary.
