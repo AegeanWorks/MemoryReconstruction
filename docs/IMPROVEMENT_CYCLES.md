@@ -4389,3 +4389,26 @@ card measured 358px ending at 374px with no horizontal overflow; a fresh server 
 `docs/qa/cycle102-weekly-contract-1280x720.png`, `cycle102-guardian-lore-1280x720.png`.
 ### Gate results
 See the task summary.
+
+## Cycle 103 - A Bestiary codex records every species on first sight
+### FIND
+The Recovered Memories screen carried the fragment and core-memory lore but had no record of the 97 enemies in the game. A
+first kill announced nothing, and the field-guide descriptions used by the boss bar in Cycle 102 could not be read later.
+### IMPLEMENT
+- `src/sim/content.ts`: `guardianIds()` from the floor plans, and `bestiaryEntries(seen)` returning every enemy once,
+  regular species before guardians, alphabetical, with saved phantom ids ignored.
+- `src/save/SaveStore.ts`: `Meta.bestiary` with a `[]` default for old saves.
+- `src/app/App.ts`: the first `enemyDied` for a def id appends it to the record, saves the meta and toasts
+  "Bestiary · <name> recorded".
+- `src/ui/Screens.ts`, `ui.css`: the Memories screen becomes a two-tab codex; the Bestiary panel lists 97 cards with a
+  recorded count, a guardian tag, sealed "Unknown enemy" text until first sight and the field-guide line afterwards.
+- Tests: `tests/bestiary.test.ts` (5) plus the README bullet.
+### RECORD
+In Edge at 1280x720 the Memories screen showed Memories/Bestiary tabs; the Bestiary panel held 97 cards (25 guardians) and
+read "0 / 97 recorded · defeat an enemy to reveal its field notes." with every card sealed. A seeded record of Gutter
+Runner, Memory Echo and Reliquary Warden read "3 / 97 recorded", revealed those three field-guide lines, kept the
+Reliquary Warden in the guardian band and left the other 24 guardians sealed. At 390x844 the panel measured 358.8px ending
+at 374.4px with one column and no horizontal overflow; a fresh server reported 0 console errors. Screenshots
+`docs/qa/cycle103-bestiary-1280x720.png`, `cycle103-bestiary-390x844.png`.
+### Gate results
+See the task summary.

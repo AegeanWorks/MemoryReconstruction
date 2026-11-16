@@ -377,3 +377,17 @@ The running build was driven in Edge at **1280x720** and **390x844**.
 - **Phone**: at 390x844 the weekly card measured 358px ending at 374px with no horizontal overflow.
 - **Console**: 0 errors on the fresh server.
 Captures: `docs/qa/cycle102-weekly-contract-1280x720.png`, `cycle102-guardian-lore-1280x720.png`.
+
+## 2026-11-16 review: Bestiary codex (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720** and **390x844**.
+- **Tabs**: the Recovered Memories screen showed Memories and Bestiary tabs; Memories stayed the selected panel and
+  Bestiary switched to its own panel with the selected tab in the gold active style.
+- **Sealed codex**: the Bestiary panel held 97 cards, 25 tagged Guardian, and read "0 / 97 recorded · defeat an enemy to
+  reveal its field notes." Every card showed "Unknown enemy" or "Unknown guardian" and the sealed note.
+- **Recorded species**: a seeded record of Gutter Runner, Memory Echo and Reliquary Warden read "3 / 97 recorded" and
+  revealed those exact field-guide lines; the Reliquary Warden stayed in the guardian band and the other 24 guardians
+  stayed sealed.
+- **Phone**: at 390x844 the panel measured 358.8px ending at 374.4px, one column, no horizontal overflow.
+- **Console**: 0 errors on the fresh server.
+Captures: `docs/qa/cycle103-bestiary-1280x720.png`, `cycle103-bestiary-390x844.png`.

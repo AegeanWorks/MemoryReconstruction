@@ -1351,5 +1351,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "e3769a991760e4a483eb3dab9ee06c1363c7e3c3af46036f2740b47e02869e99",
     "baseline_digest": "e3769a991760e4a483eb3dab9ee06c1363c7e3c3af46036f2740b47e02869e99"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the committed Bestiary codex surface in Edge at 1280x720 and 390x844: tabs, 97 cards with 25 guardians, sealed and recorded states, 358.8px phone panel with no overflow, 0 console errors.",
+    "baseline_commit": "3c59186e5a83eebfff3b7b483a0d6e3448fc0cac",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794849363.394385,
+    "finished_at": 1794849595.543914,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "c9df1e97885558f9acbb86f3d910e4f2a02adcd7376773117e7683bd40bd4209",
+    "baseline_digest": "c9df1e97885558f9acbb86f3d910e4f2a02adcd7376773117e7683bd40bd4209"
   }
 ]
