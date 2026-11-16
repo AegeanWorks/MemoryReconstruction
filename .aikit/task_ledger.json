@@ -3,9 +3,9 @@
   "active_task": {
     "task_id": "combat-expansion",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
-    "updated_at": 1794864610.227167,
+    "active_phase": 5,
+    "status": "completed",
+    "updated_at": 1794864970.5243003,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -14,50 +14,12 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ]
+    ],
+    "completed_at": 1794864993.1408842,
+    "completed_head": "28332b8910b5f7790a13d368a92aac14c84c2664",
+    "completed_tree": "c7b063ebf92c539adf67997ee07a615480c71219"
   },
   "checkpoints": [
-    {
-      "task_id": "quest-board-sets-lore",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'quest-board-sets-lore' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794821497.8771024,
-      "timestamp_str": "2026-11-16 12:31:37",
-      "agent": "kilo:1",
-      "head": "00f3f9e24c54015e887342433660cbdeacc5c7d3",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": true
-      }
-    },
-    {
-      "task_id": "weekly-guardian-polish",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Weekly contracts (ISO week key, six late-enemy marks, 40 kills / 800 echoes, keyed meta progress, kill hook, journal card and one-time claim); guardian field-guide lore parsed from the bestiary and shown under the boss bar, with the quest tracker yielding while a boss is active; wornSetCount so a single set piece reads 1/3 on the item sheet; and the bonus tier appended to the resident's task page. Failing-first tests: weekly-contract, boss-lore, a set-count case and journal wiring checks.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794841823.9364219,
-      "timestamp_str": "2026-11-16 18:10:23",
-      "agent": "kilo:1",
-      "impact_assessment": {
-        "why": "Continue quest and lore depth and fix two display inaccuracies found in the new systems.",
-        "benefits": "A week-long goal that is the same for everyone, visible guardian lore, an honest set count before the bonus, and a bonus line where quests are accepted.",
-        "risks": "contract: Meta gains weeklyBounty, EnemyDef gains description; dependency: weekly pool ids must exist; concurrency: none; state: old saves default the new weekly progress and a new week resets.",
-        "mitigation": "Schema defaults and recovery, a 5-case weekly suite, a 2-case lore suite, set-count tests and browser checks at 1280x720 and 390x844."
-      },
-      "plan_digest": "2c473eb123278143b8ecef16785206f3119e88361438a739b3b1d7286f22911c",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "weekly-guardian-polish",
       "phase": "phase 4",
@@ -595,6 +557,41 @@
           "path": "projects/MemoryReconstruction"
         }
       ]
+    },
+    {
+      "task_id": "combat-expansion",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[4/4] Combat expansion complete: elemental statuses and sprite-accurate bolts (ADR-233), frenzy and berserker stances with a red screen (ADR-234), and five new enemy behaviours at 102 species (ADR-235). Drawn from the player's request list: frenzy/berserker, laser, stomp, area slow, dashing, burn, frozen, mud and the bolt hitbox fix are all delivered. 991 tests across 207 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates, delivery-ready. Remaining requests (inventory limits and skills, headwear/cape visuals, longer blades, weapon-restricted items, door rugs, more levels, Muse music) are queued as gear-and-limits, world-and-levels and music-muse in docs/ROADMAP_COMBAT_EXPANSION.md.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794864970.5243003,
+      "timestamp_str": "2026-11-17 00:36:10",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "combat-expansion",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'combat-expansion' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794864993.2147284,
+      "timestamp_str": "2026-11-17 00:36:33",
+      "agent": "kilo:1",
+      "head": "28332b8910b5f7790a13d368a92aac14c84c2664",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
