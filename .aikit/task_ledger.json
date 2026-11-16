@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "cape-quest-shop-mana",
+    "task_id": "merchant-reachability-shop-truth",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794780162.597231,
+    "updated_at": 1794806992.0666912,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,71 +17,14 @@
     ],
     "forced_completion": {
       "agent": "kilo:1",
-      "reason": "All gates and check --strict pass at b0f49fa; the code and docs milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; real-input Edge runs used). Not pushed (not authorized).",
-      "at": 1794780665.8884504
+      "reason": "All gates and check --strict pass at 2468172; both milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; fresh-server Edge run used). Not pushed (not authorized).",
+      "at": 1794807225.040641
     },
-    "completed_at": 1794780665.8884513,
-    "completed_head": "b0f49fa8aac8e4360ef24c6ec410a4956c309f19",
-    "completed_tree": "653003f24db146865d470077f16feee0458745d0"
+    "completed_at": 1794807225.040642,
+    "completed_head": "2468172a95f043d4ba03f3b055fc0859ecb7729e",
+    "completed_tree": "5fe32b5b8cab43dd1702a198c5ea59688466fcaa"
   },
   "checkpoints": [
-    {
-      "task_id": "saves-slots-inventory-grid",
-      "phase": "phase 3",
-      "phase_num": 3,
-      "description": "[3/3] In progress, uncommitted and verified: grid is the main inventory view with a detail pane (pick in place, double-click wears, arrow keys by position, focus restore by key), list removed; 825 tests, lint and typecheck pass; real-input probe at 1280x720 and 390x844 passes. Blocked: src diff is about 580 changed lines (Screens.ts alone 370) against the UI contract's 300-line budget; asked the user whether to allow a one-time limit raise or build transitional commits. Test replacements so far: ui-list-state filter chips, ui-inventory-grid list routing and no-tab-stop, ui-rarity-text count 6 to 5.",
-      "files_affected": [
-        "src/ui/Screens.ts",
-        "src/ui/InventoryGrid.ts",
-        "src/ui/inventoryDrag.ts",
-        "src/app/App.ts",
-        "src/ui/ui.css"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794736514.1102223,
-      "timestamp_str": "2026-11-15 12:55:14",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "saves-slots-inventory-grid",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Budget: .aikit/ui.json max_lines 300 to 750 on the user's decision, ADR-215; committed alone before the inventory change",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794736672.9583828,
-      "timestamp_str": "2026-11-15 12:57:52",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "saves-slots-inventory-grid",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Verified: grid-only inventory with detail pane, in-place pick, double-click, positional arrow keys, key-first focus restore; 9 failing-first tests, four list tests replaced with user approval (ADR-216); 825 tests, lint, typecheck; real-input probe at 1280x720 and 390x844; UI task aborted after its fast proof ran the old list tests against the new code (2 strikes), files restored with matching hashes; 8/8 gates; README, cycle 94",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794736854.947151,
-      "timestamp_str": "2026-11-15 13:00:54",
-      "agent": "kiro:1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "saves-slots-inventory-grid",
       "phase": "phase 4",
@@ -396,6 +339,65 @@
       "timestamp_str": "2026-11-16 01:11:05",
       "agent": "kilo:1",
       "head": "b0f49fa8aac8e4360ef24c6ec410a4956c309f19",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": true
+      }
+    },
+    {
+      "task_id": "merchant-reachability-shop-truth",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Follow-up polish to Cycle 98: guarantee one five-line merchant on every floor (treasure, else shrine, else library, else combat room) labelled Wandering merchant while keeping the 35% vault-side stall; make the healing line read Flasks full and stay disabled when the flask rack is full via the pure shopLineState helper; add pixel-level cape recolour tests proving the cyan cloak band and robe band never cross. Failing-first tests: merchant-availability (2), ui-shop-line (5), four gear-look pixel tests.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794806906.8830414,
+      "timestamp_str": "2026-11-16 08:28:26",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "The shop was reachable only through a 35% sealed-cache roll, and a full flask rack produced a disabled-looking price with a silent click.",
+        "benefits": "The new stall is always discoverable, the shop never offers an unusable draught, and the cape colour promise is guarded at the pixel level.",
+        "risks": "contract: none (no saved shape changes); dependency: none; concurrency: none; state: extra interactable per floor changes generation determinism for existing seeds.",
+        "mitigation": "Deterministic placement, 24-seed availability coverage, focused shop-line tests and a browser check on a fresh server; the map is refreshed after the change."
+      },
+      "plan_digest": "db84819d3b3fc0f59dad3383dcc3001f5b0c1684c03a219af8353732283657af",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "merchant-reachability-shop-truth",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/2] Verified: every one of 24 seeds has at least one five-line merchant, and a labelled Wandering merchant appears on most floors; the healing line reads Flasks full and is disabled at 3/3 flasks while other lines keep their prices; four cape pixel tests prove cyan moves to the cape hue, robe/skin/gold stay untouched, robe+cape compose and alpha survives. 907 tests across 192 files, 478 mechanics, lint/typecheck/build clean, 8/8 gates. Fresh-server Edge at 1280x720: Section 1 held a Wandering merchant; with flasks 3/3 and 0 shards the stall showed Flasks full disabled on healing and priced-but-disabled lines elsewhere.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794806992.0666912,
+      "timestamp_str": "2026-11-16 08:29:52",
+      "agent": "kilo:1",
+      "checklists": "skipped:PRINCIPLE-015",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "merchant-reachability-shop-truth",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'merchant-reachability-shop-truth' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794807225.1041358,
+      "timestamp_str": "2026-11-16 08:33:45",
+      "agent": "kilo:1",
+      "head": "2468172a95f043d4ba03f3b055fc0859ecb7729e",
       "delivery": {
         "roots": [
           "."
