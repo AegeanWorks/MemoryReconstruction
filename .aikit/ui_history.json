@@ -1456,5 +1456,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "ed3d33dfa6bd4d51fb8ee23f5b64d75eca063d086f8cfcdbe13048981dc782c3",
     "baseline_digest": "ed3d33dfa6bd4d51fb8ee23f5b64d75eca063d086f8cfcdbe13048981dc782c3"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the committed supply-caps HUD in Edge at 1280x720 and 390x844: Bomb x2/4, Trap x1/3, potions 3/3, mana 1/3, no overflow, 0 console errors.",
+    "baseline_commit": "1f0bea46ac8eff8a35551e54062f233857faacc1",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794865658.3947003,
+    "finished_at": 1794865676.1608775,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "1c524c9daf8eb7effb38a9b8cf4874c72c84a630a6ad54d8483f321dd665cac8",
+    "baseline_digest": "1c524c9daf8eb7effb38a9b8cf4874c72c84a630a6ad54d8483f321dd665cac8"
   }
 ]

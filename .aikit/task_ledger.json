@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "combat-expansion",
+    "task_id": "gear-and-limits",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1794864970.5243003,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1794865624.3384202,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ],
-    "completed_at": 1794864993.1408842,
-    "completed_head": "28332b8910b5f7790a13d368a92aac14c84c2664",
-    "completed_tree": "c7b063ebf92c539adf67997ee07a615480c71219"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "weekly-guardian-polish",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: weekly contracts keyed by ISO week (Lantern Wraiths, 40 kills, 800 echoes) with progress, one-time claim and reset; guardian descriptions parsed and shown under the boss bar, with the tracker hidden while a boss is active and restored after; wornSetCount makes a single piece read 1/3 and keeps the chip at two pieces; the resident page shows the bonus tier. 942 tests across 199 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720 and 390x844: journal 20 cards, weekly 0/40 then Claimed 40/40 and echoes 800, Reliquary Warden lore exact, tracker hidden with text retained, sheet Reliquary 1/3 with no chip, weekly card 358px ending 374px with no overflow, 0 console errors.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794842064.3082414,
-      "timestamp_str": "2026-11-16 18:14:24",
-      "agent": "kilo:1",
-      "checklists": "skipped:PRINCIPLE-015",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "weekly-guardian-polish",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'weekly-guardian-polish' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794842283.6004217,
-      "timestamp_str": "2026-11-16 18:18:03",
-      "agent": "kilo:1",
-      "head": "aad8387ac3b661e315cf8aef6b68d51c86fd2261",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": true
-      }
-    },
     {
       "task_id": "bestiary-codex",
       "phase": "phase 2",
@@ -592,6 +554,62 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "gear-and-limits",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/4] Gear and limits, milestone 1: carried supplies get real caps. PlayerStats gains maxManaFlask (3), maxBombs (4) and maxTraps (3), three common skills raise them (Mana Rack +1, Bomb Rig +2, Trap Kit +2, three stacks each), pickups convert to shards instead of overflowing, the merchant refuses a full line, restored runs clamp to the current cap, and the HUD reads Bomb x2/4, Trap x1/3 and Mana 1/3. Plan: caps, then headwear shape/colour and cape palettes, then weapon-restricted relics, then longer blades and evidence.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794865567.0478098,
+      "timestamp_str": "2026-11-17 00:46:07",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "The player asked for mana, trap and bomb inventory limits with skills that raise them; before this only health flasks were capped and other supplies grew without limit.",
+        "benefits": "Supplies become a resource the player plans around, the three new skills give level-up choices that matter, and the HUD tells the truth about what is carried.",
+        "risks": "contract: PlayerStats gains three fields and three upgrades join the pool; dependency: none; concurrency: none; state: old runs clamp on load; balance: caps cap sustain.",
+        "mitigation": "Defaults for old saves, clamps on every grant path, a 6-case suite, and browser checks of the HUD at desktop and phone widths."
+      },
+      "plan_digest": "e5de812f5c08f97f94d17fd99c9eec8955b409481bf9919395d3f5ecdf86bf40",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "gear-and-limits",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/4] Verified: defaults are mana 3 / bombs 4 / traps 3; Mana Rack +1, Bomb Rig +2 and Trap Kit +2 stack to 3 each; a full bomb rig converts a pickup to shards instead of overflowing; the merchant refuses full lines; a restored run clamps 99 of each supply down to the caps; a fresh expedition starts inside them. HUD reads Bomb x2/4, Trap x1/3, potions 3/3, mana 1/3 in a live Section 1 run at 1280x720 and 390x844 with no overflow and 0 console errors. 997 tests across 208 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl",
+        "README.md",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "src/sim/run.ts",
+        "src/sim/upgrades.ts",
+        "src/sim/world.ts",
+        "src/ui/Hud.ts",
+        "docs/qa/cycle110-supply-caps-1280x720.png",
+        "tests/sim/supply-caps.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794865624.3384202,
+      "timestamp_str": "2026-11-17 00:47:04",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
     }
   ]
 }
