@@ -869,6 +869,76 @@ export function filterBestiary(
   }
 }
 
+/** One section a species can be met in. */
+export interface EnemyHabitat {
+  /** One-based section number. */
+  section: number;
+  biome: string;
+  title: string;
+  guardian: boolean;
+  finale: boolean;
+}
+
+/**
+ * Where a species appears: every plan whose roster names it, plus the plan
+ * whose guardian it is. Ordered by section so the codex reads as a road.
+ */
+export function enemyHabitats(id: string): EnemyHabitat[] {
+  const habitats: EnemyHabitat[] = [];
+  FLOOR_PLANS.forEach((plan) => {
+    const guardian = plan.boss === id;
+    if (!guardian && !plan.roster.includes(id)) return;
+    const biome = biomeInfo(plan.biome);
+    habitats.push({
+      section: plan.depth + 1,
+      biome: biome.name,
+      title: plan.trialName ?? biome.name,
+      guardian,
+      finale: plan.finale,
+    });
+  });
+  return habitats;
+}
+
+/** Everything one codex card can show, including the stats a sealed entry hides. */
+export interface BestiaryDetail {
+  id: string;
+  name: string;
+  description: string;
+  isBoss: boolean;
+  seen: boolean;
+  kills: number;
+  habitats: EnemyHabitat[];
+  stats?: { health: number; damage: number; xp: number };
+}
+
+/**
+ * The detail view behind a codex card. A sealed species keeps its habitat list
+ * (the road that hides it) but not its numbers, so looking ahead stays a tease
+ * instead of a strategy sheet.
+ */
+export function bestiaryDetail(id: string, seen: boolean, kills = 0): BestiaryDetail | undefined {
+  if (!rawEnemies.some((enemy) => enemy.id === id)) return undefined;
+  const def = enemyDef(id);
+  const entry: BestiaryDetail = {
+    id,
+    name: def.name,
+    description: def.description,
+    isBoss: GUARDIAN_IDS.has(id),
+    seen,
+    kills: Math.max(0, Math.floor(Number.isFinite(kills) ? kills : 0)),
+    habitats: enemyHabitats(id),
+  };
+  if (seen) {
+    entry.stats = {
+      health: Math.max(0, Math.round(def.maxHealth)),
+      damage: Math.max(0, Math.round(def.damage)),
+      xp: Math.max(0, Math.round(def.xp)),
+    };
+  }
+  return entry;
+}
+
 const rawBiomes = (
   biomesJson as { biomes: Array<{ id: BiomeId; name: string; colorPalette: BiomeInfo['palette'] }> }
 ).biomes;

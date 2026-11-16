@@ -6,6 +6,7 @@ import {
   CORE_MEMORIES,
   FLOOR_PLANS,
   MEMORY_FRAGMENTS,
+  bestiaryDetail,
   bestiaryEntries,
   bestiaryProgress,
   biomeInfo,
@@ -2812,10 +2813,17 @@ export function memoriesScreen(
   const entries = bestiaryEntries(bestiary, bestiaryKills);
   const progress = bestiaryProgress(bestiary);
   const memoriesPanel = h('div', { class: 'panel codex-panel' }, ...cores);
-  const cards = entries.map((entry) =>
-    h(
+  const cards = entries.map((entry) => {
+    const detail = bestiaryDetail(entry.id, entry.seen, entry.kills);
+    const detailBox = h('div', { class: 'beast-detail hidden' });
+    const card = h(
       'div',
-      { class: `beast${entry.seen ? '' : ' locked'}${entry.isBoss ? ' guardian' : ''}` },
+      {
+        class: `beast${entry.seen ? '' : ' locked'}${entry.isBoss ? ' guardian' : ''}`,
+        role: 'button',
+        tabindex: '0',
+        'aria-expanded': 'false',
+      },
       h(
         'div',
         { class: 'beast-head' },
@@ -2831,9 +2839,47 @@ export function memoriesScreen(
         'div',
         { class: 'beast-desc' },
         entry.seen ? entry.description : 'Not yet encountered. The deep keeps its own records.'
-      )
-    )
-  );
+      ),
+      h('div', { class: 'beast-more' }, 'Where it waits'),
+      detailBox
+    );
+    let opened = false;
+    const toggle = (): void => {
+      opened = !opened;
+      if (opened && detail && detailBox.childElementCount === 0) {
+        detailBox.append(
+          h(
+            'div',
+            { class: 'beast-stats' },
+            detail.stats
+              ? `Health ${detail.stats.health} · Damage ${detail.stats.damage} · XP ${detail.stats.xp}`
+              : 'Sealed · record it to read its numbers.'
+          ),
+          h(
+            'div',
+            { class: 'beast-habitat' },
+            `Found in ${detail.habitats
+              .map(
+                (habitat) =>
+                  `Section ${habitat.section} (${habitat.title}${habitat.guardian ? ' · guardian' : ''})`
+              )
+              .join(', ')}`
+          )
+        );
+      }
+      card.classList.toggle('open', opened);
+      card.setAttribute('aria-expanded', String(opened));
+      detailBox.classList.toggle('hidden', !opened);
+    };
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggle();
+      }
+    });
+    return card;
+  });
   const bestiaryFilters: Array<[BestiaryFilter, string]> = [
     ['all', 'All'],
     ['seen', 'Recorded'],

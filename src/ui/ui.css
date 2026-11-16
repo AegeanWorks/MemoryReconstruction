@@ -1299,6 +1299,40 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+}
+.beast:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.beast.open {
+  border-color: rgba(255, 217, 138, 0.55);
+}
+.beast-more {
+  margin-top: 6px;
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+.beast-detail {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.beast-detail.hidden {
+  display: none;
+}
+.beast-stats {
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.72);
+}
+.beast-habitat {
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ink-dim);
 }
 .beast.guardian {
   border-color: rgba(255, 217, 138, 0.3);
