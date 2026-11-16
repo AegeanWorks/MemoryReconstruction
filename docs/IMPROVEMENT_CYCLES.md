@@ -4436,3 +4436,24 @@ measured 358.8px ending at 374.4px, one column, filter row 29px, no horizontal o
 errors. Screenshots `docs/qa/cycle104-bestiary-complete-1280x720.png`, `cycle104-bestiary-390x844.png`.
 ### Gate results
 See the task summary.
+
+## Cycle 105 - A Bestiary card opens onto its habitat and its sealed numbers
+### FIND
+The codex named and counted 97 species but never said where one could be met: a sealed entry was a dead end, and a recorded
+one could not be revisited for its health, damage and XP without meeting the enemy again.
+### IMPLEMENT
+- `src/sim/content.ts`: `enemyHabitats(id)` and `bestiaryDetail(id, seen, kills)`, both derived from `FLOOR_PLANS`.
+- `src/ui/Screens.ts`: cards become `role="button"` with `aria-expanded` and Enter/Space toggling, and expand a
+  `.beast-detail` block holding a stats line and a "Found in Section N (title)" line.
+- `src/ui/ui.css`: `.beast.open`, `.beast-more`, `.beast-detail`, `.beast-stats`, `.beast-habitat`; the label sits at 0.72
+  alpha so the palette contrast floor stays green.
+- Tests: `tests/bestiary-habitats.test.ts` (6) plus the README bullet.
+### RECORD
+In Edge at 1280x720 the recorded Memory Echo opened to "Health 30 · Damage 17 · XP 15" and "Found in Section 1 (Forgotten
+Ruins), Section 2 (Whispering Forest), Section 24 (Sanctuary of Reconstruction), Section 25 (The First Remembering)". A
+sealed guardian opened to "Sealed · record it to read its numbers." with "Found in Section 21 (Echo Trial: The Drowned
+Court · guardian)"; pressing Enter on the focused card collapsed it and set aria-expanded back to false. At 390x844 the
+card measured 308.8px inside a 358.8px panel ending at 374.4px with no horizontal overflow; a fresh server reported 0
+console errors. Screenshots `docs/qa/cycle105-bestiary-detail-1280x720.png`, `cycle105-bestiary-detail-390x844.png`.
+### Gate results
+See the task summary.

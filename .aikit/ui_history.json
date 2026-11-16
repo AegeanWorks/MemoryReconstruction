@@ -1393,5 +1393,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "1794afc69f8b8462dc29ef87f22dc25ff9503d7380d2007ac7bd849af8b6e8aa",
     "baseline_digest": "1794afc69f8b8462dc29ef87f22dc25ff9503d7380d2007ac7bd849af8b6e8aa"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the committed bestiary-detail surface in Edge at 1280x720 and 390x844: recorded and sealed detail blocks, Enter/Space toggling with aria-expanded, habitat lines, 308.8px phone card with no overflow, 0 console errors.",
+    "baseline_commit": "96972085e31d4de9885a83e919fa095e693a719f",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794855374.439567,
+    "finished_at": 1794855467.3256886,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "557c0bc758a89e39cbe63f157db7624f690af486a2eda3bc2b7ed4305eca0035",
+    "baseline_digest": "557c0bc758a89e39cbe63f157db7624f690af486a2eda3bc2b7ed4305eca0035"
   }
 ]

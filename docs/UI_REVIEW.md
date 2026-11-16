@@ -405,3 +405,15 @@ The running build was driven in Edge at **1280x720** and **390x844**.
   overflow.
 - **Console**: 0 errors on the fresh server.
 Captures: `docs/qa/cycle104-bestiary-complete-1280x720.png`, `cycle104-bestiary-390x844.png`.
+
+## 2026-11-16 review: Bestiary card detail (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720** and **390x844**.
+- **Recorded card**: opening Memory Echo revealed "Health 30 · Damage 17 · XP 15" and "Found in Section 1 (Forgotten
+  Ruins), Section 2 (Whispering Forest), Section 24 (Sanctuary of Reconstruction), Section 25 (The First Remembering)".
+- **Sealed card**: the first sealed guardian revealed "Sealed · record it to read its numbers." and "Found in Section 21
+  (Echo Trial: The Drowned Court · guardian)", so the road shows while the numbers stay hidden.
+- **Keyboard**: with a card focused, Enter collapsed it and set `aria-expanded="false"`; Space toggles the same way.
+- **Phone**: at 390x844 the card measured 308.8px inside a 358.8px panel ending at 374.4px, no horizontal overflow.
+- **Console**: 0 errors on the fresh server.
+Captures: `docs/qa/cycle105-bestiary-detail-1280x720.png`, `cycle105-bestiary-detail-390x844.png`.
