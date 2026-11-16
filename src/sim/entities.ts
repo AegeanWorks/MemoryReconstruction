@@ -5,6 +5,7 @@
 import type { EnemyDef } from './content';
 import type { AspectId } from './aspects';
 import type { EquipmentItem, EquipmentSlots } from './equipment';
+import type { StatusTimers } from './status';
 import type { PlayerStats } from './upgrades';
 import type { WeaponId } from './weapons';
 
@@ -81,6 +82,8 @@ export interface Player {
   hurtFlash: number;
   /** Has the near-miss clutch surge been used in the current critical-health state? */
   clutchUsed?: boolean;
+  /** Burn, freeze and mud timers carried by the walker. */
+  status?: StatusTimers;
 }
 
 export type EnemyState =
@@ -153,6 +156,10 @@ export interface Enemy {
   /** Blink landing point locked at windup, so the tell can show it. */
   blinkX?: number;
   blinkY?: number;
+  /** Burn, freeze and mud timers carried by this enemy. */
+  status?: StatusTimers;
+  /** Fractional burn damage waiting to be paid as a whole number. */
+  burnCarry?: number;
 }
 
 export type ProjectileOwner = 'player' | 'enemy';

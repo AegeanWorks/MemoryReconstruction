@@ -131,6 +131,15 @@ export function circlesTouch(
 }
 
 /** Rolls a crit and returns the final damage and whether it critted. */
+/**
+ * The radius a shot should test against: the body circle is small on purpose,
+ * but a tall sprite draws far wider than that, so shots aimed at its arms or
+ * head must land. Half the drawn width, never smaller than the body.
+ */
+export function shotHitRadius(radius: number, displayHeight: number): number {
+  return Math.max(radius, displayHeight * 0.3);
+}
+
 export function rollDamage(
   rng: Rng,
   base: number,

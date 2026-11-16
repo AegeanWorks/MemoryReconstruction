@@ -3,7 +3,7 @@
  * step and returns the events that happened; nothing here touches the DOM or
  * the renderer, so tests and bots can drive a World headlessly.
  */
-import { circlesTouch, inArc, type Arena, type DamageSource } from './combat';
+import { circlesTouch, inArc, shotHitRadius, type Arena, type DamageSource } from './combat';
 import {
   arenaBossFor,
   ENEMY_XP_SCALE,
@@ -60,6 +60,14 @@ import { FlowField } from './pathing';
 import { moveAndCollide, separate } from './physics';
 import { refreshStats, updatePlayer } from './player';
 import { Rng, floorSeed } from './rng';
+import {
+  NO_STATUS,
+  applyStatus,
+  damageScale,
+  normalizeStatus,
+  shattersOnHit,
+  tickStatus,
+} from './status';
 import {
   activeModifier,
   applyChoice,
@@ -370,6 +378,7 @@ export class World implements Arena {
     this.run.stats.elapsed += dt;
 
     updatePlayer(this, input, dt);
+    this.updatePlayerStatus(dt);
     if (input.interact) this.interact();
     this.updateRooms(dt);
     this.flowTimer -= dt;
@@ -534,6 +543,12 @@ export class World implements Arena {
     knockback: number
   ): number {
     if (enemy.state === 'spawning' || enemy.state === 'dying') return 0;
+    // A frozen enemy takes a shatter bonus; the hit breaks the ice.
+    const frost = normalizeStatus(enemy.status);
+    if (shattersOnHit(frost)) {
+      amount = Math.round(amount * damageScale(frost));
+      enemy.status = { ...frost, freeze: 0 };
+    }
     // Difficulty sets the walker's edge: story strikes 25% harder, nightmare
     // strikes 10% softer. The Keen Edge twist (daily or omen) sharpens every strike.
     if (activeModifier(this.run) === 'keen_edge') amount = Math.round(amount * 1.15);
@@ -1827,9 +1842,29 @@ export class World implements Arena {
     if (id) this.dropPickup('fragment', x, y, 1, id);
   }
 
+  /** Advances the walker's own statuses; burn ticks while not dodging. */
+  private updatePlayerStatus(dt: number): void {
+    const p = this.player;
+    const tick = tickStatus(p.status ?? NO_STATUS, dt);
+    p.status = tick.status;
+    if (tick.burnDamage > 0 && p.action !== 'dead' && p.invulnerable <= 0)
+      this.damagePlayer(Math.max(1, Math.round(tick.burnDamage)), p.x, p.y, 0);
+  }
+
   private updateEnemies(dt: number): void {
     for (let i = this.enemies.length - 1; i >= 0; i--) {
-      if (!updateEnemy(this, this.enemies[i], dt)) this.enemies.splice(i, 1);
+      const enemy = this.enemies[i];
+      const tick = tickStatus(enemy.status ?? NO_STATUS, dt);
+      enemy.status = tick.status;
+      // Burn pays whole damage once enough has accumulated, so a 60 Hz tick
+      // does not spam sixty damage numbers a second.
+      if (tick.burnDamage > 0 && enemy.state !== 'dying' && enemy.state !== 'spawning') {
+        const carry = (enemy.burnCarry ?? 0) + tick.burnDamage;
+        const whole = Math.floor(carry + 1e-9);
+        enemy.burnCarry = carry - whole;
+        if (whole > 0) this.damageEnemy(enemy, whole, 'hazard', false, 0);
+      }
+      if (!updateEnemy(this, enemy, dt)) this.enemies.splice(i, 1);
     }
   }
 
@@ -1876,7 +1911,17 @@ export class World implements Arena {
         }
         for (const e of this.enemies) {
           if (e.state === 'spawning' || e.state === 'dying' || b.hitIds.includes(e.id)) continue;
-          if (!circlesTouch(b.x, b.y, b.radius, e.x, e.y, e.radius)) continue;
+          if (
+            !circlesTouch(
+              b.x,
+              b.y,
+              b.radius,
+              e.x,
+              e.y,
+              shotHitRadius(e.radius, e.def.displayHeight)
+            )
+          )
+            continue;
           b.hitIds.push(e.id);
           const crit = this.rng.chance(p.stats.critChance);
           const amount = Math.round(b.damage * (crit ? p.stats.critMultiplier : 1));
@@ -1963,11 +2008,17 @@ export class World implements Arena {
     this.emit({ type: 'hazardBurst', kind: h.kind, x: h.x, y: h.y, radius: h.radius });
     if (!damage) return;
     const p = this.player;
-    if (Math.hypot(p.x - h.x, p.y - h.y) <= h.radius + p.radius)
+    if (Math.hypot(p.x - h.x, p.y - h.y) <= h.radius + p.radius) {
       this.damagePlayer(h.damage, h.x, h.y, 140);
+      if (h.kind === 'flame') p.status = applyStatus(p.status ?? NO_STATUS, 'burn');
+      if (h.kind === 'poison') p.status = applyStatus(p.status ?? NO_STATUS, 'mud');
+    }
     for (const e of this.enemies)
-      if (e.state !== 'dying' && Math.hypot(e.x - h.x, e.y - h.y) <= h.radius + e.radius)
+      if (e.state !== 'dying' && Math.hypot(e.x - h.x, e.y - h.y) <= h.radius + e.radius) {
         this.damageEnemy(e, h.damage, 'hazard', false, 60);
+        if (h.kind === 'flame') e.status = applyStatus(e.status ?? NO_STATUS, 'burn');
+        if (h.kind === 'poison') e.status = applyStatus(e.status ?? NO_STATUS, 'mud');
+      }
   }
 
   spawnBlast(x: number, y: number, radius: number, delay: number, damage: number): void {

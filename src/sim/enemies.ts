@@ -7,6 +7,7 @@ import { angleBetween, circlesTouch, inArc, type Arena } from './combat';
 import { ENEMY_WINDUP_SCALE, type EnemyDef } from './content';
 import type { AttackKind, Enemy } from './entities';
 import { hasLineOfSight, moveAndCollide } from './physics';
+import { NO_STATUS, moveScale } from './status';
 
 /** Windup seconds per attack kind; longer for heavier attacks. */
 const WINDUP: Record<AttackKind, number> = {
@@ -191,6 +192,7 @@ export function createEnemy(
     patternIndex: 0,
     attackLanded: false,
     strafe: 1,
+    status: NO_STATUS,
   };
 }
 
@@ -262,7 +264,8 @@ export function updateEnemy(arena: Arena, enemy: Enemy, dt: number): boolean {
       if (enemy.stateTime <= 0) enemy.state = 'chase';
       break;
     case 'chase':
-      chase(arena, enemy, dt);
+      // Freeze and mud hold a quarry back instead of stopping it dead.
+      chase(arena, enemy, dt * moveScale(enemy.status ?? NO_STATUS));
       break;
     case 'windup':
       windup(arena, enemy);

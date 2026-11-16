@@ -4,6 +4,7 @@
 import { angleBetween, inArc, rollDamage, type Arena } from './combat';
 import type { InputFrame, Player } from './entities';
 import { moveAndCollide } from './physics';
+import { NO_STATUS, moveScale } from './status';
 import { applyAspect } from './aspects';
 import { applyEquipment, emptyEquipment, type EquipmentSlots } from './equipment';
 import { computeStats } from './upgrades';
@@ -77,6 +78,7 @@ export function createPlayer(x: number, y: number): Player {
     knockY: 0,
     hurtFlash: 0,
     clutchUsed: false,
+    status: NO_STATUS,
   };
 }
 
@@ -202,7 +204,10 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
     startSwing(arena);
   }
 
-  const slow = (p.swingTime >= 0 ? weaponDef(p.weapon).moveFactor : 1) * (staggered ? 0.45 : 1);
+  const slow =
+    (p.swingTime >= 0 ? weaponDef(p.weapon).moveFactor : 1) *
+    (staggered ? 0.45 : 1) *
+    moveScale(p.status ?? NO_STATUS);
   const speed = s.moveSpeed * slow;
   moveAndCollide(arena.grid, p, (moveX * speed + p.knockX) * dt, (moveY * speed + p.knockY) * dt);
   const decay = Math.exp(-12 * dt);

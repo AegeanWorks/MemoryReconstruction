@@ -4475,3 +4475,18 @@ showed their text with no hint. At 390x844 the panel measured 358.8px with no ho
 0 console errors. Screenshot `docs/qa/cycle106-memory-hints-1280x720.png`.
 ### Gate results
 See the task summary.
+## Cycle 107 - Elemental statuses and shots that hit the drawn body
+### FIND
+Burn, freeze and mud existed nowhere, and bolt collision tested the enemy's small body circle while the sprite draws up to
+twice as wide, so shots that visually touched a big enemy passed through.
+### IMPLEMENT
+- `src/sim/status.ts`: timers, refresh-not-stack application, burn ticks, movement scale, freeze shatter and a HUD label.
+- `src/sim/entities.ts`, `player.ts`, `enemies.ts`, `run.ts`: walkers and enemies carry status, default clear, and restore
+  clears older saves.
+- `src/sim/world.ts`: enemy and player status ticks, flame to burn, poison to mud, shatter on hit, and `shotHitRadius` for
+  bolts.
+- Tests: `status-effects` (9) and `sim/status-sim` (4).
+### RECORD
+Sim-only milestone; the browser pass lands with the frenzy HUD in milestone 2. 976 tests across 205 files pass.
+### Gate results
+See the task summary.
