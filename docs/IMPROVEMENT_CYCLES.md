@@ -4412,3 +4412,27 @@ at 374.4px with one column and no horizontal overflow; a fresh server reported 0
 `docs/qa/cycle103-bestiary-1280x720.png`, `cycle103-bestiary-390x844.png`.
 ### Gate results
 See the task summary.
+
+## Cycle 104 - A Bestiary that counts kills, filters itself and rewards completion
+### FIND
+The codex listed 97 species, but a recorded card showed only a name and field-guide line: nothing said how often a species
+had been met, there was no way to narrow 97 cards to what remained or to the guardians, and recording every species paid
+nothing.
+### IMPLEMENT
+- `src/sim/content.ts`: `BestiaryEntry.kills`, `bestiaryProgress(seen)` against the real enemies list, and
+  `filterBestiary(entries, filter)` for the all/seen/sealed/guardians views.
+- `src/save/SaveStore.ts`: `Meta.bestiaryKills` (per-def defeat counts) and `Meta.codexReward`, both defaulted for old saves.
+- `src/app/App.ts`: every kill increments its species counter; the first complete codex pays 1000 echoes once, sets
+  `codexReward` and toasts it.
+- `src/ui/Screens.ts`, `ui.css`: recorded cards read "Defeated xN", a four-button filter bar and a `.beast-grid` replace the
+  flat list, and a complete record shows the whole-codex line plus a `.codex-complete` banner.
+- Tests: `tests/bestiary-depth.test.ts` (5) plus the README bullet.
+### RECORD
+In Edge at 1280x720 a seeded record of Gutter Runner, Memory Echo and Reliquary Warden read "3 / 97 recorded" with
+"Defeated x4", "Defeated x12" and "Defeated x1"; **Recorded** left those three cards, **Guardians** left exactly 25
+guardian cards (first "Unknown guardian") and **All** restored 97. Seeding every species read "Every species recorded ·
+97 / 97 · the codex is whole." with the banner "Codex complete · the deep has no more names to hide." At 390x844 the panel
+measured 358.8px ending at 374.4px, one column, filter row 29px, no horizontal overflow; a fresh server reported 0 console
+errors. Screenshots `docs/qa/cycle104-bestiary-complete-1280x720.png`, `cycle104-bestiary-390x844.png`.
+### Gate results
+See the task summary.

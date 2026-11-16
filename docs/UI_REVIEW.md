@@ -391,3 +391,17 @@ The running build was driven in Edge at **1280x720** and **390x844**.
 - **Phone**: at 390x844 the panel measured 358.8px ending at 374.4px, one column, no horizontal overflow.
 - **Console**: 0 errors on the fresh server.
 Captures: `docs/qa/cycle103-bestiary-1280x720.png`, `cycle103-bestiary-390x844.png`.
+
+## 2026-11-16 review: Bestiary kill counts, filters and completion (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720** and **390x844**.
+- **Kill counts**: a seeded record of Gutter Runner, Memory Echo and Reliquary Warden read "3 / 97 recorded", and those
+  three cards carried "Defeated x4", "Defeated x12" and "Defeated x1"; the other 94 stayed sealed with no count.
+- **Filters**: **Recorded** left exactly the three recorded cards, **Guardians** left 25 cards all in the guardian band
+  (the first read "Unknown guardian"), and **All** restored all 97; the active filter is highlighted in gold.
+- **Completion**: seeding every species read "Every species recorded · 97 / 97 · the codex is whole." and showed the
+  banner "Codex complete · the deep has no more names to hide." in place of the hint.
+- **Phone**: at 390x844 the panel measured 358.8px ending at 374.4px, one column, a 29px filter row, no horizontal
+  overflow.
+- **Console**: 0 errors on the fresh server.
+Captures: `docs/qa/cycle104-bestiary-complete-1280x720.png`, `cycle104-bestiary-390x844.png`.
