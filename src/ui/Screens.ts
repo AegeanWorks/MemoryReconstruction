@@ -2080,21 +2080,33 @@ export function questLogScreen(
   return el;
 }
 
+/** What a shop line's button says, and whether the line can be bought right now. */
+export function shopLineState(
+  item: ShopItem,
+  shards: number,
+  healthFlasks: number,
+  maxHealthFlasks: number
+): { label: string; disabled: boolean } {
+  const flasksFull = item.id === 'health' && healthFlasks >= maxHealthFlasks;
+  return {
+    label: item.sold ? 'Sold' : flasksFull ? 'Flasks full' : `${item.cost} shards`,
+    disabled: item.sold || flasksFull || shards < item.cost,
+  };
+}
+
 /** A maze merchant's stall: consumables and one relic, priced in shards. */
 export function shopScreen(opts: {
   stock: readonly ShopItem[];
   shards: number;
+  healthFlasks: number;
+  maxHealthFlasks: number;
   onBuy: (id: ShopItemId) => void;
   onClose: () => void;
 }): HTMLElement {
   const rows = opts.stock.map((item) => {
-    const affordable = opts.shards >= item.cost;
-    const buy = button(
-      item.sold ? 'Sold' : `${item.cost} shards`,
-      () => opts.onBuy(item.id),
-      'btn small primary'
-    );
-    buy.disabled = item.sold || !affordable;
+    const line = shopLineState(item, opts.shards, opts.healthFlasks, opts.maxHealthFlasks);
+    const buy = button(line.label, () => opts.onBuy(item.id), 'btn small primary');
+    buy.disabled = line.disabled;
     return h(
       'div',
       { class: `shop-row${item.sold ? ' sold' : ''}` },

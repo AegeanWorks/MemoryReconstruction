@@ -780,6 +780,23 @@ export class World implements Arena {
         );
       }
     }
+    // Every floor keeps one stall outside the sealed vault, so the shop is not
+    // a lottery locked behind a secret room. The vault merchant still exists
+    // as a bonus when its 35% roll lands.
+    if (!this.interactables.some((i) => i.kind === 'merchant')) {
+      const stallRoom =
+        this.floor.rooms.find((r) => r.kind === 'treasure') ??
+        this.floor.rooms.find((r) => r.kind === 'shrine') ??
+        this.floor.rooms.find((r) => r.kind === 'library') ??
+        this.floor.rooms.find((r) => r.kind === 'combat');
+      if (stallRoom) {
+        const stallCentre = roomCentrePx(stallRoom);
+        const stall = this.clampToRoomInterior(stallRoom, stallCentre.x - 72, stallCentre.y + 48);
+        this.addInteractable('merchant', stall.x, stall.y, 35 + 8 * this.run.depth, {
+          label: 'Wandering merchant',
+        });
+      }
+    }
     const start = this.floor.rooms[this.floor.startRoom];
     const startCentre = roomCentrePx(start);
     const waystone = this.clampToRoomInterior(start, startCentre.x - 64, startCentre.y + 48);

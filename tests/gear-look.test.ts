@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import equipmentJson from '../src/data/equipment.json';
 import {
   ARMOR_LOOKS,
+  CAPE_LOOKS,
   TRINKET_LOOKS,
   gearLooks,
+  recolorCapePixels,
   recolorPixels,
   type ArmorLook,
 } from '../src/view/gearLook';
@@ -86,6 +88,44 @@ describe('recolorPixels', () => {
     expect([...buf.slice(0, 3)]).not.toEqual([52, 62, 108]);
   });
 });
+describe('recolorCapePixels', () => {
+  const ember = CAPE_LOOKS.ember_drape;
+  const recoloredCape = (pixel: Uint8ClampedArray): Uint8ClampedArray => {
+    const copy = new Uint8ClampedArray(pixel);
+    recolorCapePixels(copy, ember);
+    return copy;
+  };
+
+  it('moves the cloak cyan to the cape hue', () => {
+    const [r, g, b] = recoloredCape(rgba(73, 185, 212));
+    expect(Math.abs(hueOf(r, g, b) - ember.hue)).toBeLessThan(25);
+  });
+
+  it('leaves the robe, skin, gold and outline alone', () => {
+    for (const px of [
+      [52, 62, 108],
+      [173, 132, 105],
+      [255, 217, 138],
+      [10, 11, 22],
+    ]) {
+      expect([...recoloredCape(rgba(px[0], px[1], px[2]))]).toEqual([px[0], px[1], px[2], 255]);
+    }
+  });
+
+  it('composes with the robe pass so armor and cape keep separate colours', () => {
+    const buf = new Uint8ClampedArray([52, 62, 108, 255, 73, 185, 212, 255]);
+    recolorPixels(buf, ARMOR_LOOKS.void_shroud);
+    recolorCapePixels(buf, ember);
+    expect(Math.abs(hueOf(buf[0], buf[1], buf[2]) - ARMOR_LOOKS.void_shroud.hue)).toBeLessThan(25);
+    expect(Math.abs(hueOf(buf[4], buf[5], buf[6]) - ember.hue)).toBeLessThan(25);
+  });
+
+  it('keeps alpha and skips transparent pixels', () => {
+    expect(recoloredCape(rgba(73, 185, 212, 128))[3]).toBe(128);
+    expect([...recoloredCape(rgba(73, 185, 212, 0))]).toEqual([73, 185, 212, 0]);
+  });
+});
+
 describe('gearLooks', () => {
   const empty = { weapon: null, armor: null, trinket: null, head: null, cape: null };
   it('reports nothing for an unarmoured wanderer', () => {

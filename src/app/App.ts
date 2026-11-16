@@ -1432,6 +1432,8 @@ export class App {
         shopScreen({
           stock: world.shopStock(targetId),
           shards: world.player.shards,
+          healthFlasks: world.player.potions,
+          maxHealthFlasks: world.player.stats.maxPotions,
           onBuy: (id) => {
             if (world.buyFromShop(targetId, id)) this.sound.click();
             render();
