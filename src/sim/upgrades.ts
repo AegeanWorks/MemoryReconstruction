@@ -34,6 +34,12 @@ export interface PlayerStats {
   damageReduction: number;
   pickupRadius: number;
   maxPotions: number;
+  /** Mana flasks the walker can carry at once. */
+  maxManaFlask: number;
+  /** Bombs the walker can carry at once. */
+  maxBombs: number;
+  /** Traps the walker can carry at once. */
+  maxTraps: number;
   shockwave: boolean;
   manaOnKill: number;
 }
@@ -58,6 +64,9 @@ export const BASE_STATS: Readonly<PlayerStats> = {
   damageReduction: 0,
   pickupRadius: 64,
   maxPotions: 3,
+  maxManaFlask: 3,
+  maxBombs: 4,
+  maxTraps: 3,
   shockwave: false,
   manaOnKill: 0,
 };
@@ -198,6 +207,30 @@ export const UPGRADES: readonly UpgradeDef[] = [
     rarity: 'common',
     maxStacks: 3,
     apply: (s) => void (s.maxPotions += 1),
+  },
+  {
+    id: 'mana_rack',
+    name: 'Mana Rack',
+    description: '+1 mana flask capacity',
+    rarity: 'common',
+    maxStacks: 3,
+    apply: (s) => void (s.maxManaFlask += 1),
+  },
+  {
+    id: 'bomb_rig',
+    name: 'Bomb Rig',
+    description: '+2 bomb capacity',
+    rarity: 'common',
+    maxStacks: 3,
+    apply: (s) => void (s.maxBombs += 2),
+  },
+  {
+    id: 'trap_kit',
+    name: 'Trap Kit',
+    description: '+2 trap capacity',
+    rarity: 'common',
+    maxStacks: 3,
+    apply: (s) => void (s.maxTraps += 2),
   },
   {
     id: 'surge',

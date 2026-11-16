@@ -367,6 +367,13 @@ export function restoreRun(data: unknown): RunState | undefined {
       ? Math.max(0, Math.floor(run.player.manaPotions))
       : 1;
   // Status counters arrived with the elemental pass; older snapshots are clear.
+  // Carried supplies cannot exceed the current capacity skills allow.
+  const caps = run.player.stats;
+  if (caps) {
+    run.player.manaPotions = Math.min(run.player.manaPotions, caps.maxManaFlask ?? 3);
+    run.player.bombs = Math.min(run.player.bombs ?? 0, caps.maxBombs ?? 4);
+    run.player.traps = Math.min(run.player.traps ?? 0, caps.maxTraps ?? 3);
+  }
   run.player.status = normalizeStatus(run.player.status);
   run.player.rage = normalizeRage(run.player.rage);
   // A snapshot written before checkpoint banking has no bank; treat it as empty.

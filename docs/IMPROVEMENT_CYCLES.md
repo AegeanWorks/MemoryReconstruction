@@ -4529,3 +4529,19 @@ Prism Lancer showed "Defeated x3", "Health 150 / Damage 25 / XP 80" and habitati
 `docs/qa/cycle109-bestiary-new-species-1280x720.png`.
 ### Gate results
 See the task summary.
+## Cycle 110 - Carried supplies have caps and skills that raise them
+### FIND
+Mana flasks, bombs and traps had no cap, so supplies piled up unmanaged and no level-up choice changed how much could be
+carried.
+### IMPLEMENT
+- `src/sim/upgrades.ts`: `maxManaFlask` / `maxBombs` / `maxTraps`, and the Mana Rack, Bomb Rig and Trap Kit skills.
+- `src/sim/world.ts`: pickups convert to shards when full and the merchant refuses a full line.
+- `src/sim/run.ts`: restored runs clamp carried supplies to the restored caps.
+- `src/ui/Hud.ts`: kit and mana chips read `x/max`.
+- Tests: `sim/supply-caps` (6) plus the README upgrade count at 27.
+### RECORD
+In Edge at 1280x720 a fresh Section 1 run showed "Bomb x2/4 [G] · Trap x1/3 [T]", potions "3/3" and mana "1/3"; at
+390x844 the same HUD had no horizontal overflow and 0 console errors. Screenshot
+`docs/qa/cycle110-supply-caps-1280x720.png`.
+### Gate results
+See the task summary.

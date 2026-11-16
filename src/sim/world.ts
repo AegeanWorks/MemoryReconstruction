@@ -518,19 +518,22 @@ export class World implements Arena {
     const p = this.player;
     if (p.shards < item.cost) return false;
     if (itemId === 'health' && p.potions >= p.stats.maxPotions) return false;
+    if (itemId === 'mana' && p.manaPotions >= p.stats.maxManaFlask) return false;
+    if (itemId === 'bomb' && p.bombs >= p.stats.maxBombs) return false;
+    if (itemId === 'trap' && p.traps >= p.stats.maxTraps) return false;
     p.shards -= item.cost;
     switch (itemId) {
       case 'health':
         p.potions++;
         break;
       case 'mana':
-        p.manaPotions++;
+        p.manaPotions = Math.min(p.stats.maxManaFlask, p.manaPotions + 1);
         break;
       case 'bomb':
-        p.bombs += 2;
+        p.bombs = Math.min(p.stats.maxBombs, p.bombs + 2);
         break;
       case 'trap':
-        p.traps += 2;
+        p.traps = Math.min(p.stats.maxTraps, p.traps + 2);
         break;
       case 'relic':
         this.dropEquipment(target.x, target.y + 16);
@@ -2498,13 +2501,25 @@ export class World implements Arena {
         p.potions++;
         break;
       case 'mana':
-        p.manaPotions += item.amount;
+        if (p.manaPotions >= p.stats.maxManaFlask) {
+          p.shards += 2;
+          break;
+        }
+        p.manaPotions = Math.min(p.stats.maxManaFlask, p.manaPotions + item.amount);
         break;
       case 'bomb':
-        p.bombs += item.amount;
+        if (p.bombs >= p.stats.maxBombs) {
+          p.shards += 2;
+          break;
+        }
+        p.bombs = Math.min(p.stats.maxBombs, p.bombs + item.amount);
         break;
       case 'trap':
-        p.traps += item.amount;
+        if (p.traps >= p.stats.maxTraps) {
+          p.shards += 2;
+          break;
+        }
+        p.traps = Math.min(p.stats.maxTraps, p.traps + item.amount);
         break;
       case 'fragment':
         if (item.fragmentId) {

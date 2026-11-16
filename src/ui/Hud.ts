@@ -281,12 +281,12 @@ export class Hud {
     this.setText(this.mana.text!, `${Math.floor(p.mana)} / ${s.maxMana}`);
     this.setWidth(this.xp.fill, p.xp / xpForLevel(p.level));
     this.setText(this.potions, `${p.potions}/${s.maxPotions}`);
-    this.setText(this.manaPotions, `${p.manaPotions}`);
+    this.setText(this.manaPotions, `${p.manaPotions}/${s.maxManaFlask}`);
     this.setText(this.shards, `${p.shards}`);
     this.updatePips(p.dashCharges, s.dashCharges);
     this.setText(
       this.kit,
-      `${weaponDef(p.weapon).name} [1-3]  ·  Art ${p.artCooldown <= 0 ? 'ready [V]' : `${p.artCooldown.toFixed(1)}s`}  ·  Bomb x${p.bombs} [G]  ·  Trap x${p.traps} [T]`
+      `${weaponDef(p.weapon).name} [1-3]  ·  Art ${p.artCooldown <= 0 ? 'ready [V]' : `${p.artCooldown.toFixed(1)}s`}  ·  Bomb x${p.bombs}/${s.maxBombs} [G]  ·  Trap x${p.traps}/${s.maxTraps} [T]`
     );
 
     // The meter keeps its row when idle, so the vitals never jump between states.

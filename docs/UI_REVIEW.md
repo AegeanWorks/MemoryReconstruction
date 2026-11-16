@@ -448,3 +448,11 @@ The running build was driven in Edge at **1280x720**.
 - **Run**: Section 1 loaded with no horizontal overflow and 0 console errors, so the new sprite mappings and mud hazard
   code load cleanly in the running build.
 Captures: `docs/qa/cycle109-bestiary-new-species-1280x720.png`.
+## 2026-11-16 review: supply caps (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720** and **390x844**.
+- **Kit line**: a fresh Section 1 run read "Bomb x2/4 [G] · Trap x1/3 [T]" beside the weapon and art lines.
+- **Chips**: potions read "3/3" and mana read "1/3", so each carried supply shows its capacity.
+- **Phone**: at 390x844 the HUD had no horizontal overflow and the same caps.
+- **Console**: 0 errors.
+Captures: `docs/qa/cycle110-supply-caps-1280x720.png`.
