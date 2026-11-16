@@ -1330,5 +1330,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "f42b55b4179aa16e2420e0dee773649a76419b96db21f253283c7c13bab604ad",
     "baseline_digest": "f42b55b4179aa16e2420e0dee773649a76419b96db21f253283c7c13bab604ad"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the committed cycle 102 surface in Edge at 1280x720 and 390x844: the weekly Lantern Wraiths contract (0/40, claim to 800 echoes, Claimed 40/40), Reliquary Warden lore under the boss bar with the tracker yielding, the Reliquary 1/3 set sheet before the two-piece chip, and no phone overflow or console errors; evidence is in docs/UI_REVIEW.md and docs/qa/cycle102-*.png.",
+    "baseline_commit": "aad8387ac3b661e315cf8aef6b68d51c86fd2261",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794842227.6890097,
+    "finished_at": 1794842260.0093734,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "e3769a991760e4a483eb3dab9ee06c1363c7e3c3af46036f2740b47e02869e99",
+    "baseline_digest": "e3769a991760e4a483eb3dab9ee06c1363c7e3c3af46036f2740b47e02869e99"
   }
 ]
