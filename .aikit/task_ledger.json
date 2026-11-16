@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "memories-locations",
+    "task_id": "combat-expansion",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1794857064.4863493,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1794860950.974022,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -14,71 +14,9 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ],
-    "completed_at": 1794857164.1917093,
-    "completed_head": "6496f823054d379c18ed894b4a29b8af83f42a3e",
-    "completed_tree": "6a09ce23ff84478d3ca561c0f9bd5cacf58f650c"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "content-expansion-quest-chapters",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: 6 new enemies exist with tinted sheet mappings and boss-sized frames; plans are depth-sequential 0-24 with The Gilded Reliquary at 21, The Salt Orchard at 22, keeper at 23 and first_memory at 24; new mobs appear in four existing rosters; 12 quests give every resident two chapters with epilogues and late stories; trackedQuest saves, persists and hides after claim. 918 tests across 194 files, 478 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720: 13 quest cards, 12 available, Track->names, tracked border/Untrack, HUD 'Tracking \u00b7 Names in the Index \u00b7 0/4' at top 104; Section 22 start loaded depth 21 with the new roster and reliquary_warden; 390x844 journal had no overflow and a fresh server had 0 console errors.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794813350.8958724,
-      "timestamp_str": "2026-11-16 10:15:50",
-      "agent": "kilo:1",
-      "checklists": "skipped:PRINCIPLE-015",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "content-expansion-quest-chapters",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'content-expansion-quest-chapters' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794813701.4302702,
-      "timestamp_str": "2026-11-16 10:21:41",
-      "agent": "kilo:1",
-      "head": "da48173ffeefcaff1db9c5638d553902862ef3f3",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": true
-      }
-    },
-    {
-      "task_id": "quest-board-sets-lore",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Quest and item depth: eliteKills tracked on run and meta; quest kinds elites/relics/trust; a bonus tier 20% past target paying 40% extra echoes with per-objective caps; a third chapter for every resident (18 quests) with epilogues and board entries; a real Notice Board with accept/track/visit; an in-game journal overlay on J and touch; bonus bars and chapter labels; four three-piece relic sets applied after item mods with bag chips and sheet lines; five new lore fragments plus core memory 12 (40 fragments, 12 cores) and a synced mirror. Failing-first tests: quest-mechanics, item-sets, ui-quest-board, updated chapter and snapshot and lore assertions.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794821224.1402287,
-      "timestamp_str": "2026-11-16 12:27:04",
-      "agent": "kilo:1",
-      "impact_assessment": {
-        "why": "Player request for better quest UI, a proper notice board, in-game quests like the inventory, richer mechanics, better items, more quests and more lore.",
-        "benefits": "The board is a destination, the journal opens in a run, every quest has a bonus goal, late chapters use elites/relics/trust, sets reward mixing pieces, and the new sections have their own lore.",
-        "risks": "contract: Meta gains eliteKills, QuestSnapshot gains fields, AppState gains quests, quest count 12 to 18; dependency: set pieces must be valid equipment and new fragments must be grouped into a core; concurrency: none; state: old saves default the new counters.",
-        "mitigation": "Schema defaults, quest-board/chapter tests, lore completeness plus mirror sync, set-slot validation and browser checks at 1280x720 and 390x844."
-      },
-      "plan_digest": "c2fadb7e30c908e3378c667b66cb25316ea7bcd219da65c714eefce7490f468c",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "quest-board-sets-lore",
       "phase": "phase 4",
@@ -491,6 +429,108 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "combat-expansion",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/4] Combat expansion, milestone 1: enemies and the player carry burn, freeze and mud status (timers, damage-over-time ticks, movement slow, freeze shatter bonus); bolts test against the drawn sprite radius so edge hits register. Plan covers four milestones: statuses, frenzy/berserker stances with a red screen, five new enemy archetypes, then evidence. Remaining requests are split into three follow-up tasks in docs/ROADMAP_COMBAT_EXPANSION.md.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794857537.4104986,
+      "timestamp_str": "2026-11-16 22:32:17",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "The player asked for elemental statuses, a frenzy/berserker risk-reward stance, new enemy behaviours, and a fixed bolt hitbox that only registered near an enemy's centre.",
+        "benefits": "Elemental combat gives every damage source a second layer, frenzy adds a voluntary risk/reward choice, new archetypes diversify rooms, and bolt hits match what the player sees.",
+        "risks": "contract: Enemy and Player gain status fields (RunState saves player; enemies are rebuilt each floor); dependency: none; concurrency: none; state: old runs default to no status; balance: slow and DoT change clear times.",
+        "mitigation": "Pure sim tests per status, defaults on restore, bounded durations, and a browser pass at desktop and phone widths before the UI milestones close."
+      },
+      "plan_digest": "0dd494d948affe45e9ccdb33dc4468f630ad1b4736c559bee9c0e6e405fa419d",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "combat-expansion",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/4] Milestone 1 verified: status model refreshes rather than stacks (3s burn stays 3s), burn pays 6 dps in whole points, freeze and mud slow to 0.35/0.6 with a 0.25 floor, a frozen target takes 1.5x then loses the ice, junk and older saves normalize to clear, and every created walker and enemy starts clear. In the sim a burning enemy loses health with no attack, a frozen enemy takes 15 from a 10 hit and is thawed, a frozen walker travels less than a clean one, and standing in flame sets the walker burning. Bolt hits now test max(radius, displayHeight*0.3). 976 tests across 205 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl",
+        "README.md",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "src/sim/combat.ts",
+        "src/sim/enemies.ts",
+        "src/sim/entities.ts",
+        "src/sim/player.ts",
+        "src/sim/run.ts",
+        "src/sim/world.ts",
+        "docs/ROADMAP_COMBAT_EXPANSION.md",
+        "src/sim/status.ts",
+        "tests/sim/status-sim.test.ts",
+        "tests/status-effects.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794858789.198958,
+      "timestamp_str": "2026-11-16 22:53:09",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "combat-expansion",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/4] Milestone 2 verified: X cycles none -> Frenzy -> Berserker -> none in a real run; Frenzy shows 'Frenzy x1.60' with a crimson edge tint and Berserker shows 'Berserker x1.35' with the ember variant; a landed blow breaks Frenzy with a notice while Berserker survives; non-hazard player damage is multiplied while hazards are not; older saves normalize to calm. 983 tests across 206 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720 and 390x844: no horizontal overflow, Rage touch button present, 0 console errors. Three screenshots and ADR-234/cycle-108 docs written.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl",
+        "README.md",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "src/input/Input.ts",
+        "src/input/touch.ts",
+        "src/sim/entities.ts",
+        "src/sim/player.ts",
+        "src/sim/run.ts",
+        "src/sim/world.ts",
+        "src/ui/Hud.ts",
+        "src/ui/TouchControls.ts",
+        "src/ui/ui.css",
+        "tests/sim/input-nan.test.ts",
+        "tests/sim/world-input-fuzz.test.ts",
+        "tests/world-fuzz.test.ts",
+        "docs/qa/cycle108-rage-berserker-1280x720.png",
+        "docs/qa/cycle108-rage-frenzy-1280x720.png",
+        "docs/qa/cycle108-rage-frenzy-390x844.png",
+        "src/sim/rage.ts",
+        "tests/rage-stances.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794860950.974022,
+      "timestamp_str": "2026-11-16 23:29:10",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
     }
   ]
 }
