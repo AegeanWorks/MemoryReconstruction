@@ -4490,3 +4490,23 @@ twice as wide, so shots that visually touched a big enemy passed through.
 Sim-only milestone; the browser pass lands with the frenzy HUD in milestone 2. 976 tests across 205 files pass.
 ### Gate results
 See the task summary.
+## Cycle 108 - Two rage stances and a screen that reads the risk
+### FIND
+There was no voluntary damage stance; the player asked for a frenzy mode that is broken by taking damage, a Berserker skill
+that is not, and a red screen while frenzied.
+### IMPLEMENT
+- `src/sim/rage.ts`: stance table (none 1 / frenzy 1.6 / berserker 1.35), one-key cycle, interrupt rule, HUD label, save
+  normalization.
+- `src/sim/{entities,player,run,world}.ts`: `Player.rage`, input flag, `damageEnemy` multiplier, frenzy break in
+  `damagePlayer`, older saves start calm.
+- `src/input/{Input,touch}.ts`, `src/ui/{Hud,TouchControls}.ts`, `ui.css`: **X** key, touch Rage button, rage chip with
+  its multiplier, elemental-status chip, and a fixed red or ember edge tint.
+- Tests: `rage-stances` (7).
+### RECORD
+In Edge at 1280x720 a Section 1 run showed the calm HUD with a hidden rage chip; **X** showed "Frenzy · x1.60" and a
+crimson edge tint, a second **X** showed "Berserker · x1.35" with the ember variant (class `berserker`), and a third
+returned to calm. At 390x844 the HUD had no horizontal overflow and the Rage touch button was present. A fresh server
+reported 0 console errors. Screenshots `docs/qa/cycle108-rage-frenzy-1280x720.png`,
+`cycle108-rage-berserker-1280x720.png`, `cycle108-rage-frenzy-390x844.png`.
+### Gate results
+See the task summary.

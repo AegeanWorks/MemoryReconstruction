@@ -427,3 +427,14 @@ The running build was driven in Edge at **1280x720** and **390x844**.
 - **Phone**: at 390x844 the panel measured 358.8px with no horizontal overflow.
 - **Console**: 0 errors on the fresh server.
 Captures: `docs/qa/cycle106-memory-hints-1280x720.png`.
+## 2026-11-16 review: rage stances and elemental chips (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720** and **390x844**.
+- **Calm**: a Section 1 run showed the HUD with the rage chip and edge tint hidden.
+- **Frenzy**: **X** showed "Frenzy · x1.60" with a crimson edge tint.
+- **Berserker**: a second **X** showed "Berserker · x1.35" and switched the tint to its ember variant.
+- **Calm again**: a third **X** hid both the chip and the tint.
+- **Phone**: at 390x844 there was no horizontal overflow and the Rage touch button was present.
+- **Console**: 0 errors on the fresh server.
+Captures: `docs/qa/cycle108-rage-frenzy-1280x720.png`, `cycle108-rage-berserker-1280x720.png`,
+`cycle108-rage-frenzy-390x844.png`.
