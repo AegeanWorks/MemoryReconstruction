@@ -20,6 +20,7 @@ function frame(over: Partial<Frame> = {}): Frame {
     bomb: false,
     trap: false,
     art: false,
+  rage: false,
     ...over,
   };
 }

@@ -11,6 +11,8 @@ import {
   RESONANCE_WINDOW,
   xpForLevel,
 } from '../sim/run';
+import { rageDamageScale, rageLabel, normalizeRage } from '../sim/rage';
+import { NO_STATUS, statusLabel } from '../sim/status';
 import { weaponDef } from '../sim/weapons';
 import type { World } from '../sim/world';
 import { assetUrl, h } from './dom';
@@ -67,6 +69,12 @@ export class Hud {
   private readonly shards = h('span');
   private readonly prompt = h('div', { class: 'prompt hidden' });
   private readonly toasts = h('div', { class: 'toasts' });
+  /** Rage stance badge, hidden while calm. */
+  private readonly rage = h('span', { class: 'chip rage hidden' });
+  /** Elemental status badge, hidden while clear. */
+  private readonly status = h('span', { class: 'chip status hidden' });
+  /** Red edge tint shown while a rage stance is active. */
+  private readonly rageTint = h('div', { class: 'rage-tint hidden' });
   /** Hunter radar: visible while a stalker is armed on the walker. */
   private readonly stalked = h('span', { class: 'chip stalked hidden' }, '👁 stalked');
   private readonly hint = h(
@@ -93,6 +101,8 @@ export class Hud {
       ' mana  ',
       h('span', { class: 'key' }, 'E'),
       ' interact  ',
+      h('span', { class: 'key' }, 'X'),
+      ' rage  ',
       h('span', { class: 'key' }, 'Tab'),
       ' map'
     )
@@ -128,7 +138,9 @@ export class Hud {
         h('span', { class: 'chip' }, 'Dash', this.pips),
         h('span', { class: 'chip' }, potionIcon, this.potions, h('span', { class: 'key' }, 'Q')),
         h('span', { class: 'chip' }, manaIcon, this.manaPotions, h('span', { class: 'key' }, 'R')),
-        this.stalked
+        this.stalked,
+        this.rage,
+        this.status
       ),
       this.kit
     );
@@ -148,7 +160,8 @@ export class Hud {
       this.prompt,
       this.toasts,
       this.hint,
-      this.checklist
+      this.checklist,
+      this.rageTint
     );
   }
 
@@ -316,6 +329,14 @@ export class Hud {
     this.syncTracker();
 
     this.stalked.classList.toggle('hidden', !world.isStalked);
+    const rage = rageLabel(normalizeRage(p.rage));
+    this.rage.classList.toggle('hidden', rage === undefined);
+    if (rage) this.setText(this.rage, `${rage} · x${rageDamageScale(p.rage ?? 'none').toFixed(2)}`);
+    this.rageTint.classList.toggle('hidden', rage === undefined);
+    this.rageTint.classList.toggle('berserker', p.rage === 'berserker');
+    const effects = statusLabel(p.status ?? NO_STATUS);
+    this.status.classList.toggle('hidden', effects === undefined);
+    if (effects) this.setText(this.status, effects);
     // Field manual (cyberpulse ADR-037): the next unlearned basic, shown on
     // the first section until the checklist is complete. Touch screens name
     // their on-screen buttons instead of keys they do not have.

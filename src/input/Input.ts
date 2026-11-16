@@ -24,6 +24,7 @@ const KEYS = {
   bomb: ['KeyG'],
   trap: ['KeyT'],
   art: ['KeyV'],
+  rage: ['KeyX'],
 } as const;
 
 const STICK_DEADZONE = 0.22;
@@ -46,6 +47,7 @@ export class Input {
     bomb: false,
     trap: false,
     art: false,
+    rage: false,
   };
   /** Virtual sticks and buttons, fed by the on-screen overlay on touch devices. */
   readonly touch = new TouchState();
@@ -120,6 +122,7 @@ export class Input {
     if (KEYS.bomb.includes(e.code as never)) this.latched.bomb = true;
     if (KEYS.trap.includes(e.code as never)) this.latched.trap = true;
     if (KEYS.art.includes(e.code as never)) this.latched.art = true;
+    if (KEYS.rage.includes(e.code as never)) this.latched.rage = true;
     if (e.code === 'Digit1') this.latched.weapon = 0;
     if (e.code === 'Digit2') this.latched.weapon = 1;
     if (e.code === 'Digit3') this.latched.weapon = 2;
@@ -150,6 +153,7 @@ export class Input {
       bomb: false,
       trap: false,
       art: false,
+      rage: false,
     };
   }
 
@@ -253,6 +257,7 @@ export class Input {
       bomb: this.latched.bomb || touch.bomb,
       trap: this.latched.trap || touch.trap,
       art: this.latched.art || touch.art,
+      rage: this.latched.rage || touch.rage,
     };
     this.latched = {
       attack: false,
@@ -265,6 +270,7 @@ export class Input {
       bomb: false,
       trap: false,
       art: false,
+      rage: false,
     };
     return frame;
   }

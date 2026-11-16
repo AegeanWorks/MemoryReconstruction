@@ -34,6 +34,7 @@ function randomFrame(random: () => number, world: World): Frame {
     bomb: random() < 0.03,
     trap: random() < 0.03,
     art: random() < 0.1,
+    rage: random() < 0.05,
   };
   // One frame in thirty carries a non-finite value from a hypothetical faulty device.
   if (random() < 1 / 30) {

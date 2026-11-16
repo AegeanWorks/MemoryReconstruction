@@ -4240,3 +4240,44 @@
     justify-items: center;
   }
 }
+
+.chip.rage {
+  color: #ffb36b;
+  border-color: rgba(255, 140, 60, 0.6);
+  background: rgba(255, 90, 30, 0.12);
+  letter-spacing: 0.04em;
+}
+.chip.rage.hidden {
+  display: none;
+}
+.chip.status {
+  color: #9ad7ff;
+  border-color: rgba(120, 190, 255, 0.5);
+  background: rgba(70, 140, 220, 0.12);
+}
+.chip.status.hidden {
+  display: none;
+}
+.rage-tint {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 40, 20, 0) 42%,
+    rgba(255, 40, 20, 0.18) 78%,
+    rgba(255, 24, 12, 0.32) 100%
+  );
+  z-index: 40;
+}
+.rage-tint.berserker {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 90, 20, 0) 46%,
+    rgba(255, 110, 20, 0.12) 80%,
+    rgba(255, 90, 10, 0.22) 100%
+  );
+}
+.rage-tint.hidden {
+  display: none;
+}

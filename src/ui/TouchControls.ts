@@ -129,6 +129,7 @@ export function createTouchControls(
       touch.nextWeapon(currentWeapon());
     }),
     makeButton('touch-btn art', 'Art', tap('art')),
+    makeButton('touch-btn rage', 'Rage', tap('rage')),
     makeButton('touch-btn bomb', 'Bomb', tap('bomb')),
     makeButton('touch-btn trap', 'Trap', tap('trap'))
   );

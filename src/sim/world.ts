@@ -60,6 +60,7 @@ import { FlowField } from './pathing';
 import { moveAndCollide, separate } from './physics';
 import { refreshStats, updatePlayer } from './player';
 import { Rng, floorSeed } from './rng';
+import { rageAfterHit, rageDamageScale } from './rage';
 import {
   NO_STATUS,
   applyStatus,
@@ -543,6 +544,9 @@ export class World implements Arena {
     knockback: number
   ): number {
     if (enemy.state === 'spawning' || enemy.state === 'dying') return 0;
+    // A rage stance hits harder; its price is paid when the walker is struck.
+    if (source !== 'hazard')
+      amount = Math.round(amount * rageDamageScale(this.player.rage ?? 'none'));
     // A frozen enemy takes a shatter bonus; the hit breaks the ice.
     const frost = normalizeStatus(enemy.status);
     if (shattersOnHit(frost)) {
@@ -649,6 +653,11 @@ export class World implements Arena {
     p.health = Math.max(0, p.health - taken);
     p.invulnerable = HURT_IFRAMES;
     p.hurtFlash = 0.25;
+    // A landed blow breaks Frenzy; Berserker holds because that is its bargain.
+    if (p.rage === 'frenzy') {
+      p.rage = rageAfterHit(p.rage);
+      this.emit({ type: 'notice', text: 'Frenzy broken' });
+    }
     const room = this.currentRoom();
     if (room && this.rooms[room.id].phase === 'active') this.roomDamage += taken;
     if (p.resonance > 0) this.emit({ type: 'resonanceBreak', count: p.resonance });

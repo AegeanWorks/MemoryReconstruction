@@ -5,6 +5,7 @@ import { angleBetween, inArc, rollDamage, type Arena } from './combat';
 import type { InputFrame, Player } from './entities';
 import { moveAndCollide } from './physics';
 import { NO_STATUS, moveScale } from './status';
+import { cycleRage, normalizeRage } from './rage';
 import { applyAspect } from './aspects';
 import { applyEquipment, emptyEquipment, type EquipmentSlots } from './equipment';
 import { computeStats } from './upgrades';
@@ -79,6 +80,7 @@ export function createPlayer(x: number, y: number): Player {
     hurtFlash: 0,
     clutchUsed: false,
     status: NO_STATUS,
+    rage: 'none',
   };
 }
 
@@ -128,6 +130,8 @@ export function updatePlayer(arena: Arena, input: InputFrame, dt: number): void 
   if (p.dashCharges < s.dashCharges)
     p.dashCharges = Math.min(s.dashCharges, p.dashCharges + dt / s.dashRecharge);
   p.aim = angleBetween(p.x, p.y, input.aimX, input.aimY);
+  // One key walks none -> frenzy -> berserker -> none.
+  if (input.rage) p.rage = cycleRage(normalizeRage(p.rage));
 
   let moveX = input.moveX;
   let moveY = input.moveY;

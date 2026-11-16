@@ -8,6 +8,7 @@ import type { Player } from './entities';
 import { EQUIPMENT_SLOTS, emptyEquipment, equipmentExists } from './equipment';
 import { createPlayer, refreshStats } from './player';
 import { Rng } from './rng';
+import { normalizeRage } from './rage';
 import { normalizeStatus } from './status';
 import { ENGAGEMENT_TUNING } from './tuning';
 import { computeStats, upgradeExists } from './upgrades';
@@ -367,6 +368,7 @@ export function restoreRun(data: unknown): RunState | undefined {
       : 1;
   // Status counters arrived with the elemental pass; older snapshots are clear.
   run.player.status = normalizeStatus(run.player.status);
+  run.player.rage = normalizeRage(run.player.rage);
   // A snapshot written before checkpoint banking has no bank; treat it as empty.
   run.bankedRelics = Array.isArray(run.bankedRelics)
     ? run.bankedRelics.filter((id): id is string => typeof id === 'string' && equipmentExists(id))

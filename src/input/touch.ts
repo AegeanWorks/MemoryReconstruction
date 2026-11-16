@@ -11,7 +11,8 @@
 const STICK_DEADZONE = 0.18;
 const WEAPON_COUNT = 3;
 
-export type TouchTap = 'dash' | 'potion' | 'manaPotion' | 'interact' | 'art' | 'bomb' | 'trap';
+export type TouchTap =
+  'dash' | 'potion' | 'manaPotion' | 'interact' | 'art' | 'bomb' | 'trap' | 'rage';
 
 export interface Vec2 {
   x: number;
@@ -28,6 +29,7 @@ export interface TouchLatches {
   art: boolean;
   bomb: boolean;
   trap: boolean;
+  rage: boolean;
   /** Weapon index to switch to, or -1 to keep the current one. */
   weapon: number;
 }
@@ -51,6 +53,7 @@ function freshLatches(): TouchLatches {
     art: false,
     bomb: false,
     trap: false,
+    rage: false,
     weapon: -1,
   };
 }

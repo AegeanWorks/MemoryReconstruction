@@ -5,6 +5,7 @@
 import type { EnemyDef } from './content';
 import type { AspectId } from './aspects';
 import type { EquipmentItem, EquipmentSlots } from './equipment';
+import type { RageMode } from './rage';
 import type { StatusTimers } from './status';
 import type { PlayerStats } from './upgrades';
 import type { WeaponId } from './weapons';
@@ -84,6 +85,8 @@ export interface Player {
   clutchUsed?: boolean;
   /** Burn, freeze and mud timers carried by the walker. */
   status?: StatusTimers;
+  /** Voluntary rage stance: frenzy breaks on a hit, berserker does not. */
+  rage?: RageMode;
 }
 
 export type EnemyState =
@@ -343,6 +346,8 @@ export interface InputFrame {
   trap: boolean;
   /** Trigger the stance weapon art. */
   art: boolean;
+  /** Cycle the rage stance this frame. */
+  rage: boolean;
 }
 
 export const NO_INPUT: Readonly<InputFrame> = {
@@ -360,4 +365,5 @@ export const NO_INPUT: Readonly<InputFrame> = {
   bomb: false,
   trap: false,
   art: false,
+  rage: false,
 };

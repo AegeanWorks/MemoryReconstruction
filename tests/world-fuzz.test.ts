@@ -59,6 +59,7 @@ function play(run: RunState): void {
         bomb: false,
         trap: false,
         art: false,
+  rage: false,
       },
       1 / 60
     );
