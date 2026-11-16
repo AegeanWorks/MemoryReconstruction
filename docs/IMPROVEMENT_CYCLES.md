@@ -4324,3 +4324,41 @@ ERR_CONNECTION_REFUSED storm was infrastructure, not the game. Screenshots
 `cycle100-gilded-reliquary-1280x720.png`, `cycle100-quest-log-390x844.png`.
 ### Gate results
 See the task summary.
+
+## Cycle 101 - Notice board, in-run journal, bonus tiers, relic sets and new lore
+### FIND
+The player asked for better quest UI, a proper Notice Board, quests readable like the inventory in game, deeper quest
+mechanics, improved items, more quests and more lore. The code showed the gaps: the Notice Board building only opened
+the quest log, there was no in-run quest hotkey, quests paid a flat reward with no reason to overshoot, residents had
+two chapters, relics had no set bonuses, and the lore held 35 fragments and 11 core memories.
+### IMPLEMENT
+- `src/sim/run.ts`, `src/save/SaveStore.ts`, `src/sim/world.ts`: `eliteKills` on the run stats and meta, incremented
+  when an elite dies and carried through settlement.
+- `src/sim/quests.ts`: `elites`, `relics` and `trust` objective kinds; `QuestSource` snapshot fields; `questRawProgress`
+  and `questProgress`; a 20%-past-target bonus tier paying 40% extra echoes with per-objective caps; a third chapter for
+  every resident (18 quests) with epilogues; `questChapterLabel`; `questBoardEntries`; `applyQuestClaim` bonus argument.
+- `src/ui/Screens.ts`: a real `noticeBoardScreen` with pinned notes, Accept/Track/Visit, and bonus/chapter information in
+  the journal; active relic-set chips on the bag and a set line on the item sheet.
+- `src/app/App.ts`, `src/input/Input.ts`, `src/ui/TouchControls.ts`: the journal opens in a run with **J** (touch:
+  Quests) as an overlay with its own `quests` state, the Notice Board station opens the board, and the tracker stays
+  visible behind the journal.
+- `src/sim/equipment.ts`: four three-piece sets (Ashforged, Tidebound, Voidwrought, Reliquary) with `setForRelic`,
+  `activeSets`, `setMods`, applied after item mods.
+- `src/data/lore.json` (+ `assets/data/lore.json`): five new fragments (Reliquary, Orchard, past-Keeper void) and core
+  memory 12 **The Gilded Ledger** grouping them (40 fragments, 12 cores).
+- Tests: `quest-mechanics` (7), `item-sets` (6), `ui-quest-board` (3); updated quest-chapter counts, the snapshot
+  equality and the lore/core grouping and README-count assertions.
+### RECORD
+In Edge at 1280x720 the Notice Board showed six pinned notes; the first read "The Archivist · Chapter 1 of 3" with
+"60 echoes · bonus +24 at 5" and Accept/Track/Visit. Accepting moved it to In progress (subtitle "5 open notices · 1 in
+progress"), and Track set `meta.trackedQuest` to `names`. The journal then showed 19 cards (18 chapters plus the daily),
+chapter labels, a second bonus bar reading "Bonus +24 echoes 0/5", and the tracked border. Starting Section 1 and
+pressing **J** opened the journal in place (state `quests`, 19 cards) with the HUD tracker visible at "Tracking · Names
+in the Index · 0/4"; J again returned to play. Wearing Colossus Plate and Iron Helm showed the bag chip "Reliquary 2/3"
+and the sheet line "Reliquary · 2/3 worn / 2 pieces: +20 health / 3 pieces: +8% damage reduction". At 390x844 the board
+kept six notes at 358.8px ending at 374.4px with no horizontal overflow. A fresh server reported 0 console errors.
+Screenshots `docs/qa/cycle101-notice-board-1280x720.png`, `cycle101-quest-log-bonus-1280x720.png`,
+`cycle101-ingame-questlog-1280x720.png`, `cycle101-item-set-1280x720.png`,
+`cycle101-notice-board-390x844.png`.
+### Gate results
+See the task summary.

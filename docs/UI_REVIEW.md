@@ -343,3 +343,22 @@ The running Vite build was driven in Edge at **1280x720** and **390x844** on a f
 
 Captures: `docs/qa/cycle100-quest-log-tracked-1280x720.png`, `cycle100-hud-tracker-1280x720.png`,
 `cycle100-gilded-reliquary-1280x720.png`, `cycle100-quest-log-390x844.png`.
+
+## 2026-11-16 review: Notice Board, in-game journal, bonus tiers and relic sets (agent reviewer: kilo:1)
+
+The running Vite build was driven in Edge at **1280x720** and **390x844**.
+- **Notice Board**: six pinned notes, each with a giver portrait, chapter label, story text, reward and bonus line and
+  Accept/Track/Visit actions. Accepting **Names in the Index** moved it to the In progress section (subtitle "5 open
+  notices · 1 in progress · 0 chapters kept") and tracking it set `meta.trackedQuest = names`.
+- **Quest log**: 19 cards (18 chapters plus the daily), chapter labels such as "The Archivist · Chapter 1 of 3", a main
+  bar and a second bonus bar reading "Bonus +24 echoes 0/5", and the tracked border on the chosen card.
+- **In-game journal**: pressing **J** during Section 1 put the app in the `quests` state with 19 cards over the run and
+  the HUD tracker still reading "Tracking · Names in the Index · 0/4"; pressing **J** again returned to play. The touch
+  overlay exposes the same action as **Quests**.
+- **Relic sets**: wearing Colossus Plate and Iron Helm produced the bag chip "Reliquary 2/3" and the sheet line
+  "Reliquary · 2/3 worn / 2 pieces: +20 health / 3 pieces: +8% damage reduction"; 25 relic boxes remained.
+- **Phone**: at 390x844 the board kept six notes at 358.8px ending at 374.4px with no horizontal overflow.
+- **Console**: 0 errors on the fresh server; no game console errors were observed.
+
+Captures: `docs/qa/cycle101-notice-board-1280x720.png`, `cycle101-quest-log-bonus-1280x720.png`,
+`cycle101-ingame-questlog-1280x720.png`, `cycle101-item-set-1280x720.png`, `cycle101-notice-board-390x844.png`.
