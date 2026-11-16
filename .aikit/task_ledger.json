@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "bestiary-habitats",
+    "task_id": "memories-locations",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794855269.5372458,
+    "updated_at": 1794857064.4863493,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -15,70 +15,11 @@
         "path": "projects/MemoryReconstruction"
       }
     ],
-    "completed_at": 1794855799.289795,
-    "completed_head": "186e9468ffb2888b908e3489358e0b7ad96635bc",
-    "completed_tree": "becf07129559041fae0c57e8a77aaa9bb4ebed04"
+    "completed_at": 1794857164.1917093,
+    "completed_head": "6496f823054d379c18ed894b4a29b8af83f42a3e",
+    "completed_tree": "6a09ce23ff84478d3ca561c0f9bd5cacf58f650c"
   },
   "checkpoints": [
-    {
-      "task_id": "merchant-reachability-shop-truth",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: every one of 24 seeds has at least one five-line merchant, and a labelled Wandering merchant appears on most floors; the healing line reads Flasks full and is disabled at 3/3 flasks while other lines keep their prices; four cape pixel tests prove cyan moves to the cape hue, robe/skin/gold stay untouched, robe+cape compose and alpha survives. 907 tests across 192 files, 478 mechanics, lint/typecheck/build clean, 8/8 gates. Fresh-server Edge at 1280x720: Section 1 held a Wandering merchant; with flasks 3/3 and 0 shards the stall showed Flasks full disabled on healing and priced-but-disabled lines elsewhere.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794806992.0666912,
-      "timestamp_str": "2026-11-16 08:29:52",
-      "agent": "kilo:1",
-      "checklists": "skipped:PRINCIPLE-015",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "merchant-reachability-shop-truth",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'merchant-reachability-shop-truth' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794807225.1041358,
-      "timestamp_str": "2026-11-16 08:33:45",
-      "agent": "kilo:1",
-      "head": "2468172a95f043d4ba03f3b055fc0859ecb7729e",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": true
-      }
-    },
-    {
-      "task_id": "content-expansion-quest-chapters",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Content expansion: six new enemy records (Bone Picker, Lantern Wraith, Cinder Stalker, Spire Marksman, Reliquary Warden, Salt Orchard Hydra) using tinted borrowed sheets with boss-scale frames and patterns; two new late sections, The Gilded Reliquary (section 22) and The Salt Orchard (section 23), pushing the Keeper to 24 and the First Memory finale to 25; new mobs added to four existing rosters. Quest expansion: a second chapter for every resident (12 quests), chapter-aware selection, an epilogue per chapter, late story lines, and a persisted tracked-quest with a HUD tracker. Tests: content-expansion and quest-chapters plus intentional updates to section-count, checkpoint, depth-clamp and quest-reference assertions (ADR-226).",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794813117.0239446,
-      "timestamp_str": "2026-11-16 10:11:57",
-      "agent": "kilo:1",
-      "impact_assessment": {
-        "why": "Player request for new enemies, new sections, a better quest log, and better quests and story.",
-        "benefits": "Two more late road stops with new guardians and mobs, discoverable late enemies across four existing biomes, six new quest chapters with closing story beats, and a pinned quest line that follows the run.",
-        "risks": "contract: FINAL_DEPTH moves 22 to 24, Meta gains trackedQuest, quest selection becomes chapter-aware; dependency: borrowed sheets must exist in the atlas for every new enemy; concurrency: none; state: old saves at depth 22 now load The Salt Orchard, and old meta defaults trackedQuest null.",
-        "mitigation": "Plans are depth-sequential and covered by a new expansion test, atlas ids are reused keys, defaults cover old saves, and the migration change is named in ADR-226."
-      },
-      "plan_digest": "b5de902e226fc8ccfbef61943f0aa38e4764c03068d44bb7956f1e6734f9bd22",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "content-expansion-quest-chapters",
       "phase": "phase 4",
@@ -472,6 +413,78 @@
       "timestamp_str": "2026-11-16 22:03:19",
       "agent": "kilo:1",
       "head": "186e9468ffb2888b908e3489358e0b7ad96635bc",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
+    },
+    {
+      "task_id": "memories-locations",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Sealed memory fragments now say where they wait: fragmentHabitat(id) maps a fragment's biome to its readable name and memoriesProgress(owned) counts recovered fragments and restored cores against the real totals. The Memories tab gains a progress line and a 'Not yet found - the <biome>' hint under each sealed fragment. Failing-first: tests/memories-locations.test.ts (5 cases).",
+      "files_affected": [
+        "src/sim/content.ts",
+        "src/ui/Screens.ts",
+        "src/ui/ui.css",
+        "tests/memories-locations.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794856761.5964682,
+      "timestamp_str": "2026-11-16 22:19:21",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "A sealed fragment was three dots with no clue where to look, and the tab never said how much of the lore was left.",
+        "benefits": "Players get a route hint per missing fragment and an honest count of what remains.",
+        "risks": "contract: none (read-only helpers); dependency: none; concurrency: none; state: no saved shape change; UI: sealed rows gain a second line.",
+        "mitigation": "Pure tests over every fragment, a phantom-id case, the palette contrast floor, and browser checks at desktop and phone widths."
+      },
+      "plan_digest": "1672c5ee11ff29df70b3b7ca08d6f2b16e9f00e2627b734e90ffd8af5f62643e",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "memories-locations",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/2] Verified: seeding fragment_001 and fragment_002 reads '2 / 40 fragments - 0 / 12 memories restored' and 38 sealed fragments each carry a 'Not yet found - the <biome>' hint (Forgotten Ruins for the first four), while recovered fragments keep their text and no hint. 963 tests across 203 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720 and 390x844: 358.8px panel, no horizontal overflow, 0 console errors on a fresh server.",
+      "files_affected": [
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl",
+        "src/sim/content.ts",
+        "src/ui/Screens.ts",
+        "src/ui/ui.css",
+        "docs/qa/cycle106-memory-hints-1280x720.png",
+        "tests/memories-locations.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794857064.4863493,
+      "timestamp_str": "2026-11-16 22:24:24",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "memories-locations",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'memories-locations' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794857164.3130157,
+      "timestamp_str": "2026-11-16 22:26:04",
+      "agent": "kilo:1",
+      "head": "6496f823054d379c18ed894b4a29b8af83f42a3e",
       "delivery": {
         "roots": [
           "."
