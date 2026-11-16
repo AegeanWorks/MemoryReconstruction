@@ -2,7 +2,8 @@
 import { EQUIPMENT } from './equipment';
 import { restorationLevel, restoredLevels, type SanctuaryProgress } from './hub';
 
-export type QuestKind = 'fragments' | 'kills' | 'restored' | 'depth' | 'bosses';
+export type QuestKind =
+  'fragments' | 'kills' | 'restored' | 'depth' | 'bosses' | 'elites' | 'relics' | 'trust';
 
 export interface QuestDef {
   id: string;
@@ -189,6 +190,66 @@ export const QUESTS: readonly QuestDef[] = [
     rewardEchoes: 260,
     rewardItem: 'void_mantle',
   },
+  {
+    id: 'index_complete',
+    npcId: 'archivist',
+    name: 'The Complete Index',
+    text: 'Recover 24 memory fragments. The index is no longer a pile of pages; it is becoming a life.',
+    kind: 'fragments',
+    target: 24,
+    rewardEchoes: 300,
+    rewardItem: 'tidecloak',
+  },
+  {
+    id: 'elite_edges',
+    npcId: 'smith',
+    name: 'Edges Beyond the Wall',
+    text: 'Defeat 30 elites. Only the ones the deep sends to test you count, and they send their best.',
+    kind: 'elites',
+    target: 30,
+    rewardEchoes: 280,
+    rewardItem: 'ember_drape',
+  },
+  {
+    id: 'whole_garden',
+    npcId: 'gardener',
+    name: 'The Whole Garden',
+    text: 'Restore 10 levels of the Sanctuary. I want to see every bed green before the next winter.',
+    kind: 'restored',
+    target: 10,
+    rewardEchoes: 300,
+    rewardItem: 'void_mantle',
+  },
+  {
+    id: 'keepers_gate',
+    npcId: 'warden',
+    name: 'The Keeper’s Gate',
+    text: 'Reach the twenty-fourth section. The gate there has no hinges; prove it still opens for you.',
+    kind: 'depth',
+    target: 23,
+    rewardEchoes: 300,
+    rewardItem: 'colossus_plate',
+  },
+  {
+    id: 'sixteen_lights',
+    npcId: 'lamplighter',
+    name: 'Sixteen Lights',
+    text: 'Put down 18 guardians. The coast would be dark without them; it would also be at peace.',
+    kind: 'bosses',
+    target: 18,
+    rewardEchoes: 300,
+    rewardItem: 'void_visor',
+  },
+  {
+    id: 'full_table',
+    npcId: 'hearthkeeper',
+    name: 'A Full Table',
+    text: 'Earn 6 hearts of trust across the Sanctuary. A full table is not built by one chair.',
+    kind: 'trust',
+    target: 6,
+    rewardEchoes: 320,
+    rewardItem: 'ember_ward',
+  },
 ];
 
 /** Every quest a resident offers, in chapter order. */
@@ -237,11 +298,55 @@ export const QUEST_EPILOGUES: Record<string, string> = {
     'Twelve guardians down. The lamps have run out of names to give you, so they just burn.',
   the_last_tale:
     'The last tale is not about the road. It is about the chair by the fire and the person who keeps coming back to it.',
+  index_complete:
+    'The index is whole enough to be read. You are not a name in it any more; you are the hand that keeps writing.',
+  elite_edges:
+    'Thirty of the deep’s best. I have stopped counting the wall as a wall; it is the edge of everything you survived.',
+  whole_garden:
+    'Ten beds green. There is no part of this Sanctuary that has not felt your hands in it now.',
+  keepers_gate:
+    'The gate opened because you remembered it. I have never seen the Keeper’s door do that, and I have watched it a long time.',
+  sixteen_lights:
+    'Eighteen guardians quiet. The lamps are not counting any more. They just burn for you.',
+  full_table:
+    'Six hearts at one table. Sit down. This is not a tale any more; it is the reason the house has a roof.',
 };
 
 export function epilogueForNpc(npcId: string, claimed: readonly string[]): string | undefined {
   const chapter = latestClaimedQuestForNpc(npcId, claimed);
   return chapter ? QUEST_EPILOGUES[chapter.id] : undefined;
+}
+
+/** One posted note per resident: the next chapter they still have to offer. */
+export interface QuestBoardEntry {
+  npcId: string;
+  quest: QuestDef;
+  accepted: boolean;
+  ready: boolean;
+  progress: number;
+  bonusReached: boolean;
+}
+
+export function questBoardEntries(
+  meta: { quests: { accepted: readonly string[]; claimed: readonly string[] } },
+  snapshot: QuestSnapshot
+): QuestBoardEntry[] {
+  const entries: QuestBoardEntry[] = [];
+  for (const npcId of Object.keys(NPCS)) {
+    const quest = nextQuestForNpc(npcId, meta.quests.claimed);
+    if (!quest) continue;
+    const accepted = meta.quests.accepted.includes(quest.id);
+    const progress = questProgress(quest, snapshot);
+    entries.push({
+      npcId,
+      quest,
+      accepted,
+      ready: accepted && progress >= quest.target,
+      progress,
+      bonusReached: questBonusReached(quest, snapshot),
+    });
+  }
+  return entries;
 }
 
 export function questDef(id: string): QuestDef | undefined {
@@ -258,6 +363,11 @@ export interface QuestSnapshot {
   restored: number;
   depth: number;
   bosses: number;
+  elites: number;
+  /** Distinct relics kept in the vault. */
+  relics: number;
+  /** Hearts of trust earned across every resident. */
+  trust: number;
 }
 
 /** A story beat an NPC shares once the walker has earned the context. */
@@ -408,8 +518,9 @@ export function applyQuestClaim(
   meta: QuestClaimMeta,
   npcId: string,
   quest: QuestDef,
-  now = Date.now()
-): QuestClaimMeta & { gift?: string; rush: number } {
+  now = Date.now(),
+  bonusEchoes = 0
+): QuestClaimMeta & { gift?: string; rush: number; bonus: number } {
   if (meta.quests.claimed.includes(quest.id))
     throw new Error(`Quest '${quest.id}' has already been claimed`);
   const trust = trustLevel({ trust: meta.trust }, npcId);
@@ -420,7 +531,8 @@ export function applyQuestClaim(
   const gift = maybeTrustGift(vault, gifted, npcId, newTrust);
   const rush = rushBonus(quest.rewardEchoes, meta.quests.acceptedAt[quest.id], now);
   return {
-    echoes: meta.echoes + quest.rewardEchoes + trustBonus(quest.rewardEchoes, trust) + rush,
+    echoes:
+      meta.echoes + quest.rewardEchoes + trustBonus(quest.rewardEchoes, trust) + rush + bonusEchoes,
     vault: [...vault],
     trust: { ...meta.trust, [npcId]: newTrust },
     quests: {
@@ -431,6 +543,7 @@ export function applyQuestClaim(
     trustGifted: [...gifted],
     gift,
     rush,
+    bonus: bonusEchoes,
   };
 }
 
@@ -751,23 +864,38 @@ export const NPC_STORIES: Record<string, readonly NpcStory[]> = {
   ],
 };
 
+/** The meta-shaped subset the snapshot can read when the caller has it. */
+export interface QuestSource extends SanctuaryProgress {
+  vault?: readonly string[];
+  trust?: Readonly<Record<string, number>>;
+  eliteKills?: number;
+}
+
 export function questSnapshot(
   fragments: readonly string[],
   kills: number,
-  progress: SanctuaryProgress,
+  progress: QuestSource,
   depth = 0,
   bosses = 0
 ): QuestSnapshot {
+  const trust = Object.values(progress.trust ?? {}).reduce(
+    (sum, hearts) => sum + Math.max(0, Math.min(3, hearts)),
+    0
+  );
   return {
     fragments: fragments.length,
     kills,
     restored: restoredLevels(progress),
     depth,
     bosses,
+    elites: Math.max(0, progress.eliteKills ?? 0),
+    relics: new Set(progress.vault ?? []).size,
+    trust,
   };
 }
 
-export function questProgress(def: QuestDef, snapshot: QuestSnapshot): number {
+/** Uncapped objective value, so bonus tiers can read past the base target. */
+export function questRawProgress(def: QuestDef, snapshot: QuestSnapshot): number {
   const raw =
     def.kind === 'fragments'
       ? snapshot.fragments
@@ -777,8 +905,52 @@ export function questProgress(def: QuestDef, snapshot: QuestSnapshot): number {
           ? snapshot.restored
           : def.kind === 'depth'
             ? snapshot.depth
-            : snapshot.bosses;
-  return Math.max(0, Math.min(def.target, raw));
+            : def.kind === 'bosses'
+              ? snapshot.bosses
+              : def.kind === 'elites'
+                ? snapshot.elites
+                : def.kind === 'relics'
+                  ? snapshot.relics
+                  : snapshot.trust;
+  return Math.max(0, Math.floor(raw));
+}
+
+export function questProgress(def: QuestDef, snapshot: QuestSnapshot): number {
+  return Math.min(def.target, questRawProgress(def, snapshot));
+}
+
+/**
+ * Optional bonus tier: 20% past the base target (clamped to what the game can
+ * actually deliver) pays 40% of the base echoes on top. It gives every quest a
+ * reason to be pushed a little further instead of claimed at the first tick.
+ */
+const QUEST_BONUS_CAPS: Record<QuestKind, number> = {
+  fragments: 40,
+  kills: 9999,
+  restored: 12,
+  depth: 24,
+  bosses: 99,
+  elites: 999,
+  relics: 28,
+  trust: 18,
+};
+
+export function questBonus(def: QuestDef): { target: number; echoes: number } | undefined {
+  const target = Math.min(QUEST_BONUS_CAPS[def.kind], Math.ceil(def.target * 1.2));
+  if (target <= def.target) return undefined;
+  return { target, echoes: Math.round(def.rewardEchoes * 0.4) };
+}
+
+export function questBonusReached(def: QuestDef, snapshot: QuestSnapshot): boolean {
+  const bonus = questBonus(def);
+  return !!bonus && questRawProgress(def, snapshot) >= bonus.target;
+}
+
+/** "Chapter 2 of 3" for a resident's task, used by the journal and board. */
+export function questChapterLabel(def: QuestDef): string {
+  const chapters = questsForNpcList(def.npcId);
+  const index = chapters.findIndex((chapter) => chapter.id === def.id);
+  return `Chapter ${Math.max(1, index + 1)} of ${chapters.length}`;
 }
 
 /** Kept for callers that only need one structure's level. */

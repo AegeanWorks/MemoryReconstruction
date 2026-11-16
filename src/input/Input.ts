@@ -8,7 +8,7 @@
 import type { InputFrame } from '../sim/entities';
 import { TouchState } from './touch';
 
-export type MenuAction = 'pause' | 'confirm' | 'map' | 'inventory';
+export type MenuAction = 'pause' | 'confirm' | 'map' | 'inventory' | 'quests';
 
 const KEYS = {
   up: ['KeyW', 'ArrowUp'],
@@ -109,6 +109,7 @@ export class Input {
       if (e.code === 'Tab' || e.code === 'KeyM') this.onMenu('map');
       if (e.code === 'Enter') this.onMenu('confirm');
       if (e.code === 'KeyI') this.onMenu('inventory');
+      if (e.code === 'KeyJ') this.onMenu('quests');
       return;
     }
     this.held.add(e.code);
@@ -129,6 +130,7 @@ export class Input {
     if (e.code === 'Tab' || e.code === 'KeyM') this.onMenu('map');
     if (e.code === 'Enter') this.onMenu('confirm');
     if (e.code === 'KeyI') this.onMenu('inventory');
+    if (e.code === 'KeyJ') this.onMenu('quests');
   }
 
   /** Drops held state, e.g. when the window loses focus or a menu opens. */

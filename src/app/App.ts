@@ -35,6 +35,8 @@ import {
   epilogueForNpc,
   nextQuestForNpc,
   npcStories,
+  questBonus,
+  questBonusReached,
   questDef,
   questProgress,
   questStateFor,
@@ -82,6 +84,7 @@ import {
   MEDITATION_COST,
   meditationScreen,
   memoriesScreen,
+  noticeBoardScreen,
   pauseScreen,
   questLogScreen,
   reforgeScreen,
@@ -103,6 +106,7 @@ export type AppState =
   | 'hub'
   | 'sanctuary'
   | 'playing'
+  | 'quests'
   | 'paused'
   | 'choice'
   | 'map'
@@ -487,7 +491,7 @@ export class App {
         onRestoration: () => this.click(() => this.openHubPanel()),
         onTraining: () => this.click(() => this.showTraining()),
         onMeditation: () => this.click(() => this.showMeditation()),
-        onQuests: () => this.click(() => this.showQuestLog(() => this.showHub())),
+        onQuests: () => this.click(() => this.showNoticeBoard()),
         onReliquary: () => this.click(() => this.showReliquary()),
         onCairn: () => this.click(() => this.showCairn()),
         onAspect: () => this.click(() => this.showAspects()),
@@ -721,9 +725,12 @@ export class App {
     return `Tracking · ${quest.name} · ${Math.min(progress, quest.target)}/${quest.target}`;
   }
 
-  /** The quest section, reachable from the Notice Board and the pause menu. */
-  private showQuestLog(back: () => void): void {
-    if (this.world?.mode === 'sanctuary') this.state = 'hub';
+  /** The quest journal; `overlay` opens it in the middle of a run with J. */
+  private showQuestLog(back: () => void, overlay = false): void {
+    if (overlay) {
+      this.state = 'quests';
+      this.sound.setSuspended(true);
+    } else if (this.world?.mode === 'sanctuary') this.state = 'hub';
     this.input.releaseAll();
     const render = (): void => {
       const key = dailyKey();
@@ -752,6 +759,54 @@ export class App {
           },
           () => this.click(back)
         )
+      );
+    };
+    render();
+  }
+
+  /** The in-game quest UI: the same journal the pause menu opens, without leaving the run. */
+  private showQuestOverlay(): void {
+    const inSanctuary = this.world?.mode === 'sanctuary';
+    const close = (): void => {
+      this.sound.setSuspended(false);
+      if (inSanctuary) this.resumeRoom();
+      else this.resume();
+    };
+    this.showQuestLog(close, true);
+  }
+
+  /** The Sanctuary Notice Board: accept, track and visit from the posted notes. */
+  private showNoticeBoard(): void {
+    this.state = 'hub';
+    this.input.releaseAll();
+    const render = (): void => {
+      this.screens.show(
+        noticeBoardScreen(this.meta, this.questSnapshotNow(), {
+          trackedQuest: this.meta.trackedQuest,
+          onAccept: (id) => {
+            if (this.meta.quests.accepted.includes(id)) return;
+            this.sound.click();
+            this.meta = {
+              ...this.meta,
+              quests: {
+                ...this.meta.quests,
+                accepted: [...this.meta.quests.accepted, id],
+                acceptedAt: { ...this.meta.quests.acceptedAt, [id]: Date.now() },
+              },
+            };
+            this.store.saveMeta(this.meta);
+            render();
+          },
+          onTrack: (id) => {
+            this.sound.click();
+            this.meta = { ...this.meta, trackedQuest: id };
+            this.store.saveMeta(this.meta);
+            render();
+          },
+          onVisit: (npcId) => this.showNpc(npcId),
+          onOpenLog: () => this.showQuestLog(() => this.showNoticeBoard()),
+          onBack: () => this.showHub(),
+        })
       );
     };
     render();
@@ -911,13 +966,17 @@ export class App {
             if (!quest || claimed || progress < quest.target) return;
             this.sound.click();
             const trustBefore = trustLevel(this.meta, npcId);
-            const settled = applyQuestClaim(this.meta, npcId, quest);
+            const bonusTier = questBonus(quest);
+            const bonusEchoes =
+              bonusTier && questBonusReached(quest, snapshot) ? bonusTier.echoes : 0;
+            const settled = applyQuestClaim(this.meta, npcId, quest, Date.now(), bonusEchoes);
             this.meta = { ...this.meta, ...settled };
             if (this.meta.trackedQuest === quest.id)
               this.meta = { ...this.meta, trackedQuest: null };
             const bonus = trustBonus(quest.rewardEchoes, trustBefore);
             const parts = [`+${quest.rewardEchoes} echoes`];
             if (bonus > 0) parts.push(`+${bonus} friends' share`);
+            if (bonusEchoes > 0) parts.push(`+${bonusEchoes} bonus`);
             if (settled.rush > 0) parts.push(`+${settled.rush} rush bonus`);
             this.hud.toast(`Task complete · ${parts.join(', ')}`);
             if (settled.gift) {
@@ -1560,6 +1619,14 @@ export class App {
       if ((this.state === 'playing' || this.state === 'sanctuary') && this.world)
         this.showInventory();
       else if (this.state === 'inventory') closeOverlay();
+    } else if (action === 'quests') {
+      if ((this.state === 'playing' || this.state === 'sanctuary') && this.world)
+        this.showQuestOverlay();
+      else if (this.state === 'quests') {
+        this.sound.setSuspended(false);
+        if (this.world?.mode === 'sanctuary') this.resumeRoom();
+        else this.resume();
+      }
     } else if (action === 'confirm' && this.state === 'choice') {
       // Gamepad confirm takes the focused card, else the first card, and the
       // screen's own arming guard still protects against an accidental press.

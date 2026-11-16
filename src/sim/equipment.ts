@@ -93,15 +93,11 @@ export function applyEquipment(
     if (!item) continue;
     const def = equipmentDef(item.defId);
     const scale = 1 + REFORGE_STEP * Math.max(0, Math.min(REFORGE_MAX, item.rank ?? 0));
-    for (const [key, raw] of Object.entries(def.mods)) {
-      if (typeof raw !== 'number') continue;
-      const value = raw * scale;
-      const stat = key as keyof PlayerStats;
-      const current = out[stat];
-      if (typeof current !== 'number') continue;
-      const next = MULTIPLICATIVE.has(stat) ? current * (1 + value) : current + value;
-      (out[stat] as number) = INTEGER.has(stat) ? Math.round(next) : next;
-    }
+    applyMods(out, def.mods, scale);
+  }
+  for (const { set, count } of activeSets(equipped)) {
+    applyMods(out, set.two, 1);
+    if (count >= 3) applyMods(out, set.three, 1);
   }
   out.damageReduction = Math.max(0, Math.min(0.65, out.damageReduction));
   out.critChance = Math.max(0, Math.min(1, out.critChance));
@@ -109,6 +105,95 @@ export function applyEquipment(
   out.moveSpeed = Math.max(60, out.moveSpeed);
   out.dashRecharge = Math.max(0.25, out.dashRecharge);
   return out;
+}
+
+/** A named trio of relics; wearing two or three adds bonus mods on top of their own. */
+export interface RelicSet {
+  id: string;
+  name: string;
+  pieces: readonly string[];
+  two: Partial<PlayerStats>;
+  three: Partial<PlayerStats>;
+}
+
+export const RELIC_SETS: readonly RelicSet[] = [
+  {
+    id: 'ashforged',
+    name: 'Ashforged',
+    pieces: ['ember_core', 'ember_charm', 'ember_drape'],
+    two: { meleeDamage: 6 },
+    three: { critMultiplier: 0.25 },
+  },
+  {
+    id: 'tidebound',
+    name: 'Tidebound',
+    pieces: ['tide_lens', 'tidecloak', 'crystal_mail'],
+    two: { maxMana: 12 },
+    three: { manaRegen: 1.5, damageReduction: 0.05 },
+  },
+  {
+    id: 'voidwrought',
+    name: 'Voidwrought',
+    pieces: ['void_cleaver', 'void_shroud', 'void_mantle'],
+    two: { critChance: 0.05 },
+    three: { critMultiplier: 0.35, damageReduction: 0.05 },
+  },
+  {
+    id: 'reliquary',
+    name: 'Reliquary',
+    pieces: ['colossus_plate', 'iron_helm', 'ember_ward'],
+    two: { maxHealth: 20 },
+    three: { damageReduction: 0.08 },
+  },
+];
+
+const SET_BY_PIECE = new Map<string, RelicSet>();
+for (const set of RELIC_SETS) for (const piece of set.pieces) SET_BY_PIECE.set(piece, set);
+
+export function setForRelic(defId: string): RelicSet | undefined {
+  return SET_BY_PIECE.get(defId);
+}
+
+/** Every set with at least two pieces worn, and how many are worn. */
+export function activeSets(
+  equipped: EquipmentSlots | undefined
+): Array<{ set: RelicSet; count: number }> {
+  if (!equipped) return [];
+  const worn = new Set(
+    EQUIPMENT_SLOTS.map((slot) => equipped[slot]?.defId).filter((id): id is string => !!id)
+  );
+  const out: Array<{ set: RelicSet; count: number }> = [];
+  for (const set of RELIC_SETS) {
+    const count = set.pieces.filter((piece) => worn.has(piece)).length;
+    if (count >= 2) out.push({ set, count });
+  }
+  return out;
+}
+
+/** The aggregate bonus a set contributes at its current worn count. */
+export function setMods(equipped: EquipmentSlots | undefined): Partial<PlayerStats> {
+  const out: Record<string, number> = {};
+  for (const { set, count } of activeSets(equipped)) {
+    const mods = count >= 3 ? [set.two, set.three] : [set.two];
+    for (const block of mods) {
+      for (const [key, raw] of Object.entries(block)) {
+        if (typeof raw === 'number') out[key] = (out[key] ?? 0) + raw;
+      }
+    }
+  }
+  return out as Partial<PlayerStats>;
+}
+
+function applyMods(out: PlayerStats, mods: Partial<PlayerStats>, scale: number): void {
+  for (const [key, raw] of Object.entries(mods)) {
+    if (typeof raw !== 'number') continue;
+    const value = raw * scale;
+    const stat = key as keyof PlayerStats;
+    const current = out[stat];
+    if (typeof current !== 'number') continue;
+    const next = MULTIPLICATIVE.has(stat) ? current * (1 + value) : current + value;
+    (out[stat] as number) = INTEGER.has(stat) ? Math.round(next) : next;
+  }
 }
 
 /** Weighted equipment roll. Deeper sections find better relics. */

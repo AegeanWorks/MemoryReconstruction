@@ -11,7 +11,7 @@ import { h } from './dom';
 const STICK_RADIUS = 48;
 
 /** A full-screen panel the touch rail can open without a keyboard. */
-export type TouchMenuAction = 'pause' | 'map' | 'inventory';
+export type TouchMenuAction = 'pause' | 'map' | 'inventory' | 'quests';
 
 function makeStick(
   kind: 'move' | 'aim',
@@ -108,6 +108,7 @@ export function createTouchControls(
     'div',
     { class: 'touch-utility' },
     makeButton('touch-btn util', 'Relics', menu('inventory')),
+    makeButton('touch-btn util', 'Quests', menu('quests')),
     makeButton('touch-btn util', 'Map', menu('map')),
     makeButton('touch-btn util', 'Menu', menu('pause'))
   );

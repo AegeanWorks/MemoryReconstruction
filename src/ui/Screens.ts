@@ -6,19 +6,26 @@ import { CORE_MEMORIES, FLOOR_PLANS, MEMORY_FRAGMENTS, biomeInfo } from '../sim/
 import { FEATS, featProgress, type FeatDef } from '../sim/feats';
 import {
   INVENTORY_SLOTS,
+  activeSets,
   applyEquipment,
   equipmentDef,
   equipmentScore,
   relicSellShards,
+  setForRelic,
   type EquipmentItem,
   type EquipmentRarity,
   type EquipmentSlot,
+  type EquipmentSlots,
 } from '../sim/equipment';
 import {
   NPCS,
   QUESTS,
   nextQuestForNpc,
+  questBoardEntries,
+  questBonus,
+  questChapterLabel,
   questProgress,
+  questRawProgress,
   relicRequestStatus,
   requestForNpc,
   type DailyBounty,
@@ -393,6 +400,12 @@ export function sanctuaryScreen(opts: {
     restored: restoredLevels(hubProgress(meta)),
     depth: meta.bestDepth,
     bosses: meta.bossKills,
+    elites: meta.eliteKills,
+    relics: new Set(meta.vault).size,
+    trust: Object.values(meta.trust).reduce(
+      (sum, hearts) => sum + Math.max(0, Math.min(3, hearts)),
+      0
+    ),
   };
   const cards = SANCTUARY_BUILDINGS.map((building) => {
     const npc = NPCS[building.id];
@@ -1459,6 +1472,7 @@ export function inventoryScreen(
   const p = world.player;
   const s = p.stats;
   const bank = bankSummary(world.run);
+  const wornSets = activeSets(p.equipment);
   const statChip = (label: string, value: string): HTMLElement =>
     h('span', { class: 'gear-stat' }, h('b', {}, value), ` ${label}`);
   // One path for the grid, its double click and the detail pane, so the messages cannot drift apart.
@@ -1594,6 +1608,22 @@ export function inventoryScreen(
           : 'everything carried is safe'
       }.`
     ),
+    wornSets.length > 0
+      ? h(
+          'div',
+          { class: 'set-chips' },
+          ...wornSets.map(({ set, count }) =>
+            h(
+              'span',
+              {
+                class: 'set-chip',
+                title: `2 pieces: ${modSummary(set.two)} · 3 pieces: ${modSummary(set.three)}`,
+              },
+              `${set.name} ${count}/${set.pieces.length}`
+            )
+          )
+        )
+      : null,
     junkButton,
     bagFull
       ? h('div', { class: 'gear-note' }, 'The bag is full — relics found now are sold for shards.')
@@ -1686,7 +1716,7 @@ function relicDetail(p: World['player'], key: string | null, act: DetailActions)
     }
     const unequip = button('Unequip', () => act.unequip(slot), 'btn small');
     unequip.dataset.action = `unequip:${slot}`;
-    return detailCard(item, `Worn · ${slot}`, [], unequip);
+    return detailCard(item, `Worn · ${slot}`, [], p.equipment, unequip);
   }
   const item = kind === 'bag' ? p.inventory.find((i) => `${i.uid}` === id) : undefined;
   if (!item) {
@@ -1725,16 +1755,30 @@ function relicDetail(p: World['player'], key: string | null, act: DetailActions)
   const note = worn
     ? `Carried · swaps with ${itemName(worn)}`
     : `Carried · fills the empty ${def.slot} slot`;
-  return detailCard(item, note, deltas, equipBtn, sell, discard);
+  return detailCard(item, note, deltas, p.equipment, equipBtn, sell, discard);
 }
 
 function detailCard(
   item: EquipmentItem,
   note: string,
   deltas: HTMLElement[],
+  equipped: EquipmentSlots,
   ...actions: HTMLElement[]
 ): HTMLElement {
   const def = equipmentDef(item.defId);
+  const set = setForRelic(def.id);
+  const setCount = set
+    ? (activeSets(equipped).find((entry) => entry.set.id === set.id)?.count ?? 0)
+    : 0;
+  const setLine = set
+    ? h(
+        'div',
+        { class: 'gear-set' },
+        `${set.name} · ${setCount}/${set.pieces.length} worn`,
+        h('div', { class: 'gear-set-bonus' }, `2 pieces: ${modSummary(set.two)}`),
+        h('div', { class: 'gear-set-bonus' }, `3 pieces: ${modSummary(set.three)}`)
+      )
+    : null;
   return h(
     'div',
     { class: `relic-detail ${def.rarity}`, 'aria-live': 'polite' },
@@ -1750,6 +1794,7 @@ function detailCard(
       h('div', { class: 'gear-name' }, itemName(item), rarityTag(def.rarity)),
       h('div', { class: 'gear-slot' }, note),
       h('div', { class: 'gear-desc' }, def.description),
+      setLine,
       deltas.length > 0 ? h('div', { class: 'gear-deltas' }, ...deltas) : null
     ),
     h('div', { class: 'gear-actions' }, ...actions)
@@ -1893,6 +1938,140 @@ export function meditationScreen(
 }
 
 /** The quest section: every task, its giver, and where it stands. */
+/** The Sanctuary Notice Board: one posted note per resident's next chapter. */
+export function noticeBoardScreen(
+  meta: Meta,
+  snapshot: QuestSnapshot,
+  opts: {
+    trackedQuest: string | null;
+    onAccept: (id: string) => void;
+    onTrack: (id: string | null) => void;
+    onVisit: (npcId: string) => void;
+    onOpenLog: () => void;
+    onBack: () => void;
+  }
+): HTMLElement {
+  const entries = questBoardEntries(meta, snapshot);
+  const available = entries.filter((entry) => !entry.accepted);
+  const active = entries.filter((entry) => entry.accepted);
+
+  const note = (entry: (typeof entries)[number]): HTMLElement => {
+    const { quest } = entry;
+    const name = NPCS[quest.npcId]?.name ?? quest.npcId;
+    const bonus = questBonus(quest);
+    const pct = Math.min(100, Math.round((entry.progress / quest.target) * 100));
+    const tracked = opts.trackedQuest === quest.id;
+    return h(
+      'article',
+      { class: `notice-note${entry.accepted ? ' active' : ''}${tracked ? ' tracked' : ''}` },
+      h('div', { class: 'notice-pin' }),
+      h(
+        'div',
+        { class: 'notice-head' },
+        h('img', {
+          src: assetUrl(`sprites/props/npc_${quest.npcId}.png`),
+          alt: name,
+          draggable: 'false',
+        }),
+        h(
+          'div',
+          { class: 'notice-copy' },
+          h('div', { class: 'quest-name' }, quest.name),
+          h('div', { class: 'notice-giver' }, `${name} · ${questChapterLabel(quest)}`)
+        ),
+        entry.ready ? h('span', { class: 'quest-state ready' }, 'Ready to claim') : null
+      ),
+      h('p', { class: 'quest-text' }, quest.text),
+      h(
+        'div',
+        { class: 'notice-reward' },
+        `${quest.rewardEchoes} echoes${quest.rewardItem ? ' + a relic' : ''}${
+          bonus ? ` · bonus +${bonus.echoes} at ${bonus.target}` : ''
+        }`
+      ),
+      entry.accepted
+        ? h(
+            'div',
+            { class: 'quest-progress' },
+            h('span', { class: 'quest-bar' }, h('span', { style: `width:${pct}%` })),
+            h(
+              'span',
+              { class: 'quest-numbers' },
+              `${Math.min(entry.progress, quest.target)}/${quest.target}`
+            )
+          )
+        : null,
+      h(
+        'div',
+        { class: 'notice-actions' },
+        entry.accepted
+          ? null
+          : button('Accept', () => opts.onAccept(quest.id), 'btn small primary'),
+        button(
+          tracked ? 'Untrack' : 'Track',
+          () => opts.onTrack(tracked ? null : quest.id),
+          'btn small'
+        ),
+        button(
+          entry.ready ? 'Claim with the giver' : `Visit ${name}`,
+          () => opts.onVisit(quest.npcId),
+          'btn small'
+        )
+      )
+    );
+  };
+
+  return h(
+    'div',
+    { class: 'screen hub notice-board' },
+    h('div', { class: 'subtitle' }, 'The Notice Board'),
+    h('div', { class: 'title small' }, 'Work for the willing'),
+    h(
+      'div',
+      { class: 'meta-line' },
+      `${available.length} open notice${available.length === 1 ? '' : 's'} · ${active.length} in progress · ${meta.quests.claimed.length} chapters kept`
+    ),
+    active.length > 0
+      ? h(
+          'section',
+          { class: 'notice-section' },
+          h(
+            'div',
+            { class: 'quest-section-head' },
+            h('span', {}, 'In progress'),
+            h('span', { class: 'quest-count' }, `${active.length}`)
+          ),
+          ...active.map(note)
+        )
+      : null,
+    h(
+      'section',
+      { class: 'notice-section' },
+      h(
+        'div',
+        { class: 'quest-section-head' },
+        h('span', {}, 'Posted notices'),
+        h('span', { class: 'quest-count' }, `${available.length}`)
+      ),
+      ...(available.length > 0
+        ? available.map(note)
+        : [
+            h(
+              'div',
+              { class: 'quest-empty' },
+              'Every notice has been taken down. Talk to a resident.'
+            ),
+          ])
+    ),
+    h(
+      'div',
+      { class: 'menu' },
+      button('Open the quest log', opts.onOpenLog, 'btn'),
+      button('Back', opts.onBack, 'btn primary')
+    )
+  );
+}
+
 export function questLogScreen(
   meta: Meta,
   snapshot: QuestSnapshot,
@@ -1942,6 +2121,11 @@ export function questLogScreen(
       100,
       Math.round((Math.min(view.progress, quest.target) / quest.target) * 100)
     );
+    const bonus = questBonus(quest);
+    const raw = questRawProgress(quest, snapshot);
+    const bonusPct = bonus
+      ? Math.min(100, Math.round((Math.min(raw, bonus.target) / bonus.target) * 100))
+      : 0;
     return h(
       'article',
       {
@@ -1969,7 +2153,7 @@ export function questLogScreen(
         h(
           'div',
           { class: 'quest-giver' },
-          `${name} · reward ${quest.rewardEchoes} echoes${quest.rewardItem ? ' + a relic' : ''}`
+          `${name} · ${questChapterLabel(quest)} · reward ${quest.rewardEchoes} echoes${quest.rewardItem ? ' + a relic' : ''}`
         ),
         h(
           'div',
@@ -1981,6 +2165,19 @@ export function questLogScreen(
             `${Math.min(view.progress, quest.target)}/${quest.target}`
           )
         ),
+        bonus
+          ? h(
+              'div',
+              { class: 'quest-bonus' },
+              h('span', { class: 'quest-bonus-label' }, `Bonus +${bonus.echoes} echoes`),
+              h('span', { class: 'quest-bar bonus' }, h('span', { style: `width:${bonusPct}%` })),
+              h(
+                'span',
+                { class: 'quest-numbers' },
+                `${Math.min(raw, bonus.target)}/${bonus.target}`
+              )
+            )
+          : null,
         view.claimed
           ? null
           : h(

@@ -578,7 +578,16 @@ describe('boss attacks and quests', () => {
   it('derives quest progress from the save without extra state', () => {
     const progress = { echoes: 0, restorations: { hearth: 2, armory: 2 }, checkpoint: 0 };
     const snapshot = questSnapshot(['a', 'b', 'c'], 60, progress);
-    expect(snapshot).toEqual({ fragments: 3, kills: 60, restored: 4, depth: 0, bosses: 0 });
+    expect(snapshot).toEqual({
+      fragments: 3,
+      kills: 60,
+      restored: 4,
+      depth: 0,
+      bosses: 0,
+      elites: 0,
+      relics: 0,
+      trust: 0,
+    });
     const fragments = QUESTS.find((q) => q.kind === 'fragments')!;
     const kills = QUESTS.find((q) => q.kind === 'kills')!;
     expect(questProgress(fragments, snapshot)).toBe(3);

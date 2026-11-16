@@ -15,18 +15,23 @@ import {
 const read = (path: string): string => readFileSync(join(__dirname, path), 'utf8');
 
 describe('quest chapters', () => {
-  it('gives every resident two chapters', () => {
-    expect(QUESTS).toHaveLength(12);
+  it('gives every resident three chapters', () => {
+    expect(QUESTS).toHaveLength(18);
     for (const npcId of Object.keys(NPCS)) {
-      expect(questsForNpcList(npcId), npcId).toHaveLength(2);
+      expect(questsForNpcList(npcId), npcId).toHaveLength(3);
     }
   });
 
-  it('walks the chapters in order and stops once both are claimed', () => {
+  it('walks the chapters in order and stops once all are claimed', () => {
     const chapters = questsForNpcList('archivist');
     expect(nextQuestForNpc('archivist', [])?.id).toBe(chapters[0].id);
     expect(nextQuestForNpc('archivist', [chapters[0].id])?.id).toBe(chapters[1].id);
-    expect(nextQuestForNpc('archivist', [chapters[0].id, chapters[1].id])).toBeUndefined();
+    expect(nextQuestForNpc('archivist', [chapters[0].id, chapters[1].id])?.id).toBe(
+      chapters[2].id
+    );
+    expect(
+      nextQuestForNpc('archivist', [chapters[0].id, chapters[1].id, chapters[2].id])
+    ).toBeUndefined();
   });
 
   it('has one closing line per chapter and shows the latest claimed', () => {

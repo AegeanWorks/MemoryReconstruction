@@ -1611,6 +1611,7 @@ export class World implements Arena {
     p.resonanceTime = RESONANCE_WINDOW;
     run.stats.bestResonance = Math.max(run.stats.bestResonance, p.resonance);
     if (enemy.isBoss) run.stats.bossKills++;
+    if (enemy.elite) run.stats.eliteKills++;
     // Surprise: some memories destabilise when broken and leave a short-fused
     // blast behind. The delay gives the player a chance to step out.
     if (!enemy.isBoss && this.rng.chance(0.07)) {

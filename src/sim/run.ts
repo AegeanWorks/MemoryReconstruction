@@ -35,6 +35,8 @@ export interface RunStats {
   floorsRestored: number;
   /** Section guardians defeated. */
   bossKills: number;
+  /** Elite enemies defeated, for the late NPC chapters. */
+  eliteKills: number;
   /** Kills landed while the walker was under 25% health (comeback fuel). */
   clutchKills: number;
   /** Colosseum battles survived to the final wave. */
@@ -172,6 +174,7 @@ export function createRun(
       surges: 0,
       floorsRestored: 0,
       bossKills: 0,
+      eliteKills: 0,
       clutchKills: 0,
       colosseumsWon: 0,
       onboarding: 0,
@@ -340,6 +343,7 @@ export function restoreRun(data: unknown): RunState | undefined {
   run.stats.surges ??= 0;
   run.stats.floorsRestored ??= 0;
   run.stats.bossKills ??= 0;
+  run.stats.eliteKills ??= 0;
   run.stats.clutchKills ??= 0;
   run.stats.colosseumsWon ??= 0;
   run.stats.onboarding ??= 0;

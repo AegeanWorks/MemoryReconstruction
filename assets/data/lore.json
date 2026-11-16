@@ -365,6 +365,31 @@
     "text": "Before the first name, there was only the wish to be remembered.",
     "location": "void",
     "value": 50
+   },
+   "fragment_reliquary_01": {
+    "text": "A ledger page from the Gilded Reliquary, stamped PAID in a hand that never shook.",
+    "location": "foundry",
+    "value": 1
+   },
+   "fragment_reliquary_02": {
+    "text": "The Warden counted every relic twice. Once for the vault, once for the person who would come back for it.",
+    "location": "foundry",
+    "value": 1
+   },
+   "fragment_orchard_01": {
+    "text": "The salt fruit tastes of the road home. The Gardener swears it is the same fruit every time.",
+    "location": "bloom",
+    "value": 1
+   },
+   "fragment_orchard_02": {
+    "text": "Each hydra head flowered before it spat. The orchard called the blossoms a warning, not a kindness.",
+    "location": "bloom",
+    "value": 1
+   },
+   "fragment_void_06": {
+    "text": "Past the Keeper there is no gate, only a lantern and a promise someone kept.",
+    "location": "void",
+    "value": 1
    }
   },
   "coreMemories": {
@@ -479,6 +504,18 @@
     ],
     "reward": "unlock_first_memory",
     "text": "The first name was not a word. It was a promise that someone would come back for it. The First Memory has been waiting under the Keeper's lantern ever since, repeating the promise until a walker answers."
+   },
+   "core_memory_012": {
+    "title": "The Gilded Ledger",
+    "fragments": [
+     "fragment_reliquary_01",
+     "fragment_reliquary_02",
+     "fragment_orchard_01",
+     "fragment_orchard_02",
+     "fragment_void_06"
+    ],
+    "reward": "unlock_ledger",
+    "text": "The Reliquary kept a ledger of everything carried into the dark; the Orchard kept a ledger of everything that came back. Between them they proved the road is not a place you cross. It is a promise you keep."
    }
   },
   "primordialMemories": {

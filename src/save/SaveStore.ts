@@ -91,6 +91,7 @@ const MetaSchema = z.object({
   /** Lifetime kills, used by NPC quests. */
   kills: z.number().int().min(0).default(0),
   bossKills: z.number().int().min(0).default(0),
+  eliteKills: z.number().int().min(0).default(0),
   startingWeapon: z.enum(['sword', 'spear', 'greatsword']).default('sword'),
   boon: z.enum(['vitality', 'edge', 'flow']).nullable().default(null),
   /** Playstyle aspect chosen at the Shrine. */
@@ -166,6 +167,7 @@ export function defaultMeta(): Meta {
     trackedQuest: null,
     kills: 0,
     bossKills: 0,
+    eliteKills: 0,
     startingWeapon: 'sword',
     boon: null,
     aspect: 'none',
@@ -548,6 +550,7 @@ export function recordRun(meta: Meta, run: RunState, won: boolean): Meta {
     checkpoint: Math.max(meta.checkpoint, checkpointForDepth(run.depth)),
     kills: meta.kills + run.stats.kills,
     bossKills: meta.bossKills + run.stats.bossKills,
+    eliteKills: meta.eliteKills + run.stats.eliteKills,
     vault,
   };
   // Feats evaluate after counters update, as a set union: re-settling the
