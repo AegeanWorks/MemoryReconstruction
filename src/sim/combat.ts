@@ -66,6 +66,8 @@ export interface Arena {
   spawnBlast(x: number, y: number, radius: number, delay: number, damage: number): void;
   /** Drops an armed proximity mine. */
   spawnMine(x: number, y: number, damage: number): void;
+  /** Lays a slowing mud patch at a point; it fades on its own. */
+  spawnMud(x: number, y: number, radius?: number): void;
   /** Throws a bomb in a direction; it bounces off walls and fuses out. */
   spawnBomb(
     x: number,

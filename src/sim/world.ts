@@ -69,6 +69,11 @@ import {
   shattersOnHit,
   tickStatus,
 } from './status';
+
+/** How long a mud patch holds the ground, in seconds. */
+const MUD_LIFE = 7;
+/** Reach of a slow-field keeper's aura, in pixels. */
+const SLOW_AURA_RADIUS = 190;
 import {
   activeModifier,
   applyChoice,
@@ -1865,6 +1870,13 @@ export class World implements Arena {
       const enemy = this.enemies[i];
       const tick = tickStatus(enemy.status ?? NO_STATUS, dt);
       enemy.status = tick.status;
+      // A slow-field keeper drags every step short inside its reach.
+      if (
+        enemy.def.behavior === 'slow_aura' &&
+        enemy.state !== 'dying' &&
+        Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y) <= SLOW_AURA_RADIUS
+      )
+        this.player.status = applyStatus(this.player.status ?? NO_STATUS, 'mud', 0.35);
       // Burn pays whole damage once enough has accumulated, so a 60 Hz tick
       // does not spam sixty damage numbers a second.
       if (tick.burnDamage > 0 && enemy.state !== 'dying' && enemy.state !== 'spawning') {
@@ -1957,7 +1969,27 @@ export class World implements Arena {
   }
 
   /** Passive dangers: periodic traps, proximity rockfall and poison pools. */
+  /** Mud patches slow whoever stands in them and drain away over time. */
+  private updateMud(dt: number): void {
+    const p = this.player;
+    for (let i = this.hazards.length - 1; i >= 0; i--) {
+      const h = this.hazards[i];
+      if (h.kind !== 'mud') continue;
+      h.timer -= dt;
+      if (h.timer <= 0) {
+        this.hazards.splice(i, 1);
+        continue;
+      }
+      if (p.action !== 'dead' && Math.hypot(p.x - h.x, p.y - h.y) <= h.radius + p.radius)
+        p.status = applyStatus(p.status ?? NO_STATUS, 'mud', 0.35);
+      for (const e of this.enemies)
+        if (e.state !== 'dying' && Math.hypot(e.x - h.x, e.y - h.y) <= h.radius + e.radius)
+          e.status = applyStatus(e.status ?? NO_STATUS, 'mud', 0.35);
+    }
+  }
+
   private updateHazards(dt: number): void {
+    this.updateMud(dt);
     const p = this.player;
     for (const h of [...this.hazards]) {
       if (h.hitFlash !== undefined) h.hitFlash = Math.max(0, h.hitFlash - dt);
@@ -1971,6 +2003,8 @@ export class World implements Arena {
         }
       }
       if (h.disabled || isBreakable(h.kind)) continue;
+      // Mud is a lingering puddle, not a phase-cycled trap; updateMud owns it.
+      if (h.kind === 'mud') continue;
       if (h.kind === 'trap') {
         h.timer -= dt;
         if (h.timer > 0) continue;
@@ -2036,6 +2070,26 @@ export class World implements Arena {
 
   spawnMine(x: number, y: number, damage: number): void {
     this.mines.push({ id: this.nextId++, x, y, damage, arm: 0.8, life: 8 });
+  }
+
+  /** Lays a slowing mud patch; it lasts MUD_LIFE seconds, then drains away. */
+  spawnMud(x: number, y: number, radius = 44): void {
+    const room = this.currentRoom();
+    this.hazards.push({
+      id: this.nextId++,
+      kind: 'mud',
+      x,
+      y,
+      radius,
+      roomId: room ? room.id : 0,
+      phase: 'active',
+      timer: MUD_LIFE,
+      period: MUD_LIFE,
+      damage: 0,
+      hp: 0,
+      maxHp: 0,
+      disabled: false,
+    });
   }
 
   spawnBomb(

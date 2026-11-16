@@ -92,6 +92,7 @@ const HAZARD_BURST: Record<
   crate: { color: 0xd8a05a, sparks: 10, debris: 16 },
   crystal: { color: 0xb89cff, sparks: 20, debris: 18, label: 'SHATTER' },
   urn: { color: 0xd88a6a, sparks: 8, debris: 14 },
+  mud: { color: 0x8a6a44, sparks: 4, debris: 0 },
 };
 /** Distance outside the view where a mote is recycled to the far edge. */
 const MOTE_MARGIN = 48;

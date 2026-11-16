@@ -171,6 +171,12 @@ const ARCHETYPES: Record<string, Archetype> = {
   teleport: 'teleporter',
   boss: 'boss',
   final_boss: 'boss',
+  // Cycle 109 archetypes.
+  laser_warden: 'caster',
+  stomper: 'brute',
+  slow_aura: 'melee',
+  charger: 'skirmisher',
+  mud_spitter: 'caster',
 };
 
 const SPRITE_KEYS: Record<string, string> = {
@@ -282,6 +288,12 @@ const SPRITE_KEYS: Record<string, string> = {
   spire_marksman: 'harborGunner',
   reliquary_warden: 'guardian',
   salt_orchard_hydra: 'thornMatriarch',
+  // Cycle 109: new behaviours reuse existing sheets with a tint.
+  prism_lancer: 'crystalGuardian',
+  quake_colossus: 'slagGolem',
+  mire_warden: 'boneKnight',
+  brine_charger: 'brineHulk',
+  bog_spitter: 'bogLeech',
 };
 
 /**
@@ -307,6 +319,11 @@ const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
     hive_slinger: 0xffd090,
     hive_oracle: 0xffd98a,
     mire_lurker: 0x9fd0a0,
+    prism_lancer: 0xaad8ff,
+    quake_colossus: 0xffa060,
+    mire_warden: 0x9fd0a0,
+    brine_charger: 0x8fe8dc,
+    bog_spitter: 0x9fd0a0,
     phase_stalker: 0xc4b5ff,
     void_stalker: 0xa8c0ff,
     dread_champion: 0xffdf80,
@@ -473,7 +490,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 3,
     biome: 'crystal',
-    roster: ['prism_entity', 'shadow', 'cave_dweller', 'prism_wisp'],
+    roster: ['prism_entity', 'shadow', 'cave_dweller', 'prism_wisp', 'prism_lancer'],
     boss: 'crystal_guardian',
     roomCount: 9,
     finale: false,
@@ -510,7 +527,14 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 6,
     biome: 'foundry',
-    roster: ['cog_hound', 'solder_wisp', 'bombardier', 'slag_golem', 'rivet_squire'],
+    roster: [
+      'cog_hound',
+      'solder_wisp',
+      'bombardier',
+      'slag_golem',
+      'rivet_squire',
+      'quake_colossus',
+    ],
     boss: 'clockwork_regent',
     roomCount: 10,
     finale: false,
@@ -519,7 +543,14 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 7,
     biome: 'tide',
-    roster: ['tide_reaver', 'brine_hulk', 'harbor_gunner', 'siren_caller', 'drowned'],
+    roster: [
+      'tide_reaver',
+      'brine_hulk',
+      'harbor_gunner',
+      'siren_caller',
+      'drowned',
+      'brine_charger',
+    ],
     boss: 'drowned_blademaster',
     roomCount: 10,
     finale: false,
@@ -583,7 +614,15 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 12,
     biome: 'mire',
-    roster: ['bog_leech', 'plague_caster', 'drowned', 'mire_lurker', 'mire_halberdier'],
+    roster: [
+      'bog_leech',
+      'plague_caster',
+      'drowned',
+      'mire_lurker',
+      'mire_halberdier',
+      'mire_warden',
+      'bog_spitter',
+    ],
     boss: 'mire_sovereign',
     roomCount: 12,
     finale: false,
@@ -692,6 +731,8 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
       'bone_picker',
       'cinder_stalker',
       'spire_marksman',
+      'quake_colossus',
+      'prism_lancer',
     ],
     boss: 'reliquary_warden',
     roomCount: 13,

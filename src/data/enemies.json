@@ -3909,229 +3909,229 @@
      "min": 1,
      "max": 3
     },
-     {
-      "item": "memory_fragment",
-      "chance": 0.25,
-      "min": 1,
-      "max": 1
-     }
+    {
+     "item": "memory_fragment",
+     "chance": 0.25,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "ember_squire",
+   "name": "Ember Squire",
+   "description": "An oath-sworn squire who kept drilling after the barracks burned. Closes fast with a short sword.",
+   "type": "ember_squire",
+   "biome": "ash",
+   "stats": {
+    "health": 110,
+    "maxHealth": 110,
+    "damage": 15,
+    "speed": 108,
+    "armor": 10,
+    "resistance": 5,
+    "knockbackResistance": 20,
+    "xpValue": 65,
+    "memoryValue": 8
+   },
+   "ai": {
+    "behavior": "chase",
+    "aggroRange": 300,
+    "attackRange": 46,
+    "attackCooldown": 1.5,
+    "patrolRadius": 150
+   },
+   "hitbox": {
+    "width": 30,
+    "height": 44,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_ember_squire",
+    "width": 32,
+    "height": 56,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
     ]
    },
-   {
-    "id": "ember_squire",
-    "name": "Ember Squire",
-    "description": "An oath-sworn squire who kept drilling after the barracks burned. Closes fast with a short sword.",
-    "type": "ember_squire",
-    "biome": "ash",
-    "stats": {
-     "health": 110,
-     "maxHealth": 110,
-     "damage": 15,
-     "speed": 108,
-     "armor": 10,
-     "resistance": 5,
-     "knockbackResistance": 20,
-     "xpValue": 65,
-     "memoryValue": 8
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.6,
+     "min": 1,
+     "max": 3
     },
-    "ai": {
-     "behavior": "chase",
-     "aggroRange": 300,
-     "attackRange": 46,
-     "attackCooldown": 1.5,
-     "patrolRadius": 150
-    },
-    "hitbox": {
-     "width": 30,
-     "height": 44,
-     "offsetX": 0,
-     "offsetY": -8
-    },
-    "sprite": {
-     "texture": "enemy_ember_squire",
-     "width": 32,
-     "height": 56,
-     "animations": [
-      "idle",
-      "walk",
-      "attack",
-      "stunned",
-      "death"
-     ]
-    },
-    "lootTable": [
-     {
-      "item": "fragment_shard",
-      "chance": 0.6,
-      "min": 1,
-      "max": 3
-     },
-     {
-      "item": "memory_fragment",
-      "chance": 0.25,
-      "min": 1,
-      "max": 1
-     }
+    {
+     "item": "memory_fragment",
+     "chance": 0.25,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "pale_blademaster",
+   "name": "Pale Blademaster",
+   "description": "A duelist of the long winter who answers every cut with two of their own.",
+   "type": "pale_blademaster",
+   "biome": "frost",
+   "stats": {
+    "health": 280,
+    "maxHealth": 280,
+    "damage": 40,
+    "speed": 116,
+    "armor": 85,
+    "resistance": 15,
+    "knockbackResistance": 30,
+    "xpValue": 170,
+    "memoryValue": 21
+   },
+   "ai": {
+    "behavior": "duelist",
+    "aggroRange": 320,
+    "attackRange": 66,
+    "attackCooldown": 1.7,
+    "patrolRadius": 180
+   },
+   "hitbox": {
+    "width": 34,
+    "height": 50,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_pale_blademaster",
+    "width": 34,
+    "height": 56
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.85,
+     "min": 2,
+     "max": 6
+    }
+   ]
+  },
+  {
+   "id": "mire_halberdier",
+   "name": "Mire Halberdier",
+   "description": "A bog warden who never dropped the pike. Keeps walkers at spear length.",
+   "type": "mire_halberdier",
+   "biome": "mire",
+   "stats": {
+    "health": 150,
+    "maxHealth": 150,
+    "damage": 18,
+    "speed": 92,
+    "armor": 15,
+    "resistance": 5,
+    "knockbackResistance": 25,
+    "xpValue": 85,
+    "memoryValue": 10
+   },
+   "ai": {
+    "behavior": "chase",
+    "aggroRange": 300,
+    "attackRange": 80,
+    "attackCooldown": 1.9,
+    "patrolRadius": 160
+   },
+   "hitbox": {
+    "width": 32,
+    "height": 46,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_mire_halberdier",
+    "width": 32,
+    "height": 60,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
     ]
    },
-   {
-    "id": "pale_blademaster",
-    "name": "Pale Blademaster",
-    "description": "A duelist of the long winter who answers every cut with two of their own.",
-    "type": "pale_blademaster",
-    "biome": "frost",
-    "stats": {
-     "health": 280,
-     "maxHealth": 280,
-     "damage": 40,
-     "speed": 116,
-     "armor": 85,
-     "resistance": 15,
-     "knockbackResistance": 30,
-     "xpValue": 170,
-     "memoryValue": 21
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.6,
+     "min": 2,
+     "max": 4
     },
-    "ai": {
-     "behavior": "duelist",
-     "aggroRange": 320,
-     "attackRange": 66,
-     "attackCooldown": 1.7,
-     "patrolRadius": 180
-    },
-    "hitbox": {
-     "width": 34,
-     "height": 50,
-     "offsetX": 0,
-     "offsetY": -8
-    },
-    "sprite": {
-     "texture": "enemy_pale_blademaster",
-     "width": 34,
-     "height": 56
-    },
-    "lootTable": [
-     {
-      "item": "fragment_shard",
-      "chance": 0.85,
-      "min": 2,
-      "max": 6
-     }
+    {
+     "item": "memory_fragment",
+     "chance": 0.25,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "abyssal_revenant",
+   "name": "Abyssal Revenant",
+   "description": "What the tide kept. It wears a leviathan's shadow and spends it on you in rings, mines, and spirals.",
+   "type": "revenant",
+   "biome": "tide",
+   "stats": {
+    "health": 460,
+    "maxHealth": 460,
+    "damage": 36,
+    "speed": 95,
+    "armor": 50,
+    "resistance": 30,
+    "knockbackResistance": 85,
+    "xpValue": 650,
+    "memoryValue": 85
+   },
+   "ai": {
+    "behavior": "boss",
+    "aggroRange": 420,
+    "attackRange": 75,
+    "attackCooldown": 1.6,
+    "patrolRadius": 200
+   },
+   "hitbox": {
+    "width": 56,
+    "height": 68,
+    "offsetX": 0,
+    "offsetY": -10
+   },
+   "sprite": {
+    "texture": "enemy_leviathan",
+    "width": 64,
+    "height": 80,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
     ]
    },
-   {
-    "id": "mire_halberdier",
-    "name": "Mire Halberdier",
-    "description": "A bog warden who never dropped the pike. Keeps walkers at spear length.",
-    "type": "mire_halberdier",
-    "biome": "mire",
-    "stats": {
-     "health": 150,
-     "maxHealth": 150,
-     "damage": 18,
-     "speed": 92,
-     "armor": 15,
-     "resistance": 5,
-     "knockbackResistance": 25,
-     "xpValue": 85,
-     "memoryValue": 10
+   "lootTable": [
+    {
+     "item": "memory_fragment",
+     "chance": 1.0,
+     "min": 1,
+     "max": 2
     },
-    "ai": {
-     "behavior": "chase",
-     "aggroRange": 300,
-     "attackRange": 80,
-     "attackCooldown": 1.9,
-     "patrolRadius": 160
-    },
-    "hitbox": {
-     "width": 32,
-     "height": 46,
-     "offsetX": 0,
-     "offsetY": -8
-    },
-    "sprite": {
-     "texture": "enemy_mire_halberdier",
-     "width": 32,
-     "height": 60,
-     "animations": [
-      "idle",
-      "walk",
-      "attack",
-      "stunned",
-      "death"
-     ]
-    },
-    "lootTable": [
-     {
-      "item": "fragment_shard",
-      "chance": 0.6,
-      "min": 2,
-      "max": 4
-     },
-     {
-      "item": "memory_fragment",
-      "chance": 0.25,
-      "min": 1,
-      "max": 1
-     }
-    ]
-   },
-   {
-    "id": "abyssal_revenant",
-    "name": "Abyssal Revenant",
-    "description": "What the tide kept. It wears a leviathan's shadow and spends it on you in rings, mines, and spirals.",
-    "type": "revenant",
-    "biome": "tide",
-    "stats": {
-     "health": 460,
-     "maxHealth": 460,
-     "damage": 36,
-     "speed": 95,
-     "armor": 50,
-     "resistance": 30,
-     "knockbackResistance": 85,
-     "xpValue": 650,
-     "memoryValue": 85
-    },
-    "ai": {
-     "behavior": "boss",
-     "aggroRange": 420,
-     "attackRange": 75,
-     "attackCooldown": 1.6,
-     "patrolRadius": 200
-    },
-    "hitbox": {
-     "width": 56,
-     "height": 68,
-     "offsetX": 0,
-     "offsetY": -10
-    },
-    "sprite": {
-     "texture": "enemy_leviathan",
-     "width": 64,
-     "height": 80,
-     "animations": [
-      "idle",
-      "walk",
-      "attack",
-      "stunned",
-      "death"
-     ]
-    },
-    "lootTable": [
-     {
-      "item": "memory_fragment",
-      "chance": 1.0,
-      "min": 1,
-      "max": 2
-     },
-     {
-      "item": "fragment_shard",
-      "chance": 1.0,
-      "min": 12,
-      "max": 24
-     }
-    ]
-   },
+    {
+     "item": "fragment_shard",
+     "chance": 1.0,
+     "min": 12,
+     "max": 24
+    }
+   ]
+  },
   {
    "id": "obsidian_reaver",
    "name": "Obsidian Reaver",
@@ -4166,7 +4166,13 @@
     "texture": "enemy_cinder_warden",
     "width": 64,
     "height": 64,
-    "animations": ["idle", "walk", "attack", "stunned", "death"]
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
    },
    "lootTable": [
     {
@@ -4217,7 +4223,13 @@
     "texture": "enemy_void_cantor",
     "width": 32,
     "height": 48,
-    "animations": ["idle", "walk", "attack", "stunned", "death"]
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
    },
    "lootTable": [
     {
@@ -4268,7 +4280,13 @@
     "texture": "enemy_keeper",
     "width": 128,
     "height": 128,
-    "animations": ["idle", "walk", "attack", "stunned", "death"]
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
    },
    "lootTable": [
     {
@@ -4325,7 +4343,13 @@
     "texture": "enemy_void_cantor",
     "width": 32,
     "height": 48,
-    "animations": ["idle", "walk", "attack", "stunned", "death"]
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
    },
    "lootTable": [
     {
@@ -5035,9 +5059,294 @@
      "max": 24
     }
    ]
+  },
+  {
+   "id": "prism_lancer",
+   "name": "Prism Lancer",
+   "description": "A crystal construct that charges a thin lane of light and fires it down the corridor. Step out of the line, never back along it.",
+   "type": "prism_lancer",
+   "biome": "crystal",
+   "stats": {
+    "health": 150,
+    "maxHealth": 150,
+    "damage": 22,
+    "speed": 92,
+    "armor": 8,
+    "resistance": 8,
+    "knockbackResistance": 30,
+    "xpValue": 80,
+    "memoryValue": 12
+   },
+   "ai": {
+    "behavior": "laser_warden",
+    "aggroRange": 340,
+    "attackRange": 330,
+    "attackCooldown": 2.1,
+    "patrolRadius": 200
+   },
+   "hitbox": {
+    "width": 30,
+    "height": 36,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_crystal_guardian",
+    "width": 32,
+    "height": 96,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.8,
+     "min": 2,
+     "max": 5
+    },
+    {
+     "item": "memory_fragment",
+     "chance": 0.3,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "quake_colossus",
+   "name": "Quake Colossus",
+   "description": "A foundry frame that plants both feet and brings the floor up in a ring. The shock is widest at its own feet.",
+   "type": "quake_colossus",
+   "biome": "foundry",
+   "stats": {
+    "health": 270,
+    "maxHealth": 270,
+    "damage": 26,
+    "speed": 72,
+    "armor": 8,
+    "resistance": 8,
+    "knockbackResistance": 30,
+    "xpValue": 80,
+    "memoryValue": 12
+   },
+   "ai": {
+    "behavior": "stomper",
+    "aggroRange": 340,
+    "attackRange": 150,
+    "attackCooldown": 2.4,
+    "patrolRadius": 200
+   },
+   "hitbox": {
+    "width": 44,
+    "height": 46,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_slag_golem",
+    "width": 32,
+    "height": 96,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.8,
+     "min": 2,
+     "max": 5
+    },
+    {
+     "item": "memory_fragment",
+     "chance": 0.3,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "mire_warden",
+   "name": "Mire Warden",
+   "description": "A patient bog-thing that drags the ground itself against you: within its reach the mud pulls every step short.",
+   "type": "mire_warden",
+   "biome": "mire",
+   "stats": {
+    "health": 190,
+    "maxHealth": 190,
+    "damage": 19,
+    "speed": 88,
+    "armor": 8,
+    "resistance": 8,
+    "knockbackResistance": 30,
+    "xpValue": 80,
+    "memoryValue": 12
+   },
+   "ai": {
+    "behavior": "slow_aura",
+    "aggroRange": 340,
+    "attackRange": 52,
+    "attackCooldown": 1.6,
+    "patrolRadius": 200
+   },
+   "hitbox": {
+    "width": 34,
+    "height": 40,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_grave_warden",
+    "width": 32,
+    "height": 96,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.8,
+     "min": 2,
+     "max": 5
+    },
+    {
+     "item": "memory_fragment",
+     "chance": 0.3,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "brine_charger",
+   "name": "Brine Charger",
+   "description": "A tide-born ram that lowers its head and runs. The hit does not just hurt; it throws you across the room.",
+   "type": "brine_charger",
+   "biome": "tide",
+   "stats": {
+    "health": 170,
+    "maxHealth": 170,
+    "damage": 24,
+    "speed": 152,
+    "armor": 8,
+    "resistance": 8,
+    "knockbackResistance": 30,
+    "xpValue": 80,
+    "memoryValue": 12
+   },
+   "ai": {
+    "behavior": "charger",
+    "aggroRange": 340,
+    "attackRange": 62,
+    "attackCooldown": 1.9,
+    "patrolRadius": 200
+   },
+   "hitbox": {
+    "width": 30,
+    "height": 34,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_brine_hulk",
+    "width": 32,
+    "height": 96,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.8,
+     "min": 2,
+     "max": 5
+    },
+    {
+     "item": "memory_fragment",
+     "chance": 0.3,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "bog_spitter",
+   "name": "Bog Spitter",
+   "description": "A mire caster that spits a clinging wad; where it lands the ground turns to mud and holds your boots.",
+   "type": "bog_spitter",
+   "biome": "mire",
+   "stats": {
+    "health": 120,
+    "maxHealth": 120,
+    "damage": 16,
+    "speed": 96,
+    "armor": 8,
+    "resistance": 8,
+    "knockbackResistance": 30,
+    "xpValue": 80,
+    "memoryValue": 12
+   },
+   "ai": {
+    "behavior": "mud_spitter",
+    "aggroRange": 340,
+    "attackRange": 270,
+    "attackCooldown": 2.3,
+    "patrolRadius": 200
+   },
+   "hitbox": {
+    "width": 26,
+    "height": 30,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_mire_lurker",
+    "width": 32,
+    "height": 96,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.8,
+     "min": 2,
+     "max": 5
+    },
+    {
+     "item": "memory_fragment",
+     "chance": 0.3,
+     "min": 1,
+     "max": 1
+    }
+   ]
   }
  ],
-  "eliteModifiers": [
+ "eliteModifiers": [
   {
    "name": "Veteran",
    "healthMult": 1.5,

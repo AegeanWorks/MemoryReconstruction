@@ -202,9 +202,12 @@ const BEHAVIOR_ATTACK: Record<string, AttackKind> = {
   sweeper: 'sweep',
   wall_warden: 'wall',
   pillar_warden: 'pillars',
+  // Cycle 109: a lane laser and a wide radial stomp.
+  laser_warden: 'beam',
+  stomper: 'slam',
 };
 
-function defaultAttack(def: EnemyDef): AttackKind {
+export function defaultAttack(def: EnemyDef): AttackKind {
   const signature = BEHAVIOR_ATTACK[def.behavior];
   if (signature) return signature;
   switch (def.archetype) {
@@ -356,12 +359,15 @@ function chase(arena: Arena, enemy: Enemy, dt: number): void {
       if (circling) step(arena, enemy, -ny * enemy.strafe, nx * enemy.strafe, def.speed * 0.9, dt);
       else step(arena, enemy, toward.x, toward.y, def.speed, dt);
       if (enemy.cooldown <= 0 && sight && dist < 175) {
+        // A charger always answers range with a head-down run.
         const kind =
-          arena.depth >= 8 && arena.rng.chance(0.22)
-            ? 'bomb'
-            : arena.depth >= 6 && arena.rng.chance(0.35)
-              ? 'blink'
-              : 'lunge';
+          def.behavior === 'charger'
+            ? 'charge'
+            : arena.depth >= 8 && arena.rng.chance(0.22)
+              ? 'bomb'
+              : arena.depth >= 6 && arena.rng.chance(0.35)
+                ? 'blink'
+                : 'lunge';
         beginWindup(arena, enemy, kind);
       }
       break;
@@ -635,6 +641,8 @@ function launch(arena: Arena, enemy: Enemy): void {
     }
     case 'shot':
       shoot(arena, enemy, angle, 230, def.damage);
+      // A mud spitter also fouls the ground where it aimed.
+      if (def.behavior === 'mud_spitter') arena.spawnMud(p.x, p.y, 46);
       break;
     case 'spread':
       for (const offset of [-0.32, 0, 0.32])

@@ -293,7 +293,16 @@ export interface Interactable {
 }
 
 export type HazardKind =
-  'spike' | 'flame' | 'poison' | 'rockfall' | 'barrel' | 'trap' | 'crate' | 'crystal' | 'urn';
+  | 'spike'
+  | 'flame'
+  | 'poison'
+  | 'rockfall'
+  | 'barrel'
+  | 'trap'
+  | 'crate'
+  | 'crystal'
+  | 'urn'
+  | 'mud';
 export type HazardPhase = 'idle' | 'warning' | 'active';
 
 /** A passive floor danger or a destructible barrel. */

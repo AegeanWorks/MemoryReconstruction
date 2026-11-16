@@ -997,7 +997,22 @@ export class ActorView {
       const warning = h.phase === 'warning';
       const active = h.phase === 'active';
       const pulse = 0.35 + 0.25 * Math.sin(t * 6 + h.id);
-      if (h.kind === 'poison') {
+      if (h.kind === 'mud') {
+        // A brown puddle with a few slow bubbles; it thins out as it drains.
+        const fade = Math.max(0.25, Math.min(1, h.timer / h.period));
+        g.circle(h.x, h.y, h.radius).fill({ color: 0x6a4a2a, alpha: 0.4 * fade });
+        g.circle(h.x, h.y, h.radius * 0.72).fill({ color: 0x8a6a44, alpha: 0.35 * fade });
+        g.circle(h.x, h.y, h.radius).stroke({ width: 2, color: 0xa88a5a, alpha: 0.4 * fade });
+        for (let i = 0; i < 3; i++) {
+          const a = t * 0.3 + i * 2.1;
+          g.circle(h.x + Math.cos(a) * h.radius * 0.55, h.y + Math.sin(a) * h.radius * 0.4, 2).fill(
+            {
+              color: 0xc0a070,
+              alpha: 0.5 * fade,
+            }
+          );
+        }
+      } else if (h.kind === 'poison') {
         g.circle(h.x, h.y, h.radius).fill({ color: 0x7ad06a, alpha: 0.22 });
         g.circle(h.x, h.y, h.radius).stroke({ width: 2, color: 0xaef090, alpha: pulse });
         for (let i = 0; i < 3; i++) {

@@ -438,3 +438,13 @@ The running build was driven in Edge at **1280x720** and **390x844**.
 - **Console**: 0 errors on the fresh server.
 Captures: `docs/qa/cycle108-rage-frenzy-1280x720.png`, `cycle108-rage-berserker-1280x720.png`,
 `cycle108-rage-frenzy-390x844.png`.
+## 2026-11-16 review: five new enemy behaviours (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720**.
+- **Codex**: the Bestiary listed 102 cards; seeding the five new ids read "5 / 102 recorded" with Bog Spitter, Brine
+  Charger, Mire Warden, Prism Lancer and Quake Colossus revealed.
+- **Detail**: Prism Lancer read "Defeated x3", "Health 150 / Damage 25 / XP 80" and "Section 4 (Prism Gardens), Section 22
+  (The Gilded Reliquary)", proving the new records resolve against real sections.
+- **Run**: Section 1 loaded with no horizontal overflow and 0 console errors, so the new sprite mappings and mud hazard
+  code load cleanly in the running build.
+Captures: `docs/qa/cycle109-bestiary-new-species-1280x720.png`.

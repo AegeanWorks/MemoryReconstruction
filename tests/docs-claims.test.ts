@@ -22,10 +22,19 @@ const ONES = [
 ];
 const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
 
-/** Spell 0-99 the way the README does ("twenty-three", "ninety-one"). */
+/** Spell 0-999 the way the README does ("twenty-three", "one hundred and two"). */
 function words(n: number): string {
-  expect(n, 'only 0-99 are spelled in the README').toBeGreaterThanOrEqual(0);
-  expect(n).toBeLessThan(100);
+  expect(n, 'only 0-999 are spelled in the README').toBeGreaterThanOrEqual(0);
+  expect(n).toBeLessThan(1000);
+  if (n < 100) return underHundred(n);
+  const hundreds = Math.floor(n / 100);
+  const rest = n % 100;
+  return rest === 0
+    ? `${ONES[hundreds]} hundred`
+    : `${ONES[hundreds]} hundred and ${underHundred(rest)}`;
+}
+
+function underHundred(n: number): string {
   if (n < 20) return ONES[n];
   const tens = TENS[Math.floor(n / 10)];
   return n % 10 === 0 ? tens : `${tens}-${ONES[n % 10]}`;

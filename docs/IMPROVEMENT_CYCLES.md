@@ -4510,3 +4510,22 @@ reported 0 console errors. Screenshots `docs/qa/cycle108-rage-frenzy-1280x720.pn
 `cycle108-rage-berserker-1280x720.png`, `cycle108-rage-frenzy-390x844.png`.
 ### Gate results
 See the task summary.
+## Cycle 109 - Five new enemy behaviours
+### FIND
+The player asked for laser, stomping, area-slow, dashing and mud enemies; none existed, and the roster stopped at 97.
+### IMPLEMENT
+- `src/data/enemies.json` (+ `assets/data` mirror): Prism Lancer, Quake Colossus, Mire Warden, Brine Charger, Bog Spitter.
+- `src/sim/content.ts`: new behaviours mapped in `ARCHETYPES`, sprite keys, per-id tints, and roster placement on Prism
+  Gardens, Sleepless Foundry, Sunken Tideways, Whispering Mire and the Gilded Reliquary.
+- `src/sim/enemies.ts`: beam and wide slam signatures, a forced charge for chargers, and a mud patch on the spitter's shot.
+- `src/sim/{entities,combat,world}.ts`: `mud` hazard kind, `spawnMud`, the `updateMud` slow-and-drain lifecycle, and the
+  190px slow aura.
+- `src/view/{ActorView,Effects}.ts`: a fading brown mud puddle and its burst tint.
+- Tests: `sim/enemy-archetypes` (8), plus the README count and the docs-claims word helper extended to 999.
+### RECORD
+In Edge at 1280x720 the Bestiary listed 102 cards; a seeded record of the five new species read "5 / 102 recorded", and
+Prism Lancer showed "Defeated x3", "Health 150 / Damage 25 / XP 80" and habitation "Section 4 (Prism Gardens), Section 22
+(The Gilded Reliquary)". A Section 1 run loaded with no horizontal overflow and 0 console errors. Screenshot
+`docs/qa/cycle109-bestiary-new-species-1280x720.png`.
+### Gate results
+See the task summary.
