@@ -310,3 +310,15 @@ The running Vite build was driven in Edge at **1280x720**, **768x1024** and **39
 No console errors were observed. Captures: `docs/qa/cycle98-cape-inventory-1280x720.png`,
 `cycle98-cape-inventory-390x844.png`, `cycle98-quest-log-1280x720.png`, `cycle98-quest-log-390x844.png`,
 `cycle98-merchant-shop-1280x720.png`.
+
+## 2026-11-16 review: guaranteed wandering merchant and Flasks full (agent reviewer: kilo:1)
+
+The running Vite build was driven on a fresh server (port 3001) at **1280x720** to avoid a stale HMR module.
+- **Guaranteed stall**: Section 1 of a new run listed one merchant with label **Wandering merchant**; the run had
+  started without any vault roll, so this is the fallback stall from ADR-225.
+- **Full flasks**: standing beside the stall with potions 3/3 and 0 shards, the healing line read **Flasks full** and
+  was disabled, while the mana, bomb, trap and relic lines kept their price labels and were disabled by the empty
+  purse. This is the exact case that previously read "24 shards" and clicked for no effect.
+- **Cape pixels**: covered by four new `gear-look` unit tests rather than the browser (cyan moves, robe/skin/gold
+  untouched, robe+cape compose, alpha preserved); the visual cape recolour was already captured in Cycle 98.
+No console errors were observed. Capture: `docs/qa/cycle99-flasks-full-1280x720.png`.

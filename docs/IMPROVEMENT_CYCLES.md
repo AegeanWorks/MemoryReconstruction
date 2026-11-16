@@ -4261,3 +4261,27 @@ empty, while a click after 1.6s took `vitality`. Screenshots `docs/qa/cycle98-ca
 `cycle98-quest-log-1280x720.png`, `cycle98-quest-log-390x844.png`, `cycle98-merchant-shop-1280x720.png`.
 ### Gate results
 See the task summary.
+
+## Cycle 99 - A stall on every floor and an honest flask line
+### FIND
+The Cycle 98 stall was placed only in a treasure room's sealed-cache branch at a 35% roll, so a player could cross
+whole sections without ever seeing the feature. The shop's healing line was disabled only by price: at a full flask
+rack it still read "24 shards" and a click did nothing. The cape recolour had source-level coverage but no pixel
+proof that the cyan cloak band and the robe band stay independent.
+### IMPLEMENT
+- `src/sim/world.ts`: when no merchant was placed, pick the first treasure, shrine, library or combat room, offset
+  and clamp the stall, and add a **Wandering merchant**; the 35% vault-side stall remains a bonus.
+- `src/ui/Screens.ts`: `shopLineState(item, shards, healthFlasks, maxHealthFlasks)` is the one decision for a shop
+  button; a full rack shows **Flasks full** and disables the line, sold stays **Sold**, and unaffordable keeps the
+  price but disables.
+- `src/app/App.ts`: passes current and maximum health flasks to the stall.
+- Tests: `merchant-availability` (2) checks 24 seeds for at least one five-line stall and a labelled stall on most
+  floors; `ui-shop-line` (5) pins the button states; `gear-look` gains 4 pixel tests (cape hue moved, robe/skin/gold
+  untouched, robe+cape compose, alpha preserved).
+### RECORD
+On a fresh dev server at 1280x720, Section 1 held one merchant labelled **Wandering merchant**. Standing next to it
+with flasks 3/3 and 0 shards, the stall showed **Flasks full** disabled on the healing line while the other lines kept
+their prices (disabled by the empty purse). The cape pixel rules and shop-line states are covered headlessly.
+Screenshot docs/qa/cycle99-flasks-full-1280x720.png.
+### Gate results
+See the task summary.
