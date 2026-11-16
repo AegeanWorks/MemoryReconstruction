@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "bestiary-depth",
+    "task_id": "bestiary-habitats",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794852719.18095,
+    "updated_at": 1794855269.5372458,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -15,70 +15,11 @@
         "path": "projects/MemoryReconstruction"
       }
     ],
-    "completed_at": 1794853154.531743,
-    "completed_head": "e5aa31506e6372bed1a579771e1d90aae94c2b66",
-    "completed_tree": "46d6dffb93b1c9aa723e31444fc53c5723c10ca2"
+    "completed_at": 1794855799.289795,
+    "completed_head": "186e9468ffb2888b908e3489358e0b7ad96635bc",
+    "completed_tree": "becf07129559041fae0c57e8a77aaa9bb4ebed04"
   },
   "checkpoints": [
-    {
-      "task_id": "cape-quest-shop-mana",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: 25 relic boxes (5 worn + 20 bag), cape box and recoloured doll sheet at 1280x720/768x1024/390x844 with no horizontal overflow; the quest journal filtered four sections behind five tabs with portrait cards and progress bars; a maze stall sold five lines once each (mana draught 500->470 shards, flasks 1->2, Sold); R restored 60/60 mana and spent a flask; a forced level card ignored a 17ms click but accepted one after 1.6s (vitality); 896 tests across 190 files, 476 mechanics, lint/typecheck/build clean, 8/8 gates; four browser screenshots recorded.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794780162.597231,
-      "timestamp_str": "2026-11-16 01:02:42",
-      "agent": "kilo:1",
-      "checklists": "skipped:PRINCIPLE-015",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "cape-quest-shop-mana",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'cape-quest-shop-mana' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794780665.965433,
-      "timestamp_str": "2026-11-16 01:11:05",
-      "agent": "kilo:1",
-      "head": "b0f49fa8aac8e4360ef24c6ec410a4956c309f19",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": true
-      }
-    },
-    {
-      "task_id": "merchant-reachability-shop-truth",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Follow-up polish to Cycle 98: guarantee one five-line merchant on every floor (treasure, else shrine, else library, else combat room) labelled Wandering merchant while keeping the 35% vault-side stall; make the healing line read Flasks full and stay disabled when the flask rack is full via the pure shopLineState helper; add pixel-level cape recolour tests proving the cyan cloak band and robe band never cross. Failing-first tests: merchant-availability (2), ui-shop-line (5), four gear-look pixel tests.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794806906.8830414,
-      "timestamp_str": "2026-11-16 08:28:26",
-      "agent": "kilo:1",
-      "impact_assessment": {
-        "why": "The shop was reachable only through a 35% sealed-cache roll, and a full flask rack produced a disabled-looking price with a silent click.",
-        "benefits": "The new stall is always discoverable, the shop never offers an unusable draught, and the cape colour promise is guarded at the pixel level.",
-        "risks": "contract: none (no saved shape changes); dependency: none; concurrency: none; state: extra interactable per floor changes generation determinism for existing seeds.",
-        "mitigation": "Deterministic placement, 24-seed availability coverage, focused shop-line tests and a browser check on a fresh server; the map is refreshed after the change."
-      },
-      "plan_digest": "db84819d3b3fc0f59dad3383dcc3001f5b0c1684c03a219af8353732283657af",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "merchant-reachability-shop-truth",
       "phase": "phase 4",
@@ -451,6 +392,86 @@
       "timestamp_str": "2026-11-16 21:19:14",
       "agent": "kilo:1",
       "head": "e5aa31506e6372bed1a579771e1d90aae94c2b66",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
+    },
+    {
+      "task_id": "bestiary-habitats",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Make every Bestiary card open: enemyHabitats(id) lists the sections whose roster names a species plus the section whose guardian it is (section, biome, trial title, guardian/finale flags, depth order); bestiaryDetail(id, seen, kills) returns the card record and hides health/damage/xp until the species is recorded; the card becomes a role=button with Enter/Space support and an aria-expanded state that expands a beast-detail block reading stats and 'Found in ...'. Failing-first: tests/bestiary-habitats.test.ts (6 cases).",
+      "files_affected": [
+        "src/sim/content.ts",
+        "src/ui/Screens.ts",
+        "src/ui/ui.css",
+        "docs/qa/cycle105-bestiary-detail-1280x720.png",
+        "docs/qa/cycle105-bestiary-detail-390x844.png",
+        "tests/bestiary-habitats.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794854948.7428455,
+      "timestamp_str": "2026-11-16 21:49:08",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "The codex named and counted species but never said where to find one, so a sealed entry was a dead end and a recorded one could not be revisited for its numbers.",
+        "benefits": "Players can plan a run around a species they still need, guardians name their own section, and stats are readable later without fighting the boss again.",
+        "risks": "contract: none (read-only helpers over FLOOR_PLANS); dependency: none; concurrency: none; state: no saved shape change; UI: cards become focusable buttons with an expanding block.",
+        "mitigation": "Pure habitat/detail tests over all 97 ids, sealed-state coverage, a AA contrast floor on the new label, and browser checks at 1280x720 and 390x844 with keyboard toggling."
+      },
+      "plan_digest": "d0b0e795d31681bc9d288d9d788057f4167d0c8f8dad7ee7716b7ea30d212935",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "bestiary-habitats",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/2] Verified: all 97 ids report at least one habitat; Memory Echo resolves to sections 1, 2, 24 and 25; a guardian reports its own section only (Reliquary Warden section 22, The Gilded Reliquary); sealed cards show the road and hide health/damage/XP while recorded ones show 30/17/15; Enter and Space both toggle aria-expanded and the open class. 958 tests across 202 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates, and the palette contrast floor test stays green at 0.72 alpha. Edge at 1280x720 and 390x844: detail block readable, 308.8px card in a 358.8px panel ending 374.4px, no overflow, 0 console errors.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl",
+        "README.md",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "src/sim/content.ts",
+        "src/ui/Screens.ts",
+        "src/ui/ui.css",
+        "docs/qa/cycle105-bestiary-detail-1280x720.png",
+        "docs/qa/cycle105-bestiary-detail-390x844.png",
+        "tests/bestiary-habitats.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794855269.5372458,
+      "timestamp_str": "2026-11-16 21:54:29",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "bestiary-habitats",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'bestiary-habitats' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794855799.358986,
+      "timestamp_str": "2026-11-16 22:03:19",
+      "agent": "kilo:1",
+      "head": "186e9468ffb2888b908e3489358e0b7ad96635bc",
       "delivery": {
         "roots": [
           "."
