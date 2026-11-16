@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "content-expansion-quest-chapters",
+    "task_id": "quest-board-sets-lore",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794813350.8958724,
+    "updated_at": 1794821311.30403,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,68 +17,14 @@
     ],
     "forced_completion": {
       "agent": "kilo:1",
-      "reason": "All gates and check --strict pass at da48173; both milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; real-input Edge runs used). Not pushed (not authorized).",
-      "at": 1794813701.353716
+      "reason": "All gates and check --strict pass at 00f3f9e; both milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; real-input Edge runs used). Not pushed (not authorized).",
+      "at": 1794821497.7327135
     },
-    "completed_at": 1794813701.3537173,
-    "completed_head": "da48173ffeefcaff1db9c5638d553902862ef3f3",
-    "completed_tree": "a9ac9e74f3f41d5e08fd7e0795286149ecd4e6ac"
+    "completed_at": 1794821497.7327147,
+    "completed_head": "00f3f9e24c54015e887342433660cbdeacc5c7d3",
+    "completed_tree": "4c931fff4b0d2a26d4edee9b2441525aa744ea4d"
   },
   "checkpoints": [
-    {
-      "task_id": "headwear-bag-difficulty-ramp",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Re-plan: the UI contract's protected tests make one UI task impossible for this change (the headwear tests fail without the UI wiring, and verify refuses test changes). Work is therefore two commits: (1) headwear slot, four head relics, twenty-slot bag, doll head box, drop target, slower level curve and the room/wave damage ramp, with all tests, icons and docs assets; (2) docs, ADRs 217-218, README, cycle log, UI review and the refreshed map. The UI task was opened from a clean baseline after stashing, failed verify because docs and tests were rightly outside the surface, and was aborted with the surface files restored from a saved copy; the attempt is recorded in the checkpoint rather than silently skipped.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794753665.8901482,
-      "timestamp_str": "2026-11-15 17:41:05",
-      "agent": "kilo:1",
-      "plan_digest": "8f8b251c8054d8e00ee5233d826004647eb22dc54e5c3270089e677ece2946da",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "headwear-bag-difficulty-ramp",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: four worn slots (weapon, armor, trinket, head) with four new head relics, each with a generated 64 px icon (24 icons, all distinct); the bag holds twenty; the doll shows a head box above the weapon and armor above the trinket; a save without a head key loads with head null; slot:head parses as a drop target. Levels cost 42*1.5^(n-1) and kills pay 0.4 of their XP; enemy damage is 1 + 0.1*section + 0.05*roomsCleared + 0.1*(wave-1), so twenty cleared rooms are exactly +100% and every later wave adds one enemy and another 10%. 837 tests (12 failing-first in two new files), mechanics 455, lint, typecheck and build clean; Edge runs at 1280x720 and 390x844 showed the head box and all head icons, Carried 3/20, 24 boxes, no horizontal overflow (390/390), no console errors; 8/8 gates. The UI contract task was opened from a clean baseline, failed verify only because docs, assets, scripts and tests are rightly outside its surface, and was aborted with every surface file restored byte-for-byte and the attempt recorded in the re-plan checkpoint.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794754243.3445687,
-      "timestamp_str": "2026-11-15 17:50:43",
-      "agent": "kilo:1",
-      "checklists": "skipped:PRINCIPLE-015",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "headwear-bag-difficulty-ramp",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[2/2] Post-Flight at e01f211: check --strict 8/8 and delivery-ready. Milestones: b95276c (sim, data, icons, doll, tests) and e01f211 (docs, ADRs, README, cycle log, UI review, map). The first UI task attempt was aborted (its baseline moved by design only because the change itself spans docs, assets and protected tests); after the code was committed a clean UI task was opened from e01f211, verified, and finished with the agent review recorded (G-001), so the UI surface digest now has finished-task evidence. PRINCIPLE-015 skipped: scripts/dogfood.py drives AIKit, not the game; the game was dogfooded with real-input browser runs (head box, head icons, twenty boxes, phone and desktop layout, no console errors). Not pushed: pushing needs explicit approval.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794755113.6696498,
-      "timestamp_str": "2026-11-15 18:05:13",
-      "agent": "kilo:1",
-      "checklists": "skipped:PRINCIPLE-015",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "headwear-bag-difficulty-ramp",
       "phase": "completed",
@@ -399,6 +345,65 @@
       "timestamp_str": "2026-11-16 10:21:41",
       "agent": "kilo:1",
       "head": "da48173ffeefcaff1db9c5638d553902862ef3f3",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": true
+      }
+    },
+    {
+      "task_id": "quest-board-sets-lore",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Quest and item depth: eliteKills tracked on run and meta; quest kinds elites/relics/trust; a bonus tier 20% past target paying 40% extra echoes with per-objective caps; a third chapter for every resident (18 quests) with epilogues and board entries; a real Notice Board with accept/track/visit; an in-game journal overlay on J and touch; bonus bars and chapter labels; four three-piece relic sets applied after item mods with bag chips and sheet lines; five new lore fragments plus core memory 12 (40 fragments, 12 cores) and a synced mirror. Failing-first tests: quest-mechanics, item-sets, ui-quest-board, updated chapter and snapshot and lore assertions.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794821224.1402287,
+      "timestamp_str": "2026-11-16 12:27:04",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "Player request for better quest UI, a proper notice board, in-game quests like the inventory, richer mechanics, better items, more quests and more lore.",
+        "benefits": "The board is a destination, the journal opens in a run, every quest has a bonus goal, late chapters use elites/relics/trust, sets reward mixing pieces, and the new sections have their own lore.",
+        "risks": "contract: Meta gains eliteKills, QuestSnapshot gains fields, AppState gains quests, quest count 12 to 18; dependency: set pieces must be valid equipment and new fragments must be grouped into a core; concurrency: none; state: old saves default the new counters.",
+        "mitigation": "Schema defaults, quest-board/chapter tests, lore completeness plus mirror sync, set-slot validation and browser checks at 1280x720 and 390x844."
+      },
+      "plan_digest": "c2fadb7e30c908e3378c667b66cb25316ea7bcd219da65c714eefce7490f468c",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "quest-board-sets-lore",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/2] Verified: 18 quests (three chapters per resident) with chapter labels, bonus tiers (20% past target, 40% echoes) and epilogues; the Notice Board shows six pinned notes with Accept/Track/Visit and moves accepted notes to In progress; the journal opens in a run with J and shows 19 cards, bonus bars and the tracked border; eliteKills tracks from kills to meta; four relic sets activate at two and three pieces and show bag chips and sheet lines; 40 fragments and 12 cores are grouped and mirrored; 934 tests across 197 files, 485 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720 and 390x844: board 6 notes (358.8px ending 374.4px, no overflow), accepted/tracked names, journal 19 cards with Bonus +24 0/5, J overlay state quests with HUD tracker, Reliquary 2/3 chip and +20 health/+8% DR sheet line, 0 console errors.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794821311.30403,
+      "timestamp_str": "2026-11-16 12:28:31",
+      "agent": "kilo:1",
+      "checklists": "skipped:PRINCIPLE-015",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "quest-board-sets-lore",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'quest-board-sets-lore' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794821497.8771024,
+      "timestamp_str": "2026-11-16 12:31:37",
+      "agent": "kilo:1",
+      "head": "00f3f9e24c54015e887342433660cbdeacc5c7d3",
       "delivery": {
         "roots": [
           "."
