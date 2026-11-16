@@ -417,3 +417,13 @@ The running build was driven in Edge at **1280x720** and **390x844**.
 - **Phone**: at 390x844 the card measured 308.8px inside a 358.8px panel ending at 374.4px, no horizontal overflow.
 - **Console**: 0 errors on the fresh server.
 Captures: `docs/qa/cycle105-bestiary-detail-1280x720.png`, `cycle105-bestiary-detail-390x844.png`.
+## 2026-11-16 review: memory fragment location hints (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720** and **390x844**.
+- **Progress line**: with fragment_001 and fragment_002 owned the Memories tab read "2 / 40 fragments · 0 / 12 memories
+  restored".
+- **Hints**: 38 sealed fragments carried "Not yet found · the <biome>"; the first four read "Not yet found · the Forgotten
+  Ruins". The two recovered fragments showed their text and no hint row.
+- **Phone**: at 390x844 the panel measured 358.8px with no horizontal overflow.
+- **Console**: 0 errors on the fresh server.
+Captures: `docs/qa/cycle106-memory-hints-1280x720.png`.

@@ -4457,3 +4457,21 @@ card measured 308.8px inside a 358.8px panel ending at 374.4px with no horizonta
 console errors. Screenshots `docs/qa/cycle105-bestiary-detail-1280x720.png`, `cycle105-bestiary-detail-390x844.png`.
 ### Gate results
 See the task summary.
+## Cycle 106 - A sealed memory fragment names the biome that hides it
+### FIND
+Sealed fragments were three dots with no route hint, and the Memories tab never said how much of the forty-fragment lore
+remained even though every fragment already carried a biome location.
+### IMPLEMENT
+- `src/sim/content.ts`: `fragmentHabitat(id)` resolves the biome name (undefined for unknown ids), and
+  `memoriesProgress(owned)` counts fragments and restored cores against the real totals.
+- `src/ui/Screens.ts`: the Memories panel gains a progress line and a "Not yet found · the <biome>" row under each sealed
+  fragment.
+- `src/ui/ui.css`: `.frag-location` in the dim ink token; the sealed row keeps its original opacity rule.
+- Tests: `tests/memories-locations.test.ts` (5) plus the README note.
+### RECORD
+In Edge at 1280x720, seeding fragment_001 and fragment_002 read "2 / 40 fragments · 0 / 12 memories restored"; 38 sealed
+fragments carried hints, the first four reading "Not yet found · the Forgotten Ruins", while the two recovered fragments
+showed their text with no hint. At 390x844 the panel measured 358.8px with no horizontal overflow; a fresh server reported
+0 console errors. Screenshot `docs/qa/cycle106-memory-hints-1280x720.png`.
+### Gate results
+See the task summary.

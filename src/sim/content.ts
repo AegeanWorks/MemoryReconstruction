@@ -1008,3 +1008,38 @@ export function fragmentsForFloor(biome: BiomeId, owned: ReadonlySet<string>): s
   const rest = unowned.filter((f) => f.biome !== biome);
   return [...local, ...rest].map((f) => f.id);
 }
+
+const BIOME_NAMES = new Map(rawBiomes.map((biome) => [biome.id as string, biome.name]));
+
+/**
+ * Where a memory fragment waits, as a readable biome name. A fragment whose
+ * saved location is not a real biome gets no hint rather than a broken one.
+ */
+export function fragmentHabitat(id: string): string | undefined {
+  const fragment = MEMORY_FRAGMENTS.find((f) => f.id === id);
+  if (!fragment) return undefined;
+  return BIOME_NAMES.get(fragment.biome);
+}
+
+export interface MemoriesProgress {
+  fragments: number;
+  totalFragments: number;
+  cores: number;
+  totalCores: number;
+  complete: boolean;
+}
+
+/** How much of the lore is recovered: fragment count and fully restored memories. */
+export function memoriesProgress(owned: readonly string[]): MemoriesProgress {
+  const have = new Set(owned);
+  const totalFragments = MEMORY_FRAGMENTS.length;
+  const fragments = MEMORY_FRAGMENTS.filter((fragment) => have.has(fragment.id)).length;
+  const cores = CORE_MEMORIES.filter((core) => core.fragments.every((id) => have.has(id))).length;
+  return {
+    fragments,
+    totalFragments,
+    cores,
+    totalCores: CORE_MEMORIES.length,
+    complete: totalFragments > 0 && fragments === totalFragments,
+  };
+}

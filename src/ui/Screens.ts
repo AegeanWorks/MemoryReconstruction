@@ -11,6 +11,8 @@ import {
   bestiaryProgress,
   biomeInfo,
   filterBestiary,
+  fragmentHabitat,
+  memoriesProgress,
   type BestiaryFilter,
 } from '../sim/content';
 import { FEATS, featProgress, type FeatDef } from '../sim/feats';
@@ -2776,14 +2778,19 @@ export function memoriesScreen(
   onBack: () => void
 ): HTMLElement {
   const have = new Set(owned);
+  const loreProgress = memoriesProgress(owned);
   const cores = CORE_MEMORIES.map((core) => {
     const found = core.fragments.filter((f) => have.has(f));
     const complete = found.length === core.fragments.length;
-    const fragments = core.fragments.map((id) => {
+    const fragments = core.fragments.flatMap((id) => {
       const fragment = MEMORY_FRAGMENTS.find((f) => f.id === id);
-      return have.has(id) && fragment
-        ? h('div', { class: 'frag found' }, `"${fragment.text}"`)
-        : h('div', { class: 'frag sealed' }, '· · ·');
+      if (have.has(id) && fragment)
+        return [h('div', { class: 'frag found' }, `"${fragment.text}"`)];
+      const where = fragmentHabitat(id);
+      return [
+        h('div', { class: 'frag sealed' }, '· · ·'),
+        where ? h('div', { class: 'frag-location' }, `Not yet found · the ${where}`) : null,
+      ];
     });
     return h(
       'div',
@@ -2812,7 +2819,18 @@ export function memoriesScreen(
   });
   const entries = bestiaryEntries(bestiary, bestiaryKills);
   const progress = bestiaryProgress(bestiary);
-  const memoriesPanel = h('div', { class: 'panel codex-panel' }, ...cores);
+  const memoriesPanel = h(
+    'div',
+    { class: 'panel codex-panel' },
+    h(
+      'div',
+      { class: 'meta-line' },
+      loreProgress.complete
+        ? `Every fragment recovered · ${loreProgress.totalFragments} / ${loreProgress.totalFragments} · all ${loreProgress.totalCores} memories are whole.`
+        : `${loreProgress.fragments} / ${loreProgress.totalFragments} fragments · ${loreProgress.cores} / ${loreProgress.totalCores} memories restored`
+    ),
+    ...cores
+  );
   const cards = entries.map((entry) => {
     const detail = bestiaryDetail(entry.id, entry.seen, entry.kills);
     const detailBox = h('div', { class: 'beast-detail hidden' });
