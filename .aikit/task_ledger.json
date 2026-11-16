@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "merchant-reachability-shop-truth",
+    "task_id": "content-expansion-quest-chapters",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794806992.0666912,
+    "updated_at": 1794813350.8958724,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,72 +17,14 @@
     ],
     "forced_completion": {
       "agent": "kilo:1",
-      "reason": "All gates and check --strict pass at 2468172; both milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; fresh-server Edge run used). Not pushed (not authorized).",
-      "at": 1794807225.040641
+      "reason": "All gates and check --strict pass at da48173; both milestones are committed and the UI task was closed with a review of the committed surface. Checklist recorded as it was: PRINCIPLE-015 skipped (no game dogfood runner; real-input Edge runs used). Not pushed (not authorized).",
+      "at": 1794813701.353716
     },
-    "completed_at": 1794807225.040642,
-    "completed_head": "2468172a95f043d4ba03f3b055fc0859ecb7729e",
-    "completed_tree": "5fe32b5b8cab43dd1702a198c5ea59688466fcaa"
+    "completed_at": 1794813701.3537173,
+    "completed_head": "da48173ffeefcaff1db9c5638d553902862ef3f3",
+    "completed_tree": "a9ac9e74f3f41d5e08fd7e0795286149ecd4e6ac"
   },
   "checkpoints": [
-    {
-      "task_id": "saves-slots-inventory-grid",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] Post-Flight at 75951d7: check --strict 8/8, clean tree, 825 tests. PRINCIPLE-018 failed once: milestone 1 was committed by a chained command although the staged secret scan reported two false positives (localStorage key names); marked with the allow pragma, rescanned clean and amended the unpushed commit. PRINCIPLE-015 skipped: scripts/dogfood.py drives AIKit, not the game; the game was dogfooded with real-input CDP runs (golden path plus a foreign save file; damaged saves and a refused storage write in unit tests). Not pushed; AIKit default budget change deferred while another session is active there.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794737307.8504517,
-      "timestamp_str": "2026-11-15 13:08:27",
-      "agent": "kiro:1",
-      "checklists": "failed:PRINCIPLE-018,skipped:PRINCIPLE-015",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "saves-slots-inventory-grid",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'saves-slots-inventory-grid' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794737308.308338,
-      "timestamp_str": "2026-11-15 13:08:28",
-      "agent": "kiro:1",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": true
-      }
-    },
-    {
-      "task_id": "headwear-bag-difficulty-ramp",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/3] Headwear: a fourth worn slot 'head' in EquipmentSlots/EQUIPMENT_SLOTS/emptyEquipment, four new head relics in equipment.json (scout hood, iron helm, oracle circlet, void visor) with per-relic icons drawn by generate_relic_icons.py, the doll gains a head box (CSS grid areas head/weapon/armor/trinket), the bag grows from 10 to 20 cells, restoreRun defaults a missing head slot to null for old saves; failing-first tests for the slot, the bag size, old-save load and icons.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794743625.6492174,
-      "timestamp_str": "2026-11-15 14:53:45",
-      "agent": "kilo:1",
-      "impact_assessment": {
-        "why": "The player asked for a Headwear section and a bigger inventory.",
-        "benefits": "A fourth equipment choice with its own four relics; room for twenty carried relics instead of ten.",
-        "risks": "contract: EquipmentSlot gains 'head', equipment.json gains four items, save equipment objects gain a head key; dependency: relic icon generator must draw every relic or its test fails; concurrency: none; state: pre-slot saves have no head key.",
-        "mitigation": "restoreRun fills missing slots with null; old saves are untouched on disk; the icon script refuses to run with a missing drawing; tests cover the new slot, the 20-cell bag and a head-less snapshot."
-      },
-      "plan_digest": "0f5b9869ebcd98c51966a0ed9d12aaa8f3bc1a39d8cd202ffb7a7efc7aa5125f",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "headwear-bag-difficulty-ramp",
       "phase": "phase 2",
@@ -398,6 +340,65 @@
       "timestamp_str": "2026-11-16 08:33:45",
       "agent": "kilo:1",
       "head": "2468172a95f043d4ba03f3b055fc0859ecb7729e",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": true
+      }
+    },
+    {
+      "task_id": "content-expansion-quest-chapters",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/2] Content expansion: six new enemy records (Bone Picker, Lantern Wraith, Cinder Stalker, Spire Marksman, Reliquary Warden, Salt Orchard Hydra) using tinted borrowed sheets with boss-scale frames and patterns; two new late sections, The Gilded Reliquary (section 22) and The Salt Orchard (section 23), pushing the Keeper to 24 and the First Memory finale to 25; new mobs added to four existing rosters. Quest expansion: a second chapter for every resident (12 quests), chapter-aware selection, an epilogue per chapter, late story lines, and a persisted tracked-quest with a HUD tracker. Tests: content-expansion and quest-chapters plus intentional updates to section-count, checkpoint, depth-clamp and quest-reference assertions (ADR-226).",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794813117.0239446,
+      "timestamp_str": "2026-11-16 10:11:57",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "Player request for new enemies, new sections, a better quest log, and better quests and story.",
+        "benefits": "Two more late road stops with new guardians and mobs, discoverable late enemies across four existing biomes, six new quest chapters with closing story beats, and a pinned quest line that follows the run.",
+        "risks": "contract: FINAL_DEPTH moves 22 to 24, Meta gains trackedQuest, quest selection becomes chapter-aware; dependency: borrowed sheets must exist in the atlas for every new enemy; concurrency: none; state: old saves at depth 22 now load The Salt Orchard, and old meta defaults trackedQuest null.",
+        "mitigation": "Plans are depth-sequential and covered by a new expansion test, atlas ids are reused keys, defaults cover old saves, and the migration change is named in ADR-226."
+      },
+      "plan_digest": "b5de902e226fc8ccfbef61943f0aa38e4764c03068d44bb7956f1e6734f9bd22",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "content-expansion-quest-chapters",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/2] Verified: 6 new enemies exist with tinted sheet mappings and boss-sized frames; plans are depth-sequential 0-24 with The Gilded Reliquary at 21, The Salt Orchard at 22, keeper at 23 and first_memory at 24; new mobs appear in four existing rosters; 12 quests give every resident two chapters with epilogues and late stories; trackedQuest saves, persists and hides after claim. 918 tests across 194 files, 478 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720: 13 quest cards, 12 available, Track->names, tracked border/Untrack, HUD 'Tracking \u00b7 Names in the Index \u00b7 0/4' at top 104; Section 22 start loaded depth 21 with the new roster and reliquary_warden; 390x844 journal had no overflow and a fresh server had 0 console errors.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794813350.8958724,
+      "timestamp_str": "2026-11-16 10:15:50",
+      "agent": "kilo:1",
+      "checklists": "skipped:PRINCIPLE-015",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "content-expansion-quest-chapters",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'content-expansion-quest-chapters' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794813701.4302702,
+      "timestamp_str": "2026-11-16 10:21:41",
+      "agent": "kilo:1",
+      "head": "da48173ffeefcaff1db9c5638d553902862ef3f3",
       "delivery": {
         "roots": [
           "."

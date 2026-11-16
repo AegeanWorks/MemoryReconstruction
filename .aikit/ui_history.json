@@ -1289,5 +1289,25 @@
     "final_snapshot_digest": "",
     "final_snapshot_entries": 0,
     "surface_digest": "746026aaa24a7d95a7ee0cccf4f87f467224a3aa2679b29fadfba9836f7c673c"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the committed cycle 100 surface in Edge at 1280x720 and 390x844: 13 quest cards, Track/Untrack with a tracked border, HUD tracker at top 104 reading Tracking \u00b7 Names in the Index \u00b7 0/4, Section 22 The Gilded Reliquary loading depth 21 with the new roster and reliquary_warden, no phone overflow and 0 console errors on a fresh server; evidence is in docs/UI_REVIEW.md and docs/qa/cycle100-*.png.",
+    "baseline_commit": "da48173ffeefcaff1db9c5638d553902862ef3f3",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794813482.3031871,
+    "finished_at": 1794813639.9175203,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "9751eaf74386a7d102ba5914fd06409bf01ef6d005f2090d03b7cc1ef1e227e6"
   }
 ]
