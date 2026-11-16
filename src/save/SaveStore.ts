@@ -102,6 +102,10 @@ const MetaSchema = z.object({
   vault: z.array(z.string()).default([]),
   /** Enemy def ids recorded in the Bestiary. */
   bestiary: z.array(z.string()).default([]),
+  /** Lifetime defeats per enemy def id, shown in the Bestiary. */
+  bestiaryKills: z.record(z.string(), z.number().int().min(0)).default({}),
+  /** The one-time reward for recording every species in the Bestiary. */
+  codexReward: z.boolean().default(false),
   /** Relic attuned at the Reliquary, equipped first when an expedition starts. */
   attunedRelic: z.string().nullable().default(null),
   /** Shard offerings banked at the Cairn, consumed by the next expedition. */
@@ -189,6 +193,8 @@ export function defaultMeta(): Meta {
     weeklyBounty: { key: '', kills: 0, claimed: false },
     vault: [],
     bestiary: [],
+    bestiaryKills: {},
+    codexReward: false,
     attunedRelic: null,
     offerings: 0,
     relicRanks: {},

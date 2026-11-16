@@ -5,7 +5,7 @@
  */
 import { Sound } from '../audio/Sound';
 import { Input, type MenuAction } from '../input/Input';
-import { biomeInfo, completedCoreFor, enemyDef } from '../sim/content';
+import { bestiaryProgress, biomeInfo, completedCoreFor, enemyDef } from '../sim/content';
 import { NO_INPUT } from '../sim/entities';
 import type { SimEvent } from '../sim/events';
 import {
@@ -338,12 +338,24 @@ export class App {
                 `Weekly contract complete: ${weekly.name} ${progress}/${weekly.target} — claim it in the quest log`
               );
           }
-          // First encounter: record the species in the Bestiary.
-          if (!this.meta.bestiary.includes(e.defId)) {
-            this.meta = { ...this.meta, bestiary: [...this.meta.bestiary, e.defId] };
-            this.store.saveMeta(this.meta);
-            this.hud.toast(`Bestiary · ${enemyDef(e.defId).name} recorded`);
-          }
+          // Bestiary: count every kill and record a species on first sight.
+          const firstSight = !this.meta.bestiary.includes(e.defId);
+          const seenIds = firstSight ? [...this.meta.bestiary, e.defId] : this.meta.bestiary;
+          const bestiaryKills = {
+            ...this.meta.bestiaryKills,
+            [e.defId]: (this.meta.bestiaryKills[e.defId] ?? 0) + 1,
+          };
+          const codexDone = !this.meta.codexReward && bestiaryProgress(seenIds).complete;
+          this.meta = {
+            ...this.meta,
+            bestiary: seenIds,
+            bestiaryKills,
+            ...(codexDone ? { codexReward: true, echoes: this.meta.echoes + 1000 } : {}),
+          };
+          this.store.saveMeta(this.meta);
+          if (firstSight) this.hud.toast(`Bestiary · ${enemyDef(e.defId).name} recorded`);
+          if (codexDone)
+            this.hud.toast('Bestiary complete · every species recorded (+1000 echoes)');
           break;
         }
         case 'resonance': {
@@ -430,7 +442,9 @@ export class App {
         onMemories: () =>
           this.click(() =>
             this.screens.show(
-              memoriesScreen(this.meta.fragments, this.meta.bestiary, () => this.showTitle())
+              memoriesScreen(this.meta.fragments, this.meta.bestiary, this.meta.bestiaryKills, () =>
+                this.showTitle()
+              )
             )
           ),
         onPrologue: () =>
@@ -539,7 +553,9 @@ export class App {
         onMemories: () =>
           this.click(() =>
             this.screens.show(
-              memoriesScreen(this.meta.fragments, this.meta.bestiary, () => this.showHub())
+              memoriesScreen(this.meta.fragments, this.meta.bestiary, this.meta.bestiaryKills, () =>
+                this.showHub()
+              )
             )
           ),
         onSettings: () => this.click(() => this.showSettings(() => this.showHub())),
@@ -602,7 +618,9 @@ export class App {
         onMemories: () =>
           this.click(() =>
             this.screens.show(
-              memoriesScreen(this.meta.fragments, this.meta.bestiary, () => reopen())
+              memoriesScreen(this.meta.fragments, this.meta.bestiary, this.meta.bestiaryKills, () =>
+                reopen()
+              )
             )
           ),
         onSettings: () => this.click(() => this.showSettings(() => reopen())),

@@ -7,7 +7,10 @@ import {
   FLOOR_PLANS,
   MEMORY_FRAGMENTS,
   bestiaryEntries,
+  bestiaryProgress,
   biomeInfo,
+  filterBestiary,
+  type BestiaryFilter,
 } from '../sim/content';
 import { FEATS, featProgress, type FeatDef } from '../sim/feats';
 import {
@@ -2768,6 +2771,7 @@ export function victoryScreen(
 export function memoriesScreen(
   owned: readonly string[],
   bestiary: readonly string[],
+  bestiaryKills: Readonly<Record<string, number>>,
   onBack: () => void
 ): HTMLElement {
   const have = new Set(owned);
@@ -2805,38 +2809,73 @@ export function memoriesScreen(
       ...fragments
     );
   });
-  const entries = bestiaryEntries(bestiary);
-  const foundSpecies = entries.filter((entry) => entry.seen).length;
+  const entries = bestiaryEntries(bestiary, bestiaryKills);
+  const progress = bestiaryProgress(bestiary);
   const memoriesPanel = h('div', { class: 'panel codex-panel' }, ...cores);
+  const cards = entries.map((entry) =>
+    h(
+      'div',
+      { class: `beast${entry.seen ? '' : ' locked'}${entry.isBoss ? ' guardian' : ''}` },
+      h(
+        'div',
+        { class: 'beast-head' },
+        h(
+          'span',
+          { class: 'beast-name' },
+          entry.seen ? entry.name : entry.isBoss ? 'Unknown guardian' : 'Unknown enemy'
+        ),
+        h('span', { class: 'beast-kind' }, entry.isBoss ? 'Guardian' : 'Enemy')
+      ),
+      entry.seen ? h('div', { class: 'beast-kills' }, `Defeated \u00d7${entry.kills}`) : null,
+      h(
+        'div',
+        { class: 'beast-desc' },
+        entry.seen ? entry.description : 'Not yet encountered. The deep keeps its own records.'
+      )
+    )
+  );
+  const bestiaryFilters: Array<[BestiaryFilter, string]> = [
+    ['all', 'All'],
+    ['seen', 'Recorded'],
+    ['sealed', 'Sealed'],
+    ['guardians', 'Guardians'],
+  ];
+  const list = h('div', { class: 'beast-grid' }, ...cards);
+  const filterButtons = bestiaryFilters.map(([id, label]) =>
+    button(
+      label,
+      () => {
+        const shown = new Set(filterBestiary(entries, id).map((entry) => entry.id));
+        cards.forEach((card, index) =>
+          card.classList.toggle('hidden', !shown.has(entries[index].id))
+        );
+        filterButtons.forEach((btn, at) =>
+          btn.classList.toggle('active', bestiaryFilters[at][0] === id)
+        );
+      },
+      'btn small'
+    )
+  );
+  filterButtons[0].classList.add('active');
   const bestiaryPanel = h(
     'div',
     { class: 'panel codex-panel bestiary-panel hidden' },
     h(
       'div',
       { class: 'meta-line' },
-      `${foundSpecies} / ${entries.length} recorded · defeat an enemy to reveal its field notes.`
+      progress.complete
+        ? `Every species recorded · ${progress.total} / ${progress.total} · the codex is whole.`
+        : `${progress.recorded} / ${progress.total} recorded · defeat an enemy to reveal its field notes.`
     ),
-    ...entries.map((entry) =>
-      h(
-        'div',
-        { class: `beast${entry.seen ? '' : ' locked'}${entry.isBoss ? ' guardian' : ''}` },
-        h(
+    progress.complete
+      ? h(
           'div',
-          { class: 'beast-head' },
-          h(
-            'span',
-            { class: 'beast-name' },
-            entry.seen ? entry.name : entry.isBoss ? 'Unknown guardian' : 'Unknown enemy'
-          ),
-          h('span', { class: 'beast-kind' }, entry.isBoss ? 'Guardian' : 'Enemy')
-        ),
-        h(
-          'div',
-          { class: 'beast-desc' },
-          entry.seen ? entry.description : 'Not yet encountered. The deep keeps its own records.'
+          { class: 'codex-complete' },
+          'Codex complete · the deep has no more names to hide.'
         )
-      )
-    )
+      : null,
+    h('div', { class: 'bestiary-filters' }, ...filterButtons),
+    list
   );
   const memoriesTab = button('Memories', () => show('memories'), 'btn small');
   const bestiaryTab = button('Bestiary', () => show('bestiary'), 'btn small');

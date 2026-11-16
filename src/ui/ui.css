@@ -1263,10 +1263,36 @@
   display: none;
 }
 .bestiary-panel {
+  display: block;
+  width: min(860px, 92vw);
+}
+.beast-grid {
   display: grid;
   gap: 8px;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  width: min(860px, 92vw);
+  margin-top: 8px;
+}
+.bestiary-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.bestiary-filters .btn.active {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.codex-complete {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 217, 138, 0.35);
+  border-radius: 6px;
+  color: var(--gold);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.beast.hidden {
+  display: none;
 }
 .beast {
   padding: 10px 12px;
@@ -1296,6 +1322,12 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-dim);
+}
+.beast-kills {
+  margin-top: 3px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: rgba(255, 217, 138, 0.85);
 }
 .beast-desc {
   margin-top: 4px;

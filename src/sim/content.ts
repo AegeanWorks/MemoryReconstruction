@@ -805,6 +805,17 @@ export interface BestiaryEntry {
   description: string;
   isBoss: boolean;
   seen: boolean;
+  /** Lifetime defeats of this species. */
+  kills: number;
+}
+
+/** The codex views the player can switch between. */
+export type BestiaryFilter = 'all' | 'seen' | 'sealed' | 'guardians';
+
+export interface BestiaryProgress {
+  recorded: number;
+  total: number;
+  complete: boolean;
 }
 
 /**
@@ -812,20 +823,50 @@ export interface BestiaryEntry {
  * Unknown ids in the saved record are ignored, so a hand-edited save cannot
  * smuggle a phantom entry into the codex.
  */
-export function bestiaryEntries(seen: readonly string[]): BestiaryEntry[] {
+export function bestiaryEntries(
+  seen: readonly string[],
+  kills: Readonly<Record<string, number>> = {}
+): BestiaryEntry[] {
   const have = new Set(seen);
   return allEnemyIds()
     .map((id) => {
       const def = enemyDef(id);
+      const count = kills[id] ?? 0;
       return {
         id,
         name: def.name,
         description: def.description,
         isBoss: GUARDIAN_IDS.has(id),
         seen: have.has(id),
+        kills: Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0,
       };
     })
     .sort((a, b) => Number(a.isBoss) - Number(b.isBoss) || a.name.localeCompare(b.name));
+}
+
+/** How much of the codex is filled, against the real species count. */
+export function bestiaryProgress(seen: readonly string[]): BestiaryProgress {
+  const real = new Set(allEnemyIds());
+  const recorded = new Set(seen.filter((id) => real.has(id))).size;
+  const total = real.size;
+  return { recorded, total, complete: total > 0 && recorded === total };
+}
+
+/** Entries for one codex view; `all` returns the list unchanged. */
+export function filterBestiary(
+  entries: readonly BestiaryEntry[],
+  filter: BestiaryFilter
+): BestiaryEntry[] {
+  switch (filter) {
+    case 'seen':
+      return entries.filter((entry) => entry.seen);
+    case 'sealed':
+      return entries.filter((entry) => !entry.seen);
+    case 'guardians':
+      return entries.filter((entry) => entry.isBoss);
+    default:
+      return [...entries];
+  }
 }
 
 const rawBiomes = (
