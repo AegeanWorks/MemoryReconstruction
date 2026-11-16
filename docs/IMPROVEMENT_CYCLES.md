@@ -4362,3 +4362,30 @@ Screenshots `docs/qa/cycle101-notice-board-1280x720.png`, `cycle101-quest-log-bo
 `cycle101-notice-board-390x844.png`.
 ### Gate results
 See the task summary.
+
+## Cycle 102 - Weekly contracts, guardian lore and a truthful set count
+### FIND
+The journal had a daily mark but no week-long contract; the boss bar showed only a name although every bestiary record has a
+description; a single worn set piece read 0/3 because the sheet counted only active (two-piece) sets; and the resident's task
+page omitted the bonus tier that the board and journal show.
+### IMPLEMENT
+- `src/save/SaveStore.ts`: `weeklyKey` (ISO-8601 YYYY-Www, UTC) and `Meta.weeklyBounty` with recovery and defaults.
+- `src/sim/quests.ts`: `weeklyBounty` over six late enemies (40 kills, 800 echoes) and `claimWeeklyBounty`; progress resets
+  with the week instead of carrying over.
+- `src/app/App.ts`: matching kills advance the weekly contract; the journal renders a Weekly contract card with progress
+  and a claim action that pays once.
+- `src/sim/content.ts`, `src/ui/Hud.ts`, `ui.css`: `EnemyDef.description` from the bestiary, a `.boss-lore` line under the
+  boss name, and a tracker that hides while a guardian is on screen but keeps its text for afterwards.
+- `src/sim/equipment.ts`, `src/ui/Screens.ts`: `wornSetCount` so the sheet reads 1/3 before the bonus starts; the resident
+  task page now appends "bonus +N at M" to its progress line.
+- Tests: `weekly-contract` (5), `boss-lore` (2), an added `wornSetCount` case and updated journal wiring checks.
+### RECORD
+In Edge at 1280x720 the journal showed 20 cards and a Weekly contract for Lantern Wraiths: "Hunt 40 lantern wraiths before
+the week turns", reward 800 echoes, 0/40. Setting progress to 40 and claiming paid 800 echoes and left the card at
+"Claimed" 40/40. Spawning a Reliquary Warden showed the boss bar with the exact bestiary line "A gilded construct that keeps
+the vault's ledger. It counts every relic you carry before it strikes." and hid the HUD tracker (its text was retained).
+Wearing a single Colossus Plate showed "Reliquary · 1/3 worn" on the sheet and no chip until a second piece. At 390x844 the weekly
+card measured 358px ending at 374px with no horizontal overflow; a fresh server reported 0 console errors. Screenshots
+`docs/qa/cycle102-weekly-contract-1280x720.png`, `cycle102-guardian-lore-1280x720.png`.
+### Gate results
+See the task summary.

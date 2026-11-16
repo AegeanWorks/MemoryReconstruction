@@ -362,3 +362,18 @@ The running Vite build was driven in Edge at **1280x720** and **390x844**.
 
 Captures: `docs/qa/cycle101-notice-board-1280x720.png`, `cycle101-quest-log-bonus-1280x720.png`,
 `cycle101-ingame-questlog-1280x720.png`, `cycle101-item-set-1280x720.png`, `cycle101-notice-board-390x844.png`.
+
+## 2026-11-16 review: weekly contract, guardian lore and set count (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720** and **390x844**.
+- **Weekly contract**: the journal showed 20 cards; the weekly card named Lantern Wraiths, asked for 40 kills, paid 800
+  echoes and sat at 0/40. Setting progress to 40 and clicking **Claim the contract** raised echoes to 800 and left the
+  card "Claimed" at 40/40.
+- **Guardian lore**: a spawned Reliquary Warden made the boss bar visible with the exact bestiary line "A gilded
+  construct that keeps the vault's ledger. It counts every relic you carry before it strikes." The HUD tracker hid while
+  the boss was active but kept "Tracking · Names in the Index · 0/4" for afterwards.
+- **Set count**: one worn Colossus Plate showed "Reliquary · 1/3 worn" on the item sheet and no bag chip, which appears
+  from two pieces; the sheet still listed the two-piece +20 health and three-piece +8% damage reduction.
+- **Phone**: at 390x844 the weekly card measured 358px ending at 374px with no horizontal overflow.
+- **Console**: 0 errors on the fresh server.
+Captures: `docs/qa/cycle102-weekly-contract-1280x720.png`, `cycle102-guardian-lore-1280x720.png`.
