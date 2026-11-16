@@ -29,11 +29,18 @@ describe('the Notice Board and the in-game quest UI', () => {
     expect(touch).toContain("menu('quests')");
   });
 
-  it('shows bonus tiers in the journal and styles the board notes', () => {
+  it('shows bonus tiers and a weekly contract in the journal', () => {
     const screens = read('../src/ui/Screens.ts');
     expect(screens).toContain('questBonus');
     expect(screens).toContain('quest-bonus');
     expect(screens).toContain('Bonus +');
+    expect(screens).toContain('Weekly contract');
+    expect(screens).toContain('weeklyCard');
+    expect(screens).toContain('bonus +${bonus.echoes} at');
+    const app = read('../src/app/App.ts');
+    expect(app).toContain('weeklyBounty');
+    expect(app).toContain('claimWeeklyBounty');
+    expect(app).toContain('weeklyKey');
     const css = read('../src/ui/ui.css');
     expect(css).toContain('.quest-bonus {');
     expect(css).toContain('.notice-note {');

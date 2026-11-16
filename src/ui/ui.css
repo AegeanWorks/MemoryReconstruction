@@ -402,6 +402,18 @@
 .boss-bar.hidden {
   opacity: 0;
 }
+.boss-lore {
+  margin: 3px auto 5px;
+  max-width: 100%;
+  font-family: var(--serif);
+  font-size: 11px;
+  line-height: 1.35;
+  color: #efc8ce;
+  text-shadow: 0 1px 3px #000;
+}
+.boss-lore.hidden {
+  display: none;
+}
 .boss-name {
   display: inline-block;
   padding: 4px 22px;

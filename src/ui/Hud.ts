@@ -50,8 +50,19 @@ export class Hud {
   /** Pinned quest line under the floor objective, hidden when nothing is tracked. */
   private readonly tracker = h('div', { class: 'hud-tracker hidden' });
   private readonly bossName = h('div', { class: 'boss-name' });
+  private readonly bossLore = h('div', { class: 'boss-lore' });
   private readonly boss = bar('boss', true, true);
-  private readonly bossBar = h('div', { class: 'boss-bar hidden' }, this.bossName, this.boss.root);
+  private readonly bossBar = h(
+    'div',
+    { class: 'boss-bar hidden' },
+    this.bossName,
+    this.bossLore,
+    this.boss.root
+  );
+  /** True while a guardian is on screen, so the quest tracker yields the top band. */
+  private bossActive = false;
+  /** Last tracker text, kept so a boss hiding it does not drop it. */
+  private trackerText: string | null = null;
   private readonly minimap = h('canvas', { class: 'minimap', width: '190', height: '140' });
   private readonly shards = h('span');
   private readonly prompt = h('div', { class: 'prompt hidden' });
@@ -165,8 +176,15 @@ export class Hud {
 
   /** Pins a quest line under the floor objective; null hides the tracker. */
   setTracker(text: string | null): void {
-    this.tracker.classList.toggle('hidden', !text);
-    this.setText(this.tracker, text ?? '');
+    this.trackerText = text;
+    this.syncTracker();
+  }
+
+  /** A guardian's bar and lore own the top band; the tracker waits behind it. */
+  private syncTracker(): void {
+    const show = !!this.trackerText && !this.bossActive;
+    this.tracker.classList.toggle('hidden', !show);
+    if (this.trackerText) this.setText(this.tracker, this.trackerText);
   }
 
   private setText(el: HTMLElement, value: string): void {
@@ -283,15 +301,19 @@ export class Hud {
     this.setText(this.objectives, this.objectiveText);
 
     const boss = world.activeBoss();
+    this.bossActive = !!boss;
     this.bossBar.classList.toggle('hidden', !boss);
     if (boss) {
       this.setText(this.bossName, boss.def.name);
+      this.setText(this.bossLore, boss.def.description);
+      this.bossLore.classList.toggle('hidden', boss.def.description.length === 0);
       const ratio = boss.health / boss.maxHealth;
       this.setWidth(this.boss.fill, ratio);
       this.setWidth(this.boss.lag!, ratio);
       this.setText(this.boss.text!, `${Math.max(0, Math.ceil(ratio * 100))}%`);
       this.bossBar.classList.toggle('enraged', ratio <= 0.3);
     }
+    this.syncTracker();
 
     this.stalked.classList.toggle('hidden', !world.isStalked);
     // Field manual (cyberpulse ADR-037): the next unlearned basic, shown on

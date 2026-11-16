@@ -47,6 +47,8 @@ export interface BiomeInfo {
 export interface EnemyDef {
   id: string;
   name: string;
+  /** One line of field-guide lore, shown under the boss bar. */
+  description: string;
   archetype: Archetype;
   /** `behavior` value from enemies.json, kept for variant tweaks (e.g. splitter). */
   behavior: string;
@@ -746,6 +748,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
 interface RawEnemy {
   id: string;
   name: string;
+  description: string;
   stats: { health: number; damage: number; speed: number; xpValue: number };
   ai: { behavior: string; aggroRange: number; attackRange: number; attackCooldown: number };
   hitbox: { width: number };
@@ -759,6 +762,7 @@ function toEnemyDef(raw: RawEnemy, asBoss: boolean): EnemyDef {
   return {
     id: raw.id,
     name: raw.name,
+    description: raw.description ?? '',
     archetype,
     behavior: raw.ai.behavior,
     maxHealth: Math.round(

@@ -115,6 +115,8 @@ const MetaSchema = z.object({
   relicRequests: z.array(z.string()).default([]),
   /** Daily bounty progress; keyed so a new day starts clean. */
   dailyBounty: BountySchema.default({ key: '', kills: 0, claimed: false }),
+  /** Weekly contract progress; keyed so a new ISO week starts clean. */
+  weeklyBounty: BountySchema.default({ key: '', kills: 0, claimed: false }),
   /** Settlement-evaluated mastery ladder; idempotent set union per run. */
   feats: z.array(z.string()).default([]),
   /** Best transparent run score across all settlements. */
@@ -182,6 +184,7 @@ export function defaultMeta(): Meta {
     trustGifted: [],
     relicRequests: [],
     dailyBounty: { key: '', kills: 0, claimed: false },
+    weeklyBounty: { key: '', kills: 0, claimed: false },
     vault: [],
     attunedRelic: null,
     offerings: 0,
@@ -498,6 +501,7 @@ function recoverMeta(raw: unknown): Meta {
   out.settings = recoverFields(obj.settings, SettingsSchema.shape, base.settings);
   out.quests = recoverFields(obj.quests, QuestSchema.shape, base.quests);
   out.dailyBounty = recoverFields(obj.dailyBounty, BountySchema.shape, base.dailyBounty);
+  out.weeklyBounty = recoverFields(obj.weeklyBounty, BountySchema.shape, base.weeklyBounty);
   out.daily = recoverFields(obj.daily, DailySchema.shape, base.daily);
   return dropPhantomRelics(out as Meta);
 }
@@ -584,6 +588,17 @@ export function dailyKey(date = new Date()): string {
   const m = `${date.getMonth() + 1}`.padStart(2, '0');
   const d = `${date.getDate()}`.padStart(2, '0');
   return `${y}-${m}-${d}`;
+}
+
+/** ISO-8601 week key (YYYY-Www, UTC) so a weekly contract is the same for everyone. */
+export function weeklyKey(date = new Date()): string {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const year = d.getUTCFullYear();
+  const yearStart = new Date(Date.UTC(year, 0, 1));
+  const week = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return `${year}-W${String(week).padStart(2, '0')}`;
 }
 
 /** Date-derived seed (YYYYMMDD): the same descent for everyone, all day. */

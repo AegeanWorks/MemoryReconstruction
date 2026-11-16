@@ -480,6 +480,43 @@ export function claimDailyBounty(
   };
 }
 
+/**
+ * The weekly contract: a bigger, slower mark than the daily one, deterministic
+ * from the ISO week key so the whole Sanctuary hunts the same thing for seven
+ * days. Forty kills for eight hundred echoes; reset rather than carry over.
+ */
+const WEEKLY_BOUNTY_POOL: ReadonlyArray<{ defId: string; name: string }> = [
+  { defId: 'bone_picker', name: 'Bone Pickers' },
+  { defId: 'lantern_wraith', name: 'Lantern Wraiths' },
+  { defId: 'cinder_stalker', name: 'Cinder Stalkers' },
+  { defId: 'spire_marksman', name: 'Spire Marksmen' },
+  { defId: 'rime_duelist', name: 'Rime Duellists' },
+  { defId: 'ossuary_chanter', name: 'Ossuary Chanters' },
+];
+
+export function weeklyBounty(key: string): DailyBounty {
+  const match = /^(\d{4})-W(\d{2})$/.exec(key);
+  const weeks = match ? Number(match[1]) * 53 + Number(match[2]) : 0;
+  const idx =
+    ((weeks % WEEKLY_BOUNTY_POOL.length) + WEEKLY_BOUNTY_POOL.length) % WEEKLY_BOUNTY_POOL.length;
+  const pick = WEEKLY_BOUNTY_POOL[idx];
+  return { defId: pick.defId, name: pick.name, target: 40, reward: 800 };
+}
+
+export function claimWeeklyBounty(
+  meta: { echoes: number; weeklyBounty: BountyProgress },
+  key: string
+): { echoes: number; weeklyBounty: BountyProgress; reward: number } | undefined {
+  const contract = weeklyBounty(key);
+  const progress = bountyForDay(meta.weeklyBounty, key);
+  if (progress.claimed || progress.kills < contract.target) return undefined;
+  return {
+    echoes: meta.echoes + contract.reward,
+    weeklyBounty: { ...progress, claimed: true },
+    reward: contract.reward,
+  };
+}
+
 export interface QuestClaimMeta {
   echoes: number;
   vault: string[];

@@ -9,6 +9,7 @@ import {
   equipmentDef,
   setForRelic,
   setMods,
+  wornSetCount,
   type EquipmentSlots,
 } from '../src/sim/equipment';
 import { BASE_STATS } from '../src/sim/upgrades';
@@ -73,6 +74,14 @@ describe('relic sets', () => {
     expect(three.meleeDamage).toBe(6);
     expect(three.critMultiplier).toBeCloseTo(0.25);
     expect(setMods(worn(['ember_core']))).toEqual({});
+  });
+
+  it('counts one worn piece before the two-piece bonus starts', () => {
+    const set = setForRelic('ember_core')!;
+    expect(wornSetCount(set, worn(['ember_core']))).toBe(1);
+    expect(wornSetCount(set, worn(['ember_core', 'ember_charm']))).toBe(2);
+    expect(wornSetCount(set, worn(['ember_core', 'ember_charm', 'ember_drape']))).toBe(3);
+    expect(wornSetCount(set, emptyEquipment())).toBe(0);
   });
 
   it('shows the set on the item sheet and a chip while worn', () => {

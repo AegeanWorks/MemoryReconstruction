@@ -31,6 +31,7 @@ import {
   applyTribute,
   bountyForDay,
   claimDailyBounty,
+  claimWeeklyBounty,
   dailyBounty,
   epilogueForNpc,
   nextQuestForNpc,
@@ -42,6 +43,7 @@ import {
   questStateFor,
   questSnapshot,
   requestForNpc,
+  weeklyBounty,
   rushMinutesLeft,
   tributeCost,
   trustBonus,
@@ -59,6 +61,7 @@ import {
   dailyKey,
   dailyModifier,
   dailySeed,
+  weeklyKey,
   recordRun,
   type Meta,
   type Settings,
@@ -317,6 +320,22 @@ export class App {
             if (progress === contract.target)
               this.hud.toast(
                 `Daily mark complete: ${contract.name} ${progress}/${contract.target} — claim it in the quest log`
+              );
+          }
+          // Weekly contract: same kill-count pattern, one week per mark.
+          const week = weeklyKey();
+          const weekly = weeklyBounty(week);
+          if (!e.boss && e.defId === weekly.defId && !this.meta.weeklyBounty.claimed) {
+            const progress =
+              this.meta.weeklyBounty.key === week ? this.meta.weeklyBounty.kills + 1 : 1;
+            this.meta = {
+              ...this.meta,
+              weeklyBounty: { key: week, kills: progress, claimed: false },
+            };
+            this.store.saveMeta(this.meta);
+            if (progress === weekly.target)
+              this.hud.toast(
+                `Weekly contract complete: ${weekly.name} ${progress}/${weekly.target} — claim it in the quest log`
               );
           }
           break;
@@ -734,6 +753,7 @@ export class App {
     this.input.releaseAll();
     const render = (): void => {
       const key = dailyKey();
+      const week = weeklyKey();
       this.screens.show(
         questLogScreen(
           this.meta,
@@ -748,6 +768,19 @@ export class App {
               this.store.saveMeta(this.meta);
               this.hud.toast(`Daily mark claimed · +${settled.reward} echoes`);
               render();
+            },
+            weekly: {
+              contract: weeklyBounty(week),
+              progress: bountyForDay(this.meta.weeklyBounty, week),
+              onClaim: () => {
+                const settled = claimWeeklyBounty(this.meta, week);
+                if (!settled) return;
+                this.sound.click();
+                this.meta = { ...this.meta, ...settled };
+                this.store.saveMeta(this.meta);
+                this.hud.toast(`Weekly contract claimed · +${settled.reward} echoes`);
+                render();
+              },
             },
             trackedQuest: this.meta.trackedQuest,
             onTrack: (id) => {

@@ -12,6 +12,7 @@ import {
   equipmentScore,
   relicSellShards,
   setForRelic,
+  wornSetCount,
   type EquipmentItem,
   type EquipmentRarity,
   type EquipmentSlot,
@@ -1238,6 +1239,7 @@ export function dialogueScreen(opts: {
 }): HTMLElement {
   const npc = NPCS[opts.npcId] ?? { name: 'A quiet resident', role: '', greeting: '...' };
   const quest = opts.quest;
+  const bonus = quest ? questBonus(quest) : undefined;
   const ready = quest ? opts.progress >= quest.target : false;
   const portraitUrl = assetUrl(`sprites/props/npc_${opts.npcId}.png`);
   const hintPanel = h('div', { class: 'panel dialogue-panel dialogue-hint hidden' }, opts.hint);
@@ -1300,7 +1302,7 @@ export function dialogueScreen(opts: {
           h(
             'div',
             { class: 'cp-note' },
-            `${Math.min(opts.progress, quest.target)} / ${quest.target} · reward ${quest.rewardEchoes} echoes${quest.rewardItem ? ' + a relic' : ''}${
+            `${Math.min(opts.progress, quest.target)} / ${quest.target} · reward ${quest.rewardEchoes} echoes${quest.rewardItem ? ' + a relic' : ''}${bonus ? ` · bonus +${bonus.echoes} at ${bonus.target}` : ''}${
               opts.accepted &&
               !opts.claimed &&
               opts.rushMinutes !== undefined &&
@@ -1767,9 +1769,7 @@ function detailCard(
 ): HTMLElement {
   const def = equipmentDef(item.defId);
   const set = setForRelic(def.id);
-  const setCount = set
-    ? (activeSets(equipped).find((entry) => entry.set.id === set.id)?.count ?? 0)
-    : 0;
+  const setCount = set ? wornSetCount(set, equipped) : 0;
   const setLine = set
     ? h(
         'div',
@@ -2078,6 +2078,11 @@ export function questLogScreen(
   daily: { contract: DailyBounty; progress: { kills: number; claimed: boolean } },
   opts: {
     onClaimDaily: () => void;
+    weekly: {
+      contract: DailyBounty;
+      progress: { kills: number; claimed: boolean };
+      onClaim: () => void;
+    };
     trackedQuest: string | null;
     onTrack: (id: string | null) => void;
   },
@@ -2263,6 +2268,64 @@ export function questLogScreen(
     )
   );
 
+  const weeklyReady =
+    !opts.weekly.progress.claimed && opts.weekly.progress.kills >= opts.weekly.contract.target;
+  const weeklyPct = Math.min(
+    100,
+    Math.round(
+      (Math.min(opts.weekly.progress.kills, opts.weekly.contract.target) /
+        opts.weekly.contract.target) *
+        100
+    )
+  );
+  const weeklyCard = h(
+    'article',
+    { class: `quest-card weekly${weeklyReady || opts.weekly.progress.claimed ? ' lit' : ''}` },
+    h(
+      'div',
+      { class: 'quest-body' },
+      h(
+        'div',
+        { class: 'quest-top' },
+        h('span', { class: 'quest-name' }, `Weekly contract · ${opts.weekly.contract.name}`),
+        h(
+          'span',
+          {
+            class: `quest-state ${opts.weekly.progress.claimed ? 'done' : weeklyReady ? 'ready' : 'active'}`,
+          },
+          opts.weekly.progress.claimed ? 'Claimed' : weeklyReady ? 'Ready to claim' : 'Hunting'
+        )
+      ),
+      h(
+        'p',
+        { class: 'quest-text' },
+        `Hunt ${opts.weekly.contract.target} ${opts.weekly.contract.name.toLowerCase()} before the week turns. The same contract for everyone.`
+      ),
+      h(
+        'div',
+        { class: 'quest-giver' },
+        `Reward ${opts.weekly.contract.reward} echoes · resets with the ISO week`
+      ),
+      h(
+        'div',
+        { class: 'quest-progress' },
+        h('span', { class: 'quest-bar' }, h('span', { style: `width:${weeklyPct}%` })),
+        h(
+          'span',
+          { class: 'quest-numbers' },
+          `${Math.min(opts.weekly.progress.kills, opts.weekly.contract.target)}/${opts.weekly.contract.target}`
+        )
+      ),
+      weeklyReady
+        ? h(
+            'div',
+            { class: 'gear-actions' },
+            button('Claim the contract', opts.weekly.onClaim, 'btn small primary')
+          )
+        : null
+    )
+  );
+
   const tabs: Array<{ key: string; label: string }> = [
     { key: 'all', label: 'All' },
     { key: 'active', label: 'Active' },
@@ -2290,6 +2353,7 @@ export function questLogScreen(
       })
     ),
     dailyCard,
+    weeklyCard,
     section('active', 'In progress', active),
     section('ready', 'Ready to claim', ready),
     section('available', 'Available from residents', available),

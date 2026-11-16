@@ -154,17 +154,22 @@ export function setForRelic(defId: string): RelicSet | undefined {
   return SET_BY_PIECE.get(defId);
 }
 
+/** How many pieces of this set are worn, even before the two-piece bonus starts. */
+export function wornSetCount(set: RelicSet, equipped: EquipmentSlots | undefined): number {
+  if (!equipped) return 0;
+  const worn = new Set(
+    EQUIPMENT_SLOTS.map((slot) => equipped[slot]?.defId).filter((id): id is string => !!id)
+  );
+  return set.pieces.filter((piece) => worn.has(piece)).length;
+}
+
 /** Every set with at least two pieces worn, and how many are worn. */
 export function activeSets(
   equipped: EquipmentSlots | undefined
 ): Array<{ set: RelicSet; count: number }> {
-  if (!equipped) return [];
-  const worn = new Set(
-    EQUIPMENT_SLOTS.map((slot) => equipped[slot]?.defId).filter((id): id is string => !!id)
-  );
   const out: Array<{ set: RelicSet; count: number }> = [];
   for (const set of RELIC_SETS) {
-    const count = set.pieces.filter((piece) => worn.has(piece)).length;
+    const count = wornSetCount(set, equipped);
     if (count >= 2) out.push({ set, count });
   }
   return out;
