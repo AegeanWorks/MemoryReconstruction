@@ -322,3 +322,24 @@ The running Vite build was driven on a fresh server (port 3001) at **1280x720** 
 - **Cape pixels**: covered by four new `gear-look` unit tests rather than the browser (cyan moves, robe/skin/gold
   untouched, robe+cape compose, alpha preserved); the visual cape recolour was already captured in Cycle 98.
 No console errors were observed. Capture: `docs/qa/cycle99-flasks-full-1280x720.png`.
+
+## 2026-11-16 review: quest chapters, tracker, and the Gilded Reliquary (agent reviewer: kilo:1)
+
+The running Vite build was driven in Edge at **1280x720** and **390x844** on a fresh server.
+- **Quest log**: 13 cards (12 chapters plus the daily mark), subtitle "0 active · 0 ready · 0 completed · 12
+  available", a Track button on every open chapter. Tracking **Names in the Index** saved
+  `meta.trackedQuest = names`, added the `tracked` border and changed the button to **Untrack**.
+- **HUD tracker**: after starting Section 1, `.hud-tracker` was visible at top 104 with "Tracking · Names in
+  the Index · 0/4"; it is hidden when nothing is tracked or after the chapter is claimed.
+- **New section**: with the checkpoint temporarily raised to 21, **Section 22 · The Gilded Reliquary** became
+  selectable; the run loaded at depth 21 with the plan's roster (rivet_squire, solder_wisp, cog_hound,
+  bone_picker, cinder_stalker, spire_marksman), boss `reliquary_warden`, and the matching floor line. The
+  Salt Orchard is covered by the plan/data tests because it is not a checkpoint start point.
+- **Phone**: at 390x844 the journal kept 13 cards, a 358.8px card ending at 374.4px, a 59.7px Track button and
+  no horizontal overflow (scrollWidth 390).
+- **Console**: the fresh server reported 0 errors. An earlier dev server died mid-session and produced an
+  ERR_CONNECTION_REFUSED storm in the old tab; that was infrastructure, not game code. No game console errors
+  were observed before or after it.
+
+Captures: `docs/qa/cycle100-quest-log-tracked-1280x720.png`, `cycle100-hud-tracker-1280x720.png`,
+`cycle100-gilded-reliquary-1280x720.png`, `cycle100-quest-log-390x844.png`.

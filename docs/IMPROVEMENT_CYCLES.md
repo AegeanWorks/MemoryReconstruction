@@ -4285,3 +4285,42 @@ their prices (disabled by the empty purse). The cape pixel rules and shop-line s
 Screenshot docs/qa/cycle99-flasks-full-1280x720.png.
 ### Gate results
 See the task summary.
+
+## Cycle 100 - New enemies, two late sections and quest chapters with a tracker
+### FIND
+The player asked for new enemies, new sections, a better quest log, and better quests and story. The bestiary
+already had varied AI but the late road jumped from the Drowned Court trial to the Keeper, the quest log had no
+way to pin a task, each resident had exactly one task, and claiming it left them with only ambient remarks.
+### IMPLEMENT
+- `src/data/enemies.json` (+ the `assets/data` mirror): Bone Picker, Lantern Wraith, Cinder Stalker, Spire
+  Marksman, Reliquary Warden and Salt Orchard Hydra.
+- `src/sim/content.ts`: sprite keys, tints and scales for all six; two new floor plans - The Gilded Reliquary
+  (section 22, foundry) and The Salt Orchard (section 23, bloom) - before the Keeper (now section 24) and the
+  First Memory finale (now section 25, FINAL_DEPTH 24); new mobs added to the ash, void, storm and catacomb
+  rosters.
+- `src/sim/enemies.ts`: boss attack patterns and the melee classification for the Reliquary Warden.
+- `src/sim/quests.ts`: a second chapter for every resident (12 total), `questsForNpcList`,
+  `nextQuestForNpc`, `latestClaimedQuestForNpc`, `QUEST_EPILOGUES` and `epilogueForNpc`; new late stories for
+  every resident, with the archivist's final story moved to depth 24.
+- `src/save/SaveStore.ts`: `trackedQuest` on the meta (default null).
+- `src/ui/Screens.ts`: the dialogue shows the next chapter and the most recent epilogue; quest cards gain
+  Track/Untrack and a tracked border; hub badges and dialogue use the chapter-aware quest.
+- `src/app/App.ts`: quest tracking saved and re-rendered, tracker text built from the snapshot, HUD tracker
+  updated each frame, tracked chapter cleared on claim.
+- `src/ui/Hud.ts` and `ui.css`: a pinned `.hud-tracker` under the floor line (104px desktop, 78px mobile).
+- Tests: `content-expansion` (5), `quest-chapters` (6), plus intentional updates to content, frontier, hub,
+  save-fuzz, tide-trial and quest-reference expectations (ADR-226).
+### RECORD
+In Edge at 1280x720 the Quest Log showed 13 cards (12 chapters plus the daily mark), 12 available, and a
+Track button on each. Tracking **Names in the Index** set `meta.trackedQuest` to `names`, turned its border on
+and its button to **Untrack**; starting Section 1 then showed the HUD line "Tracking · Names in the Index ·
+0/4" at top 104. Setting the checkpoint to 21 made **Section 22 · The Gilded Reliquary** selectable; the run
+loaded at depth 21 with roster `rivet_squire, solder_wisp, cog_hound, bone_picker, cinder_stalker,
+spire_marksman`, boss `reliquary_warden`, and the floor line read Section 22 · The Gilded Reliquary. At
+390x844 the journal kept 13 cards, a 358.8px card ending at 374.4px, a 59.7px Track button and no horizontal
+overflow. A fresh dev server reported 0 console errors; an earlier server died mid-session and its
+ERR_CONNECTION_REFUSED storm was infrastructure, not the game. Screenshots
+`docs/qa/cycle100-quest-log-tracked-1280x720.png`, `cycle100-hud-tracker-1280x720.png`,
+`cycle100-gilded-reliquary-1280x720.png`, `cycle100-quest-log-390x844.png`.
+### Gate results
+See the task summary.
