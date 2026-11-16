@@ -47,6 +47,8 @@ export class Hud {
   private readonly manaPotions = h('span');
   private readonly floorName = h('div', { class: 'hud-floor' });
   private readonly objectives = h('div', { class: 'hud-objectives' });
+  /** Pinned quest line under the floor objective, hidden when nothing is tracked. */
+  private readonly tracker = h('div', { class: 'hud-tracker hidden' });
   private readonly bossName = h('div', { class: 'boss-name' });
   private readonly boss = bar('boss', true, true);
   private readonly bossBar = h('div', { class: 'boss-bar hidden' }, this.bossName, this.boss.root);
@@ -129,6 +131,7 @@ export class Hud {
       vitals,
       this.floorName,
       this.objectives,
+      this.tracker,
       this.bossBar,
       map,
       this.prompt,
@@ -158,6 +161,12 @@ export class Hud {
   /** Hides the controls hint after the first floor. */
   setHintVisible(visible: boolean): void {
     this.hint.classList.toggle('hidden', !visible);
+  }
+
+  /** Pins a quest line under the floor objective; null hides the tracker. */
+  setTracker(text: string | null): void {
+    this.tracker.classList.toggle('hidden', !text);
+    this.setText(this.tracker, text ?? '');
   }
 
   private setText(el: HTMLElement, value: string): void {

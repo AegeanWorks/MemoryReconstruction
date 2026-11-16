@@ -38,11 +38,16 @@ describe('content', () => {
     expect(enemyDef('guardian', true).maxHealth).toBeGreaterThan(enemyDef('guardian').maxHealth);
   });
 
-  it('grows the expedition to twenty-three sections including echo trials and colosseum', () => {
-    expect(FLOOR_PLANS).toHaveLength(23);
-    expect(FLOOR_PLANS[21].finale).toBe(false);
-    expect(FLOOR_PLANS[22].finale).toBe(true);
-    expect(FLOOR_PLANS[22].boss).toBe('first_memory');
+  it('grows the expedition to twenty-five sections including echo trials and colosseum', () => {
+    expect(FLOOR_PLANS).toHaveLength(25);
+    expect(FLOOR_PLANS[23].finale).toBe(false);
+    expect(FLOOR_PLANS[23].boss).toBe('keeper');
+    expect(FLOOR_PLANS[24].finale).toBe(true);
+    expect(FLOOR_PLANS[24].boss).toBe('first_memory');
+    expect(FLOOR_PLANS[21].trialName).toBe('The Gilded Reliquary');
+    expect(FLOOR_PLANS[21].boss).toBe('reliquary_warden');
+    expect(FLOOR_PLANS[22].trialName).toBe('The Salt Orchard');
+    expect(FLOOR_PLANS[22].boss).toBe('salt_orchard_hydra');
     expect(FLOOR_PLANS[16].roomCount).toBeGreaterThan(FLOOR_PLANS[0].roomCount);
     expect(new Set(FLOOR_PLANS.map((plan) => plan.biome)).size).toBeGreaterThanOrEqual(16);
     expect(FLOOR_PLANS[4].biome).toBe('ash');

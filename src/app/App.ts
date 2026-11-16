@@ -32,10 +32,12 @@ import {
   bountyForDay,
   claimDailyBounty,
   dailyBounty,
+  epilogueForNpc,
+  nextQuestForNpc,
   npcStories,
+  questDef,
   questProgress,
   questStateFor,
-  questsForNpc,
   questSnapshot,
   requestForNpc,
   rushMinutesLeft,
@@ -222,6 +224,7 @@ export class App {
     );
     if (this.world && this.world.mode === 'dungeon' && this.state !== 'title')
       this.hud.update(this.world, dt);
+    this.hud.setTracker(this.questTrackerText());
     this.updatePrompt();
     this.updateBalloon();
     requestAnimationFrame((t) => this.frame(t));
@@ -708,6 +711,16 @@ export class App {
     );
   }
 
+  /** The pinned quest line under the floor objective; null hides it. */
+  private questTrackerText(): string | null {
+    const id = this.meta.trackedQuest;
+    if (!id) return null;
+    const quest = questDef(id);
+    if (!quest || this.meta.quests.claimed.includes(id)) return null;
+    const progress = questProgress(quest, this.questSnapshotNow());
+    return `Tracking · ${quest.name} · ${Math.min(progress, quest.target)}/${quest.target}`;
+  }
+
   /** The quest section, reachable from the Notice Board and the pause menu. */
   private showQuestLog(back: () => void): void {
     if (this.world?.mode === 'sanctuary') this.state = 'hub';
@@ -727,6 +740,13 @@ export class App {
               this.meta = { ...this.meta, ...settled };
               this.store.saveMeta(this.meta);
               this.hud.toast(`Daily mark claimed · +${settled.reward} echoes`);
+              render();
+            },
+            trackedQuest: this.meta.trackedQuest,
+            onTrack: (id) => {
+              this.meta = { ...this.meta, trackedQuest: id };
+              this.store.saveMeta(this.meta);
+              this.sound.click();
               render();
             },
           },
@@ -790,7 +810,7 @@ export class App {
     this.state = 'hub';
     this.input.releaseAll();
     const render = (): void => {
-      const quest = questsForNpc(npcId);
+      const quest = nextQuestForNpc(npcId, this.meta.quests.claimed);
       const snapshot = this.questSnapshotNow();
       const accepted = !!quest && this.meta.quests.accepted.includes(quest.id);
       const claimed = !!quest && this.meta.quests.claimed.includes(quest.id);
@@ -823,6 +843,8 @@ export class App {
           tributeCost:
             trust < 3 && this.meta.echoes >= tributeCost(trust) ? tributeCost(trust) : undefined,
           stories,
+          quest,
+          epilogue: epilogueForNpc(npcId, this.meta.quests.claimed),
           wantedRelic,
           hint: ROAD_HINTS[npcId] ?? '',
           onGiveRelic: () => {
@@ -891,6 +913,8 @@ export class App {
             const trustBefore = trustLevel(this.meta, npcId);
             const settled = applyQuestClaim(this.meta, npcId, quest);
             this.meta = { ...this.meta, ...settled };
+            if (this.meta.trackedQuest === quest.id)
+              this.meta = { ...this.meta, trackedQuest: null };
             const bonus = trustBonus(quest.rewardEchoes, trustBefore);
             const parts = [`+${quest.rewardEchoes} echoes`];
             if (bonus > 0) parts.push(`+${bonus} friends' share`);
@@ -1156,7 +1180,7 @@ export class App {
       this.balloon.classList.add('hidden');
       return;
     }
-    const quest = questsForNpc(npcId);
+    const quest = nextQuestForNpc(npcId, this.meta.quests.claimed);
     let questLine = '';
     if (quest && !this.meta.quests.claimed.includes(quest.id)) {
       const accepted = this.meta.quests.accepted.includes(quest.id);

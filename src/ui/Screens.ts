@@ -17,11 +17,12 @@ import {
 import {
   NPCS,
   QUESTS,
+  nextQuestForNpc,
   questProgress,
-  questsForNpc,
   relicRequestStatus,
   requestForNpc,
   type DailyBounty,
+  type QuestDef,
   type QuestSnapshot,
 } from '../sim/quests';
 import {
@@ -395,7 +396,7 @@ export function sanctuaryScreen(opts: {
   };
   const cards = SANCTUARY_BUILDINGS.map((building) => {
     const npc = NPCS[building.id];
-    const quest = questsForNpc(building.id);
+    const quest = nextQuestForNpc(building.id, meta.quests.claimed);
     const accepted = !!quest && meta.quests.accepted.includes(quest.id);
     const claimed = !!quest && meta.quests.claimed.includes(quest.id);
     const progress = quest ? questProgress(quest, snapshot) : 0;
@@ -1208,6 +1209,10 @@ export function dialogueScreen(opts: {
   tributeCost: number | undefined;
   rushMinutes: number | undefined;
   stories: readonly string[];
+  /** The chapter currently on offer; undefined once every chapter is claimed. */
+  quest?: QuestDef;
+  /** The closing line of the most recently claimed chapter. */
+  epilogue?: string;
   /** The relic this resident wants, with whether the vault holds it. */
   wantedRelic?: { name: string; echoes: number; line: string; owned: boolean; done: boolean };
   /** One practical line about the road ahead, revealed on request. */
@@ -1219,7 +1224,7 @@ export function dialogueScreen(opts: {
   onClose: () => void;
 }): HTMLElement {
   const npc = NPCS[opts.npcId] ?? { name: 'A quiet resident', role: '', greeting: '...' };
-  const quest = questsForNpc(opts.npcId);
+  const quest = opts.quest;
   const ready = quest ? opts.progress >= quest.target : false;
   const portraitUrl = assetUrl(`sprites/props/npc_${opts.npcId}.png`);
   const hintPanel = h('div', { class: 'panel dialogue-panel dialogue-hint hidden' }, opts.hint);
@@ -1310,6 +1315,14 @@ export function dialogueScreen(opts: {
           { class: 'panel dialogue-panel' },
           h('div', { class: 'gear-name' }, 'Stories & remarks'),
           ...opts.stories.map((line) => h('p', { class: 'dialogue-line' }, `“${line}”`))
+        )
+      : null,
+    opts.epilogue
+      ? h(
+          'div',
+          { class: 'panel dialogue-panel epilogue' },
+          h('div', { class: 'gear-name' }, 'After the task'),
+          h('p', { class: 'dialogue-line' }, `“${opts.epilogue}”`)
         )
       : null,
     opts.wantedRelic
@@ -1884,7 +1897,11 @@ export function questLogScreen(
   meta: Meta,
   snapshot: QuestSnapshot,
   daily: { contract: DailyBounty; progress: { kills: number; claimed: boolean } },
-  opts: { onClaimDaily: () => void },
+  opts: {
+    onClaimDaily: () => void;
+    trackedQuest: string | null;
+    onTrack: (id: string | null) => void;
+  },
   onBack: () => void
 ): HTMLElement {
   interface View {
@@ -1927,7 +1944,9 @@ export function questLogScreen(
     );
     return h(
       'article',
-      { class: `quest-card${view.claimed ? ' done' : view.ready ? ' lit' : ''}` },
+      {
+        class: `quest-card${view.claimed ? ' done' : view.ready ? ' lit' : ''}${opts.trackedQuest === quest.id ? ' tracked' : ''}`,
+      },
       h(
         'div',
         { class: 'quest-avatar' },
@@ -1961,7 +1980,18 @@ export function questLogScreen(
             { class: 'quest-numbers' },
             `${Math.min(view.progress, quest.target)}/${quest.target}`
           )
-        )
+        ),
+        view.claimed
+          ? null
+          : h(
+              'div',
+              { class: 'quest-actions' },
+              button(
+                opts.trackedQuest === quest.id ? 'Untrack' : 'Track',
+                () => opts.onTrack(opts.trackedQuest === quest.id ? null : quest.id),
+                'btn small'
+              )
+            )
       )
     );
   };

@@ -74,7 +74,7 @@ function assertUsableRun(run: ReturnType<typeof restoreRun>, seed: number): void
   expect(Number.isFinite(run.depth), `seed ${seed}: depth`).toBe(true);
   expect(Number.isInteger(run.depth), `seed ${seed}: integer depth`).toBe(true);
   expect(run.depth, `seed ${seed}: depth in range`).toBeGreaterThanOrEqual(0);
-  expect(run.depth, `seed ${seed}: depth in range`).toBeLessThanOrEqual(22);
+  expect(run.depth, `seed ${seed}: depth in range`).toBeLessThanOrEqual(24);
   expect(Array.isArray(p.inventory), `seed ${seed}: inventory`).toBe(true);
   expect(Array.isArray(run.pendingChoices), `seed ${seed}: pendingChoices`).toBe(true);
   expect(Array.isArray(run.fragmentsFound), `seed ${seed}: fragmentsFound`).toBe(true);
@@ -92,12 +92,12 @@ describe('depth is kept to a real section', () => {
   };
 
   it('clamps absurd, fractional and negative depths', () => {
-    expect(withDepth(1e300)!.depth).toBe(22);
-    expect(withDepth(Number.MAX_SAFE_INTEGER)!.depth).toBe(22);
+    expect(withDepth(1e300)!.depth).toBe(24);
+    expect(withDepth(Number.MAX_SAFE_INTEGER)!.depth).toBe(24);
     expect(withDepth(3.7)!.depth).toBe(3);
     expect(withDepth(-5)!.depth).toBe(0);
     expect(withDepth(0)!.depth).toBe(0);
-    expect(withDepth(22)!.depth).toBe(22);
+    expect(withDepth(24)!.depth).toBe(24);
   });
 
   it('rejects a snapshot whose depth is not a number at all', () => {

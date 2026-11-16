@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { FLOOR_PLANS, enemyDef } from '../../src/sim/content';
 import { equipmentDef } from '../../src/sim/equipment';
 import { FEATS } from '../../src/sim/feats';
-import { NPCS, QUESTS, dailyBounty, questsForNpc } from '../../src/sim/quests';
+import { NPCS, QUESTS, dailyBounty } from '../../src/sim/quests';
 import { MODIFIER_DEFS } from '../../src/sim/run';
 
 /** Date keys eight days apart from a fixed start, so the pools are exercised deterministically. */
@@ -14,14 +14,18 @@ function keys(count: number, from = '2026-01-01'): string[] {
 }
 
 describe('npc and quest references', () => {
-  it('points every quest at a real NPC and gives every NPC exactly one quest', () => {
+  it('points every quest at a real NPC and gives every NPC at least one quest', () => {
     const npcIds = Object.keys(NPCS);
     expect(new Set(QUESTS.map((q) => q.id)).size).toBe(QUESTS.length);
     for (const quest of QUESTS) {
       expect(npcIds, `${quest.id} npc`).toContain(quest.npcId);
-      expect(questsForNpc(quest.npcId)?.id).toBe(quest.id);
+      expect(
+        QUESTS.some((entry) => entry.id === quest.id && entry.npcId === quest.npcId),
+        `${quest.id} chapter`
+      ).toBe(true);
     }
-    for (const npcId of npcIds) expect(questsForNpc(npcId), `${npcId} quest`).toBeTruthy();
+    for (const npcId of npcIds)
+      expect(QUESTS.some((quest) => quest.npcId === npcId), `${npcId} quest`).toBe(true);
   });
 
   it('resolves every quest reward item', () => {

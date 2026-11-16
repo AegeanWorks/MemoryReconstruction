@@ -4693,8 +4693,350 @@
      "max": 4
     }
    ]
+  },
+  {
+   "id": "bone_picker",
+   "name": "Bone Picker",
+   "description": "A scuttling thing that sorts the dead by the sound of their bones. It darts in for the ankles.",
+   "type": "bone_picker",
+   "biome": "catacomb",
+   "stats": {
+    "health": 90,
+    "maxHealth": 90,
+    "damage": 13,
+    "speed": 126,
+    "armor": 8,
+    "resistance": 5,
+    "knockbackResistance": 25,
+    "xpValue": 55,
+    "memoryValue": 10
+   },
+   "ai": {
+    "behavior": "skitterer",
+    "aggroRange": 300,
+    "attackRange": 38,
+    "attackCooldown": 1.05,
+    "patrolRadius": 170
+   },
+   "hitbox": {
+    "width": 24,
+    "height": 30,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_gutter_runner",
+    "width": 32,
+    "height": 96,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.7,
+     "min": 1,
+     "max": 3
+    },
+    {
+     "item": "memory_fragment",
+     "chance": 0.2,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "lantern_wraith",
+   "name": "Lantern Wraith",
+   "description": "A drowned lamp that kept its keeper's grudge. It drifts at the edge of sight and throws cold light.",
+   "type": "lantern_wraith",
+   "biome": "void",
+   "stats": {
+    "health": 78,
+    "maxHealth": 78,
+    "damage": 16,
+    "speed": 84,
+    "armor": 6,
+    "resistance": 15,
+    "knockbackResistance": 15,
+    "xpValue": 65,
+    "memoryValue": 12
+   },
+   "ai": {
+    "behavior": "ranged_support",
+    "aggroRange": 340,
+    "attackRange": 220,
+    "attackCooldown": 2.1,
+    "patrolRadius": 120
+   },
+   "hitbox": {
+    "width": 26,
+    "height": 36,
+    "offsetX": 0,
+    "offsetY": -10
+   },
+   "sprite": {
+    "texture": "enemy_gloom_stalker",
+    "width": 32,
+    "height": 96,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.75,
+     "min": 1,
+     "max": 4
+    },
+    {
+     "item": "memory_fragment",
+     "chance": 0.25,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "cinder_stalker",
+   "name": "Cinder Stalker",
+   "description": "An ash hound that runs the same hunting pattern as the walker: close, cut, and slip away before the answer.",
+   "type": "cinder_stalker",
+   "biome": "ash",
+   "stats": {
+    "health": 135,
+    "maxHealth": 135,
+    "damage": 19,
+    "speed": 138,
+    "armor": 10,
+    "resistance": 10,
+    "knockbackResistance": 30,
+    "xpValue": 85,
+    "memoryValue": 14
+   },
+   "ai": {
+    "behavior": "hit_and_run",
+    "aggroRange": 320,
+    "attackRange": 46,
+    "attackCooldown": 1.2,
+    "patrolRadius": 200
+   },
+   "hitbox": {
+    "width": 28,
+    "height": 34,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_briar_wolf",
+    "width": 32,
+    "height": 96,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.8,
+     "min": 2,
+     "max": 5
+    },
+    {
+     "item": "memory_fragment",
+     "chance": 0.3,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "spire_marksman",
+   "name": "Spire Marksman",
+   "description": "A storm-trained shot who aims where you will be when the thunder lands. The lane is always telegraphed.",
+   "type": "spire_marksman",
+   "biome": "storm",
+   "stats": {
+    "health": 105,
+    "maxHealth": 105,
+    "damage": 22,
+    "speed": 96,
+    "armor": 12,
+    "resistance": 10,
+    "knockbackResistance": 20,
+    "xpValue": 95,
+    "memoryValue": 15
+   },
+   "ai": {
+    "behavior": "ranged_support",
+    "aggroRange": 380,
+    "attackRange": 240,
+    "attackCooldown": 2.3,
+    "patrolRadius": 150
+   },
+   "hitbox": {
+    "width": 26,
+    "height": 36,
+    "offsetX": 0,
+    "offsetY": -10
+   },
+   "sprite": {
+    "texture": "enemy_harbor_gunner",
+    "width": 32,
+    "height": 96,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.8,
+     "min": 2,
+     "max": 5
+    },
+    {
+     "item": "memory_fragment",
+     "chance": 0.3,
+     "min": 1,
+     "max": 1
+    }
+   ]
+  },
+  {
+   "id": "reliquary_warden",
+   "name": "Reliquary Warden",
+   "description": "A gilded construct that keeps the vault's ledger. It counts every relic you carry before it strikes.",
+   "type": "reliquary_warden",
+   "biome": "foundry",
+   "stats": {
+    "health": 520,
+    "maxHealth": 520,
+    "damage": 40,
+    "speed": 112,
+    "armor": 80,
+    "resistance": 45,
+    "knockbackResistance": 88,
+    "xpValue": 800,
+    "memoryValue": 100
+   },
+   "ai": {
+    "behavior": "boss",
+    "aggroRange": 460,
+    "attackRange": 74,
+    "attackCooldown": 1.3,
+    "patrolRadius": 220
+   },
+   "hitbox": {
+    "width": 52,
+    "height": 64,
+    "offsetX": 0,
+    "offsetY": -10
+   },
+   "sprite": {
+    "texture": "enemy_guardian",
+    "width": 64,
+    "height": 64,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "memory_fragment",
+     "chance": 1,
+     "min": 1,
+     "max": 2
+    },
+    {
+     "item": "fragment_shard",
+     "chance": 1,
+     "min": 12,
+     "max": 24
+    }
+   ]
+  },
+  {
+   "id": "salt_orchard_hydra",
+   "name": "Salt Orchard Hydra",
+   "description": "A root-bound hydra that grew around the orchard's salt well. Each head flowers before it spits.",
+   "type": "salt_orchard_hydra",
+   "biome": "bloom",
+   "stats": {
+    "health": 560,
+    "maxHealth": 560,
+    "damage": 38,
+    "speed": 100,
+    "armor": 70,
+    "resistance": 40,
+    "knockbackResistance": 80,
+    "xpValue": 850,
+    "memoryValue": 105
+   },
+   "ai": {
+    "behavior": "boss",
+    "aggroRange": 480,
+    "attackRange": 220,
+    "attackCooldown": 1.4,
+    "patrolRadius": 200
+   },
+   "hitbox": {
+    "width": 56,
+    "height": 68,
+    "offsetX": 0,
+    "offsetY": -12
+   },
+   "sprite": {
+    "texture": "enemy_thorn_matriarch",
+    "width": 64,
+    "height": 64,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "memory_fragment",
+     "chance": 1,
+     "min": 1,
+     "max": 2
+    },
+    {
+     "item": "fragment_shard",
+     "chance": 1,
+     "min": 12,
+     "max": 24
+    }
+   ]
   }
-  ],
+ ],
   "eliteModifiers": [
   {
    "name": "Veteran",

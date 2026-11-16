@@ -16,17 +16,17 @@ describe('drowned court trial', () => {
   });
 
   it('adds the tide trial before the sanctuary finale', () => {
-    expect(FLOOR_PLANS).toHaveLength(23);
+    expect(FLOOR_PLANS).toHaveLength(25);
     const trial = FLOOR_PLANS[20];
     expect(trial.boss).toBe('abyssal_revenant');
     expect(trial.bossOnly).toBe(true);
     expect(trial.roster).toEqual([]);
     expect(trial.roomCount).toBe(1);
     expect(trial.trialName).toContain('Drowned Court');
-    expect(FLOOR_PLANS[21].finale).toBe(false);
-    expect(FLOOR_PLANS[21].boss).toBe('keeper');
-    expect(FLOOR_PLANS[22].finale).toBe(true);
-    expect(FLOOR_PLANS[22].boss).toBe('first_memory');
+    expect(FLOOR_PLANS[23].finale).toBe(false);
+    expect(FLOOR_PLANS[23].boss).toBe('keeper');
+    expect(FLOOR_PLANS[24].finale).toBe(true);
+    expect(FLOOR_PLANS[24].boss).toBe('first_memory');
   });
 
   it('wires the new boss through data, sprite and pattern tables', () => {
@@ -39,7 +39,7 @@ describe('drowned court trial', () => {
   });
 
   it('keeps checkpoints consistent and shares the new boss with mid-floor arenas', () => {
-    expect(checkpointDepths()).toEqual([0, 3, 6, 9, 12, 15, 18, 21, 22]);
+    expect(checkpointDepths()).toEqual([0, 3, 6, 9, 12, 15, 18, 21, 24]);
     for (let depth = 0; depth < FLOOR_PLANS.length; depth++) {
       const boss = arenaBossFor(depth);
       expect(boss).not.toBe('mirror_self');

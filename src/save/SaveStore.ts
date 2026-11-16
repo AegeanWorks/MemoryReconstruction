@@ -86,6 +86,8 @@ const MetaSchema = z.object({
   echoes: z.number().int().min(0).default(0),
   restorations: z.record(z.string(), z.number().int().min(0)).default({}),
   checkpoint: z.number().int().min(0).default(0),
+  /** The quest pinned to the HUD tracker, if any. */
+  trackedQuest: z.string().nullable().default(null),
   /** Lifetime kills, used by NPC quests. */
   kills: z.number().int().min(0).default(0),
   bossKills: z.number().int().min(0).default(0),
@@ -161,6 +163,7 @@ export function defaultMeta(): Meta {
     echoes: 0,
     restorations: {},
     checkpoint: 0,
+    trackedQuest: null,
     kills: 0,
     bossKills: 0,
     startingWeapon: 'sword',

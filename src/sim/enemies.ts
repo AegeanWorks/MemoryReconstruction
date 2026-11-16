@@ -96,7 +96,8 @@ export function isMeleeBossId(defId: string): boolean {
     defId === 'dread_champion' ||
     defId === 'ruin_warlord' ||
     defId === 'drowned_blademaster' ||
-    defId === 'storm_warlord'
+    defId === 'storm_warlord' ||
+    defId === 'reliquary_warden'
   );
 }
 
@@ -118,6 +119,8 @@ const BOSS_PATTERNS: Record<string, AttackKind[]> = {
   hollow_behemoth: ['quake', 'charge', 'mines', 'mortar'],
   dread_champion: ['combo', 'dashStrike', 'slam', 'sweep', 'charge', 'combo'],
   ruin_warlord: ['sweep', 'charge', 'combo', 'slam', 'dashStrike', 'quake'],
+  reliquary_warden: ['slam', 'beam', 'ring', 'charge', 'mortar'],
+  salt_orchard_hydra: ['summon', 'volley', 'mines', 'spiral', 'ring'],
   keeper: ['ring', 'beam', 'bomb', 'quake', 'blink', 'summon'],
   mirror_self: ['combo', 'dashStrike', 'bolt', 'ring', 'combo', 'dashStrike'],
   drowned_blademaster: ['combo', 'dashStrike', 'sweep', 'slam', 'dashStrike', 'combo'],

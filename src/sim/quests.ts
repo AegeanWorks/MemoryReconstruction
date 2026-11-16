@@ -129,7 +129,120 @@ export const QUESTS: readonly QuestDef[] = [
     rewardEchoes: 120,
     rewardItem: 'ember_charm',
   },
+  {
+    id: 'index_of_echoes',
+    npcId: 'archivist',
+    name: 'An Index of Echoes',
+    text: 'Recover 12 memory fragments. The index wants the whole shape of the story, not four pages of it.',
+    kind: 'fragments',
+    target: 12,
+    rewardEchoes: 180,
+    rewardItem: 'oracle_circlet',
+  },
+  {
+    id: 'the_long_forge',
+    npcId: 'smith',
+    name: 'The Long Forge',
+    text: 'Defeat 400 enemies. The wall does not care how long the road is, only that the edge holds.',
+    kind: 'kills',
+    target: 400,
+    rewardEchoes: 200,
+    rewardItem: 'duelist_mantle',
+  },
+  {
+    id: 'roots_deep',
+    npcId: 'gardener',
+    name: 'Roots Deep',
+    text: 'Restore 8 levels of the Sanctuary. Let something here outlive the next expedition.',
+    kind: 'restored',
+    target: 8,
+    rewardEchoes: 220,
+    rewardItem: 'ember_drape',
+  },
+  {
+    id: 'the_far_gate',
+    npcId: 'warden',
+    name: 'The Far Gate',
+    text: 'Reach the seventeenth section. I will hold the gate open on your word.',
+    kind: 'depth',
+    target: 16,
+    rewardEchoes: 240,
+    rewardItem: 'iron_helm',
+  },
+  {
+    id: 'every_light',
+    npcId: 'lamplighter',
+    name: 'Every Light',
+    text: 'Put down twelve guardians. Every lamp on the coast should know your name.',
+    kind: 'bosses',
+    target: 12,
+    rewardEchoes: 230,
+    rewardItem: 'storm_dial',
+  },
+  {
+    id: 'the_last_tale',
+    npcId: 'hearthkeeper',
+    name: 'The Last Tale',
+    text: 'Reach the twentieth section and come back. The stew will be waiting, and so will I.',
+    kind: 'depth',
+    target: 20,
+    rewardEchoes: 260,
+    rewardItem: 'void_mantle',
+  },
 ];
+
+/** Every quest a resident offers, in chapter order. */
+export function questsForNpcList(npcId: string): QuestDef[] {
+  return QUESTS.filter((q) => q.npcId === npcId);
+}
+
+/** The first quest this resident still has open; undefined once all are claimed. */
+export function nextQuestForNpc(npcId: string, claimed: readonly string[]): QuestDef | undefined {
+  return questsForNpcList(npcId).find((quest) => !claimed.includes(quest.id));
+}
+
+/** The most recent claimed chapter, for the resident's after-task line. */
+export function latestClaimedQuestForNpc(
+  npcId: string,
+  claimed: readonly string[]
+): QuestDef | undefined {
+  const chapters = questsForNpcList(npcId);
+  for (let i = chapters.length - 1; i >= 0; i--) {
+    if (claimed.includes(chapters[i].id)) return chapters[i];
+  }
+  return undefined;
+}
+
+/** One closing line per chapter, shown once that chapter is turned in. */
+export const QUEST_EPILOGUES: Record<string, string> = {
+  names:
+    'The first four names are filed. The index has a shape again, and it is beginning to look like you.',
+  edges:
+    'The wall holds your edge now. I hung it above the door so the recruits know what a long road looks like.',
+  stones:
+    'Four gardens breathing. I will plant the fifth in your name and argue with nobody about it.',
+  the_way:
+    'The route is marked past the eighth gate. Come back and I will walk the next one with you.',
+  lights_out:
+    'Five guardian lights out. The coast is darker, but the lamps in here burn cleaner for it.',
+  long_tales:
+    'A long road and a longer story. Sit. There is enough stew for the both of us and the tale is not finished.',
+  index_of_echoes:
+    'Twelve fragments, and the shape of the story finally holds still. You are written into the index now.',
+  the_long_forge: 'Four hundred edges. The wall is part of you now, whether you carry it or not.',
+  roots_deep:
+    'Eight levels green. The Sanctuary is not a shelter any more; it is a place that will remember you.',
+  the_far_gate: 'The far gate answered your word. I have never seen it do that for anyone else.',
+  every_light:
+    'Twelve guardians down. The lamps have run out of names to give you, so they just burn.',
+  the_last_tale:
+    'The last tale is not about the road. It is about the chair by the fire and the person who keeps coming back to it.',
+};
+
+export function epilogueForNpc(npcId: string, claimed: readonly string[]): string | undefined {
+  const chapter = latestClaimedQuestForNpc(npcId, claimed);
+  return chapter ? QUEST_EPILOGUES[chapter.id] : undefined;
+}
 
 export function questDef(id: string): QuestDef | undefined {
   return QUESTS.find((q) => q.id === id);
@@ -532,8 +645,12 @@ export const NPC_STORIES: Record<string, readonly NpcStory[]> = {
       minVictories: 1,
     },
     {
+      text: 'The Gilded Reliquary keeps a ledger of every relic that passes through it. Bring back one line.',
+      minDepth: 21,
+    },
+    {
       text: 'The first name is not in the index. It is the index. Bring it back carefully.',
-      minDepth: 22,
+      minDepth: 24,
     },
   ],
   smith: [
@@ -550,6 +667,10 @@ export const NPC_STORIES: Record<string, readonly NpcStory[]> = {
       text: 'Bring me a blademaster’s sword if you best one. I want to study the drowning in it.',
       minBosses: 3,
     },
+    {
+      text: 'Reliquary steel rings like a bell with no tongue. Bring me a shard and I will forge the answer.',
+      minDepth: 21,
+    },
   ],
   gardener: [
     {
@@ -565,6 +686,10 @@ export const NPC_STORIES: Record<string, readonly NpcStory[]> = {
       minDepth: 12,
     },
     { text: 'Frost moss only roots where something brave stood still. Like you.', minDepth: 10 },
+    {
+      text: 'The Salt Orchard grows fruit that tastes of the road home. I have never managed to keep one alive here.',
+      minDepth: 22,
+    },
   ],
   warden: [
     {
@@ -581,8 +706,12 @@ export const NPC_STORIES: Record<string, readonly NpcStory[]> = {
     },
     { text: 'Five guardians down. The road behind you is quiet. Good.', minBosses: 5 },
     {
+      text: 'The reliquary gate does not open for strength. It opens for a walker who has kept a promise.',
+      minDepth: 21,
+    },
+    {
       text: 'Past the Keeper there is no gate. That is what worries me. Come back through the one you left.',
-      minDepth: 22,
+      minDepth: 23,
     },
   ],
   lamplighter: [
@@ -596,6 +725,10 @@ export const NPC_STORIES: Record<string, readonly NpcStory[]> = {
       minDepth: 7,
     },
     { text: 'A victor’s lamp burns a shade brighter. I can always tell.', minVictories: 1 },
+    {
+      text: 'Salt-white lamps burn without oil. I have stopped asking the orchard why.',
+      minDepth: 22,
+    },
   ],
   hearthkeeper: [
     {
@@ -610,6 +743,10 @@ export const NPC_STORIES: Record<string, readonly NpcStory[]> = {
     {
       text: 'Storm knights drink their soup cold and standing up. I allow it. Barely.',
       minDepth: 14,
+    },
+    {
+      text: 'The reliquary road is long enough to make a stew of its own. Bring me the story that goes with it.',
+      minDepth: 21,
     },
   ],
 };

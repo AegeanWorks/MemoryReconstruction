@@ -23,14 +23,14 @@ describe('frontier content', () => {
   });
 
   it('adds a true final section after the Keeper', () => {
-    expect(FINAL_DEPTH).toBe(22);
-    expect(FLOOR_PLANS[21].boss).toBe('keeper');
-    expect(FLOOR_PLANS[21].finale).toBe(false);
-    expect(FLOOR_PLANS[22].boss).toBe('first_memory');
-    expect(FLOOR_PLANS[22].finale).toBe(true);
-    expect(FLOOR_PLANS[22].trialName).toBe('The First Remembering');
-    expect(FLOOR_PLANS[22].roster).toContain('obsidian_reaver');
-    expect(FLOOR_PLANS[22].roster).toContain('first_echo');
+    expect(FINAL_DEPTH).toBe(24);
+    expect(FLOOR_PLANS[23].boss).toBe('keeper');
+    expect(FLOOR_PLANS[23].finale).toBe(false);
+    expect(FLOOR_PLANS[24].boss).toBe('first_memory');
+    expect(FLOOR_PLANS[24].finale).toBe(true);
+    expect(FLOOR_PLANS[24].trialName).toBe('The First Remembering');
+    expect(FLOOR_PLANS[24].roster).toContain('obsidian_reaver');
+    expect(FLOOR_PLANS[24].roster).toContain('first_echo');
   });
 
   it('keeps the rebuilt Keeper on the 192px boss frame', () => {

@@ -272,6 +272,14 @@ const SPRITE_KEYS: Record<string, string> = {
   trench_lurker: 'gloomStalker',
   // The Drowned Court trial boss borrows the leviathan sheet.
   abyssal_revenant: 'leviathan',
+  // Cycle 100 additions: two late mobs and two late guardians, all reusing
+  // existing sheets with tint and scale so the atlas stays honest.
+  bone_picker: 'gutterRunner',
+  lantern_wraith: 'gloomStalker',
+  cinder_stalker: 'briarWolf',
+  spire_marksman: 'harborGunner',
+  reliquary_warden: 'guardian',
+  salt_orchard_hydra: 'thornMatriarch',
 };
 
 /**
@@ -318,6 +326,12 @@ const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
     mire_halberdier: 0x9fd0a0,
     lost_self: 0x9fd8ff,
     mirror_self: 0xbfeaff,
+    bone_picker: 0xd8d2b0,
+    lantern_wraith: 0x9fd8ff,
+    cinder_stalker: 0xff9050,
+    spire_marksman: 0xbfd9ff,
+    reliquary_warden: 0xffd27a,
+    salt_orchard_hydra: 0xa8e0b0,
   }).map(([id, color]) => [id, pastel(color)])
 );
 
@@ -340,6 +354,12 @@ const ENEMY_SCALE_OVERRIDES: Record<string, number> = {
   void_herald: 1.1,
   hive_slinger: 0.88,
   hive_oracle: 1.05,
+  bone_picker: 0.94,
+  lantern_wraith: 1.06,
+  cinder_stalker: 1.02,
+  spire_marksman: 1.08,
+  reliquary_warden: 2,
+  salt_orchard_hydra: 1.9,
   mire_lurker: 1.05,
   phase_stalker: 1.08,
   void_stalker: 1.02,
@@ -467,6 +487,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
       'ash_herald',
       'cinder_hound',
       'ember_squire',
+      'cinder_stalker',
     ],
     boss: 'cinder_warden',
     roomCount: 10,
@@ -523,6 +544,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
       'void_herald',
       'lost_self',
       'null_hound',
+      'lantern_wraith',
     ],
     boss: 'forgotten',
     roomCount: 11,
@@ -577,7 +599,14 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 14,
     biome: 'storm',
-    roster: ['storm_squire', 'gale_archer', 'thunder_brute', 'tempest_oracle', 'cinder_wisp'],
+    roster: [
+      'storm_squire',
+      'gale_archer',
+      'thunder_brute',
+      'tempest_oracle',
+      'cinder_wisp',
+      'spire_marksman',
+    ],
     boss: 'storm_warlord',
     roomCount: 12,
     finale: false,
@@ -596,7 +625,14 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 16,
     biome: 'catacomb',
-    roster: ['bone_knight', 'catacomb_archer', 'ossuary_chanter', 'grave_hound', 'grave_warden'],
+    roster: [
+      'bone_knight',
+      'catacomb_archer',
+      'ossuary_chanter',
+      'grave_hound',
+      'grave_warden',
+      'bone_picker',
+    ],
     boss: 'bone_tyrant',
     roomCount: 13,
     finale: false,
@@ -646,6 +682,40 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   },
   {
     depth: 21,
+    biome: 'foundry',
+    roster: [
+      'rivet_squire',
+      'solder_wisp',
+      'cog_hound',
+      'bone_picker',
+      'cinder_stalker',
+      'spire_marksman',
+    ],
+    boss: 'reliquary_warden',
+    roomCount: 13,
+    finale: false,
+    layout: 'terrace',
+    trialName: 'The Gilded Reliquary',
+  },
+  {
+    depth: 22,
+    biome: 'bloom',
+    roster: [
+      'bloom_crawler',
+      'petal_stalker',
+      'bloom_sentinel',
+      'lantern_wraith',
+      'spire_marksman',
+      'bone_picker',
+    ],
+    boss: 'salt_orchard_hydra',
+    roomCount: 13,
+    finale: false,
+    layout: 'atoll',
+    trialName: 'The Salt Orchard',
+  },
+  {
+    depth: 23,
     biome: 'sanctuary',
     roster: [
       'first_echo',
@@ -662,7 +732,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
     layout: 'branch',
   },
   {
-    depth: 22,
+    depth: 24,
     biome: 'void',
     roster: ['first_echo', 'obsidian_reaver', 'void_walker', 'memory_echo'],
     boss: 'first_memory',

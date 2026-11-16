@@ -363,6 +363,33 @@
   white-space: nowrap;
 }
 
+/* Pinned quest line: under the floor objective and clear of the boss bar. */
+.hud-tracker {
+  position: absolute;
+  top: calc(104px + var(--safe-top));
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(560px, 90vw);
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 217, 138, 0.24);
+  background: rgba(8, 7, 16, 0.66);
+  color: var(--gold);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+.hud-tracker.hidden {
+  display: none;
+}
+.hud.banner-open .hud-tracker {
+  opacity: 0;
+}
+
 .boss-bar {
   position: absolute;
   top: 66px;
@@ -2604,6 +2631,18 @@
 .quest-card.done {
   opacity: 0.7;
 }
+.quest-card.tracked {
+  border-color: rgba(255, 217, 138, 0.55);
+  box-shadow: 0 0 0 1px rgba(255, 217, 138, 0.18) inset;
+}
+.quest-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.quest-actions .btn {
+  margin-top: 0;
+}
 .quest-avatar {
   flex: none;
   width: 52px;
@@ -3343,13 +3382,17 @@
    off behind it), so they sit left of it, capped to the space it leaves. */
 @media (max-width: 560px) {
   .hud-floor,
-  .hud-objectives {
+  .hud-objectives,
+  .hud-tracker {
     left: calc(10px + var(--safe-left));
     transform: none;
     max-width: calc(100vw - 140px);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+  .hud-tracker {
+    top: calc(78px + var(--safe-top));
   }
   .hud-floor {
     font-size: 11px;
