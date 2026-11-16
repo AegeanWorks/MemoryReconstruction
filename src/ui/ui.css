@@ -1250,6 +1250,59 @@
   letter-spacing: 0.3em;
   margin-top: 2px;
 }
+.codex-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 8px 0 2px;
+}
+.codex-tabs .btn.active {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.codex-panel.hidden {
+  display: none;
+}
+.bestiary-panel {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  width: min(860px, 92vw);
+}
+.beast {
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.22);
+}
+.beast.guardian {
+  border-color: rgba(255, 217, 138, 0.3);
+}
+.beast.locked {
+  opacity: 0.55;
+}
+.beast-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.beast-name {
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--gold);
+}
+.beast-kind {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.beast-desc {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-dim);
+}
 .controls {
   display: grid;
   grid-template-columns: auto 1fr;

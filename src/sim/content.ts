@@ -792,6 +792,42 @@ export function allEnemyIds(): string[] {
   return rawEnemies.map((e) => e.id);
 }
 
+const GUARDIAN_IDS = new Set(FLOOR_PLANS.map((plan) => plan.boss));
+
+/** Every enemy that waits at the end of a section. */
+export function guardianIds(): string[] {
+  return [...GUARDIAN_IDS];
+}
+
+export interface BestiaryEntry {
+  id: string;
+  name: string;
+  description: string;
+  isBoss: boolean;
+  seen: boolean;
+}
+
+/**
+ * The Bestiary list: regular enemies first, then guardians, each alphabetical.
+ * Unknown ids in the saved record are ignored, so a hand-edited save cannot
+ * smuggle a phantom entry into the codex.
+ */
+export function bestiaryEntries(seen: readonly string[]): BestiaryEntry[] {
+  const have = new Set(seen);
+  return allEnemyIds()
+    .map((id) => {
+      const def = enemyDef(id);
+      return {
+        id,
+        name: def.name,
+        description: def.description,
+        isBoss: GUARDIAN_IDS.has(id),
+        seen: have.has(id),
+      };
+    })
+    .sort((a, b) => Number(a.isBoss) - Number(b.isBoss) || a.name.localeCompare(b.name));
+}
+
 const rawBiomes = (
   biomesJson as { biomes: Array<{ id: BiomeId; name: string; colorPalette: BiomeInfo['palette'] }> }
 ).biomes;

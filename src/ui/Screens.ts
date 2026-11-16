@@ -2,7 +2,13 @@
  * Full-screen menus. Each builder returns an element; `Screens` shows one at
  * a time on top of the HUD.
  */
-import { CORE_MEMORIES, FLOOR_PLANS, MEMORY_FRAGMENTS, biomeInfo } from '../sim/content';
+import {
+  CORE_MEMORIES,
+  FLOOR_PLANS,
+  MEMORY_FRAGMENTS,
+  bestiaryEntries,
+  biomeInfo,
+} from '../sim/content';
 import { FEATS, featProgress, type FeatDef } from '../sim/feats';
 import {
   INVENTORY_SLOTS,
@@ -2759,7 +2765,11 @@ export function victoryScreen(
   );
 }
 
-export function memoriesScreen(owned: readonly string[], onBack: () => void): HTMLElement {
+export function memoriesScreen(
+  owned: readonly string[],
+  bestiary: readonly string[],
+  onBack: () => void
+): HTMLElement {
   const have = new Set(owned);
   const cores = CORE_MEMORIES.map((core) => {
     const found = core.fragments.filter((f) => have.has(f));
@@ -2795,7 +2805,42 @@ export function memoriesScreen(owned: readonly string[], onBack: () => void): HT
       ...fragments
     );
   });
-  return h(
+  const entries = bestiaryEntries(bestiary);
+  const foundSpecies = entries.filter((entry) => entry.seen).length;
+  const memoriesPanel = h('div', { class: 'panel codex-panel' }, ...cores);
+  const bestiaryPanel = h(
+    'div',
+    { class: 'panel codex-panel bestiary-panel hidden' },
+    h(
+      'div',
+      { class: 'meta-line' },
+      `${foundSpecies} / ${entries.length} recorded · defeat an enemy to reveal its field notes.`
+    ),
+    ...entries.map((entry) =>
+      h(
+        'div',
+        { class: `beast${entry.seen ? '' : ' locked'}${entry.isBoss ? ' guardian' : ''}` },
+        h(
+          'div',
+          { class: 'beast-head' },
+          h(
+            'span',
+            { class: 'beast-name' },
+            entry.seen ? entry.name : entry.isBoss ? 'Unknown guardian' : 'Unknown enemy'
+          ),
+          h('span', { class: 'beast-kind' }, entry.isBoss ? 'Guardian' : 'Enemy')
+        ),
+        h(
+          'div',
+          { class: 'beast-desc' },
+          entry.seen ? entry.description : 'Not yet encountered. The deep keeps its own records.'
+        )
+      )
+    )
+  );
+  const memoriesTab = button('Memories', () => show('memories'), 'btn small');
+  const bestiaryTab = button('Bestiary', () => show('bestiary'), 'btn small');
+  const el = h(
     'div',
     { class: 'screen' },
     h('div', { class: 'heading' }, 'Recovered Memories'),
@@ -2804,9 +2849,20 @@ export function memoriesScreen(owned: readonly string[], onBack: () => void): HT
       { class: 'meta-line' },
       'Fragments are kept between runs. Gather a memory’s fragments to restore it.'
     ),
-    h('div', { class: 'panel' }, ...cores),
+    h('div', { class: 'codex-tabs' }, memoriesTab, bestiaryTab),
+    memoriesPanel,
+    bestiaryPanel,
     h('div', { class: 'menu' }, button('Back', onBack))
   );
+  function show(view: 'memories' | 'bestiary'): void {
+    const inBestiary = view === 'bestiary';
+    memoriesPanel.classList.toggle('hidden', inBestiary);
+    bestiaryPanel.classList.toggle('hidden', !inBestiary);
+    memoriesTab.classList.toggle('active', !inBestiary);
+    bestiaryTab.classList.toggle('active', inBestiary);
+  }
+  show('memories');
+  return el;
 }
 
 /** Class list for a difficulty option: only the selected one is the primary button. */

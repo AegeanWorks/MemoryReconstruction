@@ -5,7 +5,7 @@
  */
 import { Sound } from '../audio/Sound';
 import { Input, type MenuAction } from '../input/Input';
-import { biomeInfo, completedCoreFor } from '../sim/content';
+import { biomeInfo, completedCoreFor, enemyDef } from '../sim/content';
 import { NO_INPUT } from '../sim/entities';
 import type { SimEvent } from '../sim/events';
 import {
@@ -338,6 +338,12 @@ export class App {
                 `Weekly contract complete: ${weekly.name} ${progress}/${weekly.target} — claim it in the quest log`
               );
           }
+          // First encounter: record the species in the Bestiary.
+          if (!this.meta.bestiary.includes(e.defId)) {
+            this.meta = { ...this.meta, bestiary: [...this.meta.bestiary, e.defId] };
+            this.store.saveMeta(this.meta);
+            this.hud.toast(`Bestiary · ${enemyDef(e.defId).name} recorded`);
+          }
           break;
         }
         case 'resonance': {
@@ -423,7 +429,9 @@ export class App {
           }),
         onMemories: () =>
           this.click(() =>
-            this.screens.show(memoriesScreen(this.meta.fragments, () => this.showTitle()))
+            this.screens.show(
+              memoriesScreen(this.meta.fragments, this.meta.bestiary, () => this.showTitle())
+            )
           ),
         onPrologue: () =>
           this.click(() =>
@@ -530,7 +538,9 @@ export class App {
           }),
         onMemories: () =>
           this.click(() =>
-            this.screens.show(memoriesScreen(this.meta.fragments, () => this.showHub()))
+            this.screens.show(
+              memoriesScreen(this.meta.fragments, this.meta.bestiary, () => this.showHub())
+            )
           ),
         onSettings: () => this.click(() => this.showSettings(() => this.showHub())),
         onControls: () => this.click(() => this.screens.show(controlsScreen(() => this.showHub()))),
@@ -590,7 +600,11 @@ export class App {
           }),
         onRebuild: (id) => this.buyRestoration(id),
         onMemories: () =>
-          this.click(() => this.screens.show(memoriesScreen(this.meta.fragments, () => reopen()))),
+          this.click(() =>
+            this.screens.show(
+              memoriesScreen(this.meta.fragments, this.meta.bestiary, () => reopen())
+            )
+          ),
         onSettings: () => this.click(() => this.showSettings(() => reopen())),
         onControls: () => this.click(() => this.screens.show(controlsScreen(() => reopen()))),
         onBack: () => this.click(() => this.closeHubPanel()),

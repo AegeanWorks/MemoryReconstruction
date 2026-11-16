@@ -100,6 +100,8 @@ const MetaSchema = z.object({
   seenTutorial: z.boolean().default(false),
   /** Permanent starting relics earned from quests (equipment def ids). */
   vault: z.array(z.string()).default([]),
+  /** Enemy def ids recorded in the Bestiary. */
+  bestiary: z.array(z.string()).default([]),
   /** Relic attuned at the Reliquary, equipped first when an expedition starts. */
   attunedRelic: z.string().nullable().default(null),
   /** Shard offerings banked at the Cairn, consumed by the next expedition. */
@@ -186,6 +188,7 @@ export function defaultMeta(): Meta {
     dailyBounty: { key: '', kills: 0, claimed: false },
     weeklyBounty: { key: '', kills: 0, claimed: false },
     vault: [],
+    bestiary: [],
     attunedRelic: null,
     offerings: 0,
     relicRanks: {},
