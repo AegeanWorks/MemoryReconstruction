@@ -17,6 +17,8 @@ export interface EquipmentDef {
   rarity: EquipmentRarity;
   description: string;
   mods: Partial<PlayerStats>;
+  /** Weapon stances this relic works with; omitted means any stance. */
+  restrictTo?: readonly string[];
 }
 
 export interface EquipmentItem {
@@ -61,6 +63,26 @@ export function equipmentExists(defId: string): boolean {
   return BY_ID.has(defId);
 }
 
+/** True when a relic may be worn with the given weapon stance. */
+export function weaponAllows(def: EquipmentDef, weapon: string): boolean {
+  if (!def.restrictTo || def.restrictTo.length === 0) return true;
+  return def.restrictTo.includes(weapon);
+}
+
+/** Slots whose relics are live for this weapon; restricted relics fall dark. */
+export function liveEquipment(
+  equipped: EquipmentSlots | undefined,
+  weapon: string
+): EquipmentSlots | undefined {
+  if (!equipped) return undefined;
+  const out = emptyEquipment();
+  for (const slot of EQUIPMENT_SLOTS) {
+    const item = equipped[slot];
+    if (item && weaponAllows(equipmentDef(item.defId), weapon)) out[slot] = item;
+  }
+  return out;
+}
+
 export function emptyEquipment(): EquipmentSlots {
   return { weapon: null, armor: null, trinket: null, head: null, cape: null };
 }
@@ -84,18 +106,21 @@ const INTEGER = new Set<keyof PlayerStats>([
 /** Applies every equipped item's mods to a stat block. */
 export function applyEquipment(
   stats: PlayerStats,
-  equipped: EquipmentSlots | undefined
+  equipped: EquipmentSlots | undefined,
+  weapon?: string
 ): PlayerStats {
   if (!equipped) return stats;
+  // A relic locked to a stance only counts while that stance is held.
+  const live = weapon === undefined ? equipped : (liveEquipment(equipped, weapon) ?? equipped);
   const out = { ...stats };
   for (const slot of EQUIPMENT_SLOTS) {
-    const item = equipped[slot];
+    const item = live[slot];
     if (!item) continue;
     const def = equipmentDef(item.defId);
     const scale = 1 + REFORGE_STEP * Math.max(0, Math.min(REFORGE_MAX, item.rank ?? 0));
     applyMods(out, def.mods, scale);
   }
-  for (const { set, count } of activeSets(equipped)) {
+  for (const { set, count } of activeSets(live)) {
     applyMods(out, set.two, 1);
     if (count >= 3) applyMods(out, set.three, 1);
   }

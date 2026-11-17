@@ -88,7 +88,7 @@ export function createPlayer(x: number, y: number): Player {
 export function refreshStats(player: Player, equipped?: EquipmentSlots): void {
   const before = player.stats;
   const after = applyAspect(
-    applyEquipment(computeStats(player.upgrades), equipped ?? player.equipment),
+    applyEquipment(computeStats(player.upgrades), equipped ?? player.equipment, player.weapon),
     player.aspect
   );
   player.health = Math.min(
@@ -324,6 +324,8 @@ function switchWeapon(arena: Arena, index: number): void {
   p.swingTime = -1;
   p.combo = 0;
   p.comboWindow = 0;
+  // A stance switch can light up or darken a weapon-locked relic.
+  refreshStats(p);
   arena.emit({ type: 'weaponSwitch', weapon: next });
 }
 

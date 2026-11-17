@@ -39,10 +39,12 @@ import {
   INVENTORY_SLOTS,
   relicSellShards,
   rollEquipment,
+  weaponAllows,
   type EquipmentItem,
   type EquipmentSlot,
 } from './equipment';
 import { FERRYMAN_LINES, NPCS, WAYFARER_LINES } from './quests';
+import { weaponDef } from './weapons';
 import type {
   Blast,
   Bomb,
@@ -1697,6 +1699,11 @@ export class World implements Arena {
     if (index < 0) return false;
     const item = p.inventory[index];
     const def = equipmentDef(item.defId);
+    if (!weaponAllows(def, p.weapon)) {
+      const needs = (def.restrictTo ?? []).map((id) => weaponDef(id).name).join(' or ');
+      this.emit({ type: 'notice', text: `${def.name} needs the ${needs} stance` });
+      return false;
+    }
     const previous = p.equipment[def.slot];
     p.inventory.splice(index, 1);
     p.equipment[def.slot] = item;

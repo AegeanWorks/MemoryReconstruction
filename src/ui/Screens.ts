@@ -21,6 +21,7 @@ import {
   activeSets,
   applyEquipment,
   equipmentDef,
+  weaponAllows,
   equipmentScore,
   relicSellShards,
   setForRelic,
@@ -1710,6 +1711,10 @@ interface DetailActions {
  * is worn in its slot and offers Equip (Upgrade or Swap), Sell and Discard; a worn one offers
  * Unequip. Every action button carries a key so the re-render can keep focus on it.
  */
+function weaponName(id: string): string {
+  return WEAPONS.find((w) => w.id === id)?.name ?? id;
+}
+
 function relicDetail(p: World['player'], key: string | null, act: DetailActions): HTMLElement {
   const empty = (title: string, text: string): HTMLElement =>
     h(
@@ -1728,9 +1733,16 @@ function relicDetail(p: World['player'], key: string | null, act: DetailActions)
         `Drag a ${slot} relic here or onto your wanderer, or pick one in the bag.`
       );
     }
+    const equipDef = equipmentDef(item.defId);
+    const wornLocked = !weaponAllows(equipDef, p.weapon);
     const unequip = button('Unequip', () => act.unequip(slot), 'btn small');
     unequip.dataset.action = `unequip:${slot}`;
-    return detailCard(item, `Worn · ${slot}`, [], p.equipment, unequip);
+    const wornNote = wornLocked
+      ? `Worn · ${slot} · inactive without the ${(equipDef.restrictTo ?? [])
+          .map((wid) => weaponName(wid))
+          .join(' or ')} stance`
+      : `Worn · ${slot}`;
+    return detailCard(item, wornNote, [], p.equipment, unequip);
   }
   const item = kind === 'bag' ? p.inventory.find((i) => `${i.uid}` === id) : undefined;
   if (!item) {
@@ -1741,7 +1753,13 @@ function relicDetail(p: World['player'], key: string | null, act: DetailActions)
   }
   const def = equipmentDef(item.defId);
   const worn = p.equipment[def.slot];
-  const hypo = applyEquipment(computeStats(p.upgrades), { ...p.equipment, [def.slot]: item });
+  const lockedTo = (def.restrictTo ?? []).map((id) => weaponName(id));
+  const locked = lockedTo.length > 0 && !weaponAllows(def, p.weapon);
+  const hypo = applyEquipment(
+    computeStats(p.upgrades),
+    { ...p.equipment, [def.slot]: item },
+    p.weapon
+  );
   const deltas = worn
     ? (Object.keys(def.mods) as Array<keyof PlayerStats>)
         .map((stat) => deltaChip(stat, p.stats[stat] as number, hypo[stat] as number))
@@ -1754,6 +1772,10 @@ function relicDetail(p: World['player'], key: string | null, act: DetailActions)
     'btn small primary'
   );
   equipBtn.dataset.action = `equip:${item.uid}`;
+  if (locked) {
+    equipBtn.disabled = true;
+    equipBtn.title = `${def.name} only works with the ${lockedTo.join(' or ')} stance`;
+  }
   const price = relicSellShards(def);
   const sell = confirmButton(
     `Sell · ${price}`,
@@ -1766,10 +1788,17 @@ function relicDetail(p: World['player'], key: string | null, act: DetailActions)
   const discard = confirmButton('Discard', 'Confirm', () => act.discard(item.uid), 'btn small');
   discard.title = 'Destroy this relic for nothing (frees a bag slot)';
   discard.dataset.action = `discard:${item.uid}`;
-  const note = worn
-    ? `Carried · swaps with ${itemName(worn)}`
-    : `Carried · fills the empty ${def.slot} slot`;
-  return detailCard(item, note, deltas, p.equipment, equipBtn, sell, discard);
+  const noteParts: string[] = [];
+  noteParts.push(
+    worn ? `Carried · swaps with ${itemName(worn)}` : `Carried · fills the empty ${def.slot} slot`
+  );
+  if (lockedTo.length > 0)
+    noteParts.push(
+      locked
+        ? `Needs the ${lockedTo.join(' or ')} stance`
+        : `Active with the ${lockedTo.join(' or ')} stance`
+    );
+  return detailCard(item, noteParts.join(' · '), deltas, p.equipment, equipBtn, sell, discard);
 }
 
 function detailCard(

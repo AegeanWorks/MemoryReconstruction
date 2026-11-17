@@ -4562,3 +4562,22 @@ frame. No horizontal overflow and 0 console errors. Screenshots `docs/qa/cycle11
 `cycle111-headwear-circlet-cape.png`, `cycle111-headwear-view.png`.
 ### Gate results
 See the task summary.
+## Cycle 112 - Weapon-locked relics
+### FIND
+Every relic applied its mods regardless of stance, so the player had no gear choice tied to the weapon, which the request
+asked for as a weapon-item category.
+### IMPLEMENT
+- `src/data/equipment.json` (+ mirror): `restrictTo` on Echo Dagger (sword), Duelist Mantle and Storm Dial (spear),
+  Void Cleaver and Colossus Plate (greatsword).
+- `src/sim/equipment.ts`: `weaponAllows`, `liveEquipment`, and weapon-aware `applyEquipment`.
+- `src/sim/player.ts`: `refreshStats` passes the held weapon and a stance switch recomputes.
+- `src/sim/world.ts`: `equipItem` refuses a locked relic and toasts the needed stance.
+- `src/ui/Screens.ts`: the detail card names the requirement and disables Equip when the stance does not match.
+- Tests: `weapon-locked-relics` (7) plus the README note.
+### RECORD
+In Edge at 1280x720, with a sword held and a Duelist Mantle in the bag, the detail card read "CARRIED · FILLS THE EMPTY
+ARMOR SLOT · NEEDS THE SPEAR STANCE" with a dimmed **Equip**; switching to stance 2 changed the line to "ACTIVE WITH THE
+SPEAR STANCE" and enabled the button. The doll showed the seeded iron helm in the same view. 0 console errors.
+Screenshot `docs/qa/cycle112-weapon-locked-1280x720.png`.
+### Gate results
+See the task summary.

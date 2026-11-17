@@ -22,7 +22,10 @@
     "meleeDamage": 7,
     "critChance": 0.08,
     "attackSpeed": 0.1
-   }
+   },
+   "restrictTo": [
+    "sword"
+   ]
   },
   {
    "id": "choir_staff",
@@ -46,7 +49,10 @@
     "critMultiplier": 0.3,
     "lifesteal": 0.03,
     "attackSpeed": -0.08
-   }
+   },
+   "restrictTo": [
+    "greatsword"
+   ]
   },
   {
    "id": "scavenger_vest",
@@ -182,7 +188,10 @@
     "maxHealth": 40,
     "damageReduction": 0.08,
     "moveSpeed": -0.08
-   }
+   },
+   "restrictTo": [
+    "greatsword"
+   ]
   },
   {
    "id": "storm_dial",
@@ -193,133 +202,139 @@
    "mods": {
     "attackSpeed": 0.08,
     "moveSpeed": 0.05
+   },
+   "restrictTo": [
+    "spear"
+   ]
+  },
+  {
+   "id": "ember_core",
+   "name": "Ember Core",
+   "slot": "weapon",
+   "rarity": "epic",
+   "description": "+6 melee damage, +8 bolt damage.",
+   "mods": {
+    "meleeDamage": 6,
+    "boltDamage": 8
    }
   },
-   {
-    "id": "ember_core",
-    "name": "Ember Core",
-    "slot": "weapon",
-    "rarity": "epic",
-    "description": "+6 melee damage, +8 bolt damage.",
-    "mods": {
-     "meleeDamage": 6,
-     "boltDamage": 8
-    }
+  {
+   "id": "duelist_mantle",
+   "name": "Duelist Mantle",
+   "slot": "armor",
+   "rarity": "rare",
+   "description": "+6% attack speed, +5% move speed, +3 melee damage.",
+   "mods": {
+    "attackSpeed": 0.06,
+    "moveSpeed": 0.05,
+    "meleeDamage": 3
    },
-   {
-    "id": "duelist_mantle",
-    "name": "Duelist Mantle",
-    "slot": "armor",
-    "rarity": "rare",
-    "description": "+6% attack speed, +5% move speed, +3 melee damage.",
-    "mods": {
-     "attackSpeed": 0.06,
-     "moveSpeed": 0.05,
-     "meleeDamage": 3
-    }
-   },
-   {
-    "id": "ember_ward",
-    "name": "Ember Ward",
-    "slot": "trinket",
-    "rarity": "rare",
-    "description": "+12 max health, +4% damage reduction.",
-    "mods": {
-     "maxHealth": 12,
-     "damageReduction": 0.04
-    }
-   },
-   {
-    "id": "scout_hood",
-    "name": "Scout Hood",
-    "slot": "head",
-    "rarity": "common",
-    "description": "+2% critical chance, +4% move speed.",
-    "mods": {
-     "critChance": 0.02,
-     "moveSpeed": 0.04
-    }
-   },
-   {
-    "id": "iron_helm",
-    "name": "Iron Helm",
-    "slot": "head",
-    "rarity": "rare",
-    "description": "+12 max health, +4% damage reduction, -3% move speed.",
-    "mods": {
-     "maxHealth": 12,
-     "damageReduction": 0.04,
-     "moveSpeed": -0.03
-    }
-   },
-   {
-    "id": "oracle_circlet",
-    "name": "Oracle Circlet",
-    "slot": "head",
-    "rarity": "rare",
-    "description": "+10 max mana, +1 mana per second, +4 bolt damage.",
-    "mods": {
-     "maxMana": 10,
-     "manaRegen": 1,
-     "boltDamage": 4
-    }
-   },
-   {
-    "id": "void_visor",
-    "name": "Void Visor",
-    "slot": "head",
-    "rarity": "epic",
-    "description": "+5% critical chance, +25% critical damage, bolts pierce one more foe.",
-    "mods": {
-     "critChance": 0.05,
-     "critMultiplier": 0.25,
-     "boltPierce": 1
-    }
-   },
-   {
-    "id": "tattered_cloak",
-    "name": "Tattered Cloak",
-    "slot": "cape",
-    "rarity": "common",
-    "description": "+6% move speed, +1% critical chance.",
-    "mods": {
-     "moveSpeed": 0.06,
-     "critChance": 0.01
-    }
-   },
-   {
-    "id": "tidecloak",
-    "name": "Tidecloak",
-    "slot": "cape",
-    "rarity": "rare",
-    "description": "+8 max mana, +1 mana per second, +2% damage reduction.",
-    "mods": {
-     "maxMana": 8,
-     "manaRegen": 1,
-     "damageReduction": 0.02
-    }
-   },
-   {
-    "id": "ember_drape",
-    "name": "Ember Drape",
-    "slot": "cape",
-    "rarity": "rare",
-    "description": "+5% damage reduction, -2% move speed.",
-    "mods": {
-     "damageReduction": 0.05,
-     "moveSpeed": -0.02
-    }
-   },
-   {
-    "id": "void_mantle",
-    "name": "Void Mantle",
-    "slot": "cape",
-    "rarity": "epic",
-    "description": "+4% critical chance, +30% critical damage.",
-    "mods": {
-     "critChance": 0.04,
-     "critMultiplier": 0.3
-    }
+   "restrictTo": [
+    "spear"
+   ]
+  },
+  {
+   "id": "ember_ward",
+   "name": "Ember Ward",
+   "slot": "trinket",
+   "rarity": "rare",
+   "description": "+12 max health, +4% damage reduction.",
+   "mods": {
+    "maxHealth": 12,
+    "damageReduction": 0.04
    }
-  ]
+  },
+  {
+   "id": "scout_hood",
+   "name": "Scout Hood",
+   "slot": "head",
+   "rarity": "common",
+   "description": "+2% critical chance, +4% move speed.",
+   "mods": {
+    "critChance": 0.02,
+    "moveSpeed": 0.04
+   }
+  },
+  {
+   "id": "iron_helm",
+   "name": "Iron Helm",
+   "slot": "head",
+   "rarity": "rare",
+   "description": "+12 max health, +4% damage reduction, -3% move speed.",
+   "mods": {
+    "maxHealth": 12,
+    "damageReduction": 0.04,
+    "moveSpeed": -0.03
+   }
+  },
+  {
+   "id": "oracle_circlet",
+   "name": "Oracle Circlet",
+   "slot": "head",
+   "rarity": "rare",
+   "description": "+10 max mana, +1 mana per second, +4 bolt damage.",
+   "mods": {
+    "maxMana": 10,
+    "manaRegen": 1,
+    "boltDamage": 4
+   }
+  },
+  {
+   "id": "void_visor",
+   "name": "Void Visor",
+   "slot": "head",
+   "rarity": "epic",
+   "description": "+5% critical chance, +25% critical damage, bolts pierce one more foe.",
+   "mods": {
+    "critChance": 0.05,
+    "critMultiplier": 0.25,
+    "boltPierce": 1
+   }
+  },
+  {
+   "id": "tattered_cloak",
+   "name": "Tattered Cloak",
+   "slot": "cape",
+   "rarity": "common",
+   "description": "+6% move speed, +1% critical chance.",
+   "mods": {
+    "moveSpeed": 0.06,
+    "critChance": 0.01
+   }
+  },
+  {
+   "id": "tidecloak",
+   "name": "Tidecloak",
+   "slot": "cape",
+   "rarity": "rare",
+   "description": "+8 max mana, +1 mana per second, +2% damage reduction.",
+   "mods": {
+    "maxMana": 8,
+    "manaRegen": 1,
+    "damageReduction": 0.02
+   }
+  },
+  {
+   "id": "ember_drape",
+   "name": "Ember Drape",
+   "slot": "cape",
+   "rarity": "rare",
+   "description": "+5% damage reduction, -2% move speed.",
+   "mods": {
+    "damageReduction": 0.05,
+    "moveSpeed": -0.02
+   }
+  },
+  {
+   "id": "void_mantle",
+   "name": "Void Mantle",
+   "slot": "cape",
+   "rarity": "epic",
+   "description": "+4% critical chance, +30% critical damage.",
+   "mods": {
+    "critChance": 0.04,
+    "critMultiplier": 0.3
+   }
+  }
+ ]
 }

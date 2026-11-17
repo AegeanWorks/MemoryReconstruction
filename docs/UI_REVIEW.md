@@ -464,3 +464,13 @@ The running build was driven in Edge at **1280x720**.
 - **Cape**: a seeded Ember Drape re-coloured the cloak red in the same frame, so head and cape read independently.
 - **Layout**: no horizontal overflow and 0 console errors.
 Captures: `docs/qa/cycle111-headwear-helm-crop.png`, `cycle111-headwear-circlet-cape.png`, `cycle111-headwear-view.png`.
+## 2026-11-17 review: weapon-locked relics (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720**.
+- **Mismatch**: with the sword held, a carried Duelist Mantle read "CARRIED · FILLS THE EMPTY ARMOR SLOT · NEEDS THE SPEAR
+  STANCE" and its **Equip** button was disabled and greyed.
+- **Match**: switching to stance 2 changed the same card to "ACTIVE WITH THE SPEAR STANCE" and enabled **Equip** without a
+  reload, so the stance recompute works live.
+- **Doll**: the seeded Iron Helm still drew on the bag doll beside the card.
+- **Console**: 0 errors.
+Captures: `docs/qa/cycle112-weapon-locked-1280x720.png`.

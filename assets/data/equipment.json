@@ -22,7 +22,10 @@
     "meleeDamage": 7,
     "critChance": 0.08,
     "attackSpeed": 0.1
-   }
+   },
+   "restrictTo": [
+    "sword"
+   ]
   },
   {
    "id": "choir_staff",
@@ -46,7 +49,10 @@
     "critMultiplier": 0.3,
     "lifesteal": 0.03,
     "attackSpeed": -0.08
-   }
+   },
+   "restrictTo": [
+    "greatsword"
+   ]
   },
   {
    "id": "scavenger_vest",
@@ -182,7 +188,10 @@
     "maxHealth": 40,
     "damageReduction": 0.08,
     "moveSpeed": -0.08
-   }
+   },
+   "restrictTo": [
+    "greatsword"
+   ]
   },
   {
    "id": "storm_dial",
@@ -193,7 +202,10 @@
    "mods": {
     "attackSpeed": 0.08,
     "moveSpeed": 0.05
-   }
+   },
+   "restrictTo": [
+    "spear"
+   ]
   },
   {
    "id": "ember_core",
