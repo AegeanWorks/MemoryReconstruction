@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "music-mix-quality",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1794918441.3347554,
     "owner": "kilo:1",
     "started_by": "kilo:1",
@@ -14,26 +14,12 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ]
+    ],
+    "completed_at": 1794918497.2544823,
+    "completed_head": "65d4284b443915a45d39373b05ef5b0786aa27e2",
+    "completed_tree": "c41c9582c78bec704b6721d99dd2b78f58b1e8ad"
   },
   "checkpoints": [
-    {
-      "task_id": "world-and-levels",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'world-and-levels' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794903617.713751,
-      "timestamp_str": "2026-11-17 11:20:17",
-      "agent": "kilo:1",
-      "head": "bdff20f55a8984b4858a6cf20d9f2246793679a5",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "music-muse",
       "phase": "phase 4",
@@ -513,6 +499,23 @@
           "path": "projects/MemoryReconstruction"
         }
       ]
+    },
+    {
+      "task_id": "music-mix-quality",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'music-mix-quality' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794918497.3215125,
+      "timestamp_str": "2026-11-17 15:28:17",
+      "agent": "kilo:1",
+      "head": "65d4284b443915a45d39373b05ef5b0786aa27e2",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
