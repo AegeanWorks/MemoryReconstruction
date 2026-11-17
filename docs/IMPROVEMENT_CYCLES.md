@@ -4643,3 +4643,23 @@ depth 24 loaded "Section 25 · The Thunder Vault", both with the HUD live and 0 
 `docs/qa/cycle116-chitin-vault.png`, `cycle116-thunder-vault.png`.
 ### Gate results
 See the task summary.
+## Cycle 117 - A Muse-rendered soundtrack with room and battle switching
+### FIND
+Every room shared one procedural drone per biome, so combat and calm sounded the same, and the player asked for
+section- and enemy-themed music generated through the Muse project.
+### IMPLEMENT
+- `src/data/music.json` (+ `music.ts`): 33 tracks — ambient and battle per biome plus a guardian theme — with Muse prompts.
+- `src/audio/music.ts`: track lookup, URL order and the shared manifest.
+- `src/audio/Sound.ts`: `playMusic` / `stopMusic`, cached decode, looping playback, 1.6 s crossfade, procedural fallback,
+  and a memo so a missing file is asked for once.
+- `src/app/App.ts`: battle track on `roomLocked`, ambient on `roomCleared`, guardian theme on `bossIntro`, `stopMusic` at
+  the run end; the title and Sanctuary keep their procedural ambience by request.
+- `scripts/generate_music.py`: manifests plus a Muse batch render into `assets/music/`, refusing to fake audio without keys.
+- Tests: `music-tracks` (14) plus the README bullet.
+### RECORD
+The running build loaded a Section 25 run with the HUD live and 0 console errors while no track files exist, which proves
+the procedural fallback path; `python scripts/generate_music.py` reported all 33 tracks missing, then exited 1 with
+"the music providers are not configured" instead of writing placeholder audio. Rendering the real tracks needs
+REPLICATE_API_TOKEN and GEMINI_API_KEY, which are not present here.
+### Gate results
+See the task summary.

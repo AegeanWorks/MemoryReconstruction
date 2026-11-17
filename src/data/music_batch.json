@@ -1,0 +1,202 @@
+{
+ "tracks": [
+  {
+   "name": "ruins-ambient",
+   "prompt": "sunken stone halls, distant drips, a slow bowed drone in D minor, sparse and patient",
+   "theme": "abandoned ruins level, mournful and quiet",
+   "duration": 45
+  },
+  {
+   "name": "forest-ambient",
+   "prompt": "whispering leaves, airy breathy pads, a lone wooden flute motif, gentle and unsettled",
+   "theme": "haunted forest level, eerie but beautiful",
+   "duration": 45
+  },
+  {
+   "name": "caves-ambient",
+   "prompt": "deep cave resonance, low sub drone, occasional echoing chimes, vast and cold",
+   "theme": "underground cave level, dark and echoing",
+   "duration": 45
+  },
+  {
+   "name": "crystal-ambient",
+   "prompt": "glass harmonics, shimmering high bells, a clean sine pad, bright and fragile",
+   "theme": "crystal cavern level, luminous and strange",
+   "duration": 45
+  },
+  {
+   "name": "void-ambient",
+   "prompt": "formless void, reversed swells, no clear pulse, a single sustained tone drifting out of tune",
+   "theme": "the void between worlds, alien and disorienting",
+   "duration": 45
+  },
+  {
+   "name": "sanctuary-ambient",
+   "prompt": "warm hearth strings, a slow lullaby celesta, safe and tired, the sound of coming home",
+   "theme": "sanctuary hub, safe and melancholy",
+   "duration": 45
+  },
+  {
+   "name": "ash-ambient",
+   "prompt": "hot wind over cinders, a cracked low string drone, faint distant bells, oppressive",
+   "theme": "ashen wasteland level, burnt and grieving",
+   "duration": 45
+  },
+  {
+   "name": "abyss-ambient",
+   "prompt": "underwater pressure, muffled whale song, a slow tidal swell, drowned and heavy",
+   "theme": "drowned abyss level, crushing and sad",
+   "duration": 45
+  },
+  {
+   "name": "frost-ambient",
+   "prompt": "thin icy wind, glassy high strings, a slow minor pad, sparse and freezing",
+   "theme": "frozen archive level, still and brittle",
+   "duration": 45
+  },
+  {
+   "name": "bloom-ambient",
+   "prompt": "overgrown garden, plucked harp and breathy choir pads, sweet with a rot underneath",
+   "theme": "blooming remnant level, lovely and wrong",
+   "duration": 45
+  },
+  {
+   "name": "foundry-ambient",
+   "prompt": "industrial rhythm, distant hammering on an anvil, a grinding metallic drone",
+   "theme": "sleepless foundry level, mechanical and relentless",
+   "duration": 45
+  },
+  {
+   "name": "mire-ambient",
+   "prompt": "wet bog ambience, low wet drones, a slow plucked folk motif, sickly and patient",
+   "theme": "whispering mire level, damp and watchful",
+   "duration": 45
+  },
+  {
+   "name": "hive-ambient",
+   "prompt": "insect wings, a pulsing body-like throb, buzzing harmonic clusters, claustrophobic",
+   "theme": "hollow hive level, chitinous and close",
+   "duration": 45
+  },
+  {
+   "name": "catacomb-ambient",
+   "prompt": "stone crypt, choir-like air, a low organ pedal, reverent and dead",
+   "theme": "bone catacombs level, solemn and hollow",
+   "duration": 45
+  },
+  {
+   "name": "tide-ambient",
+   "prompt": "surf through flooded halls, a slow sea shanty on strings, mournful and rising",
+   "theme": "sunken tideways level, tidal and lonely",
+   "duration": 45
+  },
+  {
+   "name": "storm-ambient",
+   "prompt": "wind through a spire, distant thunder rolls, a high keening string line, exposed and electric",
+   "theme": "howling spire level, stormy and vast",
+   "duration": 45
+  },
+  {
+   "name": "ruins-battle",
+   "prompt": "percussive stone hits, a driving low string ostinato, tense and forward",
+   "theme": "combat music for a ruins level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "forest-battle",
+   "prompt": "hand drums, a fast plucked figure, dissonant flute stabs, hunted",
+   "theme": "combat music for a forest level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "caves-battle",
+   "prompt": "deep drum hits, a rising sub drone, scattered metallic hits, cornered",
+   "theme": "combat music for a caves level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "crystal-battle",
+   "prompt": "glass percussion, shattering high stabs, a fast pulsing synth bass",
+   "theme": "combat music for a crystal level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "void-battle",
+   "prompt": "noise swells, a detuned pulse, sudden silences, wrong and fast",
+   "theme": "combat music for a void level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "sanctuary-battle",
+   "prompt": "a low urgent heartbeat, muted strings, danger inside the walls",
+   "theme": "combat music for a sanctuary level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "ash-battle",
+   "prompt": "fire crackle percussion, a distorted low riff, hot and furious",
+   "theme": "combat music for a ash level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "abyss-battle",
+   "prompt": "crushing tidal percussion, a bellowing low brass swell, drowning fast",
+   "theme": "combat music for a abyss level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "frost-battle",
+   "prompt": "cracking ice percussion, high brittle strings, cold and cutting",
+   "theme": "combat music for a frost level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "bloom-battle",
+   "prompt": "plucked strings at speed, snarling low reeds, beautiful and vicious",
+   "theme": "combat music for a bloom level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "foundry-battle",
+   "prompt": "hammering industrial percussion, a grinding bass riff, mechanical fury",
+   "theme": "combat music for a foundry level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "mire-battle",
+   "prompt": "wet percussion, a lurching low motif, sickening and fast",
+   "theme": "combat music for a mire level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "hive-battle",
+   "prompt": "buzzing swarm percussion, chittering high clusters, swarming and close",
+   "theme": "combat music for a hive level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "catacomb-battle",
+   "prompt": "bone percussion, a tolling bell, a funereal low choir, dreadful",
+   "theme": "combat music for a catacomb level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "tide-battle",
+   "prompt": "crashing surf drums, a rising string figure, dragged under",
+   "theme": "combat music for a tide level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "storm-battle",
+   "prompt": "thunder hits, a shrieking string line, a runaway pulse",
+   "theme": "combat music for a storm level, fast and tense",
+   "duration": 40
+  },
+  {
+   "name": "boss-ambient",
+   "prompt": "a towering guardian theme, slow heavy taiko, a low brass statement, a choir that never resolves",
+   "theme": "boss battle music, enormous and inevitable",
+   "duration": 50
+  }
+ ]
+}

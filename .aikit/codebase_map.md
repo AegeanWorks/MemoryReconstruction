@@ -6,15 +6,15 @@
 ---
 
 ## 📊 Codebase Metrics
-- **Total Python Modules**: `6`
+- **Total Python Modules**: `7`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `100`
+- **Total Top-Level Functions**: `106`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `4873`
+- **Total Source Lines**: `5032`
 
 ## 🧭 Map Coverage
-- **Indexed**: python (`6` module(s))
-- **Not indexed by this map**: javascript (`1` file(s)), typescript (`276` file(s))
+- **Indexed**: python (`7` module(s))
+- **Not indexed by this map**: javascript (`1` file(s)), typescript (`278` file(s))
 
 > Only Python symbols are catalogued. A language above is reported as not indexed, never as verified by this map.
 
@@ -103,6 +103,21 @@
 
 **Functions:**
 - `def create_graph(path, category, index, size)` - *Create a network graph visualization with nodes and edges.*
+- `def main()`
+
+---
+
+### [`scripts/generate_music.py`](scripts/generate_music.py)
+> *Render the game's soundtrack through the Muse project.*
+
+**Size**: `159` lines (`5820` bytes)
+
+**Functions:**
+- `def fail(why, reason, fix)`
+- `def readTracks()` - *The same track list the game imports, so prompts live in one place.*
+- `def writeManifests(tracks)`
+- `def rendered(trackId)`
+- `def runMuse(args)`
 - `def main()`
 
 ---

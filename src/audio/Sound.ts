@@ -8,6 +8,7 @@
 import type { BiomeId } from '../sim/content';
 import type { AttackKind } from '../sim/entities';
 import type { SimEvent } from '../sim/events';
+import { musicUrls, trackFor, type MusicTrack } from './music';
 
 /**
  * Data-driven enemy attack audio. Every AttackKind the sim can telegraph
@@ -148,6 +149,12 @@ export class Sound {
   private ambienceKey = '';
   /** A request made before the first user gesture; replayed on unlock. */
   private pendingAmbience: { biome: BiomeId; tense: boolean } | undefined;
+  /** A generated track currently looping, when one could be loaded. */
+  private track: { id: string; stop(fadeOut: boolean): void } | undefined;
+  /** Track ids that are known to be missing, so the loader asks once each. */
+  private readonly missingTracks = new Set<string>();
+  /** Decoded track buffers, keyed by URL, so a revisit does not refetch. */
+  private readonly trackBuffers = new Map<string, AudioBuffer>();
   private volumes = { master: 0.8, music: 0.5, sfx: 0.8 };
   /** Sticky pause state; the generic unlock gesture must not resume it. */
   private suspended = false;
@@ -637,5 +644,105 @@ export class Sound {
     this.ambience?.stop();
     this.ambience = undefined;
     this.ambienceKey = '';
+  }
+
+  /**
+   * Plays the generated track for a biome and mode, crossfading from whatever is
+   * already playing. If the track has not been rendered, the procedural ambience
+   * keeps the room instead, so audio never goes silent just because a file is
+   * absent. Boss rooms use the shared guardian theme.
+   */
+  playMusic(biome: BiomeId, mode: 'ambient' | 'battle' = 'ambient', boss = false): void {
+    const track = trackFor(biome, mode, boss);
+    if (!track) {
+      this.playAmbience(biome, mode === 'battle');
+      return;
+    }
+    this.playTrack(track);
+  }
+
+  /** Stops generated music and any procedural ambience. */
+  stopMusic(): void {
+    this.stopTrack();
+    this.stopAmbience();
+  }
+
+  private playTrack(track: MusicTrack): void {
+    if (!this.ctx) {
+      // No gesture yet: the ambience path already remembers the request, and the
+      // first unlock replays `playAmbience`, so nothing is lost here.
+      this.pendingAmbience = {
+        biome: track.biome === 'boss' ? 'void' : track.biome,
+        tense: track.mode === 'battle',
+      };
+      return;
+    }
+    if (this.track?.id === track.id) return;
+    const ctx = this.ctx;
+    const play = (buffer: AudioBuffer): void => {
+      // The track may have been superseded while decoding.
+      if (this.track?.id === track.id) return;
+      this.stopTrack();
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      const fade = ctx.createGain();
+      fade.gain.value = 0;
+      fade.gain.linearRampToValueAtTime(1, ctx.currentTime + 1.6);
+      source.connect(fade).connect(this.music);
+      source.start();
+      this.ambience?.stop();
+      this.ambience = undefined;
+      this.ambienceKey = '';
+      this.track = {
+        id: track.id,
+        stop: (fadeOut: boolean): void => {
+          try {
+            source.stop(fadeOut ? ctx.currentTime + 1.2 : ctx.currentTime);
+          } catch {
+            // Already stopped; nothing to do.
+          }
+        },
+      };
+    };
+    const url = musicUrls(track.id)[0];
+    const cached = this.trackBuffers.get(url);
+    if (cached) {
+      play(cached);
+      return;
+    }
+    if (this.missingTracks.has(url)) {
+      this.playAmbience(track.biome === 'boss' ? 'void' : track.biome, track.mode === 'battle');
+      return;
+    }
+    void this.loadTrack(url).then((buffer) => {
+      if (!buffer) {
+        this.missingTracks.add(url);
+        this.playAmbience(track.biome === 'boss' ? 'void' : track.biome, track.mode === 'battle');
+        return;
+      }
+      this.trackBuffers.set(url, buffer);
+      play(buffer);
+    });
+  }
+
+  /** Fetches and decodes one track; undefined when the file is absent or broken. */
+  private async loadTrack(url: string): Promise<AudioBuffer | undefined> {
+    const ctx = this.ctx;
+    if (!ctx) return undefined;
+    try {
+      const response = await fetch(url, { cache: 'force-cache' });
+      if (!response.ok) return undefined;
+      const bytes = await response.arrayBuffer();
+      return await ctx.decodeAudioData(bytes);
+    } catch {
+      return undefined;
+    }
+  }
+
+  private stopTrack(): void {
+    if (!this.track) return;
+    this.track.stop(true);
+    this.track = undefined;
   }
 }

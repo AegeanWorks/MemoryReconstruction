@@ -502,3 +502,12 @@ The running build was driven in Edge at **1280x720**.
 - **Thunder Vault**: a run at depth 24 loaded "Section 25 · The Thunder Vault" cleanly.
 - **Console**: 0 errors.
 Captures: `docs/qa/cycle116-chitin-vault.png`, `cycle116-thunder-vault.png`.
+## 2026-11-17 review: soundtrack wiring and the menu exception (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720**.
+- **Fallback**: with no files in `assets/music/`, a Section 25 run loaded with the HUD live and 0 console errors, so the
+  procedural ambience carried the floor exactly as before.
+- **Menu**: the title and Sanctuary still call the procedural ambience, as the player asked, and a test pins that.
+- **Generator**: `--dry-run` planned all 33 tracks; the real run refused to proceed without provider keys instead of
+  writing placeholder audio.
+Captures: none (audio-only change; the visual frame is unchanged).

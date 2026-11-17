@@ -295,15 +295,22 @@ export class App {
           }
           break;
         case 'bossIntro':
-          this.sound.playAmbience(world.plan.biome, true);
+          // The shared guardian theme takes over from the room's own track.
+          this.sound.playMusic(world.plan.biome, 'battle', true);
           break;
+        case 'roomLocked': {
+          // A sealed room is a fight: the biome's battle track drives it.
+          const room = world.floor.rooms[e.roomId];
+          if (room && room.kind !== 'boss') this.sound.playMusic(world.plan.biome, 'battle');
+          break;
+        }
         case 'secretOpened':
           // The vault doorway changes from wall to door; rebuild the static floor.
           this.renderer.showFloor(world);
           break;
         case 'roomCleared':
-          if (world.floor.rooms[e.roomId].kind === 'boss')
-            this.sound.playAmbience(world.plan.biome);
+          // Clearing any room hands the floor back to the ambient track.
+          this.sound.playMusic(world.plan.biome, 'ambient');
           break;
         case 'enemyDied': {
           // Daily mark: every matching kill anywhere counts toward the board.
@@ -513,6 +520,7 @@ export class App {
     this.deathTimer = -1;
     this.world = undefined;
     this.renderer.clearFloor();
+    // The menu and the Sanctuary keep their hand-tuned procedural ambience.
     this.sound.playAmbience('sanctuary');
     const saved = this.store.loadRun();
     const restPrice = saved ? restCost(saved.depth) : 0;
@@ -581,6 +589,7 @@ export class App {
     this.deathTimer = -1;
     this.world = new World(run, { sanctuary: true, building: id });
     this.renderer.showFloor(this.world);
+    // The menu and the Sanctuary keep their hand-tuned procedural ambience.
     this.sound.playAmbience('sanctuary');
   }
 
@@ -1391,7 +1400,7 @@ export class App {
     this.input.releaseAll();
     this.hud.setVisible(true);
     this.hud.setHintVisible(run.depth === 0);
-    this.sound.playAmbience(this.world.plan.biome);
+    this.sound.playMusic(this.world.plan.biome, 'ambient');
     this.ui.append(
       floorBanner(run.depth, this.world.plan.trialName ?? biomeInfo(this.world.plan.biome).name)
     );
@@ -1542,7 +1551,7 @@ export class App {
     this.deathTimer = -1;
     this.hud.setVisible(false);
     document.querySelectorAll('.banner').forEach((el) => el.remove());
-    this.sound.stopAmbience();
+    this.sound.stopMusic();
     const checkpoint = checkpointForDepth(run.depth);
     const sanctuary = (): void => this.click(() => this.showHub());
     this.screens.show(

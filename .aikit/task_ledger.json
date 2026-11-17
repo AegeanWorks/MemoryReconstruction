@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794901744.4741254,
+    "updated_at": 1794903592.4903946,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,37 +17,6 @@
     ]
   },
   "checkpoints": [
-    {
-      "task_id": "bestiary-habitats",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Make every Bestiary card open: enemyHabitats(id) lists the sections whose roster names a species plus the section whose guardian it is (section, biome, trial title, guardian/finale flags, depth order); bestiaryDetail(id, seen, kills) returns the card record and hides health/damage/xp until the species is recorded; the card becomes a role=button with Enter/Space support and an aria-expanded state that expands a beast-detail block reading stats and 'Found in ...'. Failing-first: tests/bestiary-habitats.test.ts (6 cases).",
-      "files_affected": [
-        "src/sim/content.ts",
-        "src/ui/Screens.ts",
-        "src/ui/ui.css",
-        "docs/qa/cycle105-bestiary-detail-1280x720.png",
-        "docs/qa/cycle105-bestiary-detail-390x844.png",
-        "tests/bestiary-habitats.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794854948.7428455,
-      "timestamp_str": "2026-11-16 21:49:08",
-      "agent": "kilo:1",
-      "impact_assessment": {
-        "why": "The codex named and counted species but never said where to find one, so a sealed entry was a dead end and a recorded one could not be revisited for its numbers.",
-        "benefits": "Players can plan a run around a species they still need, guardians name their own section, and stats are readable later without fighting the boss again.",
-        "risks": "contract: none (read-only helpers over FLOOR_PLANS); dependency: none; concurrency: none; state: no saved shape change; UI: cards become focusable buttons with an expanding block.",
-        "mitigation": "Pure habitat/detail tests over all 97 ids, sealed-state coverage, a AA contrast floor on the new label, and browser checks at 1280x720 and 390x844 with keyboard toggling."
-      },
-      "plan_digest": "d0b0e795d31681bc9d288d9d788057f4167d0c8f8dad7ee7716b7ea30d212935",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "bestiary-habitats",
       "phase": "phase 4",
@@ -625,6 +594,38 @@
       "status": "in_progress",
       "timestamp": 1794901744.4741254,
       "timestamp_str": "2026-11-17 10:49:04",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "world-and-levels",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/3] World and levels complete: door hangings (ADR-240) and two new vaults with a run-version migration (ADR-241). 1040+ tests green, 8/8 gates, delivery-ready.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        "README.md",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "src/app/App.ts",
+        "src/audio/Sound.ts",
+        "scripts/generate_music.py",
+        "src/audio/music.ts",
+        "src/data/music.json",
+        "src/data/music_batch.json",
+        "src/data/music_manifest.json",
+        "tests/music-tracks.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794903592.4903946,
+      "timestamp_str": "2026-11-17 11:19:52",
       "agent": "kilo:1",
       "checklists": "passed",
       "workspaces": [
