@@ -511,3 +511,13 @@ The running build was driven in Edge at **1280x720**.
 - **Generator**: `--dry-run` planned all 33 tracks; the real run refused to proceed without provider keys instead of
   writing placeholder audio.
 Captures: none (audio-only change; the visual frame is unchanged).
+
+## 2026-11-17 review: freezing enemies and ice floors (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720**.
+- **Frost floor**: a seeded Frostbound Archive (Section 11) loaded with ice crystals along the walls, ice patches on the
+  floor and the HUD live.
+- **Freeze**: moving the walker onto an ice patch set the status chip to "Frozen", and the patch drew as a pale ring with
+  frost spurs beneath them, then drained away.
+- **Console**: 0 errors.
+Captures: `docs/qa/cycle118-ice-floor.png`, `cycle118-ice-patch.png`.

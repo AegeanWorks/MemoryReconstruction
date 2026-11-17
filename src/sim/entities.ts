@@ -163,6 +163,8 @@ export interface Enemy {
   status?: StatusTimers;
   /** Fractional burn damage waiting to be paid as a whole number. */
   burnCarry?: number;
+  /** Seconds until a frost caster's next chilling pulse. */
+  chill?: number;
 }
 
 export type ProjectileOwner = 'player' | 'enemy';
@@ -302,7 +304,8 @@ export type HazardKind =
   | 'crate'
   | 'crystal'
   | 'urn'
-  | 'mud';
+  | 'mud'
+  | 'ice';
 export type HazardPhase = 'idle' | 'warning' | 'active';
 
 /** A passive floor danger or a destructible barrel. */

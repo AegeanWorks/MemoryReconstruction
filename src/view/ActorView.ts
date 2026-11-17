@@ -1063,7 +1063,25 @@ export class ActorView {
       const warning = h.phase === 'warning';
       const active = h.phase === 'active';
       const pulse = 0.35 + 0.25 * Math.sin(t * 6 + h.id);
-      if (h.kind === 'mud') {
+      if (h.kind === 'ice') {
+        // A sheet of pale ice with a few frost spurs; it thins as it melts.
+        const fade = Math.max(0.2, Math.min(1, h.timer / h.period));
+        g.circle(h.x, h.y, h.radius).fill({ color: 0x2e5a78, alpha: 0.28 * fade });
+        g.circle(h.x, h.y, h.radius * 0.86).fill({ color: 0x9fd8f5, alpha: 0.34 * fade });
+        g.circle(h.x, h.y, h.radius).stroke({ width: 2, color: 0xd8f4ff, alpha: 0.5 * fade });
+        for (let i = 0; i < 4; i++) {
+          const a = i * 1.7 + h.id * 0.4;
+          const r = h.radius * 0.55;
+          const cx = h.x + Math.cos(a) * r;
+          const cy = h.y + Math.sin(a) * r * 0.7;
+          g.moveTo(cx, cy - 6)
+            .lineTo(cx + 3, cy)
+            .lineTo(cx, cy + 6)
+            .lineTo(cx - 3, cy)
+            .closePath();
+          g.fill({ color: 0xe8fbff, alpha: 0.55 * fade });
+        }
+      } else if (h.kind === 'mud') {
         // A brown puddle with a few slow bubbles; it thins out as it drains.
         const fade = Math.max(0.25, Math.min(1, h.timer / h.period));
         g.circle(h.x, h.y, h.radius).fill({ color: 0x6a4a2a, alpha: 0.4 * fade });

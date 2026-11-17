@@ -179,6 +179,7 @@ const ARCHETYPES: Record<string, Archetype> = {
   slow_aura: 'melee',
   charger: 'skirmisher',
   mud_spitter: 'caster',
+  chill_caster: 'caster',
 };
 
 const SPRITE_KEYS: Record<string, string> = {
@@ -298,6 +299,7 @@ const SPRITE_KEYS: Record<string, string> = {
   mire_warden: 'boneKnight',
   brine_charger: 'brineHulk',
   bog_spitter: 'bogLeech',
+  rime_chanter: 'frostOracle',
 };
 
 /**
@@ -328,6 +330,7 @@ const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
     mire_warden: 0x9fd0a0,
     brine_charger: 0x8fe8dc,
     bog_spitter: 0x9fd0a0,
+    rime_chanter: 0xbfe8ff,
     phase_stalker: 0xc4b5ff,
     void_stalker: 0xa8c0ff,
     dread_champion: 0xffdf80,
@@ -496,7 +499,14 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 3,
     biome: 'crystal',
-    roster: ['prism_entity', 'shadow', 'cave_dweller', 'prism_wisp', 'prism_lancer'],
+    roster: [
+      'prism_entity',
+      'shadow',
+      'cave_dweller',
+      'prism_wisp',
+      'prism_lancer',
+      'rime_chanter',
+    ],
     boss: 'crystal_guardian',
     roomCount: 9,
     finale: false,
@@ -522,7 +532,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   {
     depth: 5,
     biome: 'frost',
-    roster: ['frost_stalker', 'frost_oracle', 'rime_duelist'],
+    roster: ['frost_stalker', 'frost_oracle', 'rime_duelist', 'rime_chanter'],
     boss: 'choir_hierophant',
     roomCount: 1,
     finale: false,
@@ -794,6 +804,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
       'prism_lancer',
       'quake_colossus',
       'brine_charger',
+      'rime_chanter',
     ],
     boss: 'storm_sovereign',
     roomCount: 13,

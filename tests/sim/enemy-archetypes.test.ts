@@ -86,9 +86,9 @@ describe('cycle 109 enemy archetypes', () => {
 });
 
 describe('new species reach the codex', () => {
-  it('lists every new id once over the real 102 species', () => {
-    expect(allEnemyIds()).toHaveLength(104);
-    expect(new Set(allEnemyIds()).size).toBe(104);
+  it('lists every new id once over the real 105 species', () => {
+    expect(allEnemyIds()).toHaveLength(105);
+    expect(new Set(allEnemyIds()).size).toBe(105);
     for (const id of NEW) expect(enemyDef(id).name.length).toBeGreaterThan(0);
   });
 });

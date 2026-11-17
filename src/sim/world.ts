@@ -75,8 +75,18 @@ import {
 
 /** How long a mud patch holds the ground, in seconds. */
 const MUD_LIFE = 7;
-/** Reach of a slow-field keeper's aura, in pixels. */
+/**
+ * Reach of a slow-field keeper's aura, in pixels.
+ */
 const SLOW_AURA_RADIUS = 190;
+/** How long an ice patch holds the ground, in seconds. */
+const ICE_LIFE = 9;
+/** Reach of a frost caster's chilling verse, in pixels. */
+const CHILL_RADIUS = 210;
+/** Seconds between a frost caster's chilling pulses. */
+const CHILL_PERIOD = 3.2;
+/** Seconds of freeze one chilling pulse applies. */
+const CHILL_HOLD = 1.4;
 import {
   activeModifier,
   applyChoice,
@@ -980,7 +990,11 @@ export class World implements Arena {
       }
       if (hostile) {
         const count = 1 + (this.run.depth >= 4 ? 1 : 0) + this.rng.int(0, 1);
-        const kinds: HazardKind[] = ['spike', 'flame', 'poison', 'rockfall', 'barrel'];
+        // Cold biomes freeze the floor instead of scorching or poisoning it.
+        const cold = this.plan.biome === 'frost' || this.plan.biome === 'crystal';
+        const kinds: HazardKind[] = cold
+          ? ['spike', 'ice', 'rockfall', 'barrel', 'ice']
+          : ['spike', 'flame', 'poison', 'rockfall', 'barrel'];
         for (let i = 0; i < count; i++) this.spawnHazard(room, this.rng.pick(kinds));
       }
 
@@ -1086,7 +1100,9 @@ export class World implements Arena {
                 ? 12
                 : kind === 'poison'
                   ? 38
-                  : 44;
+                  : kind === 'ice'
+                    ? 40
+                    : 44;
       const hp =
         kind === 'barrel'
           ? 14
@@ -1105,8 +1121,8 @@ export class World implements Arena {
         radius,
         roomId: room.id,
         phase: 'idle',
-        timer: this.rng.range(0.4, 2.4),
-        period: kind === 'spike' ? 2.6 : kind === 'flame' ? 3.4 : 0.8,
+        timer: kind === 'ice' ? ICE_LIFE : this.rng.range(0.4, 2.4),
+        period: kind === 'ice' ? ICE_LIFE : kind === 'spike' ? 2.6 : kind === 'flame' ? 3.4 : 0.8,
         damage: breakable ? 0 : Math.round(8 + this.run.depth * 1.4),
         hp,
         maxHp: hp,
@@ -1889,6 +1905,19 @@ export class World implements Arena {
       const enemy = this.enemies[i];
       const tick = tickStatus(enemy.status ?? NO_STATUS, dt);
       enemy.status = tick.status;
+      // A frost caster sings a chilling verse: a frozen burst on a slow pulse,
+      // so the walker is caught in bursts rather than rooted for the whole fight.
+      if (enemy.def.behavior === 'chill_caster' && enemy.state !== 'dying') {
+        enemy.chill = (enemy.chill ?? CHILL_PERIOD) - dt;
+        if (enemy.chill <= 0) {
+          enemy.chill = CHILL_PERIOD;
+          if (
+            this.player.action !== 'dead' &&
+            Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y) <= CHILL_RADIUS
+          )
+            this.player.status = applyStatus(this.player.status ?? NO_STATUS, 'freeze', CHILL_HOLD);
+        }
+      }
       // A slow-field keeper drags every step short inside its reach.
       if (
         enemy.def.behavior === 'slow_aura' &&
@@ -1988,27 +2017,33 @@ export class World implements Arena {
   }
 
   /** Passive dangers: periodic traps, proximity rockfall and poison pools. */
-  /** Mud patches slow whoever stands in them and drain away over time. */
-  private updateMud(dt: number): void {
+  /**
+   * Lingering ground effects: mud slows, ice freezes. Both drain away on their
+   * own timer instead of cycling like a trap, so one loop owns both.
+   */
+  private updateGround(dt: number): void {
     const p = this.player;
     for (let i = this.hazards.length - 1; i >= 0; i--) {
       const h = this.hazards[i];
-      if (h.kind !== 'mud') continue;
+      if (h.kind !== 'mud' && h.kind !== 'ice') continue;
       h.timer -= dt;
       if (h.timer <= 0) {
         this.hazards.splice(i, 1);
         continue;
       }
+      // Ice holds a shorter timer than mud, or the walker would crawl forever.
+      const effect = h.kind === 'ice' ? 'freeze' : 'mud';
+      const hold = h.kind === 'ice' ? 1.2 : 0.35;
       if (p.action !== 'dead' && Math.hypot(p.x - h.x, p.y - h.y) <= h.radius + p.radius)
-        p.status = applyStatus(p.status ?? NO_STATUS, 'mud', 0.35);
+        p.status = applyStatus(p.status ?? NO_STATUS, effect, hold);
       for (const e of this.enemies)
         if (e.state !== 'dying' && Math.hypot(e.x - h.x, e.y - h.y) <= h.radius + e.radius)
-          e.status = applyStatus(e.status ?? NO_STATUS, 'mud', 0.35);
+          e.status = applyStatus(e.status ?? NO_STATUS, effect, hold);
     }
   }
 
   private updateHazards(dt: number): void {
-    this.updateMud(dt);
+    this.updateGround(dt);
     const p = this.player;
     for (const h of [...this.hazards]) {
       if (h.hitFlash !== undefined) h.hitFlash = Math.max(0, h.hitFlash - dt);
@@ -2022,8 +2057,8 @@ export class World implements Arena {
         }
       }
       if (h.disabled || isBreakable(h.kind)) continue;
-      // Mud is a lingering puddle, not a phase-cycled trap; updateMud owns it.
-      if (h.kind === 'mud') continue;
+      // Mud and ice are lingering ground, not phase-cycled traps; updateGround owns them.
+      if (h.kind === 'mud' || h.kind === 'ice') continue;
       if (h.kind === 'trap') {
         h.timer -= dt;
         if (h.timer > 0) continue;

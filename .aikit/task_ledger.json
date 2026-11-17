@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "music-muse",
+    "task_id": "freeze-sources",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1794903637.7398338,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1794904608.4783452,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -14,55 +14,9 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ],
-    "completed_at": 1794903705.0847623,
-    "completed_head": "63ec340f8bf30240712d54c8ec1da6f23c7fdc1c",
-    "completed_tree": "e47adcd2e2ce8e4fdfe69f9af3c68858ffa50dce"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "memories-locations",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: seeding fragment_001 and fragment_002 reads '2 / 40 fragments - 0 / 12 memories restored' and 38 sealed fragments each carry a 'Not yet found - the <biome>' hint (Forgotten Ruins for the first four), while recovered fragments keep their text and no hint. 963 tests across 203 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720 and 390x844: 358.8px panel, no horizontal overflow, 0 console errors on a fresh server.",
-      "files_affected": [
-        ".aikit/task_ledger.json",
-        ".aikit/task_ledger_archive.jsonl",
-        "src/sim/content.ts",
-        "src/ui/Screens.ts",
-        "src/ui/ui.css",
-        "docs/qa/cycle106-memory-hints-1280x720.png",
-        "tests/memories-locations.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794857064.4863493,
-      "timestamp_str": "2026-11-16 22:24:24",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "memories-locations",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'memories-locations' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794857164.3130157,
-      "timestamp_str": "2026-11-16 22:26:04",
-      "agent": "kilo:1",
-      "head": "6496f823054d379c18ed894b4a29b8af83f42a3e",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "combat-expansion",
       "phase": "phase 2",
@@ -611,6 +565,67 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "freeze-sources",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Close a real delivery gap: the freeze status had no source in the game, so the shatter bonus and the heavy slow were unreachable. Adds the Rime Chanter (a frost caster that pulses a 1.4s freeze in a 210px radius every 3.2s, placed in Prism Gardens, the Frozen Choir and the Thunder Vault) and an ice ground hazard that freezes anything standing on it for 1.2s and drains after 9s; cold biomes roll ice instead of flame. updateGround now owns both mud and ice. Species count 105. Failing-first: tests/freezing-enemies.test.ts (7 cases).",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794904596.8774722,
+      "timestamp_str": "2026-11-17 11:36:36",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "The player asked for frozen effects and freezing enemies, and burn and mud both had real sources while freeze existed only in tests.",
+        "benefits": "The shatter bonus becomes reachable in play, cold floors feel different from hot ones, and the freeze mechanic is no longer dormant.",
+        "risks": "contract: HazardKind gains ice and Enemy gains an optional chill timer; dependency: none; concurrency: none; state: no saved shape change; balance: short, non-stacking freezes.",
+        "mitigation": "Short durations that refresh rather than stack, ice dealing no damage, a no-flame-on-frozen-floors check across four seeds, and a 7-case suite."
+      },
+      "plan_digest": "787cbffb09ae94f9850a524b35c72672ebcf85ccf933f5dc92391fa1974aa2eb",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "freeze-sources",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: Rime Chanter is a non-guardian species placed only on frost, crystal and storm sections; it freezes the walker on its pulse and the freeze lapses back to full speed. Frozen floors carry 6-13 ice patches and zero flame across eight seeds; an ice patch freezes then drains; ice never damages the walker. In Edge a Section 11 Frostbound Archive showed wall ice and floor patches, and standing on one set the HUD chip to Frozen. 1061 tests across 219 files, lint/typecheck/build clean.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl",
+        "README.md",
+        "assets/data/enemies.json",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "src/data/enemies.json",
+        "src/sim/content.ts",
+        "src/sim/entities.ts",
+        "src/sim/world.ts",
+        "src/view/ActorView.ts",
+        "src/view/Effects.ts",
+        "tests/sim/enemy-archetypes.test.ts",
+        "docs/qa/cycle118-ice-floor.png",
+        "docs/qa/cycle118-ice-patch.png",
+        "tests/freezing-enemies.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794904608.4783452,
+      "timestamp_str": "2026-11-17 11:36:48",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
     }
   ]
 }

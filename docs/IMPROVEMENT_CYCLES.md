@@ -4663,3 +4663,24 @@ the procedural fallback path; `python scripts/generate_music.py` reported all 33
 REPLICATE_API_TOKEN and GEMINI_API_KEY, which are not present here.
 ### Gate results
 See the task summary.
+
+## Cycle 118 - Freezing enemies and ice floors
+### FIND
+The freeze status had no source in the game: burn came from flame, mud from poison and two enemies, but nothing applied
+freeze, so the shatter bonus and the heavy slow were unreachable in play even though the request asked for freezing
+enemies.
+### IMPLEMENT
+- `src/data/enemies.json` (+ mirror): **Rime Chanter**, a frost caster.
+- `src/sim/content.ts`: its archetype, frost-oracle sheet, tint and placements (Prism Gardens, Frozen Choir, Thunder Vault).
+- `src/sim/world.ts`: `updateGround` now owns mud and ice; cold biomes roll `ice` instead of `flame`; the Rime Chanter's
+  chilled pulse; new ice/chill constants.
+- `src/sim/entities.ts`, `src/view/Effects.ts`, `src/view/ActorView.ts`: the `ice` hazard kind, its burst tint and a pale
+  ice sheet with frost spurs.
+- Tests: `freezing-enemies` (7), plus the species count moving to 105.
+### RECORD
+In Edge at 1280x720 a seeded Frostbound Archive (Section 11) showed ice crystals on the walls and ice patches on the floor;
+placing the walker on a patch set the HUD status chip to "Frozen" while the ice ring and its frost spurs drew around them,
+and the patch drained on its own. Across eight seeds a frozen floor carried 6-13 ice patches and zero flame. 1061 tests,
+lint/typecheck/build clean.
+### Gate results
+See the task summary.

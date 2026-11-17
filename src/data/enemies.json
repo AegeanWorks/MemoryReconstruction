@@ -5432,6 +5432,63 @@
      "max": 2
     }
    ]
+  },
+  {
+   "id": "rime_chanter",
+   "name": "Rime Chanter",
+   "description": "A frost-bound singer whose hymn freezes the air; stand in its verses and your legs go stiff.",
+   "type": "rime_chanter",
+   "biome": "frost",
+   "stats": {
+    "health": 140,
+    "maxHealth": 140,
+    "damage": 18,
+    "speed": 86,
+    "armor": 10,
+    "resistance": 14,
+    "knockbackResistance": 30,
+    "xpValue": 85,
+    "memoryValue": 12
+   },
+   "ai": {
+    "behavior": "chill_caster",
+    "aggroRange": 360,
+    "attackRange": 230,
+    "attackCooldown": 2.6,
+    "patrolRadius": 210
+   },
+   "hitbox": {
+    "width": 28,
+    "height": 32,
+    "offsetX": 0,
+    "offsetY": -8
+   },
+   "sprite": {
+    "texture": "enemy_frost_oracle",
+    "width": 32,
+    "height": 96,
+    "animations": [
+     "idle",
+     "walk",
+     "attack",
+     "stunned",
+     "death"
+    ]
+   },
+   "lootTable": [
+    {
+     "item": "fragment_shard",
+     "chance": 0.8,
+     "min": 2,
+     "max": 5
+    },
+    {
+     "item": "memory_fragment",
+     "chance": 0.3,
+     "min": 1,
+     "max": 1
+    }
+   ]
   }
  ],
  "eliteModifiers": [
