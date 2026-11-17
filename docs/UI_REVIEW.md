@@ -474,3 +474,15 @@ The running build was driven in Edge at **1280x720**.
 - **Doll**: the seeded Iron Helm still drew on the bag doll beside the card.
 - **Console**: 0 errors.
 Captures: `docs/qa/cycle112-weapon-locked-1280x720.png`.
+## 2026-11-17 review: weapon icons, icon-derived armor colour, head untouched (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720**.
+- **Weapon icons**: the Relics bag showed five clearly different weapon icons — arming sword, polearm with a bell, a lit
+  long sword, a void cleaver and a dagger — with Emberfang worn in the weapon slot.
+- **Armor colour**: a seeded Duelist Mantle painted the robe the icon's crimson and a seeded Crystal Mail read as its
+  teal, so the worn colour now matches the bag icon.
+- **Head**: with a Duelist Mantle worn and no hat equipped, the wanderer's own hood stayed blue while the robe turned
+  crimson, so armor no longer tints the head.
+- **Console**: 0 errors.
+Captures: `docs/qa/cycle113-weapon-names-icons.png`, `cycle113-weapon-icons-crop.png`,
+`cycle114-hood-untouched.png`.

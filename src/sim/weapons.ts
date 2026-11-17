@@ -62,7 +62,7 @@ export const WEAPONS: readonly WeaponDef[] = [
   },
   {
     id: 'greatsword',
-    name: 'Greatsword',
+    name: 'Long Sword',
     blurb: 'Two wide, slow arcs. The finisher always shockwaves, but you barely move.',
     style: 'wide',
     steps: [

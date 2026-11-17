@@ -3,21 +3,24 @@
  "items": [
   {
    "id": "rusted_edge",
-   "name": "Rusted Edge",
+   "name": "Rusted Arming Sword",
    "slot": "weapon",
    "rarity": "common",
-   "description": "+4 melee damage, +2% critical chance",
+   "description": "A pitted arming sword, still true. +4 melee damage, +2% critical chance.",
    "mods": {
     "meleeDamage": 4,
     "critChance": 0.02
-   }
+   },
+   "restrictTo": [
+    "sword"
+   ]
   },
   {
    "id": "echo_dagger",
    "name": "Echo Dagger",
    "slot": "weapon",
    "rarity": "rare",
-   "description": "+7 melee damage, +8% critical chance, +10% attack speed",
+   "description": "A short blade that leaves a ringing afterimage. +7 melee damage, +8% critical chance, +10% attack speed.",
    "mods": {
     "meleeDamage": 7,
     "critChance": 0.08,
@@ -29,21 +32,24 @@
   },
   {
    "id": "choir_staff",
-   "name": "Choir Staff",
+   "name": "Choir Glaive",
    "slot": "weapon",
    "rarity": "rare",
-   "description": "+9 bolt damage, +12 max mana",
+   "description": "A hymn-blade on a long haft that strikes from beyond reply. +9 bolt damage, +12 max mana.",
    "mods": {
     "boltDamage": 9,
     "maxMana": 12
-   }
+   },
+   "restrictTo": [
+    "spear"
+   ]
   },
   {
    "id": "void_cleaver",
    "name": "Void Cleaver",
    "slot": "weapon",
    "rarity": "epic",
-   "description": "+12 melee damage, +30% critical damage, +3% lifesteal, -8% attack speed",
+   "description": "A heavy cleaver that drinks the light from a wound. +12 melee damage, +30% critical damage, +3% lifesteal, -8% attack speed.",
    "mods": {
     "meleeDamage": 12,
     "critMultiplier": 0.3,
@@ -209,14 +215,17 @@
   },
   {
    "id": "ember_core",
-   "name": "Ember Core",
+   "name": "Emberfang",
    "slot": "weapon",
    "rarity": "epic",
-   "description": "+6 melee damage, +8 bolt damage.",
+   "description": "A long sword with a blade lit from within. +6 melee damage, +8 bolt damage.",
    "mods": {
     "meleeDamage": 6,
     "boltDamage": 8
-   }
+   },
+   "restrictTo": [
+    "greatsword"
+   ]
   }
  ]
 }

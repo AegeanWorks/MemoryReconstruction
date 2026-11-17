@@ -8,13 +8,13 @@
 ## 📊 Codebase Metrics
 - **Total Python Modules**: `6`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `99`
+- **Total Top-Level Functions**: `100`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `4833`
+- **Total Source Lines**: `4872`
 
 ## 🧭 Map Coverage
 - **Indexed**: python (`6` module(s))
-- **Not indexed by this map**: javascript (`1` file(s)), typescript (`271` file(s))
+- **Not indexed by this map**: javascript (`1` file(s)), typescript (`273` file(s))
 
 > Only Python symbols are catalogued. A language above is reported as not indexed, never as verified by this map.
 
@@ -125,17 +125,17 @@
 ---
 
 ### [`scripts/generate_relic_icons.py`](scripts/generate_relic_icons.py)
-> *Draw one icon per relic in src/data/equipment.json into assets/sprites/ui/relic_<id>.png.*
+> *Draw one icon per relic in src/data/equipment.json into assets/sprites/ui/relic_<id>.png,*
 
-**Size**: `387` lines (`20311` bytes)
+**Size**: `426` lines (`22087` bytes)
 
 **Functions:**
 - `def _diagonal_blade(d, tip, hilt, half_width, fill, edge, guard, grip, pommel)` - *A straight blade from hilt to tip with a crossguard, grip and pommel.*
 - `def rusted_edge(img, d)`
 - `def echo_dagger(img, d)`
-- `def choir_staff(img, d)`
+- `def choir_staff(img, d)` - *Choir Glaive: a long polearm with a curved hymn-blade (the spear stance's relic).*
 - `def void_cleaver(img, d)`
-- `def ember_core(img, d)`
+- `def ember_core(img, d)` - *Emberfang: a long sword whose blade is lit from within, the long-sword stance's relic.*
 - `def _torso(d, fill, trim, collar)`
 - `def scavenger_vest(img, d)`
 - `def crystal_mail(img, d)`
@@ -161,6 +161,7 @@
 - `def tidecloak(img, d)`
 - `def ember_drape(img, d)`
 - `def void_mantle(img, d)`
+- `def dominantColor(img)` - *The icon's most common saturated colour, as hue/sat/val.*
 - `def main()`
 
 ---

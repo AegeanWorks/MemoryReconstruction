@@ -1,4 +1,6 @@
-"""Draw one icon per relic in src/data/equipment.json into assets/sprites/ui/relic_<id>.png.
+"""Draw one icon per relic in src/data/equipment.json into assets/sprites/ui/relic_<id>.png,
+and record each icon's dominant colour in src/data/relic_colors.json so the worn gear can
+re-colour the wanderer from the same palette the icon uses.
 
 Run from the project root:
     python scripts/generate_relic_icons.py
@@ -10,12 +12,14 @@ the rarity colour. A relic added to equipment.json without a drawing here fails 
 """
 from __future__ import annotations
 
+import colorsys
 import json
 import math
 import sys
+from collections import Counter
 from pathlib import Path
 
-from PIL import ImageDraw
+from PIL import Image, ImageDraw
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from generate_art_assets import Outline, blank, ellipse, glow, line, poly, rect, save_cell  # noqa: E402
@@ -23,6 +27,7 @@ from generate_art_assets import Outline, blank, ellipse, glow, line, poly, rect,
 ROOT = Path(__file__).resolve().parent.parent
 EQUIPMENT = ROOT / "src" / "data" / "equipment.json"
 OUT = ROOT / "assets" / "sprites" / "ui"
+COLORS = ROOT / "src" / "data" / "relic_colors.json"
 CELL = 64
 
 STEEL = (205, 220, 236)
@@ -69,14 +74,19 @@ def echo_dagger(img, d) -> None:
 
 
 def choir_staff(img, d) -> None:
-    line(d, CELL, [(0.30, 0.84), (0.62, 0.30)], WOOD, 4)
-    line(d, CELL, [(0.30, 0.84), (0.62, 0.30)], (150, 108, 70), 1)
-    glow(img, lambda g: ellipse(g, CELL, 0.52, 0.10, 0.86, 0.44, fill=(206, 190, 255, 140)), 3)
-    ellipse(d, CELL, 0.58, 0.16, 0.80, 0.38, outline=GOLD, width=3)
-    ellipse(d, CELL, 0.63, 0.21, 0.75, 0.33, fill=(220, 210, 255), outline=Outline, width=1)
-    for a in (-0.6, 0.0, 0.6):
-        x, y = 0.69 + math.cos(a - 1.57) * 0.16, 0.27 + math.sin(a - 1.57) * 0.16
-        line(d, CELL, [(0.69, 0.13), (x, y)], GOLD, 1)
+    """Choir Glaive: a long polearm with a curved hymn-blade (the spear stance's relic)."""
+    # Haft from the lower left to the head at the upper right.
+    line(d, CELL, [(0.22, 0.88), (0.66, 0.24)], WOOD, 4)
+    line(d, CELL, [(0.22, 0.88), (0.66, 0.24)], (150, 108, 70), 1)
+    # A single curved blade sweeping off the head, so it reads as a glaive, not a stave.
+    glow(img, lambda g: poly(g, CELL, [(0.62, 0.28), (0.86, 0.12), (0.80, 0.34), (0.66, 0.40)],
+                             fill=(206, 190, 255, 120)), 3)
+    poly(d, CELL, [(0.62, 0.28), (0.86, 0.12), (0.80, 0.34), (0.66, 0.40)], fill=(214, 208, 255),
+         outline=Outline, width=2)
+    line(d, CELL, [(0.66, 0.30), (0.83, 0.15)], GOLD, 1)
+    # A small bell tied under the blade: the "choir" signature.
+    ellipse(d, CELL, 0.58, 0.42, 0.68, 0.54, fill=GOLD, outline=Outline, width=1)
+    line(d, CELL, [(0.63, 0.42), (0.63, 0.48)], GOLD_DARK, 1)
 
 
 def void_cleaver(img, d) -> None:
@@ -92,16 +102,14 @@ def void_cleaver(img, d) -> None:
 
 
 def ember_core(img, d) -> None:
-    # A burning orb held in an iron cage on a short haft: a weapon, not a pendant like Ember Charm.
-    line(d, CELL, [(0.50, 0.62), (0.50, 0.90)], (42, 38, 54), 4)
-    glow(img, lambda g: ellipse(g, CELL, 0.18, 0.10, 0.82, 0.74, fill=(255, 120, 40, 150)), 4)
-    ellipse(d, CELL, 0.30, 0.18, 0.70, 0.58, fill=(214, 76, 30), outline=Outline, width=2)
-    ellipse(d, CELL, 0.38, 0.26, 0.62, 0.50, fill=(255, 168, 64))
-    ellipse(d, CELL, 0.44, 0.32, 0.54, 0.42, fill=(255, 240, 180))
-    for x0, x1 in ((0.30, 0.40), (0.70, 0.60)):
-        line(d, CELL, [(0.50, 0.12), (x0, 0.38), (x1, 0.62)], (70, 64, 80), 3)
-    line(d, CELL, [(0.50, 0.12), (0.50, 0.18)], (70, 64, 80), 3)
-    line(d, CELL, [(0.36, 0.62), (0.64, 0.62)], (70, 64, 80), 3)
+    """Emberfang: a long sword whose blade is lit from within, the long-sword stance's relic."""
+    glow(img, lambda g: poly(g, CELL, [(0.30, 0.72), (0.78, 0.14), (0.86, 0.24), (0.38, 0.80)],
+                             fill=(255, 120, 40, 130)), 4)
+    _diagonal_blade(d, (0.84, 0.16), (0.34, 0.70), 0.075, (214, 76, 30), (255, 200, 120),
+                    GOLD_DARK, LEATHER, (255, 168, 64))
+    # Embers crawling up the fuller.
+    for x, y in ((0.50, 0.52), (0.60, 0.42), (0.70, 0.30)):
+        ellipse(d, CELL, x - 0.022, y - 0.022, x + 0.022, y + 0.022, fill=(255, 240, 180))
 
 
 def _torso(d, fill, trim, collar=None) -> None:
@@ -367,6 +375,32 @@ DRAWINGS = {
 }
 
 
+def dominantColor(img) -> dict[str, float]:
+    """The icon's most common saturated colour, as hue/sat/val.
+
+    The worn sprite re-colours its robe and cloak from this palette, so an armor's look on the
+    wanderer always matches the plate drawn in its inventory icon.
+    """
+    hist: Counter[int] = Counter()
+    samples: dict[int, tuple[float, float, float]] = {}
+    px = img.load()
+    for y in range(img.height):
+        for x in range(img.width):
+            r, g, b, a = px[x, y]
+            if a < 200:
+                continue
+            h, s, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+            if s < 0.2 or v < 0.12:
+                continue
+            bucket = round(h * 360)
+            hist[bucket] += 1
+            samples.setdefault(bucket, (h * 360, s, v))
+    if not hist:
+        return {"hue": 0.0, "sat": 0.0, "val": 0.0}
+    hue, sat, val = samples[hist.most_common(1)[0][0]]
+    return {"hue": round(hue, 1), "sat": round(sat, 3), "val": round(val, 3)}
+
+
 def main() -> int:
     items = json.loads(EQUIPMENT.read_text(encoding="utf-8"))["items"]
     missing = [item["id"] for item in items if item["id"] not in DRAWINGS]
@@ -375,11 +409,16 @@ def main() -> int:
         print("Why: every relic in equipment.json shows its icon in the inventory.", file=sys.stderr)
         print("Fix: add a drawing to DRAWINGS in scripts/generate_relic_icons.py.", file=sys.stderr)
         return 1
+    colors: dict[str, dict[str, float]] = {}
     for item in items:
         img = blank(CELL)
         DRAWINGS[item["id"]](img, ImageDraw.Draw(img))
-        save_cell(img, CELL, OUT / f"relic_{item['id']}.png")
+        path = OUT / f"relic_{item['id']}.png"
+        save_cell(img, CELL, path)
+        colors[item["id"]] = dominantColor(Image.open(path).convert("RGBA"))
+    COLORS.write_text(json.dumps(colors, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     print(f"[OK] wrote {len(items)} relic icons to {OUT.relative_to(ROOT)}")
+    print(f"[OK] wrote relic colours to {COLORS.relative_to(ROOT)}")
     return 0
 
 

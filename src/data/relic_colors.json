@@ -1,0 +1,142 @@
+{
+ "bog_crown": {
+  "hue": 80.0,
+  "sat": 0.6,
+  "val": 0.588
+ },
+ "choir_staff": {
+  "hue": 27.6,
+  "sat": 0.521,
+  "val": 0.475
+ },
+ "clockwork_gear": {
+  "hue": 41.0,
+  "sat": 0.526,
+  "val": 0.447
+ },
+ "colossus_plate": {
+  "hue": 216.0,
+  "sat": 0.2,
+  "val": 0.588
+ },
+ "crystal_mail": {
+  "hue": 194.3,
+  "sat": 0.633,
+  "val": 0.651
+ },
+ "duelist_mantle": {
+  "hue": 352.7,
+  "sat": 0.786,
+  "val": 0.659
+ },
+ "echo_dagger": {
+  "hue": 40.5,
+  "sat": 0.459,
+  "val": 1.0
+ },
+ "ember_charm": {
+  "hue": 18.1,
+  "sat": 0.809,
+  "val": 0.902
+ },
+ "ember_core": {
+  "hue": 15.0,
+  "sat": 0.86,
+  "val": 0.839
+ },
+ "ember_drape": {
+  "hue": 0.0,
+  "sat": 0.771,
+  "val": 0.549
+ },
+ "ember_ward": {
+  "hue": 3.6,
+  "sat": 0.72,
+  "val": 0.729
+ },
+ "iron_helm": {
+  "hue": 216.0,
+  "sat": 0.225,
+  "val": 0.435
+ },
+ "mire_talisman": {
+  "hue": 105.4,
+  "sat": 0.378,
+  "val": 0.384
+ },
+ "oracle_circlet": {
+  "hue": 40.5,
+  "sat": 0.459,
+  "val": 1.0
+ },
+ "rusted_edge": {
+  "hue": 26.5,
+  "sat": 0.453,
+  "val": 0.588
+ },
+ "scavenger_vest": {
+  "hue": 30.0,
+  "sat": 0.496,
+  "val": 0.475
+ },
+ "scout_hood": {
+  "hue": 89.2,
+  "sat": 0.355,
+  "val": 0.431
+ },
+ "soul_anchor": {
+  "hue": 0.0,
+  "sat": 0.0,
+  "val": 0.0
+ },
+ "storm_dial": {
+  "hue": 216.0,
+  "sat": 0.494,
+  "val": 0.318
+ },
+ "sun_core": {
+  "hue": 42.9,
+  "sat": 0.765,
+  "val": 0.969
+ },
+ "tattered_cloak": {
+  "hue": 26.5,
+  "sat": 0.473,
+  "val": 0.357
+ },
+ "thorn_ring": {
+  "hue": 110.0,
+  "sat": 0.5,
+  "val": 0.471
+ },
+ "tide_lens": {
+  "hue": 204.4,
+  "sat": 0.687,
+  "val": 0.827
+ },
+ "tidecloak": {
+  "hue": 213.5,
+  "sat": 0.732,
+  "val": 0.557
+ },
+ "void_cleaver": {
+  "hue": 263.5,
+  "sat": 0.622,
+  "val": 0.29
+ },
+ "void_mantle": {
+  "hue": 264.8,
+  "sat": 0.644,
+  "val": 0.176
+ },
+ "void_shroud": {
+  "hue": 263.5,
+  "sat": 0.638,
+  "val": 0.314
+ },
+ "void_visor": {
+  "hue": 260.0,
+  "sat": 0.529,
+  "val": 0.267
+ }
+}

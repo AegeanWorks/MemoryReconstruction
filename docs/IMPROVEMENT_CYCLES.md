@@ -4581,3 +4581,35 @@ SPEAR STANCE" and enabled the button. The doll showed the seeded iron helm in th
 Screenshot `docs/qa/cycle112-weapon-locked-1280x720.png`.
 ### Gate results
 See the task summary.
+## Cycle 113 - Weapon relics named and iconed for what they are
+### FIND
+Weapon relics carried working names and icons that did not match the stance they belong to: "Choir Staff" drew a stave,
+Ember Core drew an orb, and neither was locked to a stance.
+### IMPLEMENT
+- `src/data/equipment.json` (+ mirror): Rusted Arming Sword, Echo Dagger, Choir Glaive, Void Cleaver, Emberfang, each
+  with a rewritten description and a stance lock.
+- `scripts/generate_relic_icons.py`: a new glaive drawing (haft, curved hymn-blade, bell) and a lit long-sword drawing for
+  Emberfang, replacing the stave and the orb.
+- `src/sim/weapons.ts`: the heavy stance displays as **Long Sword**.
+- Tests: `gear-colors-from-icons` (8).
+### RECORD
+In Edge at 1280x720 the Relics bag showed five distinct weapon icons (arming sword, polearm with bell, lit long sword,
+cleaver, dagger) with the worn Emberfang in the weapon slot. Screenshot `docs/qa/cycle113-weapon-names-icons.png`,
+`cycle113-weapon-icons-crop.png`.
+### Gate results
+See the task summary.
+
+## Cycle 114 - Armor colour comes from the icon, and never paints the head
+### FIND
+Some armors looked wrong on the wanderer because their hue was hand-picked rather than taken from their icon, and every
+armor also re-coloured the wanderer's own hood, which reads as changing the headwear.
+### IMPLEMENT
+- `scripts/generate_relic_icons.py`, `src/data/relic_colors.json`: the icon script now records each icon's dominant colour.
+- `src/view/gearLook.ts`: armor and cape hue comes from the manifest; the robe pass skips the hood rows.
+- `src/view/armorTextures.ts`, `src/ui/dollArt.ts`: both pass the real frame width.
+- Tests: `armor-head-untouched` (4) plus the icon-to-look checks.
+### RECORD
+In Edge at 1280x720 a Duelist Mantle painted the robe crimson from its icon while the hood stayed the wanderer's own blue;
+Crystal Mail read as the icon's teal. Screenshot `docs/qa/cycle114-hood-untouched.png`.
+### Gate results
+See the task summary.

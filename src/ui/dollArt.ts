@@ -30,8 +30,8 @@ export function recolorSheetUrl(
         ctx.canvas.height = image.naturalHeight;
         ctx.drawImage(image, 0, 0);
         const data = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-        if (armor) recolorPixels(data.data, armor);
-        if (cape) recolorCapePixels(data.data, cape);
+        if (armor) recolorPixels(data.data, armor, ctx.canvas.width);
+        if (cape) recolorCapePixels(data.data, cape, ctx.canvas.width);
         ctx.putImageData(data, 0, 0);
         resolve(ctx.canvas.toDataURL('image/png'));
       };

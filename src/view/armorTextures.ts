@@ -35,8 +35,8 @@ function recolorTexture(
     height
   );
   const image = ctx.getImageData(0, 0, width, height);
-  if (armor) recolorPixels(image.data, armor);
-  if (cape) recolorCapePixels(image.data, cape);
+  if (armor) recolorPixels(image.data, armor, width);
+  if (cape) recolorCapePixels(image.data, cape, width);
   ctx.putImageData(image, 0, 0);
   const out = Texture.from(ctx.canvas);
   out.source.scaleMode = texture.source.scaleMode;

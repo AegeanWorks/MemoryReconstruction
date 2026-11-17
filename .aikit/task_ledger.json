@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794894414.6449122,
+    "updated_at": 1794896605.8195555,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,23 +17,6 @@
     ]
   },
   "checkpoints": [
-    {
-      "task_id": "bestiary-codex",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'bestiary-codex' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794849933.4907715,
-      "timestamp_str": "2026-11-16 20:25:33",
-      "agent": "kilo:1",
-      "head": "22fa255f80ec0eb36f375b4d574ec4ef2c8977bd",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "bestiary-depth",
       "phase": "phase 2",
@@ -602,6 +585,44 @@
       "status": "in_progress",
       "timestamp": 1794894414.6449122,
       "timestamp_str": "2026-11-17 08:46:54",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "gear-and-limits",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[4/4] Player feedback round: weapon relics renamed and re-iconed (Rusted Arming Sword, Echo Dagger, Choir Glaive with a real glaive drawing, Void Cleaver, Emberfang as a lit long sword), the heavy stance displays as Long Sword, and all weapon relics are stance-locked. Armor and cape hues now come from each relic's own icon via a generated relic_colors.json, so the worn colour always matches the bag icon. The robe pass skips the sprite's hood rows (7-17 of a 64px frame), so armor tints cloth only and the wanderer's head keeps its own colour. 1021 tests across 212 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates. Verified in Edge: five distinct weapon icons, crimson and teal armors matching their icons, blue hood preserved under a crimson robe.",
+      "files_affected": [
+        ".aikit/decisions.md",
+        "README.md",
+        "assets/data/equipment.json",
+        "assets/sprites/ui/relic_choir_staff.png",
+        "assets/sprites/ui/relic_ember_core.png",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "scripts/generate_relic_icons.py",
+        "src/data/equipment.json",
+        "src/sim/weapons.ts",
+        "src/ui/dollArt.ts",
+        "src/view/armorTextures.ts",
+        "src/view/gearLook.ts",
+        "docs/qa/cycle113-weapon-icons-crop.png",
+        "docs/qa/cycle113-weapon-names-icons.png",
+        "docs/qa/cycle114-hood-untouched.png",
+        "src/data/relic_colors.json",
+        "tests/armor-head-untouched.test.ts",
+        "tests/gear-colors-from-icons.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794896605.8195555,
+      "timestamp_str": "2026-11-17 09:23:25",
       "agent": "kilo:1",
       "checklists": "passed",
       "workspaces": [
