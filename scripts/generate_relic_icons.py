@@ -415,7 +415,8 @@ def main() -> int:
         DRAWINGS[item["id"]](img, ImageDraw.Draw(img))
         path = OUT / f"relic_{item['id']}.png"
         save_cell(img, CELL, path)
-        colors[item["id"]] = dominantColor(Image.open(path).convert("RGBA"))
+        with Image.open(path) as written:
+            colors[item["id"]] = dominantColor(written.convert("RGBA"))
     COLORS.write_text(json.dumps(colors, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     print(f"[OK] wrote {len(items)} relic icons to {OUT.relative_to(ROOT)}")
     print(f"[OK] wrote relic colours to {COLORS.relative_to(ROOT)}")

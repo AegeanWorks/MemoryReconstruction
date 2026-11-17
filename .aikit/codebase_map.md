@@ -10,7 +10,7 @@
 - **Total Classes**: `0`
 - **Total Top-Level Functions**: `100`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `4872`
+- **Total Source Lines**: `4873`
 
 ## 🧭 Map Coverage
 - **Indexed**: python (`6` module(s))
@@ -127,7 +127,7 @@
 ### [`scripts/generate_relic_icons.py`](scripts/generate_relic_icons.py)
 > *Draw one icon per relic in src/data/equipment.json into assets/sprites/ui/relic_<id>.png,*
 
-**Size**: `426` lines (`22087` bytes)
+**Size**: `427` lines (`22124` bytes)
 
 **Functions:**
 - `def _diagonal_blade(d, tip, hilt, half_width, fill, edge, guard, grip, pommel)` - *A straight blade from hilt to tip with a crossguard, grip and pommel.*
