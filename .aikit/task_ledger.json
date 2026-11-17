@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "music-muse",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1794903637.7398338,
     "owner": "kilo:1",
     "started_by": "kilo:1",
@@ -14,38 +14,12 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ]
+    ],
+    "completed_at": 1794903705.0847623,
+    "completed_head": "63ec340f8bf30240712d54c8ec1da6f23c7fdc1c",
+    "completed_tree": "e47adcd2e2ce8e4fdfe69f9af3c68858ffa50dce"
   },
   "checkpoints": [
-    {
-      "task_id": "memories-locations",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Sealed memory fragments now say where they wait: fragmentHabitat(id) maps a fragment's biome to its readable name and memoriesProgress(owned) counts recovered fragments and restored cores against the real totals. The Memories tab gains a progress line and a 'Not yet found - the <biome>' hint under each sealed fragment. Failing-first: tests/memories-locations.test.ts (5 cases).",
-      "files_affected": [
-        "src/sim/content.ts",
-        "src/ui/Screens.ts",
-        "src/ui/ui.css",
-        "tests/memories-locations.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794856761.5964682,
-      "timestamp_str": "2026-11-16 22:19:21",
-      "agent": "kilo:1",
-      "impact_assessment": {
-        "why": "A sealed fragment was three dots with no clue where to look, and the tab never said how much of the lore was left.",
-        "benefits": "Players get a route hint per missing fragment and an honest count of what remains.",
-        "risks": "contract: none (read-only helpers); dependency: none; concurrency: none; state: no saved shape change; UI: sealed rows gain a second line.",
-        "mitigation": "Pure tests over every fragment, a phantom-id case, the palette contrast floor, and browser checks at desktop and phone widths."
-      },
-      "plan_digest": "1672c5ee11ff29df70b3b7ca08d6f2b16e9f00e2627b734e90ffd8af5f62643e",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "memories-locations",
       "phase": "phase 4",
@@ -620,6 +594,23 @@
           "path": "projects/MemoryReconstruction"
         }
       ]
+    },
+    {
+      "task_id": "music-muse",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'music-muse' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794903705.1563036,
+      "timestamp_str": "2026-11-17 11:21:45",
+      "agent": "kilo:1",
+      "head": "63ec340f8bf30240712d54c8ec1da6f23c7fdc1c",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
