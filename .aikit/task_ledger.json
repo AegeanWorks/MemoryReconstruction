@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794890447.7888355,
+    "updated_at": 1794894414.6449122,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,40 +17,6 @@
     ]
   },
   "checkpoints": [
-    {
-      "task_id": "bestiary-codex",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: 97 bestiary entries with 25 guardians sorted after the mobs; first sight marks a species seen and its field-guide line; 3 seeded ids read 3/97 while 94 stay sealed; phantom ids are ignored and old saves default to an empty record. 947 tests across 200 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720 and 390x844: tabs switch panels, 97 cards (25 guardian), 358.8px panel ending 374.4px with no overflow, 0 console errors. Screenshots and the ADR-229/cycle-103 docs written; UI task still to be closed on the committed surface.",
-      "files_affected": [
-        ".aikit/codebase_map.md",
-        ".aikit/decisions.md",
-        ".aikit/task_ledger.json",
-        ".aikit/task_ledger_archive.jsonl",
-        "README.md",
-        "docs/IMPROVEMENT_CYCLES.md",
-        "docs/UI_REVIEW.md",
-        "src/app/App.ts",
-        "src/save/SaveStore.ts",
-        "src/sim/content.ts",
-        "src/ui/Screens.ts",
-        "src/ui/ui.css",
-        "docs/qa/cycle103-bestiary-1280x720.png",
-        "docs/qa/cycle103-bestiary-390x844.png",
-        "tests/bestiary.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794849111.0373778,
-      "timestamp_str": "2026-11-16 20:11:51",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "bestiary-codex",
       "phase": "completed",
@@ -604,6 +570,38 @@
       "status": "in_progress",
       "timestamp": 1794890447.7888355,
       "timestamp_str": "2026-11-17 07:40:47",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "gear-and-limits",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[3/4] Verified: five relics are weapon-locked (Echo Dagger/sword, Duelist Mantle and Storm Dial/spear, Void Cleaver and Colossus Plate/greatsword); locked relics drop out of the live set so their mods and set bonuses vanish until the stance matches, while the worn slot keeps the item; equipItem refuses with a notice; the bag card reads Needs/Active with the <stance> stance and disables Equip accordingly; a stance switch recomputes stats. In Edge at 1280x720 the card showed NEEDS THE SPEAR STANCE with a dimmed Equip under a sword, then ACTIVE WITH THE SPEAR STANCE and enabled Equip after switching to stance 2. 1009 tests across 210 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        "README.md",
+        "assets/data/equipment.json",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "src/data/equipment.json",
+        "src/sim/equipment.ts",
+        "src/sim/player.ts",
+        "src/sim/world.ts",
+        "src/ui/Screens.ts",
+        "docs/qa/cycle112-weapon-locked-1280x720.png",
+        "tests/weapon-locked-relics.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794894414.6449122,
+      "timestamp_str": "2026-11-17 08:46:54",
       "agent": "kilo:1",
       "checklists": "passed",
       "workspaces": [

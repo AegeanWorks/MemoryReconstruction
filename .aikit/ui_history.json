@@ -1498,5 +1498,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "9e2dac6386cf4c7dd5c7439153d3f7c02da1df7f11c5cbb17c28453a3d246346",
     "baseline_digest": "9e2dac6386cf4c7dd5c7439153d3f7c02da1df7f11c5cbb17c28453a3d246346"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the committed weapon-locked relic card in Edge at 1280x720: Needs/Active stance lines, Equip disabled on mismatch and enabled on match, helm on the doll, 0 console errors.",
+    "baseline_commit": "a6a15e06deee200f85181beb5c5611c0bd7352b0",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794894446.2032216,
+    "finished_at": 1794894464.400945,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "455363a4753ca955874b4346fa662ac3afbbb87b716a3fce6aa39787079cc8bd",
+    "baseline_digest": "455363a4753ca955874b4346fa662ac3afbbb87b716a3fce6aa39787079cc8bd"
   }
 ]
