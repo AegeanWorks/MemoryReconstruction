@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "gear-and-limits",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1794896605.8195555,
     "owner": "kilo:1",
     "started_by": "kilo:1",
@@ -14,42 +14,12 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ]
+    ],
+    "completed_at": 1794898443.8358142,
+    "completed_head": "776e0f867f43701cdd877e8c5c67dd0cae78dd91",
+    "completed_tree": "254e2a365f5cad7d6823473b5ddf04cc3b37e2b1"
   },
   "checkpoints": [
-    {
-      "task_id": "bestiary-depth",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Give the codex depth: bestiaryKills counts every defeat per species and each recorded card reads Defeated xN; bestiaryProgress reports recorded/total/complete against the real 97 species; filterBestiary switches All / Recorded / Sealed / Guardians through a filter bar; the complete codex shows a whole-codex line once and pays a one-time 1000 echoes protected by Meta.codexReward. Failing-first: tests/bestiary-depth.test.ts (5 cases).",
-      "files_affected": [
-        "src/app/App.ts",
-        "src/save/SaveStore.ts",
-        "src/sim/content.ts",
-        "src/ui/Screens.ts",
-        "src/ui/ui.css",
-        "docs/qa/cycle104-bestiary-390x844.png",
-        "docs/qa/cycle104-bestiary-complete-1280x720.png",
-        "tests/bestiary-depth.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794852048.0527425,
-      "timestamp_str": "2026-11-16 21:00:48",
-      "agent": "kilo:1",
-      "impact_assessment": {
-        "why": "The codex listed species but said nothing about how often each was met, could not be narrowed to what remains, and recording all 97 paid nothing.",
-        "benefits": "Kill counts give the codex progression weight, four filters make 97 cards navigable, and finishing the codex is a visible, rewarded goal.",
-        "risks": "contract: Meta gains bestiaryKills and codexReward (both defaulted); dependency: none; concurrency: none; state: old saves default empty counters and an unclaimed reward; UI: a filter bar and a per-card kill line.",
-        "mitigation": "Schema defaults, phantom-id-safe progress counting, a 5-case suite, and browser checks at 1280x720 and 390x844 before the UI task closes."
-      },
-      "plan_digest": "e3152255cdd8447ee9e3242905c1c115a4e883885788de60e2a8114594f0354e",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "bestiary-depth",
       "phase": "phase 4",
@@ -631,6 +601,23 @@
           "path": "projects/MemoryReconstruction"
         }
       ]
+    },
+    {
+      "task_id": "gear-and-limits",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'gear-and-limits' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794898443.9118989,
+      "timestamp_str": "2026-11-17 09:54:03",
+      "agent": "kilo:1",
+      "head": "776e0f867f43701cdd877e8c5c67dd0cae78dd91",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
