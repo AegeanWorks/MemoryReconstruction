@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794865624.3384202,
+    "updated_at": 1794890447.7888355,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,38 +17,6 @@
     ]
   },
   "checkpoints": [
-    {
-      "task_id": "bestiary-codex",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/2] Add a Bestiary tab to the Memories codex: every one of the 97 enemy records is listed with regular enemies before guardians, a first kill stores the def id in Meta.bestiary and announces itself, and a recorded species reveals its field-guide line while unknown ones stay sealed. bestiaryEntries sorts and filters phantom saved ids; memoriesScreen takes the saved record and switches panels through Memories/Bestiary tabs. Failing-first: tests/bestiary.test.ts (5 cases).",
-      "files_affected": [
-        "README.md",
-        "src/app/App.ts",
-        "src/save/SaveStore.ts",
-        "src/sim/content.ts",
-        "src/ui/Screens.ts",
-        "src/ui/ui.css",
-        "tests/bestiary.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794848116.7337315,
-      "timestamp_str": "2026-11-16 19:55:16",
-      "agent": "kilo:1",
-      "impact_assessment": {
-        "why": "The Memories screen only showed lore, so the 97 defeated species had no codex and a first kill said nothing about the record it created.",
-        "benefits": "Players can see what they have met, guardians are separated from mobs, unknown entries tease the deep, and the first kill is announced and persisted.",
-        "risks": "contract: Meta gains bestiary (defaults []); dependency: none; concurrency: none; state: old saves default the empty record; UI: the Memories screen gains a second panel and tab row.",
-        "mitigation": "Schema default plus phantom-id filtering, a 5-case suite, source/CSS wiring assertions, and browser checks at desktop and phone widths before the UI task closes."
-      },
-      "plan_digest": "297067f6bd028a3ec47d6eb2f20552f6c2764d452be0d8cdfce2c21f788882b1",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "bestiary-codex",
       "phase": "phase 4",
@@ -602,6 +570,40 @@
       "status": "in_progress",
       "timestamp": 1794865624.3384202,
       "timestamp_str": "2026-11-17 00:47:04",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "gear-and-limits",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/4] Verified: all four head relics have distinct silhouettes (hood, helm, circlet, visor) and gearLooks reports them; a seeded iron helm and oracle circlet each drew their own shape on the head in Edge, with an ember cape re-colouring the cloak in the same frame; sword reach is now 60/62/71 and greatsword 75/86 while the spear stays longest at 86/102. 1002 tests across 209 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        "README.md",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "src/sim/weapons.ts",
+        "src/view/ActorView.ts",
+        "src/view/gearLook.ts",
+        "tests/gear-look.test.ts",
+        "docs/qa/cycle111-headwear-circlet-cape.png",
+        "docs/qa/cycle111-headwear-circlet-zoom.png",
+        "docs/qa/cycle111-headwear-helm-1280x720.png",
+        "docs/qa/cycle111-headwear-helm-crop.png",
+        "docs/qa/cycle111-headwear-view.png",
+        "tests/headwear-blades.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794890447.7888355,
+      "timestamp_str": "2026-11-17 07:40:47",
       "agent": "kilo:1",
       "checklists": "passed",
       "workspaces": [

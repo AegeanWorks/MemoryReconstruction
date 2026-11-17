@@ -1477,5 +1477,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "1c524c9daf8eb7effb38a9b8cf4874c72c84a630a6ad54d8483f321dd665cac8",
     "baseline_digest": "1c524c9daf8eb7effb38a9b8cf4874c72c84a630a6ad54d8483f321dd665cac8"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the committed headwear silhouettes in Edge at 1280x720: iron helm and oracle circlet render distinct shapes on the head, ember cape recolours the cloak, no overflow, 0 console errors.",
+    "baseline_commit": "51b4088ae967d5b4aa984482ed4ea15598bdca58",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794890504.5885668,
+    "finished_at": 1794890519.8125596,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "9e2dac6386cf4c7dd5c7439153d3f7c02da1df7f11c5cbb17c28453a3d246346",
+    "baseline_digest": "9e2dac6386cf4c7dd5c7439153d3f7c02da1df7f11c5cbb17c28453a3d246346"
   }
 ]
