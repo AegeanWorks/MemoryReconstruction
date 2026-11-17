@@ -1582,5 +1582,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "ace5b91270fb6fe58a02b7f6e3f37e23081202adb65997578a4a8cf72ae83c22",
     "baseline_digest": "ace5b91270fb6fe58a02b7f6e3f37e23081202adb65997578a4a8cf72ae83c22"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the soundtrack wiring and the menu exception in Edge at 1280x720: fallback ambience carries a Section 25 run with 0 console errors; menu and Sanctuary keep procedural ambience; dry-run planned 33 tracks and the real run refused to fake audio without keys.",
+    "baseline_commit": "72a4b9537cd7077c3ac34c0787e9338a8a1a9921",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794903677.4738867,
+    "finished_at": 1794903696.2236922,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "7f2174b24603ae9c0e9b462caa6c29f36c0bc1dda1e34db323200db51f72855c",
+    "baseline_digest": "7f2174b24603ae9c0e9b462caa6c29f36c0bc1dda1e34db323200db51f72855c"
   }
 ]

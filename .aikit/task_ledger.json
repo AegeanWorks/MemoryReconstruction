@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "world-and-levels",
+    "task_id": "music-muse",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1794903592.4903946,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1794903637.7398338,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -14,29 +14,9 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ],
-    "completed_at": 1794903617.6446714,
-    "completed_head": "bdff20f55a8984b4858a6cf20d9f2246793679a5",
-    "completed_tree": "678fb334b4f75d5c032de44793bc7199d4d27c99"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "bestiary-habitats",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'bestiary-habitats' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794855799.358986,
-      "timestamp_str": "2026-11-16 22:03:19",
-      "agent": "kilo:1",
-      "head": "186e9468ffb2888b908e3489358e0b7ad96635bc",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "memories-locations",
       "phase": "phase 2",
@@ -622,6 +602,24 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "music-muse",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Soundtrack complete: 33 tracks in one manifest (ambient and battle per biome plus a guardian theme), playMusic/stopMusic with cached decode, looping, 1.6s crossfade, a missing-URL memo and a procedural fallback so no room is ever silent; App switches battle/ambient on roomLocked/roomCleared and the guardian theme on bossIntro, while the title and Sanctuary keep the procedural ambience the player likes; scripts/generate_music.py writes the Muse manifest and batch, renders only missing tracks and refuses to fake audio without provider keys. 1054 tests across 218 files, lint/typecheck/build clean. Verified in Edge: a Section 25 run loads with the fallback and 0 console errors; dry-run planned all 33 tracks; the real run exited 1 with a Why/Fix instead of writing placeholder audio.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794903637.7398338,
+      "timestamp_str": "2026-11-17 11:20:37",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
     }
   ]
 }
