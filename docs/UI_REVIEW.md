@@ -494,3 +494,11 @@ The running build was driven in Edge at **1280x720**.
 - **Behaviour**: hangings sat on the wall face beneath the actor layer, with no collision or pathing change.
 - **Console**: 0 errors.
 Captures: `docs/qa/cycle115-door-hangings.png`.
+## 2026-11-17 review: the Chitin and Thunder vaults (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720**.
+- **Chitin Vault**: a run at depth 23 loaded "Section 24 · The Chitin Vault" with the hive honeycomb floor, the waystone,
+  wayfarer and doorway hangings all present.
+- **Thunder Vault**: a run at depth 24 loaded "Section 25 · The Thunder Vault" cleanly.
+- **Console**: 0 errors.
+Captures: `docs/qa/cycle116-chitin-vault.png`, `cycle116-thunder-vault.png`.

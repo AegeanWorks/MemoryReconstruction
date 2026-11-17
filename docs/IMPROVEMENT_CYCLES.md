@@ -4626,3 +4626,20 @@ In Edge at 1280x720 a Section 1 start room showed a mirrored pair of blue banner
 the south wall face, with no collision change and 0 console errors. Screenshot `docs/qa/cycle115-door-hangings.png`.
 ### Gate results
 See the task summary.
+## Cycle 116 - Two vaults extend the descent
+### FIND
+The late road ended at the Salt Orchard two floors before the Sanctuary, and the hive and storm biomes only appeared
+mid-run; the player asked for more levels.
+### IMPLEMENT
+- `src/data/enemies.json` (+ mirror): `chitin_sovereign` and `storm_sovereign` boss records.
+- `src/sim/content.ts`: archetypes, sprite keys and tints for both, plus **The Chitin Vault** (depth 23) and **The Thunder
+  Vault** (depth 24) with their rosters; Sanctuary and finale shift to 25/26.
+- `src/sim/run.ts`: `RUN_VERSION = 2` and a version-1 depth migration for saves at or past the old Sanctuary.
+- `src/sim/quests.ts`: the Keeper's Gate asks for section 26 and the depth bonus cap moves with it.
+- Tests: `extra-vaults` (11), with every hardcoded final depth in the suite replaced by `FINAL_DEPTH`.
+### RECORD
+In Edge at 1280x720 a version-2 run at depth 23 loaded "Section 24 · The Chitin Vault" on its honeycomb floor and a run at
+depth 24 loaded "Section 25 · The Thunder Vault", both with the HUD live and 0 console errors. Screenshots
+`docs/qa/cycle116-chitin-vault.png`, `cycle116-thunder-vault.png`.
+### Gate results
+See the task summary.

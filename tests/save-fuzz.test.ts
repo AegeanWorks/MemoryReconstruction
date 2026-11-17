@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createRun, restoreRun } from '../src/sim/run';
+import { FINAL_DEPTH } from '../src/sim/content';
 import { SaveStore, defaultMeta, type KeyValueStore } from '../src/save/SaveStore';
 
 class MemoryStore implements KeyValueStore {
@@ -45,9 +46,12 @@ const WEIRD: unknown[] = [
 
 /** Applies random damage to a deep copy of `base`: delete, replace, or corrupt a leaf. */
 function mutate(base: unknown, random: () => number, depth = 0): unknown {
-  if (random() < 0.06 || depth > 5) return structuredClone(WEIRD[Math.floor(random() * WEIRD.length)]);
+  if (random() < 0.06 || depth > 5)
+    return structuredClone(WEIRD[Math.floor(random() * WEIRD.length)]);
   if (Array.isArray(base)) {
-    const out = base.map((v) => (random() < 0.25 ? mutate(v, random, depth + 1) : structuredClone(v)));
+    const out = base.map((v) =>
+      random() < 0.25 ? mutate(v, random, depth + 1) : structuredClone(v)
+    );
     if (random() < 0.15) out.splice(Math.floor(random() * (out.length + 1)), 1);
     if (random() < 0.1) out.push(mutate(undefined, random, depth + 1));
     return out;
@@ -74,7 +78,7 @@ function assertUsableRun(run: ReturnType<typeof restoreRun>, seed: number): void
   expect(Number.isFinite(run.depth), `seed ${seed}: depth`).toBe(true);
   expect(Number.isInteger(run.depth), `seed ${seed}: integer depth`).toBe(true);
   expect(run.depth, `seed ${seed}: depth in range`).toBeGreaterThanOrEqual(0);
-  expect(run.depth, `seed ${seed}: depth in range`).toBeLessThanOrEqual(24);
+  expect(run.depth, `seed ${seed}: depth in range`).toBeLessThanOrEqual(FINAL_DEPTH);
   expect(Array.isArray(p.inventory), `seed ${seed}: inventory`).toBe(true);
   expect(Array.isArray(run.pendingChoices), `seed ${seed}: pendingChoices`).toBe(true);
   expect(Array.isArray(run.fragmentsFound), `seed ${seed}: fragmentsFound`).toBe(true);
@@ -92,12 +96,12 @@ describe('depth is kept to a real section', () => {
   };
 
   it('clamps absurd, fractional and negative depths', () => {
-    expect(withDepth(1e300)!.depth).toBe(24);
-    expect(withDepth(Number.MAX_SAFE_INTEGER)!.depth).toBe(24);
+    expect(withDepth(1e300)!.depth).toBe(FINAL_DEPTH);
+    expect(withDepth(Number.MAX_SAFE_INTEGER)!.depth).toBe(FINAL_DEPTH);
     expect(withDepth(3.7)!.depth).toBe(3);
     expect(withDepth(-5)!.depth).toBe(0);
     expect(withDepth(0)!.depth).toBe(0);
-    expect(withDepth(24)!.depth).toBe(24);
+    expect(withDepth(FINAL_DEPTH)!.depth).toBe(FINAL_DEPTH);
   });
 
   it('rejects a snapshot whose depth is not a number at all', () => {
@@ -133,7 +137,8 @@ describe('save loader survives corrupted snapshots', () => {
       const mutated = mutate(JSON.parse(JSON.stringify(defaultMeta())), random);
       const damaged = mutated === undefined ? undefined : JSON.parse(JSON.stringify(mutated));
       const store = new MemoryStore();
-      if (damaged !== undefined) store.setItem('memory-reconstruction.meta.v1', JSON.stringify(damaged));
+      if (damaged !== undefined)
+        store.setItem('memory-reconstruction.meta.v1', JSON.stringify(damaged));
       let meta: ReturnType<SaveStore['loadMeta']>;
       expect(() => {
         meta = new SaveStore(store).loadMeta();

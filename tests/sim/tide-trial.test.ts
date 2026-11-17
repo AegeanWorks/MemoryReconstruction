@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { FLOOR_PLANS, FloorPlanSchema, arenaBossFor, enemyDef } from '../../src/sim/content';
+import {
+  FINAL_DEPTH,
+  FLOOR_PLANS,
+  FloorPlanSchema,
+  arenaBossFor,
+  enemyDef,
+} from '../../src/sim/content';
 import { checkpointDepths, createExpedition } from '../../src/sim/hub';
 import { defaultMeta } from '../../src/save/SaveStore';
 import { roomCentrePx } from '../../src/sim/dungeon';
@@ -16,17 +22,17 @@ describe('drowned court trial', () => {
   });
 
   it('adds the tide trial before the sanctuary finale', () => {
-    expect(FLOOR_PLANS).toHaveLength(25);
+    expect(FLOOR_PLANS).toHaveLength(FINAL_DEPTH + 1);
     const trial = FLOOR_PLANS[20];
     expect(trial.boss).toBe('abyssal_revenant');
     expect(trial.bossOnly).toBe(true);
     expect(trial.roster).toEqual([]);
     expect(trial.roomCount).toBe(1);
     expect(trial.trialName).toContain('Drowned Court');
-    expect(FLOOR_PLANS[23].finale).toBe(false);
-    expect(FLOOR_PLANS[23].boss).toBe('keeper');
-    expect(FLOOR_PLANS[24].finale).toBe(true);
-    expect(FLOOR_PLANS[24].boss).toBe('first_memory');
+    expect(FLOOR_PLANS[FINAL_DEPTH - 1].finale).toBe(false);
+    expect(FLOOR_PLANS[FINAL_DEPTH - 1].boss).toBe('keeper');
+    expect(FLOOR_PLANS[FINAL_DEPTH].finale).toBe(true);
+    expect(FLOOR_PLANS[FINAL_DEPTH].boss).toBe('first_memory');
   });
 
   it('wires the new boss through data, sprite and pattern tables', () => {
@@ -39,7 +45,7 @@ describe('drowned court trial', () => {
   });
 
   it('keeps checkpoints consistent and shares the new boss with mid-floor arenas', () => {
-    expect(checkpointDepths()).toEqual([0, 3, 6, 9, 12, 15, 18, 21, 24]);
+    expect(checkpointDepths()).toEqual([0, 3, 6, 9, 12, 15, 18, 21, 24, FINAL_DEPTH]);
     for (let depth = 0; depth < FLOOR_PLANS.length; depth++) {
       const boss = arenaBossFor(depth);
       expect(boss).not.toBe('mirror_self');

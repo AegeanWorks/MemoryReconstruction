@@ -13,11 +13,31 @@ const main = readFileSync(join(root, 'src/main.ts'), 'utf8');
 const agentGuide = readFileSync(join(root, 'docs/AI_AGENT_GUIDE.md'), 'utf8');
 
 const json = (path: string): Record<string, unknown> =>
-  JSON.parse(readFileSync(join(root, path), 'utf8').replace(/^\uFEFF/, '')) as Record<string, unknown>;
+  JSON.parse(readFileSync(join(root, path), 'utf8').replace(/^\uFEFF/, '')) as Record<
+    string,
+    unknown
+  >;
 
 const ONES = [
-  'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
-  'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen',
+  'zero',
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'ten',
+  'eleven',
+  'twelve',
+  'thirteen',
+  'fourteen',
+  'fifteen',
+  'sixteen',
+  'seventeen',
+  'eighteen',
   'nineteen',
 ];
 const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
@@ -71,7 +91,7 @@ describe('README counts match the data', () => {
   });
 
   it('lists exactly the checkpoints the code unlocks', () => {
-    expect(checkpoints).toHaveLength(9);
+    expect(checkpoints).toHaveLength(checkpointDepths().length);
     expect(readme).toContain(
       `Sections ${oxford(checkpoints.map((n) => String(n)))} unlock as start points`
     );

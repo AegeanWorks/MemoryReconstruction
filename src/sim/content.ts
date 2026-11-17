@@ -171,6 +171,8 @@ const ARCHETYPES: Record<string, Archetype> = {
   teleport: 'teleporter',
   boss: 'boss',
   final_boss: 'boss',
+  chitin_sovereign: 'boss',
+  storm_sovereign: 'boss',
   // Cycle 109 archetypes.
   laser_warden: 'caster',
   stomper: 'brute',
@@ -287,6 +289,8 @@ const SPRITE_KEYS: Record<string, string> = {
   cinder_stalker: 'briarWolf',
   spire_marksman: 'harborGunner',
   reliquary_warden: 'guardian',
+  chitin_sovereign: 'hiveQueen',
+  storm_sovereign: 'stormWarlord',
   salt_orchard_hydra: 'thornMatriarch',
   // Cycle 109: new behaviours reuse existing sheets with a tint.
   prism_lancer: 'crystalGuardian',
@@ -350,6 +354,8 @@ const ENEMY_TINTS: Record<string, number> = Object.fromEntries(
     cinder_stalker: 0xff9050,
     spire_marksman: 0xbfd9ff,
     reliquary_warden: 0xffd27a,
+    chitin_sovereign: 0xd8c070,
+    storm_sovereign: 0xa8c8ff,
     salt_orchard_hydra: 0xa8e0b0,
   }).map(([id, color]) => [id, pastel(color)])
 );
@@ -759,6 +765,44 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
   },
   {
     depth: 23,
+    biome: 'hive',
+    roster: [
+      'hive_drone',
+      'hive_guard',
+      'hive_slinger',
+      'hive_oracle',
+      'wax_crawler',
+      'mire_warden',
+      'bog_spitter',
+      'cinder_stalker',
+    ],
+    boss: 'chitin_sovereign',
+    roomCount: 13,
+    finale: false,
+    layout: 'clover',
+    trialName: 'The Chitin Vault',
+  },
+  {
+    depth: 24,
+    biome: 'storm',
+    roster: [
+      'storm_squire',
+      'gale_archer',
+      'thunder_brute',
+      'tempest_oracle',
+      'spire_marksman',
+      'prism_lancer',
+      'quake_colossus',
+      'brine_charger',
+    ],
+    boss: 'storm_sovereign',
+    roomCount: 13,
+    finale: false,
+    layout: 'spire',
+    trialName: 'The Thunder Vault',
+  },
+  {
+    depth: 25,
     biome: 'sanctuary',
     roster: [
       'first_echo',
@@ -775,7 +819,7 @@ export const FLOOR_PLANS: readonly FloorPlan[] = parsePlans([
     layout: 'branch',
   },
   {
-    depth: 24,
+    depth: 26,
     biome: 'void',
     roster: ['first_echo', 'obsidian_reaver', 'void_walker', 'memory_echo'],
     boss: 'first_memory',

@@ -24,7 +24,7 @@ describe('Cycle 100 content additions', () => {
     expect(FLOOR_PLANS.map((plan) => plan.depth)).toEqual(
       Array.from({ length: FINAL_DEPTH + 1 }, (_, i) => i)
     );
-    expect(FINAL_DEPTH).toBe(24);
+    expect(FINAL_DEPTH).toBe(26);
   });
 
   it('extends the late road with two distinct trials before the Keeper', () => {
@@ -37,8 +37,8 @@ describe('Cycle 100 content additions', () => {
     expect(reliquary.roster).toContain('bone_picker');
     expect(reliquary.roster).toContain('spire_marksman');
     expect(orchard.roster).toContain('lantern_wraith');
-    expect(FLOOR_PLANS[23].boss).toBe('keeper');
-    expect(FLOOR_PLANS[24].boss).toBe('first_memory');
+    expect(FLOOR_PLANS[25].boss).toBe('keeper');
+    expect(FLOOR_PLANS[26].boss).toBe('first_memory');
   });
 
   it('gives the new guardians boss-scale frames and real attack patterns', () => {

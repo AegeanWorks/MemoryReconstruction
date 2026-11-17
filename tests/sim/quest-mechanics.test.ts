@@ -77,15 +77,13 @@ describe('quest mechanics', () => {
     expect(questBonusReached(kills, snap({ kills: bonus.target - 1 }))).toBe(false);
 
     const depth = QUESTS.find((quest) => quest.id === 'keepers_gate')!;
-    expect(questBonus(depth)!.target).toBe(24); // capped at FINAL_DEPTH
+    expect(questBonus(depth)!.target).toBe(26); // capped at FINAL_DEPTH
     const garden = QUESTS.find((quest) => quest.id === 'whole_garden')!;
     expect(questBonus(garden)!.target).toBe(12); // capped at total restorations
   });
 
   it('labels chapters in order', () => {
-    expect(questChapterLabel(QUESTS.find((quest) => quest.id === 'names')!)).toBe(
-      'Chapter 1 of 3'
-    );
+    expect(questChapterLabel(QUESTS.find((quest) => quest.id === 'names')!)).toBe('Chapter 1 of 3');
     expect(questChapterLabel(QUESTS.find((quest) => quest.id === 'index_complete')!)).toBe(
       'Chapter 3 of 3'
     );
@@ -98,10 +96,11 @@ describe('quest mechanics', () => {
     expect(entries).toHaveLength(Object.keys(NPCS).length);
     const smith = entries.find((entry) => entry.npcId === 'smith')!;
     expect(smith.accepted).toBe(false);
-    const claimed = { ...meta, quests: { ...meta.quests, claimed: questsForNpcList('smith').map((q) => q.id) } };
-    expect(
-      questBoardEntries(claimed, s).some((entry) => entry.npcId === 'smith')
-    ).toBe(false);
+    const claimed = {
+      ...meta,
+      quests: { ...meta.quests, claimed: questsForNpcList('smith').map((q) => q.id) },
+    };
+    expect(questBoardEntries(claimed, s).some((entry) => entry.npcId === 'smith')).toBe(false);
     const accepted = {
       ...meta,
       quests: { ...meta.quests, accepted: [smith.quest.id] },

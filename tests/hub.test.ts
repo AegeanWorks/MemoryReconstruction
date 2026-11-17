@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { FINAL_DEPTH } from '../src/sim/content';
 import {
   CAIRN_COST,
   CAIRN_MAX,
@@ -39,7 +40,7 @@ function progress(overrides: Partial<SanctuaryProgress> = {}): SanctuaryProgress
 
 describe('Sanctuary hub', () => {
   it('offers every third section plus the last as a checkpoint', () => {
-    expect(checkpointDepths()).toEqual([0, 3, 6, 9, 12, 15, 18, 21, 24]);
+    expect(checkpointDepths()).toEqual([0, 3, 6, 9, 12, 15, 18, 21, 24, FINAL_DEPTH]);
     expect(checkpointForDepth(0)).toBe(0);
     expect(checkpointForDepth(2)).toBe(0);
     expect(checkpointForDepth(3)).toBe(3);
@@ -138,7 +139,7 @@ describe('Sanctuary hub', () => {
 
   it('clamps a checkpoint beyond the last section', () => {
     const run = createExpedition(1, [], 99, progress());
-    expect(run.depth).toBe(24);
+    expect(run.depth).toBe(FINAL_DEPTH);
   });
 });
 

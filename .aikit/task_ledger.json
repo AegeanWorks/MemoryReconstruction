@@ -5,7 +5,7 @@
     "last_phase": "phase 4",
     "active_phase": 4,
     "status": "in_progress",
-    "updated_at": 1794899659.6363368,
+    "updated_at": 1794901744.4741254,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -17,23 +17,6 @@
     ]
   },
   "checkpoints": [
-    {
-      "task_id": "bestiary-depth",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'bestiary-depth' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794853154.5962355,
-      "timestamp_str": "2026-11-16 21:19:14",
-      "agent": "kilo:1",
-      "head": "e5aa31506e6372bed1a579771e1d90aae94c2b66",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "bestiary-habitats",
       "phase": "phase 2",
@@ -601,6 +584,47 @@
       "status": "in_progress",
       "timestamp": 1794899659.6363368,
       "timestamp_str": "2026-11-17 10:14:19",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "world-and-levels",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[2/3] Two new vaults: The Chitin Vault (hive, depth 23) and The Thunder Vault (storm, depth 24) with new chitin_sovereign and storm_sovereign bosses, pushing the Sanctuary to 25 and the finale to 26 for 27 sections, 104 species and 27 bosses. RunState.version becomes 2 and a version-1 save at or past the old Sanctuary shifts forward two floors so it keeps its place. Checkpoints now reach 26 and the Keeper's Gate asks for 26. 1040 tests across 217 files, lint/typecheck/build clean. Edge at 1280x720: Section 24 Chitin Vault and Section 25 Thunder Vault both load with 0 console errors.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        "README.md",
+        "assets/data/enemies.json",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "src/data/enemies.json",
+        "src/sim/content.ts",
+        "src/sim/quests.ts",
+        "src/sim/run.ts",
+        "tests/content-expansion.test.ts",
+        "tests/docs-claims.test.ts",
+        "tests/hub.test.ts",
+        "tests/save-fuzz.test.ts",
+        "tests/sim/content.test.ts",
+        "tests/sim/enemy-archetypes.test.ts",
+        "tests/sim/frontier-content.test.ts",
+        "tests/sim/quest-mechanics.test.ts",
+        "tests/sim/tide-trial.test.ts",
+        "docs/qa/cycle116-chitin-vault.png",
+        "docs/qa/cycle116-thunder-vault.png",
+        "tests/extra-vaults.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794901744.4741254,
+      "timestamp_str": "2026-11-17 10:49:04",
       "agent": "kilo:1",
       "checklists": "passed",
       "workspaces": [

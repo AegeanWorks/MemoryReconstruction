@@ -119,9 +119,21 @@ export function resonanceMultiplier(count: number): number {
 /** Story hits softer and the walker hits harder; nightmare is the reverse. */
 export type Difficulty = 'story' | 'normal' | 'nightmare';
 
+/** Bumped when a saved run needs migrating; see `restoreRun`. */
+export const RUN_VERSION = 2 as const;
+/** The section number the Sanctuary sat at before the two vaults were added. */
+const SANCTUARY_DEPTH_V1 = 23;
+/** Floors added ahead of the Sanctuary in version 2. */
+const LATER_FLOORS_ADDED = 2;
+
+/** True for every save version `restoreRun` knows how to bring forward. */
+function isSupportedVersion(version: unknown): boolean {
+  return version === 1 || version === RUN_VERSION;
+}
+
 export interface RunState {
-  /** Bumped when the shape changes, so old saves are rejected rather than misread. */
-  version: 1;
+  /** Bumped when the shape changes, so old saves are migrated or rejected. */
+  version: 1 | 2;
   seed: number;
   depth: number;
   /** Difficulty chosen for this expedition; old saves default to normal. */
@@ -161,7 +173,7 @@ export function createRun(
   difficulty: Difficulty = 'normal'
 ): RunState {
   return {
-    version: 1,
+    version: RUN_VERSION,
     seed: seed >>> 0,
     depth: 0,
     difficulty,
@@ -268,7 +280,7 @@ export function restoreRun(data: unknown): RunState | undefined {
   if (!data || typeof data !== 'object') return undefined;
   const run = data as RunState;
   if (
-    run.version !== 1 ||
+    !isSupportedVersion(run.version) ||
     typeof run.seed !== 'number' ||
     !run.player ||
     typeof run.depth !== 'number'
@@ -278,6 +290,12 @@ export function restoreRun(data: unknown): RunState | undefined {
   // Depth drives the floor plan, the section label and the score. A hand-edited or truncated
   // save can carry a fractional, negative or absurd number, and 1e300 loaded fine but rendered
   // "Section 1e+300" in the HUD, so keep it to a real section.
+  // Two vaults were added ahead of the Sanctuary in version 2, which moved
+  // every later floor down two places. A version-1 save past the old layout
+  // keeps the floor it was standing on instead of landing two sections early.
+  if (run.version === 1 && Number.isFinite(run.depth) && run.depth >= SANCTUARY_DEPTH_V1)
+    run.depth += LATER_FLOORS_ADDED;
+  run.version = RUN_VERSION;
   run.depth = Number.isFinite(run.depth)
     ? Math.max(0, Math.min(Math.floor(run.depth), FINAL_DEPTH))
     : 0;

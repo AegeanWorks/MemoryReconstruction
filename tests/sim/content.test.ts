@@ -38,12 +38,16 @@ describe('content', () => {
     expect(enemyDef('guardian', true).maxHealth).toBeGreaterThan(enemyDef('guardian').maxHealth);
   });
 
-  it('grows the expedition to twenty-five sections including echo trials and colosseum', () => {
-    expect(FLOOR_PLANS).toHaveLength(25);
+  it('grows the expedition to twenty-seven sections including echo trials and colosseum', () => {
+    expect(FLOOR_PLANS).toHaveLength(27);
     expect(FLOOR_PLANS[23].finale).toBe(false);
-    expect(FLOOR_PLANS[23].boss).toBe('keeper');
-    expect(FLOOR_PLANS[24].finale).toBe(true);
-    expect(FLOOR_PLANS[24].boss).toBe('first_memory');
+    expect(FLOOR_PLANS[23].boss).toBe('chitin_sovereign');
+    expect(FLOOR_PLANS[24].finale).toBe(false);
+    expect(FLOOR_PLANS[24].boss).toBe('storm_sovereign');
+    expect(FLOOR_PLANS[25].finale).toBe(false);
+    expect(FLOOR_PLANS[25].boss).toBe('keeper');
+    expect(FLOOR_PLANS[26].finale).toBe(true);
+    expect(FLOOR_PLANS[26].boss).toBe('first_memory');
     expect(FLOOR_PLANS[21].trialName).toBe('The Gilded Reliquary');
     expect(FLOOR_PLANS[21].boss).toBe('reliquary_warden');
     expect(FLOOR_PLANS[22].trialName).toBe('The Salt Orchard');
