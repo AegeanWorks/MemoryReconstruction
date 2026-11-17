@@ -1603,5 +1603,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "7f2174b24603ae9c0e9b462caa6c29f36c0bc1dda1e34db323200db51f72855c",
     "baseline_digest": "7f2174b24603ae9c0e9b462caa6c29f36c0bc1dda1e34db323200db51f72855c"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed freezing enemies and ice floors in Edge at 1280x720: Frostbound Archive shows wall ice and floor patches, standing on a patch sets the HUD chip to Frozen, patches drain, 0 console errors.",
+    "baseline_commit": "7c83fccd713039fd53800132960228f1495683bc",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794904640.351053,
+    "finished_at": 1794904659.3788772,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "c03ae8084f4b75bb97aae92255f8a58da644327043fcbc216c4d95b7ffe4f60d",
+    "baseline_digest": "c03ae8084f4b75bb97aae92255f8a58da644327043fcbc216c4d95b7ffe4f60d"
   }
 ]
