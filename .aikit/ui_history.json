@@ -1561,5 +1561,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "175f3c1f6c90ea2aa3a38008e882e3c62c5e40f326d44968c0163c20aea1e2c4",
     "baseline_digest": "175f3c1f6c90ea2aa3a38008e882e3c62c5e40f326d44968c0163c20aea1e2c4"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the two new vaults in Edge at 1280x720: Section 24 Chitin Vault and Section 25 Thunder Vault load with the HUD, doorway hangings, and 0 console errors.",
+    "baseline_commit": "910755c435a5e8fd7b15971ad1f7fda0f485365f",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794901817.7692854,
+    "finished_at": 1794901835.803651,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "ace5b91270fb6fe58a02b7f6e3f37e23081202adb65997578a4a8cf72ae83c22",
+    "baseline_digest": "ace5b91270fb6fe58a02b7f6e3f37e23081202adb65997578a4a8cf72ae83c22"
   }
 ]
