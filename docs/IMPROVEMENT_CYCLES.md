@@ -4613,3 +4613,16 @@ In Edge at 1280x720 a Duelist Mantle painted the robe crimson from its icon whil
 Crystal Mail read as the icon's teal. Screenshot `docs/qa/cycle114-hood-untouched.png`.
 ### Gate results
 See the task summary.
+## Cycle 115 - Doorways framed by wall hangings
+### FIND
+Doorways were bare gaps, and the tapestry, banner and rug art only appeared in the Sanctuary.
+### IMPLEMENT
+- `src/sim/decor.ts`: `doorFace`, `hangingSpots`, `doorHangings` producing wall-layer hangings beside each door.
+- `src/sim/world.ts`: a `wall` decor layer with mirroring, a separate `decorRng` stream, and the start room always dressed.
+- `src/view/ActorView.ts`: wall hangings drawn flat against the wall face under actors.
+- Tests: `door-hangings` (8).
+### RECORD
+In Edge at 1280x720 a Section 1 start room showed a mirrored pair of blue banners framing the east doorway and a tapestry on
+the south wall face, with no collision change and 0 console errors. Screenshot `docs/qa/cycle115-door-hangings.png`.
+### Gate results
+See the task summary.

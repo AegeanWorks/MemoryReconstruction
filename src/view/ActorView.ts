@@ -264,6 +264,16 @@ export class ActorView {
         this.ground.addChildAt(sprite, 0);
         continue;
       }
+      if (item.layer === 'wall') {
+        // Doorway hangings are flat against the wall face: no shadow, no depth
+        // sort, and drawn under every actor so the cloth never hides a body.
+        sprite.anchor.set(0.5, 0.62);
+        sprite.width = sprite.height = item.size;
+        if (item.flip) sprite.scale.x *= -1;
+        sprite.position.set(item.x, item.y - 18);
+        this.ground.addChild(sprite);
+        continue;
+      }
       const propRoot = new Container();
       const shadow = makeShadow(item.size * 0.22);
       shadow.position.set(0, 4);

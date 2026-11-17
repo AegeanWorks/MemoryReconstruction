@@ -15,6 +15,7 @@ import {
   waveEnemyCount,
   type FloorPlan,
 } from './content';
+import { doorHangings } from './decor';
 import { generateFloor, roomAt, roomCentrePx, type FloorMap, type Room } from './dungeon';
 import {
   buildingById,
@@ -198,7 +199,8 @@ export class World implements Arena {
     y: number;
     prop: string;
     size: number;
-    layer?: 'ground';
+    layer?: 'ground' | 'wall';
+    flip?: boolean;
   }> = [];
   /**
    * The building whose interior this world is, if any. A Sanctuary interior
@@ -214,6 +216,8 @@ export class World implements Arena {
   time = 0;
   exited = false;
   victory = false;
+  /** Decoration-only randomness, kept apart from the gameplay stream. */
+  private decorRng = new Rng(0);
   private nextId = 1;
   private freeze = 0;
   private events: SimEvent[] = [];
@@ -282,6 +286,9 @@ export class World implements Arena {
       bossOnly: this.plan.bossOnly,
     });
     this.rng = new Rng(seed ^ 0x5bd1e995);
+    // Decoration rolls use their own stream, so a new hanging never shifts the
+    // gameplay rolls (loot surges, wave sizes) a seeded floor is tuned around.
+    this.decorRng = new Rng(seed ^ 0x1f83d9ab);
     this.rooms = this.floor.rooms.map((r) => ({
       phase:
         r.kind === 'combat' || r.kind === 'boss' || r.kind === 'arena' || r.kind === 'colosseum'
@@ -786,6 +793,8 @@ export class World implements Arena {
   private placeInteractables(): void {
     for (const room of this.floor.rooms) {
       const c = roomCentrePx(room);
+      // A hanging beside a doorway frames the threshold; purely decorative.
+      this.decor.push(...doorHangings(room, (p) => this.decorRng.chance(p)));
       if (room.kind === 'treasure') {
         const chest = this.addInteractable('chest', c.x, c.y, 0);
         // A mimic is a chest that fights back; the chance is visible as a risk.

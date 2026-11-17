@@ -486,3 +486,11 @@ The running build was driven in Edge at **1280x720**.
 - **Console**: 0 errors.
 Captures: `docs/qa/cycle113-weapon-names-icons.png`, `cycle113-weapon-icons-crop.png`,
 `cycle114-hood-untouched.png`.
+## 2026-11-17 review: doorway wall hangings (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720**.
+- **Start room**: a Section 1 start room showed a mirrored pair of blue banners framing the east doorway, and a tapestry on
+  the south wall face, so every threshold reads as one.
+- **Behaviour**: hangings sat on the wall face beneath the actor layer, with no collision or pathing change.
+- **Console**: 0 errors.
+Captures: `docs/qa/cycle115-door-hangings.png`.
