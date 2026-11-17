@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "music-mix-quality",
+    "task_id": "breakpoint-verification",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1794918441.3347554,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1794927194.0015645,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ],
-    "completed_at": 1794918497.2544823,
-    "completed_head": "65d4284b443915a45d39373b05ef5b0786aa27e2",
-    "completed_tree": "c41c9582c78bec704b6721d99dd2b78f58b1e8ad"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "music-muse",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/1] Soundtrack complete: 33 tracks in one manifest (ambient and battle per biome plus a guardian theme), playMusic/stopMusic with cached decode, looping, 1.6s crossfade, a missing-URL memo and a procedural fallback so no room is ever silent; App switches battle/ambient on roomLocked/roomCleared and the guardian theme on bossIntro, while the title and Sanctuary keep the procedural ambience the player likes; scripts/generate_music.py writes the Muse manifest and batch, renders only missing tracks and refuses to fake audio without provider keys. 1054 tests across 218 files, lint/typecheck/build clean. Verified in Edge: a Section 25 run loads with the fallback and 0 console errors; dry-run planned all 33 tracks; the real run exited 1 with a Why/Fix instead of writing placeholder audio.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794903637.7398338,
-      "timestamp_str": "2026-11-17 11:20:37",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "music-muse",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'music-muse' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794903705.1563036,
-      "timestamp_str": "2026-11-17 11:21:45",
-      "agent": "kilo:1",
-      "head": "63ec340f8bf30240712d54c8ec1da6f23c7fdc1c",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "freeze-sources",
       "phase": "phase 2",
@@ -516,6 +478,57 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "breakpoint-verification",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Verify the layout sizes that were never checked: earlier passes covered only 390x844 and 1280x720, leaving tablet and wide-desktop breakpoints unverified. A visual pass at 768x1024, 1024x768 and 1440x900 over the running build checks the hub resident grid, the Places/Expedition panes, and the 105-card codex with its filter bar, requiring zero horizontal overflow and zero console errors at every size.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794927183.0656345,
+      "timestamp_str": "2026-11-17 17:53:03",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "The sizes a tablet or wide desktop actually uses had never been opened, so a reflow bug there would ship unseen.",
+        "benefits": "Confidence that the hub and codex reflow correctly between phone and wide desktop, with evidence recorded.",
+        "risks": "contract: none; dependency: none; concurrency: none; state: none.",
+        "mitigation": "Overflow measured numerically at each size plus screenshots committed as evidence."
+      },
+      "plan_digest": "b4c6531cb5694d3c9c822ba38625370a777673c629b0ad44249a0d395cd86eed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "breakpoint-verification",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: at 768x1024 the hub showed a three-column resident grid and the codex 105 cards in two columns (panel 707px ending 737px); at 1440x900 the hub showed a six-column resident row with two-pane Places/Expedition and the codex 105 cards in three columns (panel 860px); 1024x768 also clean. Every size reported 0 horizontal overflow, the renamed relics appeared in resident tasks (Choir Glaive, Void Cleaver, Embergang), and the console had 0 errors. Four screenshots recorded; no source change was needed.",
+      "files_affected": [
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "docs/qa/bp-bestiary-1440x900.png",
+        "docs/qa/bp-bestiary-768x1024.png",
+        "docs/qa/bp-hub-1440x900.png",
+        "docs/qa/bp-hub-768x1024.png"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794927194.0015645,
+      "timestamp_str": "2026-11-17 17:53:14",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
     }
   ]
 }

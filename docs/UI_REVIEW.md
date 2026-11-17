@@ -531,3 +531,20 @@ The **built** game (`dist/` via `vite preview`) was driven in Edge at **1280x720
 - **Rage**: pressing X showed "Frenzy x1.60" with the red edge tint.
 - **Console**: 0 errors.
 Captures: `docs/qa/cycle119-prod-build.png`.
+
+## 2026-11-17 review: tablet and desktop breakpoints (agent reviewer: kilo:1)
+
+Earlier passes covered only 390x844 and 1280x720. This pass checked the sizes in between and above, in the **running dev
+build**, with a seeded codex.
+
+- **768x1024 (tablet portrait)**: the Sanctuary hub laid out as a three-column resident grid with the header stats wrapped
+  cleanly; the Residences task chips already showed the renamed relics ("Wants Choir Glaive", "Wants Void Cleaver",
+  "Wants Embergang"). The Recovered Memories screen showed Memories and Bestiary tabs, the filter bar, and 105 cards in
+  two columns with "5 / 105 recorded"; Bog Spitter read "Defeated x4" with its field-guide line and Brine Charger
+  "Defeated x5". 0 horizontal overflow.
+- **1440x900 (desktop)**: the hub used a six-column resident row and a two-pane Places / Expedition layout with Set Out,
+  Continue Expedition and Rest. 0 horizontal overflow.
+- **1024x768**: 0 overflow.
+- **Console**: 0 errors throughout.
+
+Captures: `docs/qa/bp-hub-768x1024.png`, `bp-hub-1440x900.png`, `bp-bestiary-768x1024.png`, `bp-bestiary-1440x900.png`.

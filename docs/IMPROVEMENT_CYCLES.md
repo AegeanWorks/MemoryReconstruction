@@ -4764,3 +4764,17 @@ After the fix, brightness ratios (battle/ambient) run 1.28 (ruins) to 2.23 (foun
 least as sharp as every calm track. `--verify` still reports 33/33 playable. 1076 tests pass, lint/typecheck clean.
 ### Gate results
 See the task summary.
+
+## Cycle 124 - Tablet and desktop breakpoint verification
+### FIND
+Layout had only been checked at 390x844 and 1280x720, so the sizes a tablet or a wide desktop actually uses were unverified,
+including the hub grid, the Places pane and the 105-card codex.
+### IMPLEMENT
+No source change: a visual pass over the running build at 768x1024, 1024x768 and 1440x900.
+### RECORD
+The hub reflowed to a three-column resident grid at 768 and a six-column row with a two-pane Places / Expedition layout at
+1440; the codex showed 105 cards in two columns at 768 and three at 1440 with the filter bar intact, and the renamed relics
+appeared in the residents' tasks. Every size reported 0 horizontal overflow and 0 console errors. Screenshots
+`docs/qa/bp-hub-768x1024.png`, `bp-hub-1440x900.png`, `bp-bestiary-768x1024.png`, `bp-bestiary-1440x900.png`.
+### Gate results
+See the task summary.
