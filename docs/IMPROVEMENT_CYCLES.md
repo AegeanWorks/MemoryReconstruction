@@ -4545,3 +4545,20 @@ In Edge at 1280x720 a fresh Section 1 run showed "Bomb x2/4 [G] · Trap x1/3 [T]
 `docs/qa/cycle110-supply-caps-1280x720.png`.
 ### Gate results
 See the task summary.
+## Cycle 111 - Headwear silhouettes and longer blades
+### FIND
+Headwear changed neither shape nor colour on the character, and the player asked for the sword and long sword to reach a
+little further.
+### IMPLEMENT
+- `src/view/gearLook.ts`: `HEAD_LOOKS` (hood, helm, circlet, visor with fill and trim colours) and `headId`/`head` on
+  `gearLooks`.
+- `src/view/ActorView.ts`: a player-parented `headwearG` layer and `drawHeadwear`, drawing each silhouette on the head.
+- `src/sim/weapons.ts`: sword reach 54/56/64 -> 60/62/71, greatsword 68/78 -> 75/86.
+- Tests: `headwear-blades` (5), `gear-look` updated for the new fields, plus the README relic bullet.
+### RECORD
+In Edge at 1280x720 a seeded iron helm drew a domed grey helm with a nose guard sitting on the wanderer's head; a seeded
+oracle circlet drew a thin gold band with a cyan gem, and a seeded ember drape re-coloured the cloak red in the same
+frame. No horizontal overflow and 0 console errors. Screenshots `docs/qa/cycle111-headwear-helm-crop.png`,
+`cycle111-headwear-circlet-cape.png`, `cycle111-headwear-view.png`.
+### Gate results
+See the task summary.

@@ -136,6 +136,8 @@ describe('gearLooks', () => {
       trinket: null,
       capeId: null,
       cape: null,
+      headId: null,
+      head: null,
     });
   });
   it('reports the worn armor and trinket', () => {

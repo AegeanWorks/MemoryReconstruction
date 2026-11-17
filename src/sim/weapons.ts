@@ -39,9 +39,9 @@ export const WEAPONS: readonly WeaponDef[] = [
     blurb: 'Three balanced cuts. The finisher sweeps wide.',
     style: 'arc',
     steps: [
-      { damage: 1, reach: 54, halfArc: 1.0, knockback: 150, duration: 0.3 },
-      { damage: 1.15, reach: 56, halfArc: 1.0, knockback: 170, duration: 0.3 },
-      { damage: 1.8, reach: 64, halfArc: 1.45, knockback: 340, duration: 0.4 },
+      { damage: 1, reach: 60, halfArc: 1.0, knockback: 150, duration: 0.3 },
+      { damage: 1.15, reach: 62, halfArc: 1.0, knockback: 170, duration: 0.3 },
+      { damage: 1.8, reach: 71, halfArc: 1.45, knockback: 340, duration: 0.4 },
     ],
     moveFactor: 0.4,
     finisherShockwave: false,
@@ -66,8 +66,8 @@ export const WEAPONS: readonly WeaponDef[] = [
     blurb: 'Two wide, slow arcs. The finisher always shockwaves, but you barely move.',
     style: 'wide',
     steps: [
-      { damage: 1.35, reach: 68, halfArc: 1.35, knockback: 240, duration: 0.42 },
-      { damage: 2.25, reach: 78, halfArc: 1.7, knockback: 420, duration: 0.54 },
+      { damage: 1.35, reach: 75, halfArc: 1.35, knockback: 240, duration: 0.42 },
+      { damage: 2.25, reach: 86, halfArc: 1.7, knockback: 420, duration: 0.54 },
     ],
     moveFactor: 0.24,
     finisherShockwave: true,

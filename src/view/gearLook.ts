@@ -52,6 +52,28 @@ export const CAPE_LOOKS: Readonly<Record<string, ArmorLook>> = {
   void_mantle: { hue: 285, sat: 1.15, val: 0.72 },
 };
 
+/** Headwear silhouettes: each head relic changes the shape worn above the head. */
+export type HeadShape = 'hood' | 'helm' | 'circlet' | 'visor';
+
+export interface HeadLook {
+  shape: HeadShape;
+  /** Fill colour of the headwear, as 0xRRGGBB. */
+  color: number;
+  /** Optional trim colour for the band, brim or gem. */
+  trim: number;
+}
+
+/**
+ * Headwear looks, keyed by relic id. Every head item in equipment.json must have
+ * one, so a new hat cannot ship without its silhouette.
+ */
+export const HEAD_LOOKS: Readonly<Record<string, HeadLook>> = {
+  scout_hood: { shape: 'hood', color: 0x4a6a3a, trim: 0x2c3f22 },
+  iron_helm: { shape: 'helm', color: 0x8d949c, trim: 0x5a6169 },
+  oracle_circlet: { shape: 'circlet', color: 0xd9b45a, trim: 0x7ee6ff },
+  void_visor: { shape: 'visor', color: 0x4a3a6a, trim: 0xb9a6ff },
+};
+
 /** The robe blue sits here in the player sheets; nothing else in the sprite does. */
 const ROBE_HUE_MIN = 205;
 const ROBE_HUE_MAX = 255;
@@ -130,6 +152,8 @@ export interface GearLooks {
   trinket: TrinketLook | null;
   capeId: string | null;
   cape: ArmorLook | null;
+  headId: string | null;
+  head: HeadLook | null;
 }
 
 /** The looks for what is worn; an id with no look is treated as nothing worn, never an error. */
@@ -140,6 +164,8 @@ export function gearLooks(equipment: EquipmentSlots): GearLooks {
   const armor = armorId !== null ? (ARMOR_LOOKS[armorId] ?? null) : null;
   const trinket = trinketId !== null ? (TRINKET_LOOKS[trinketId] ?? null) : null;
   const cape = capeId !== null ? (CAPE_LOOKS[capeId] ?? null) : null;
+  const headId = equipment.head?.defId ?? null;
+  const head = headId !== null ? (HEAD_LOOKS[headId] ?? null) : null;
   return {
     armorId: armor ? armorId : null,
     armor,
@@ -147,5 +173,7 @@ export function gearLooks(equipment: EquipmentSlots): GearLooks {
     trinket,
     capeId: cape ? capeId : null,
     cape,
+    headId: head ? headId : null,
+    head,
   };
 }

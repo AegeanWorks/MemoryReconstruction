@@ -456,3 +456,11 @@ The running build was driven in Edge at **1280x720** and **390x844**.
 - **Phone**: at 390x844 the HUD had no horizontal overflow and the same caps.
 - **Console**: 0 errors.
 Captures: `docs/qa/cycle110-supply-caps-1280x720.png`.
+## 2026-11-17 review: headwear silhouettes and capes (agent reviewer: kilo:1)
+
+The running build was driven in Edge at **1280x720**.
+- **Helm**: a seeded Iron Helm drew a domed grey helm with a nose guard resting on the wanderer's head, not floating.
+- **Circlet**: a seeded Oracle Circlet drew a thin gold band with a cyan gem, clearly a different silhouette.
+- **Cape**: a seeded Ember Drape re-coloured the cloak red in the same frame, so head and cape read independently.
+- **Layout**: no horizontal overflow and 0 console errors.
+Captures: `docs/qa/cycle111-headwear-helm-crop.png`, `cycle111-headwear-circlet-cape.png`, `cycle111-headwear-view.png`.

@@ -35,7 +35,7 @@ import { bossAuraTier } from './bossAura';
 import { hasWaterEffect } from './propFx';
 import { recolorFrames } from './armorTextures';
 import { fxTextures } from './fxArt';
-import { gearLooks } from './gearLook';
+import { gearLooks, type HeadLook } from './gearLook';
 import { BIOME_ART, hex } from './palette';
 import {
   clipLaneToRoom,
@@ -198,6 +198,8 @@ export class ActorView {
   private armorFrames: Texture[] | undefined;
   /** Orbiting glow for the worn trinket. */
   private readonly trinketOrb: Sprite;
+  /** Drawn silhouette of the worn headwear, above the head. */
+  private readonly headwearG = new Graphics();
   private readonly playerLight: Sprite;
   private readonly enemies = new Map<number, ActorSprite>();
   private readonly projectiles = new Map<number, Tracked>();
@@ -236,6 +238,9 @@ export class ActorView {
     // Between the body and the hit flash, so a hurt flash still washes over the armor.
     this.player.root.addChildAt(this.armorLayer, this.player.root.getChildIndex(this.player.flash));
     this.player.root.addChild(this.trinketOrb);
+    this.headwearG.position.set(0, -33.5);
+    this.headwearG.scale.set(0.82);
+    this.player.root.addChild(this.headwearG);
     this.actors.addChild(this.player.root);
     this.addDecor();
     this.playerLight = this.glow(PLAYER_COLOR, 260, 0.16);
@@ -511,6 +516,7 @@ export class ActorView {
       layer.rotation = body.rotation;
       layer.alpha = body.alpha;
     }
+    this.drawHeadwear(looks.head);
     const orb = this.trinketOrb;
     orb.visible = looks.trinket !== null && p.action !== 'dead';
     if (!looks.trinket) return;
@@ -518,6 +524,56 @@ export class ActorView {
     orb.position.set(Math.cos(angle) * 20, -34 + Math.sin(angle) * 7);
     orb.tint = looks.trinket.color;
     orb.width = orb.height = 16 * looks.trinket.scale * (1 + Math.sin(this.time * 5) * 0.12);
+  }
+
+  /** Worn headwear: each relic gets its own silhouette and colours. */
+  private drawHeadwear(head: HeadLook | null): void {
+    const g = this.headwearG;
+    g.clear();
+    g.visible = head !== null;
+    if (!head) return;
+    const hue = head.color;
+    const trim = head.trim;
+    switch (head.shape) {
+      case 'hood':
+        // A soft cowl that wraps the top of the head and falls to the shoulders.
+        g.moveTo(-7.5, 1)
+          .lineTo(-7.5, -3)
+          .quadraticCurveTo(0, -11.5, 7.5, -3)
+          .lineTo(7.5, 1)
+          .closePath()
+          .fill({ color: hue, alpha: 0.95 });
+        g.moveTo(-6, -1).lineTo(6, -1).stroke({ width: 1.4, color: trim, alpha: 0.9 });
+        break;
+      case 'helm':
+        // A domed helm with a nose guard.
+        g.moveTo(-7, 2)
+          .lineTo(-7, -3)
+          .quadraticCurveTo(-6, -9, 0, -9)
+          .quadraticCurveTo(6, -9, 7, -3)
+          .lineTo(7, 2)
+          .closePath()
+          .fill({ color: hue, alpha: 0.96 });
+        g.moveTo(-6.5, -1).lineTo(6.5, -1).stroke({ width: 1.5, color: trim, alpha: 0.95 });
+        g.moveTo(0, -1).lineTo(0, 3).stroke({ width: 1.8, color: trim, alpha: 0.9 });
+        break;
+      case 'circlet':
+        // A thin band with a single gem, so the face stays visible.
+        g.moveTo(-6.5, -1.5).lineTo(6.5, -1.5).stroke({ width: 1.8, color: hue, alpha: 0.96 });
+        g.circle(0, -4, 1.9).fill({ color: trim, alpha: 0.96 });
+        break;
+      case 'visor':
+        // A dark faceplate with a glowing eye slit.
+        g.moveTo(-7, 2)
+          .lineTo(-7, -3)
+          .quadraticCurveTo(-6, -8, 0, -8)
+          .quadraticCurveTo(6, -8, 7, -3)
+          .lineTo(7, 2)
+          .closePath()
+          .fill({ color: hue, alpha: 0.94 });
+        g.moveTo(-5, -1).lineTo(5, -1).stroke({ width: 2, color: trim, alpha: 0.98 });
+        break;
+    }
   }
 
   /** Subtle, atmospheric weapon stance aim reticle in world space. */
