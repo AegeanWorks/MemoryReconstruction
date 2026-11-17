@@ -1666,5 +1666,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "fec12be7245d5b0da59e400dc3358be429ec0929a406636e3a4712d441b57c5d",
     "baseline_digest": "fec12be7245d5b0da59e400dc3358be429ec0929a406636e3a4712d441b57c5d"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed the synthesized soundtrack in Edge at 1280x720: ruins-ambient and ruins-battle decode and play, trackBuffers reach 2, only absent OGG/MP3 URLs are memoised, 0 console errors.",
+    "baseline_commit": "172791504d298f320b056a1b3814c7faf28b0130",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794911877.9712803,
+    "finished_at": 1794911892.8980794,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "3d1759e5e226478e314f8ff15b2f2eac3872038944f6c745f04d011e215bd34b",
+    "baseline_digest": "3d1759e5e226478e314f8ff15b2f2eac3872038944f6c745f04d011e215bd34b"
   }
 ]
