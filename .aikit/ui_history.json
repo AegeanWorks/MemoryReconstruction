@@ -1540,5 +1540,26 @@
     "final_snapshot_entries": 0,
     "surface_digest": "797bcb58967a084d41024090e82fbc1a2c71d17612d52ee9a213c5391bc634c2",
     "baseline_digest": "797bcb58967a084d41024090e82fbc1a2c71d17612d52ee9a213c5391bc634c2"
+  },
+  {
+    "schema": 1,
+    "surface": "app",
+    "mode": "visual",
+    "visual_change": true,
+    "changed_paths": [],
+    "no_visual_reason": "",
+    "no_change_reason": "Reviewed doorway wall hangings in Edge at 1280x720: mirrored banners frame the east doorway, a tapestry sits on the south wall, no collision change, 0 console errors.",
+    "baseline_commit": "8ca7be272552f058c0199d6e00f74a177edbaf8e",
+    "contract_hash": "b9d7f6448ff18a2e8894efdb364a9f2cd4c2570f842ada314ed921f13bb7eeb7",
+    "started_at": 1794899687.0623205,
+    "finished_at": 1794899706.7621305,
+    "strikes": 0,
+    "reviewer": "kilo:1",
+    "allowed_removals": [],
+    "allowed_tests": [],
+    "final_snapshot_digest": "",
+    "final_snapshot_entries": 0,
+    "surface_digest": "175f3c1f6c90ea2aa3a38008e882e3c62c5e40f326d44968c0163c20aea1e2c4",
+    "baseline_digest": "175f3c1f6c90ea2aa3a38008e882e3c62c5e40f326d44968c0163c20aea1e2c4"
   }
 ]

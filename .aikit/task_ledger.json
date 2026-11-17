@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "gear-and-limits",
+    "task_id": "world-and-levels",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1794896605.8195555,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1794899659.6363368,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -14,46 +14,9 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ],
-    "completed_at": 1794898443.8358142,
-    "completed_head": "776e0f867f43701cdd877e8c5c67dd0cae78dd91",
-    "completed_tree": "254e2a365f5cad7d6823473b5ddf04cc3b37e2b1"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "bestiary-depth",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: seeding three recorded species reads 3/97 with Defeated x4 / x12 / x1; Recorded leaves 3 cards, Guardians leaves 25 (first Unknown guardian), All restores 97 and the active filter is gold; a full record reads 97/97 whole with the codex-complete banner; old saves default bestiaryKills {} and codexReward false; phantom ids cannot fake completion. 952 tests across 201 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720 and 390x844: 358.8px panel ending 374.4px, one column, 29px filter row, no overflow, 0 console errors. Screenshots and the ADR-230/cycle-104 docs written; UI task to be closed on the committed surface.",
-      "files_affected": [
-        ".aikit/codebase_map.md",
-        ".aikit/decisions.md",
-        ".aikit/task_ledger.json",
-        ".aikit/task_ledger_archive.jsonl",
-        "README.md",
-        "docs/IMPROVEMENT_CYCLES.md",
-        "docs/UI_REVIEW.md",
-        "src/app/App.ts",
-        "src/save/SaveStore.ts",
-        "src/sim/content.ts",
-        "src/ui/Screens.ts",
-        "src/ui/ui.css",
-        "docs/qa/cycle104-bestiary-390x844.png",
-        "docs/qa/cycle104-bestiary-complete-1280x720.png",
-        "tests/bestiary-depth.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794852719.18095,
-      "timestamp_str": "2026-11-16 21:11:59",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "bestiary-depth",
       "phase": "completed",
@@ -618,6 +581,34 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "world-and-levels",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/3] Doorway hangings: doorFace, hangingSpots and doorHangings place a mirrored pair of tapestries, banners or rugs on the wall face either side of every door, the start room is always dressed and other rooms roll 85%, hangings live only on wall or door tiles, and decoration rolls from its own RNG stream so seeded gameplay is unchanged. 1029 tests across 216 files, 490 mechanics, lint/typecheck/build clean. Edge at 1280x720: mirrored blue banners frame the east doorway and a tapestry sits on the south wall, 0 console errors.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "docs/UI_REVIEW.md",
+        "src/sim/world.ts",
+        "src/view/ActorView.ts",
+        "docs/qa/cycle115-door-hangings.png",
+        "src/sim/decor.ts",
+        "tests/door-hangings.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794899659.6363368,
+      "timestamp_str": "2026-11-17 10:14:19",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
     }
   ]
 }
