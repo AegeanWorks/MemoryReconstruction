@@ -38,10 +38,11 @@ export const MUSIC_TRACKS: readonly MusicTrack[] = (musicJson as { tracks: Music
 export const MUSIC_EXTENSIONS = ['ogg', 'mp3', 'wav'] as const;
 
 /**
- * Candidate URLs for a track id. `base` is the public asset root, which is
- * `./assets` in the built game; the loader passes whatever the page serves.
+ * Candidate URLs for a track id. Vite serves `publicDir` (the `assets` folder)
+ * at the site root, so `assets/music/x.wav` is fetched as `./music/x.wav` in both
+ * dev and the built game. `base` lets a host override that.
  */
-export function musicUrls(id: string, base = './assets'): string[] {
+export function musicUrls(id: string, base = '.'): string[] {
   return MUSIC_EXTENSIONS.map((ext) => `${base}/music/${id}.${ext}`);
 }
 

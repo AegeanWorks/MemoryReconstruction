@@ -45,9 +45,9 @@ describe('the soundtrack model', () => {
 
   it('offers ogg first, then mp3, then wav', () => {
     expect(musicUrls('ruins-ambient')).toEqual([
-      './assets/music/ruins-ambient.ogg',
-      './assets/music/ruins-ambient.mp3',
-      './assets/music/ruins-ambient.wav',
+      './music/ruins-ambient.ogg',
+      './music/ruins-ambient.mp3',
+      './music/ruins-ambient.wav',
     ]);
   });
 

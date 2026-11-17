@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "synth-soundtrack",
+    "task_id": "music-url-fix",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1794911813.380718,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1794913361.4953349,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -14,67 +14,9 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ],
-    "completed_at": 1794911893.486376,
-    "completed_head": "172791504d298f320b056a1b3814c7faf28b0130",
-    "completed_tree": "5c7a030816b867027a8f6267466fa50cb7a2e65d"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "gear-and-limits",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[4/4] Player feedback round: weapon relics renamed and re-iconed (Rusted Arming Sword, Echo Dagger, Choir Glaive with a real glaive drawing, Void Cleaver, Emberfang as a lit long sword), the heavy stance displays as Long Sword, and all weapon relics are stance-locked. Armor and cape hues now come from each relic's own icon via a generated relic_colors.json, so the worn colour always matches the bag icon. The robe pass skips the sprite's hood rows (7-17 of a 64px frame), so armor tints cloth only and the wanderer's head keeps its own colour. 1021 tests across 212 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates. Verified in Edge: five distinct weapon icons, crimson and teal armors matching their icons, blue hood preserved under a crimson robe.",
-      "files_affected": [
-        ".aikit/decisions.md",
-        "README.md",
-        "assets/data/equipment.json",
-        "assets/sprites/ui/relic_choir_staff.png",
-        "assets/sprites/ui/relic_ember_core.png",
-        "docs/IMPROVEMENT_CYCLES.md",
-        "docs/UI_REVIEW.md",
-        "scripts/generate_relic_icons.py",
-        "src/data/equipment.json",
-        "src/sim/weapons.ts",
-        "src/ui/dollArt.ts",
-        "src/view/armorTextures.ts",
-        "src/view/gearLook.ts",
-        "docs/qa/cycle113-weapon-icons-crop.png",
-        "docs/qa/cycle113-weapon-names-icons.png",
-        "docs/qa/cycle114-hood-untouched.png",
-        "src/data/relic_colors.json",
-        "tests/armor-head-untouched.test.ts",
-        "tests/gear-colors-from-icons.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794896605.8195555,
-      "timestamp_str": "2026-11-17 09:23:25",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "gear-and-limits",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'gear-and-limits' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794898443.9118989,
-      "timestamp_str": "2026-11-17 09:54:03",
-      "agent": "kilo:1",
-      "head": "776e0f867f43701cdd877e8c5c67dd0cae78dd91",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "world-and-levels",
       "phase": "phase 4",
@@ -538,6 +480,55 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "music-url-fix",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Fix the music URL base: Vite serves publicDir (the assets folder) at the site root, so tracks are fetched as ./music/<id>.wav. The loader was asking for ./assets/music/..., which only worked in dev because the dev server also exposes the raw assets directory; the built game would have 404ed every track and silently fallen back to procedural music. musicUrls now defaults its base to '.' and the URL test pins ./music/... paths.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794913311.3002844,
+      "timestamp_str": "2026-11-17 14:01:51",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "Dev served the old path by accident, so the production build would have shipped without any of the 33 synthesized tracks.",
+        "benefits": "The soundtrack loads in both dev and the built game, so the shipped artefact actually has music.",
+        "risks": "contract: musicUrls default base changes; dependency: none; concurrency: none; state: none.",
+        "mitigation": "The URL test pins the exact paths and the fix was verified in a production preview and in dev."
+      },
+      "plan_digest": "18d8711b771f0348025306d0cf528ec7297334ea4dd6a159c29c878aa25945d8",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "music-url-fix",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: musicUrls now yields ./music/<id>.ogg|mp3|wav; a production preview served ./music/ruins-ambient.wav as 200 audio/wav and the game loaded ruins-ambient then ruins-battle into the decode cache, while the dev server loaded storm-battle the same way. 1074 tests across 221 files, lint/typecheck/build clean, 0 console errors in both dev and preview.",
+      "files_affected": [
+        ".aikit/decisions.md",
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "src/audio/music.ts",
+        "tests/music-tracks.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794913361.4953349,
+      "timestamp_str": "2026-11-17 14:02:41",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
     }
   ]
 }

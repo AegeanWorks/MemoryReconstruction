@@ -4734,3 +4734,17 @@ WebAudio pad, so the game shipped without a soundtrack. The player asked to use 
 `trackBuffers` reaching 2 and the memo recording only the absent OGG and MP3 URLs, so the WAVs really play. 0 console errors.
 ### Gate results
 See the task summary.
+
+## Cycle 122 - Music URLs pointed at the wrong root for production
+### FIND
+Tracks were requested as ./assets/music/<id>.wav, but Vite's publicDir is the assets folder, so the built game serves them at
+./music/<id>.wav. Development masked it because the dev server also exposes the raw assets directory, so all 33 tracks would
+have 404ed in production and fallen back to procedural music.
+### IMPLEMENT
+- `src/audio/music.ts`: `musicUrls` base defaults to '.', so URLs are ./music/<id>.<ext>.
+- `tests/music-tracks.test.ts`: the URL expectations pin the ./music/... paths.
+### RECORD
+A production preview returned 200 audio/wav (352844 bytes) for ./music/ruins-ambient.wav and loaded ruins-ambient then
+ruins-battle into the decode cache; the dev server loaded storm-battle the same way. 0 console errors in both.
+### Gate results
+See the task summary.
