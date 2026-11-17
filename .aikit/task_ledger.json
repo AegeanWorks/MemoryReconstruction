@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "freeze-sources",
+    "task_id": "prod-verification",
     "last_phase": "phase 4",
     "active_phase": 5,
     "status": "completed",
-    "updated_at": 1794904608.4783452,
+    "updated_at": 1794905404.7540903,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -15,171 +15,11 @@
         "path": "projects/MemoryReconstruction"
       }
     ],
-    "completed_at": 1794904682.732595,
-    "completed_head": "0b95510988276b03e93aa1b44b9cbc958c0d2443",
-    "completed_tree": "6b958e7cbfd3316dee496e7f28ab90f66ef90759"
+    "completed_at": 1794905452.9415042,
+    "completed_head": "9457b95446010638cee2041103672679c24f1eca",
+    "completed_tree": "ec46d95b1ffc64ca961eaaf8ecca9a5648959d3a"
   },
   "checkpoints": [
-    {
-      "task_id": "combat-expansion",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/4] Milestone 1 verified: status model refreshes rather than stacks (3s burn stays 3s), burn pays 6 dps in whole points, freeze and mud slow to 0.35/0.6 with a 0.25 floor, a frozen target takes 1.5x then loses the ice, junk and older saves normalize to clear, and every created walker and enemy starts clear. In the sim a burning enemy loses health with no attack, a frozen enemy takes 15 from a 10 hit and is thawed, a frozen walker travels less than a clean one, and standing in flame sets the walker burning. Bolt hits now test max(radius, displayHeight*0.3). 976 tests across 205 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates.",
-      "files_affected": [
-        ".aikit/codebase_map.md",
-        ".aikit/decisions.md",
-        ".aikit/task_ledger.json",
-        ".aikit/task_ledger_archive.jsonl",
-        "README.md",
-        "docs/IMPROVEMENT_CYCLES.md",
-        "src/sim/combat.ts",
-        "src/sim/enemies.ts",
-        "src/sim/entities.ts",
-        "src/sim/player.ts",
-        "src/sim/run.ts",
-        "src/sim/world.ts",
-        "docs/ROADMAP_COMBAT_EXPANSION.md",
-        "src/sim/status.ts",
-        "tests/sim/status-sim.test.ts",
-        "tests/status-effects.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794858789.198958,
-      "timestamp_str": "2026-11-16 22:53:09",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "combat-expansion",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[2/4] Milestone 2 verified: X cycles none -> Frenzy -> Berserker -> none in a real run; Frenzy shows 'Frenzy x1.60' with a crimson edge tint and Berserker shows 'Berserker x1.35' with the ember variant; a landed blow breaks Frenzy with a notice while Berserker survives; non-hazard player damage is multiplied while hazards are not; older saves normalize to calm. 983 tests across 206 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720 and 390x844: no horizontal overflow, Rage touch button present, 0 console errors. Three screenshots and ADR-234/cycle-108 docs written.",
-      "files_affected": [
-        ".aikit/codebase_map.md",
-        ".aikit/decisions.md",
-        ".aikit/task_ledger.json",
-        ".aikit/task_ledger_archive.jsonl",
-        "README.md",
-        "docs/IMPROVEMENT_CYCLES.md",
-        "docs/UI_REVIEW.md",
-        "src/input/Input.ts",
-        "src/input/touch.ts",
-        "src/sim/entities.ts",
-        "src/sim/player.ts",
-        "src/sim/run.ts",
-        "src/sim/world.ts",
-        "src/ui/Hud.ts",
-        "src/ui/TouchControls.ts",
-        "src/ui/ui.css",
-        "tests/sim/input-nan.test.ts",
-        "tests/sim/world-input-fuzz.test.ts",
-        "tests/world-fuzz.test.ts",
-        "docs/qa/cycle108-rage-berserker-1280x720.png",
-        "docs/qa/cycle108-rage-frenzy-1280x720.png",
-        "docs/qa/cycle108-rage-frenzy-390x844.png",
-        "src/sim/rage.ts",
-        "tests/rage-stances.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794860950.974022,
-      "timestamp_str": "2026-11-16 23:29:10",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "combat-expansion",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/4] Milestone 3 verified: five new species (Prism Lancer, Quake Colossus, Mire Warden, Brine Charger, Bog Spitter) join the roster at 102 total, all non-guardian, all on real sections (Prism Gardens, Sleepless Foundry, Sunken Tideways, Whispering Mire, Gilded Reliquary), reusing atlas sheets with tints. Behaviours: the lancer fires a lane beam, the colossus a wide radial slam, the charger always answers with a charge (heavy knockback), the mire warden slows the walker inside a 190px aura, and the bog spitter lays a 46px mud patch that slows and drains after 7s. Mud renders as a fading brown puddle. 991 tests across 207 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates. Edge at 1280x720: bestiary reads 5/102 with the new names and correct habitats, the run loads Section 1 with no overflow and 0 console errors.",
-      "files_affected": [
-        "README.md",
-        "assets/data/enemies.json",
-        "src/data/enemies.json",
-        "src/sim/combat.ts",
-        "src/sim/content.ts",
-        "src/sim/enemies.ts",
-        "src/sim/entities.ts",
-        "src/sim/world.ts",
-        "src/view/ActorView.ts",
-        "src/view/Effects.ts",
-        "tests/assets.test.ts",
-        "tests/audio-crit-ping.test.ts",
-        "tests/audio-pause.test.ts",
-        "tests/bestiary-depth.test.ts",
-        "tests/bestiary.test.ts",
-        "tests/docs-claims.test.ts",
-        "tests/encoding.test.ts",
-        "tests/inventory-drag.test.ts",
-        "tests/quest-chapters.test.ts",
-        "tests/relic-icons.test.ts",
-        "tests/save-fuzz.test.ts",
-        "tests/save-slots.test.ts",
-        "tests/save.test.ts",
-        "tests/sim/art-impact.test.ts",
-        "tests/sim/audio-cues.test.ts",
-        "tests/sim/blink-room.test.ts",
-        "tests/sim/content-references.test.ts",
-        "tests/sim/dungeon.test.ts",
-        "tests/sim/enemy-balance.test.ts",
-        "tests/sim/engagement.test.ts",
-        "tests/sim/frontier-world.test.ts",
-        "tests/sim/gate-spawn.test.ts",
-        "tests/sim/input-nan.test.ts",
-        "tests/sim/level-fuzz.test.ts",
-        "tests/sim/onboarding-touch.test.ts",
-        "tests/sim/overlap.test.ts",
-        "tests/sim/quest-mechanics.test.ts",
-        "tests/sim/residents.test.ts",
-        "tests/sim/restore-run.test.ts",
-        "tests/sim/sanctuary.test.ts",
-        "tests/sim/stage3-fixes.test.ts",
-        "tests/sim/stagger-guard.test.ts",
-        "tests/sim/wall-gap.test.ts",
-        "tests/sim/weekly-contract.test.ts",
-        "tests/sim/world-input-fuzz.test.ts",
-        "tests/sim/world.test.ts",
-        "tests/ui-boss-bar-enrage.test.ts",
-        "tests/ui-boss-focus.test.ts",
-        "tests/ui-confirm-actions.test.ts",
-        "tests/ui-difficulty-selected.test.ts",
-        "tests/ui-expedition-short.test.ts",
-        "tests/ui-inventory-grid.test.ts",
-        "tests/ui-list-state.test.ts",
-        "tests/ui-reduced-motion.test.ts",
-        "tests/ui-safe-area.test.ts",
-        "tests/ui-saves-screen.test.ts",
-        "tests/ui-toast-dedup.test.ts",
-        "tests/view-boss-intro-fx.test.ts",
-        "tests/view-boss-phase-fx.test.ts",
-        "tests/view-enemy-stagger-fx.test.ts",
-        "tests/world-fuzz.test.ts",
-        "docs/qa/cycle109-bestiary-new-species-1280x720.png",
-        "tests/sim/enemy-archetypes.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794864610.227167,
-      "timestamp_str": "2026-11-17 00:30:10",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "combat-expansion",
       "phase": "phase 4",
@@ -616,6 +456,68 @@
       "timestamp_str": "2026-11-17 11:38:02",
       "agent": "kilo:1",
       "head": "0b95510988276b03e93aa1b44b9cbc958c0d2443",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
+    },
+    {
+      "task_id": "prod-verification",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Verify the shipped artefact rather than only the dev server: run npm run build, preview dist on a separate port from a clean origin, and drive the title, hub, Set Out, a Section 1 run and the rage key. Records what the built bundle actually shows so a minification or asset-copy regression cannot slip through unnoticed.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794905374.391166,
+      "timestamp_str": "2026-11-17 11:49:34",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "Every visual check so far ran against the Vite dev server, so the production artefact was unverified.",
+        "benefits": "The dist bundle is proven to boot and play, not just to compile.",
+        "risks": "contract: none; dependency: none; concurrency: none; state: none.",
+        "mitigation": "A preview server on its own port, a clean origin so no saved run masks the hub, and 0 console errors as the bar."
+      },
+      "plan_digest": "5db60011a801c7ce2adca756f79519730b8fab12050e0f951a17a7515fe0df05",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "prod-verification",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: npm run build completed in 5.42s (main chunk 910kB, 267kB gzipped); vite preview on port 5200 from a clean origin showed the title, the hub with the Lorekeeper asking for the Choir Glaive, Set Out reading 'Reach Section 27 to unlock', Section 1 Forgotten Ruins with the HUD, 'Bomb x2/4' and door banners, and pressing X showed 'Frenzy x1.60' with the red edge tint. 0 console errors. Evidence in cycle 119 and UI_REVIEW with docs/qa/cycle119-prod-build.png.",
+      "files_affected": [
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794905404.7540903,
+      "timestamp_str": "2026-11-17 11:50:04",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "prod-verification",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'prod-verification' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794905453.141362,
+      "timestamp_str": "2026-11-17 11:50:53",
+      "agent": "kilo:1",
+      "head": "9457b95446010638cee2041103672679c24f1eca",
       "delivery": {
         "roots": [
           "."
