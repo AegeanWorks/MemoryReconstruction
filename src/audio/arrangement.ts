@@ -151,12 +151,12 @@ const BATTLE: Record<BiomeId, Arrangement> = {
     drive: 0.62,
   },
   sanctuary: {
-    tempo: 76,
-    bass: [0, -1, 2, -1, 0, -1, 3, -1],
-    hits: [0],
-    noteLength: 0.9,
-    lead: 1,
-    drive: 0.3,
+    tempo: 96,
+    bass: [0, 2, 0, 3, 0, 2, 4, 3],
+    hits: [0, 1, 2, 3],
+    noteLength: 0.4,
+    lead: 2,
+    drive: 0.52,
   },
 };
 

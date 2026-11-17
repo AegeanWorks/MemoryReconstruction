@@ -73,7 +73,7 @@ BATTLE = {
     "catacomb": (88, [0, -1, 3, -1, 2, -1, 0, -1], [0, 2]),
     "tide": (110, [0, 2, 0, -1, 3, 2, 0, -1], [0, 1.5, 2.5]),
     "storm": (128, [0, 3, 4, 3, 0, 3, 2, 4], [0, 1, 2, 3]),
-    "sanctuary": (76, [0, -1, 2, -1, 0, -1, 3, -1], [0]),
+    "sanctuary": (96, [0, 2, 0, 3, 0, 2, 4, 3], [0, 1, 2, 3]),
     # The shared guardian theme is the heaviest fight in the game.
     "boss": (112, [0, 0, 3, 3, 0, 2, 4, 3], [0, 1, 2, 2.5, 3]),
 }
@@ -127,12 +127,29 @@ def render(track: dict) -> tuple[array, float]:
                 sample = math.sin(phase) + 0.5 * math.sin(phase * 1.5)
             add(begin + i, sample * amp * env)
 
-    def hit(start: float, amp: float) -> None:
+    def hit(start: float, amp: float, bright: float = 0.86) -> None:
+        """Percussion: high-passed noise with a fast decay.
+
+        A plain white-noise burst is mostly low energy and gets buried under the
+        bass ostinato, so the noise is high-passed with a one-pole difference
+        filter. That is what makes a hit read as a drum rather than a thud.
+        """
         begin = int(start * RATE) % total
         length = int(0.16 * RATE)
+        previous_in = 0.0
+        previous_out = 0.0
         for i in range(length):
-            env = math.exp(-18.0 * i / length)
-            add(begin + i, (rng.uniform(-1.0, 1.0)) * amp * env)
+            env = math.exp(-16.0 * i / length)
+            noise = rng.uniform(-1.0, 1.0)
+            # one-pole high-pass: keep the fast changes, drop the body
+            filtered = bright * (previous_out + noise - previous_in)
+            previous_in = noise
+            previous_out = filtered
+            add(begin + i, filtered * amp * env)
+        # A very short click on the attack sharpens the transient further.
+        click = int(0.012 * RATE)
+        for i in range(click):
+            add(begin + i, rng.uniform(-1.0, 1.0) * amp * 0.5 * (1 - i / click))
 
     if mode == "ambient":
         # Three slow, slightly detuned drones with a breathing amplitude.
@@ -170,9 +187,12 @@ def render(track: dict) -> tuple[array, float]:
                     continue
                 at = bar_start + index * step
                 semitone = SCALE[min(degree, len(SCALE) - 1)]
-                tone(at, step * 0.9, midi_to_hz(semitone, root / 2), 0.16, "bass", 0.005)
+                tone(at, step * 0.9, midi_to_hz(semitone, root / 2), 0.11, "bass", 0.005)
             for beat_pos in hits:
-                hit(bar_start + beat_pos * beat, 0.11)
+                hit(bar_start + beat_pos * beat, 0.30)
+            # A quieter tick on every beat keeps a steady pulse under the figure.
+            for tick in range(4):
+                hit(bar_start + tick * beat, 0.09, bright=0.94)
             # A sparse lead stab on the last bar keeps long loops from droning.
             if bar % 2 == 1:
                 semitone = SCALE[(bar + index) % len(SCALE)]
@@ -180,12 +200,13 @@ def render(track: dict) -> tuple[array, float]:
         # A pitched thump on beat one of each bar gives it a heartbeat.
         for bar in range(bars):
             at = bar * bar_time
-            tone(at, 0.28, root * 0.5, 0.18, "sine", 0.004)
+            tone(at, 0.28, root * 0.5, 0.10, "sine", 0.004)
 
     # Gentle low-pass to tame the top end, then normalise to a safe peak.
     smoothed = [0.0] * total
     prev = 0.0
-    alpha = 0.28 if mode == "battle" else 0.14
+    # Less smoothing in battle keeps the percussion crisp; calm stays very round.
+    alpha = 0.55 if mode == "battle" else 0.14
     for n, sample in enumerate(buf):
         prev += alpha * (sample - prev)
         smoothed[n] = prev

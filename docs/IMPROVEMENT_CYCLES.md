@@ -4748,3 +4748,19 @@ A production preview returned 200 audio/wav (352844 bytes) for ./music/ruins-amb
 ruins-battle into the decode cache; the dev server loaded storm-battle the same way. 0 console errors in both.
 ### Gate results
 See the task summary.
+
+## Cycle 123 - Battle music mixed to cut through, and measured
+### FIND
+Measuring the rendered tracks showed battle was darker than calm: bass and thump dominated while percussion sat underneath, and
+Sanctuary's battle figure had one hit per bar at 76 bpm, so it barely differed from its calm track even though that biome
+hosts the Keeper's combat floor.
+### IMPLEMENT
+- `scripts/synthesize_music.py`: high-passed noise percussion with an attack click, kit raised to 0.30, bass to 0.11, thump
+  to 0.10, a tick on every beat, less smoothing in battle, and a real Sanctuary battle figure.
+- `src/audio/arrangement.ts`: the Sanctuary battle figure matches the synthesizer.
+- `tests/music-synth.test.ts`: brightness assertions for all 16 biomes and the guardian theme.
+### RECORD
+After the fix, brightness ratios (battle/ambient) run 1.28 (ruins) to 2.23 (foundry), with the guardian theme at 0.063 - at
+least as sharp as every calm track. `--verify` still reports 33/33 playable. 1076 tests pass, lint/typecheck clean.
+### Gate results
+See the task summary.

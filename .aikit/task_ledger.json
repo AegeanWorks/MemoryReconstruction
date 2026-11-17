@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "music-url-fix",
+    "task_id": "music-mix-quality",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1794913361.4953349,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1794918441.3347554,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -14,85 +14,9 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ],
-    "completed_at": 1794913426.279155,
-    "completed_head": "9e06dc4c0edab323ff89dea0cc63b0b1c7f208a6",
-    "completed_tree": "b69d1bccd46de0d03642df58c6fe1fa2d032d437"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "world-and-levels",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[2/3] Two new vaults: The Chitin Vault (hive, depth 23) and The Thunder Vault (storm, depth 24) with new chitin_sovereign and storm_sovereign bosses, pushing the Sanctuary to 25 and the finale to 26 for 27 sections, 104 species and 27 bosses. RunState.version becomes 2 and a version-1 save at or past the old Sanctuary shifts forward two floors so it keeps its place. Checkpoints now reach 26 and the Keeper's Gate asks for 26. 1040 tests across 217 files, lint/typecheck/build clean. Edge at 1280x720: Section 24 Chitin Vault and Section 25 Thunder Vault both load with 0 console errors.",
-      "files_affected": [
-        ".aikit/codebase_map.md",
-        ".aikit/decisions.md",
-        "README.md",
-        "assets/data/enemies.json",
-        "docs/IMPROVEMENT_CYCLES.md",
-        "docs/UI_REVIEW.md",
-        "src/data/enemies.json",
-        "src/sim/content.ts",
-        "src/sim/quests.ts",
-        "src/sim/run.ts",
-        "tests/content-expansion.test.ts",
-        "tests/docs-claims.test.ts",
-        "tests/hub.test.ts",
-        "tests/save-fuzz.test.ts",
-        "tests/sim/content.test.ts",
-        "tests/sim/enemy-archetypes.test.ts",
-        "tests/sim/frontier-content.test.ts",
-        "tests/sim/quest-mechanics.test.ts",
-        "tests/sim/tide-trial.test.ts",
-        "docs/qa/cycle116-chitin-vault.png",
-        "docs/qa/cycle116-thunder-vault.png",
-        "tests/extra-vaults.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794901744.4741254,
-      "timestamp_str": "2026-11-17 10:49:04",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "world-and-levels",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[3/3] World and levels complete: door hangings (ADR-240) and two new vaults with a run-version migration (ADR-241). 1040+ tests green, 8/8 gates, delivery-ready.",
-      "files_affected": [
-        ".aikit/codebase_map.md",
-        ".aikit/decisions.md",
-        "README.md",
-        "docs/IMPROVEMENT_CYCLES.md",
-        "docs/UI_REVIEW.md",
-        "src/app/App.ts",
-        "src/audio/Sound.ts",
-        "scripts/generate_music.py",
-        "src/audio/music.ts",
-        "src/data/music.json",
-        "src/data/music_batch.json",
-        "src/data/music_manifest.json",
-        "tests/music-tracks.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794903592.4903946,
-      "timestamp_str": "2026-11-17 11:19:52",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "world-and-levels",
       "phase": "completed",
@@ -521,6 +445,74 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "music-mix-quality",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Make battle music actually cut through, and prove it by measurement: measuring the rendered WAVs showed battle was darker than calm (lower zero-crossing rate and high-frequency change) because the bass ostinato and heartbeat drowned the white-noise percussion; Sanctuary's battle figure was one hit per bar at 76bpm and barely differed from calm. The percussion generator now high-passes its noise and adds an attack click, the kit is raised to 0.30, bass drops to 0.11, heartbeat to 0.10, a tick lands on every beat, battle smoothing drops from 0.28 to 0.55, and Sanctuary gets a real fight figure in both the synthesizer and the WebAudio arrangement. Failing-first: two brightness assertions covering all 16 biomes and the guardian theme.",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794918421.65397,
+      "timestamp_str": "2026-11-17 15:27:01",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "The first battle tracks were a different file but not a sharper piece of music, so a fight read as a heavier pad rather than a driving track.",
+        "benefits": "Battle music measurably (1.28-2.23x brighter) and audibly cuts through, the Sanctuary fight floor has a real fight theme, and a regression that drowns the kit is caught by a test.",
+        "risks": "contract: none; dependency: none; concurrency: none; state: the 16 battle WAVs are re-rendered.",
+        "mitigation": "A loudness-independent brightness metric measured across every biome, the guardian theme checked against every calm track, and the arrangement left consistent between the synthesizer and WebAudio."
+      },
+      "plan_digest": "f72d032e750511df3d4530f2272a9c695f389d2a6d3d73b49ba2d5c3e0fda915",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "music-mix-quality",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: brightness (mean absolute sample delta over mean level) is now 1.28x to 2.23x higher in battle than calm across all 16 biomes, and the guardian theme measures 0.063, at least as sharp as every calm track; Sanctuary's battle went from 1.01x to 1.38x. --verify reports 33/33 playable, 1076 tests across 221 files pass, lint/typecheck/build clean.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl",
+        "assets/music/abyss-battle.wav",
+        "assets/music/ash-battle.wav",
+        "assets/music/bloom-battle.wav",
+        "assets/music/boss-ambient.wav",
+        "assets/music/catacomb-battle.wav",
+        "assets/music/caves-battle.wav",
+        "assets/music/crystal-battle.wav",
+        "assets/music/forest-battle.wav",
+        "assets/music/foundry-battle.wav",
+        "assets/music/frost-battle.wav",
+        "assets/music/hive-battle.wav",
+        "assets/music/mire-battle.wav",
+        "assets/music/ruins-battle.wav",
+        "assets/music/sanctuary-battle.wav",
+        "assets/music/storm-battle.wav",
+        "assets/music/tide-battle.wav",
+        "assets/music/void-battle.wav",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "scripts/synthesize_music.py",
+        "src/audio/arrangement.ts",
+        "tests/music-synth.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794918441.3347554,
+      "timestamp_str": "2026-11-17 15:27:21",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
     }
   ]
 }

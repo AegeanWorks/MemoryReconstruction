@@ -23,6 +23,48 @@ function wavInfo(name: string): { channels: number; rate: number; bits: number; 
   return { channels, rate, bits, seconds: frames / rate, peak };
 }
 
+
+/**
+ * How "bright" a track is: the mean absolute sample-to-sample change divided by
+ * the mean absolute level. Percussion bursts (broadband, high-passed noise) push
+ * this up; slow sine drones keep it low. It is loudness-independent, so it
+ * compares a quiet calm loop with a loud battle loop fairly.
+ */
+function brightness(name: string): number {
+  const buffer = readFileSync(join(musicDir, name));
+  let diff = 0;
+  let level = 0;
+  let count = 0;
+  let previous = 0;
+  for (let i = 44; i + 1 < buffer.length; i += 2) {
+    const value = buffer.readInt16LE(i);
+    diff += Math.abs(value - previous);
+    level += Math.abs(value);
+    previous = value;
+    count += 1;
+  }
+  return count === 0 ? 0 : diff / Math.max(1, level);
+}
+
+const BIOMES = [
+  'ruins',
+  'forest',
+  'caves',
+  'crystal',
+  'ash',
+  'foundry',
+  'abyss',
+  'void',
+  'frost',
+  'bloom',
+  'mire',
+  'hive',
+  'catacomb',
+  'tide',
+  'storm',
+  'sanctuary',
+];
+
 describe('the synthesized soundtrack', () => {
   it('ships a playable file for every manifest track', () => {
     const files = new Set(readdirSync(musicDir));
@@ -79,5 +121,29 @@ describe('the synthesized soundtrack', () => {
     const sound = read('../src/audio/Sound.ts');
     expect(sound).toContain('loadFirstTrack');
     expect(sound).toContain('musicUrls(track.id)');
+  });
+
+  it('makes battle audibly sharper than calm, not just a different file', () => {
+    // Percussion is broadband, so a fight must carry more high-frequency change
+    // than the drones of the same biome. This catches a render that silently
+    // produced another pad, or percussion drowned under the bass.
+    for (const biome of BIOMES) {
+      const calm = brightness(`${biome}-ambient.wav`);
+      const fight = brightness(`${biome}-battle.wav`);
+      expect(calm, `${biome} ambient is silent`).toBeGreaterThan(0.01);
+      expect(fight / calm, `${biome} battle is not sharper than its calm track`).toBeGreaterThan(
+        1.15
+      );
+    }
+  });
+
+  it('gives the guardian theme a fight-grade mix too', () => {
+    const boss = brightness('boss-ambient.wav');
+    // The guardian theme is the heaviest fight in the game.
+    for (const biome of BIOMES) {
+      expect(boss, `boss theme is not at least as sharp as ${biome} battle`).toBeGreaterThan(
+        brightness(`${biome}-ambient.wav`)
+      );
+    }
   });
 });

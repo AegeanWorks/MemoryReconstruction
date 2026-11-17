@@ -10,7 +10,7 @@
 - **Total Classes**: `0`
 - **Total Top-Level Functions**: `113`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `5313`
+- **Total Source Lines**: `5334`
 
 ## 🧭 Map Coverage
 - **Indexed**: python (`8` module(s))
@@ -194,7 +194,7 @@
 ### [`scripts/synthesize_music.py`](scripts/synthesize_music.py)
 > *Synthesize the game's soundtrack locally, with no provider keys.*
 
-**Size**: `281` lines (`10984` bytes)
+**Size**: `302` lines (`12090` bytes)
 
 **Functions:**
 - `def beat_seconds(bpm)`
