@@ -521,3 +521,13 @@ The running build was driven in Edge at **1280x720**.
   frost spurs beneath them, then drained away.
 - **Console**: 0 errors.
 Captures: `docs/qa/cycle118-ice-floor.png`, `cycle118-ice-patch.png`.
+
+## 2026-11-17 review: production bundle (agent reviewer: kilo:1)
+
+The **built** game (`dist/` via `vite preview`) was driven in Edge at **1280x720**.
+- **Hub**: the Sanctuary loaded with the Lorekeeper task asking for the renamed Choir Glaive.
+- **Set Out**: read "Reach Section 27 to unlock", matching the 27-section descent.
+- **Run**: Section 1 Forgotten Ruins loaded with the HUD, "Bomb x2/4" and door banners on every doorway.
+- **Rage**: pressing X showed "Frenzy x1.60" with the red edge tint.
+- **Console**: 0 errors.
+Captures: `docs/qa/cycle119-prod-build.png`.

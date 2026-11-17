@@ -4684,3 +4684,18 @@ and the patch drained on its own. Across eight seeds a frozen floor carried 6-13
 lint/typecheck/build clean.
 ### Gate results
 See the task summary.
+
+## Cycle 119 - Production bundle verified end to end
+### FIND
+Every visual check so far ran against the Vite dev server. A production build could still differ after minification,
+tree-shaking and asset copying, so the shipped artefact itself deserved a pass.
+### IMPLEMENT
+No source change: `npm run build` and a `vite preview` of `dist/`.
+### RECORD
+`npm run build` completed in 5.42 s (main chunk 910 kB, 267 kB gzipped). Opening the preview on port 5200 from a clean
+origin showed the title, the Sanctuary hub with the Lorekeeper already asking for the renamed **Choir Glaive**, and a Set
+Out screen reading "Reach Section 27 to unlock" - the new section count. Beginning the descent loaded "Section 1 Forgotten
+Ruins" with the HUD, "Bomb x2/4" on the kit line and door banners framing every doorway; pressing X showed
+"Frenzy x1.60" with the red edge tint. 0 console errors. Screenshot `docs/qa/cycle119-prod-build.png`.
+### Gate results
+See the task summary.
