@@ -4699,3 +4699,20 @@ Ruins" with the HUD, "Bomb x2/4" on the kit line and door banners framing every 
 "Frenzy x1.60" with the red edge tint. 0 console errors. Screenshot `docs/qa/cycle119-prod-build.png`.
 ### Gate results
 See the task summary.
+
+## Cycle 120 - Procedural battle music so fights sound like fights without provider keys
+### FIND
+The music request asks for battle and out-of-battle music. With no provider keys the Muse path never ran, and the
+procedural fallback only brightened a filter for `tense`, so a battle sounded like calm with the treble up.
+### IMPLEMENT
+- `src/audio/arrangement.ts`: per-biome battle figures (tempo, eight-step bass, four-beat percussion, drive) and a
+  rhythm-free ambient spec, as pure testable data.
+- `src/audio/Sound.ts`: `playAmbience` reads the arrangement, keeps the pad quieter in battle and starts `startRhythm`
+  (bass figure plus `rhythmHit` percussion) alongside the bells.
+- Tests: `music-arrangement` (7).
+### RECORD
+In Edge at 1280x720 the running game's sound object switched `ambienceKey` through `ruins:false`, `ruins:true`,
+`hive:true`, `hive:false`, and an interval-count probe showed calm starting 1 clock (bells) while battle started 2 (bells
+plus the rhythm), so the battle layer really runs. 0 console errors. Calm audio is unchanged.
+### Gate results
+See the task summary.

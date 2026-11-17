@@ -8,6 +8,7 @@
 import type { BiomeId } from '../sim/content';
 import type { AttackKind } from '../sim/entities';
 import type { SimEvent } from '../sim/events';
+import { arrangement, beatSeconds, isBattleMode, type Arrangement } from './arrangement';
 import { musicUrls, trackFor, type MusicTrack } from './music';
 
 /**
@@ -563,6 +564,12 @@ export class Sound {
   }
 
   /** Starts (or keeps) the ambient pad for a biome; `tense` adds a low pulse for boss fights. */
+  /**
+   * Starts (or keeps) procedural music for a biome. Calm is a slow pad with
+   * sparse bells; battle is a different piece: a faster tempo, a repeating bass
+   * figure and percussion on the beat (see `arrangement`). Used whenever no
+   * rendered track exists, and for the menu and Sanctuary by design.
+   */
   playAmbience(biome: BiomeId, tense = false): void {
     const key = `${biome}:${tense}`;
     if (!this.ctx) {
@@ -576,60 +583,63 @@ export class Sound {
     this.ambienceKey = key;
     const ctx = this.ctx;
     const root = BIOME_ROOTS[biome];
+    const spec = arrangement(biome, isBattleMode(tense));
+    const battle = spec.drive > 0;
     const out = ctx.createGain();
     out.gain.value = 0;
     out.gain.linearRampToValueAtTime(1, ctx.currentTime + 2.5);
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.value = tense ? 900 : 600;
+    filter.frequency.value = battle ? 1150 : 600;
     filter.connect(out).connect(this.music);
 
-    // Two detuned drones with a slow filter sweep.
+    // Two detuned drones with a slow filter sweep. Battle keeps them quieter so
+    // the rhythm carries the piece instead of sitting under a loud pad.
     const lfo = ctx.createOscillator();
     const lfoGain = ctx.createGain();
-    lfo.frequency.value = 0.07;
-    lfoGain.gain.value = 250;
+    lfo.frequency.value = battle ? 0.18 : 0.07;
+    lfoGain.gain.value = battle ? 320 : 250;
     lfo.connect(lfoGain).connect(filter.frequency);
     lfo.start();
+    const padLevel = battle ? 0.55 : 1;
     const drones = [root / 2, (root / 2) * 1.5, root].map((f, i) => {
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
       osc.type = i === 0 ? 'sine' : 'triangle';
       osc.frequency.value = f;
       osc.detune.value = (i - 1) * 6;
-      g.gain.value = i === 0 ? 0.22 : 0.08;
+      g.gain.value = (i === 0 ? 0.22 : 0.08) * padLevel;
       osc.connect(g).connect(filter);
       osc.start();
       return osc;
     });
 
     // Sparse bell notes drawn from the scale.
-    const timer = window.setInterval(
-      () => {
-        if (!this.ctx) return;
-        const t = ctx.currentTime;
-        const f =
-          root *
-          2 *
-          SCALE[Math.floor(Math.random() * SCALE.length)] *
-          (Math.random() < 0.3 ? 2 : 1);
-        const osc = ctx.createOscillator();
-        const g = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = f;
-        g.gain.setValueAtTime(0.0001, t);
-        g.gain.exponentialRampToValueAtTime(tense ? 0.05 : 0.07, t + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 2.4);
-        osc.connect(g).connect(out);
-        osc.start(t);
-        osc.stop(t + 2.5);
-      },
-      tense ? 700 : 2200
-    );
+    const bellGap = battle ? Math.round(beatSeconds(spec) * 1000 * 1.5) : 2200;
+    const timer = window.setInterval(() => {
+      if (!this.ctx) return;
+      const t = ctx.currentTime;
+      const f =
+        root * 2 * SCALE[Math.floor(Math.random() * SCALE.length)] * (Math.random() < 0.3 ? 2 : 1);
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(battle ? 0.045 : 0.07, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + (battle ? 1.1 : 2.4));
+      osc.connect(g).connect(out);
+      osc.start(t);
+      osc.stop(t + (battle ? 1.2 : 2.5));
+    }, bellGap);
+
+    // The battle layer: eighth-note bass steps and percussion on the beat.
+    const rhythm = battle ? this.startRhythm(spec, root, out) : undefined;
 
     this.ambience = {
       stop: () => {
         window.clearInterval(timer);
+        rhythm?.stop();
         const t = ctx.currentTime;
         out.gain.cancelScheduledValues(t);
         out.gain.setValueAtTime(out.gain.value, t);
@@ -637,6 +647,65 @@ export class Sound {
         for (const o of [...drones, lfo]) o.stop(t + 1.3);
       },
     };
+  }
+
+  /**
+   * The rhythmic half of battle music: one eighth-note clock that plays the
+   * bass figure and a short noise hit wherever the arrangement asks for one.
+   */
+  private startRhythm(spec: Arrangement, root: number, out: AudioNode): { stop(): void } {
+    const ctx = this.ctx;
+    if (!ctx) return { stop: () => undefined };
+    const stepMs = Math.round((beatSeconds(spec) * 1000) / 2);
+    const stepsPerBar = spec.bass.length;
+    const hitSteps = new Set(spec.hits.map((beat) => Math.round(beat * 2)));
+    let step = 0;
+    const timer = window.setInterval(() => {
+      if (!this.ctx) return;
+      const t = ctx.currentTime;
+      const index = step % Math.max(1, stepsPerBar);
+      const degree = spec.bass[index] ?? -1;
+      if (degree >= 0) {
+        const freq = (root / 2) * SCALE[Math.min(degree, SCALE.length - 1)];
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.value = freq;
+        const length = beatSeconds(spec) * spec.noteLength;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.1 * spec.drive, t + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + length);
+        const lp = ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = 900;
+        osc.connect(lp).connect(g).connect(out);
+        osc.start(t);
+        osc.stop(t + length + 0.05);
+      }
+      const beatIndex = Math.floor(index / 2);
+      if (hitSteps.has(index) || hitSteps.has(Math.round(beatIndex * 2)))
+        this.rhythmHit(t, out, spec.drive);
+      step += 1;
+    }, stepMs);
+    return { stop: () => window.clearInterval(timer) };
+  }
+
+  /** One short percussive hit: a filtered noise burst with a fast decay. */
+  private rhythmHit(t: number, out: AudioNode, drive: number): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const src = ctx.createBufferSource();
+    src.buffer = this.noise;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 420;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.16 * drive, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+    src.connect(filter).connect(g).connect(out);
+    src.start(t, Math.random() * 0.4);
+    src.stop(t + 0.2);
   }
 
   stopAmbience(): void {

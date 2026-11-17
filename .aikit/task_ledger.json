@@ -1,11 +1,11 @@
 {
   "version": 1,
   "active_task": {
-    "task_id": "prod-verification",
+    "task_id": "battle-music-fallback",
     "last_phase": "phase 4",
-    "active_phase": 5,
-    "status": "completed",
-    "updated_at": 1794905404.7540903,
+    "active_phase": 4,
+    "status": "in_progress",
+    "updated_at": 1794909151.0384932,
     "owner": "kilo:1",
     "started_by": "kilo:1",
     "continuations": [],
@@ -14,47 +14,9 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ],
-    "completed_at": 1794905452.9415042,
-    "completed_head": "9457b95446010638cee2041103672679c24f1eca",
-    "completed_tree": "ec46d95b1ffc64ca961eaaf8ecca9a5648959d3a"
+    ]
   },
   "checkpoints": [
-    {
-      "task_id": "combat-expansion",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[4/4] Combat expansion complete: elemental statuses and sprite-accurate bolts (ADR-233), frenzy and berserker stances with a red screen (ADR-234), and five new enemy behaviours at 102 species (ADR-235). Drawn from the player's request list: frenzy/berserker, laser, stomp, area slow, dashing, burn, frozen, mud and the bolt hitbox fix are all delivered. 991 tests across 207 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates, delivery-ready. Remaining requests (inventory limits and skills, headwear/cape visuals, longer blades, weapon-restricted items, door rugs, more levels, Muse music) are queued as gear-and-limits, world-and-levels and music-muse in docs/ROADMAP_COMBAT_EXPANSION.md.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794864970.5243003,
-      "timestamp_str": "2026-11-17 00:36:10",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
-    {
-      "task_id": "combat-expansion",
-      "phase": "completed",
-      "phase_num": 5,
-      "description": "Task 'combat-expansion' completed successfully.",
-      "status": "completed",
-      "timestamp": 1794864993.2147284,
-      "timestamp_str": "2026-11-17 00:36:33",
-      "agent": "kilo:1",
-      "head": "28332b8910b5f7790a13d368a92aac14c84c2664",
-      "delivery": {
-        "roots": [
-          "."
-        ],
-        "forced": false
-      }
-    },
     {
       "task_id": "gear-and-limits",
       "phase": "phase 2",
@@ -524,6 +486,58 @@
         ],
         "forced": false
       }
+    },
+    {
+      "task_id": "battle-music-fallback",
+      "phase": "phase 2",
+      "phase_num": 2,
+      "description": "[1/1] Complete the music request without provider keys: src/audio/arrangement.ts holds the procedural fallback as pure data - ambient is a slow pad with sparse bells and no rhythm, battle is a distinct piece per biome with its own tempo (76-132bpm), an eight-step bass figure drawn from the scale, percussion positions inside a four-beat bar and a drive level. Sound.playAmbience reads it: battle keeps the pad quieter, raises the filter, shortens the bells and starts startRhythm (bass + rhythmHit percussion). Rendered Muse tracks still take precedence; calm audio is untouched to preserve the menu sound the player likes. Failing-first: tests/music-arrangement.test.ts (7 cases).",
+      "files_affected": [],
+      "status": "in_progress",
+      "timestamp": 1794909078.6056437,
+      "timestamp_str": "2026-11-17 12:51:18",
+      "agent": "kilo:1",
+      "impact_assessment": {
+        "why": "The request asks for battle and out-of-battle music; with no provider keys the fallback only brightened a filter, so fights sounded like calm with the treble up.",
+        "benefits": "The shipped build satisfies the request with no rendered audio, every biome fights to a different figure, and the menu keeps the sound the player liked.",
+        "risks": "contract: Sound gains a rhythm clock and new data module; dependency: none beyond WebAudio; concurrency: two interval clocks that must both stop; state: ambienceKey already keys on the mode.",
+        "mitigation": "One stop() that clears both clocks, a drive of 0 for calm so no rhythm is ever started there, pure-data tests, and an interval-count probe proving battle starts the second clock."
+      },
+      "plan_digest": "b8c05a1193410f5c3c030e5c16f093c8aeb7c0221fc4caaefd4cea791b2f4172",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
+    },
+    {
+      "task_id": "battle-music-fallback",
+      "phase": "phase 4",
+      "phase_num": 4,
+      "description": "[1/1] Verified: all 16 biomes have ambient and battle specs; battle always has percussion, a bass figure, a drive above 0.25 and a faster tempo than calm, while calm has no rhythm at all; every biome's battle figure is unique; tempos sit in 40-160 bpm and all percussion sits inside a four-beat bar. 1068 tests across 220 files, lint/typecheck/build clean. In Edge the sound object switched ambienceKey through ruins:false, ruins:true, hive:true, hive:false, and an interval-count probe showed calm starting 1 clock and battle starting 2, so the battle layer really runs; 0 console errors.",
+      "files_affected": [
+        ".aikit/codebase_map.md",
+        ".aikit/decisions.md",
+        ".aikit/task_ledger.json",
+        ".aikit/task_ledger_archive.jsonl",
+        "README.md",
+        "docs/IMPROVEMENT_CYCLES.md",
+        "src/audio/Sound.ts",
+        "src/audio/arrangement.ts",
+        "tests/music-arrangement.test.ts"
+      ],
+      "status": "in_progress",
+      "timestamp": 1794909151.0384932,
+      "timestamp_str": "2026-11-17 12:52:31",
+      "agent": "kilo:1",
+      "checklists": "passed",
+      "workspaces": [
+        {
+          "name": "MemoryReconstruction",
+          "path": "projects/MemoryReconstruction"
+        }
+      ]
     }
   ]
 }
