@@ -1,35 +1,26 @@
 # Combat & Content Expansion Roadmap
 
-Player request (2026-11-16) collected into four tasks. Each task is its own
-ledger entry with at most four milestones, so every milestone lands green on
-its own (PRINCIPLE-008).
+Player request (2026-11-16). All four tasks are delivered.
 
-## Task 1 - `combat-expansion` (in progress)
-| # | Milestone | Delivers |
-|---|-----------|----------|
-| 1 | Status effects core | Burn, freeze and mud carried by enemies and the player; damage-over-time, movement slow and freeze shatter; bolts hit the drawn sprite instead of only its centre circle. |
-| 2 | Frenzy and Berserker | A frenzy stance (more damage, any hit ends it) and a berserker stance (more damage, hits never end it); red screen tint and a HUD badge while either is active. |
-| 3 | New enemy archetypes | Laser (charged lane beam), stomp (radial shock on landing), slow field (aura that slows the player), dasher (knockback charge), mud (leaves slowing patches). |
+## Task 1 - `combat-expansion` (done)
+| # | Milestone | Delivered |
+|---|-----------|-----------|
+| 1 | Status effects core | Burn, freeze and mud; damage over time, movement slow, freeze shatter; bolts hit the drawn sprite (ADR-233). |
+| 2 | Frenzy and Berserker | Frenzy x1.6 broken by a landed hit, Berserker x1.35 that never breaks, one key cycles both, red or ember screen edge (ADR-234). |
+| 3 | New enemy archetypes | Prism Lancer (lane beam), Quake Colossus (radial stomp), Mire Warden (slow aura), Brine Charger (charge knockback), Bog Spitter (mud) (ADR-235). |
 | 4 | Evidence and docs | ADR, cycle log, UI review, screenshots, gates. |
 
-## Task 2 - `gear-and-limits`
-- Mana flask carry limit plus a skill that raises it.
-- Trap carry limit plus a skill that raises it.
-- Bomb carry limit plus a skill that raises it.
-- Weapon-item category: a relic that only equips while the run uses a given
-  weapon (spear, long sword, sword).
-- Headwear recolours and reshapes the head band, not only the robe.
-- Capes recolour the cloak band (already band-separated, extended to a palette).
-- Sword and long sword reach increased by one step each.
+## Task 2 - `gear-and-limits` (done)
+- Mana flask, bomb and trap carry limits with Mana Rack, Bomb Rig and Trap Kit skills (ADR-236).
+- Headwear silhouettes and colours, icon-derived armor hues, capes on their own palette, head kept untinted (ADR-237, ADR-239).
+- Weapon-locked relics tied to the sword, spear and long-sword stances (ADR-238).
+- Sword and greatsword reach increased, and the stance displays as **Long Sword**.
 
-## Task 3 - `world-and-levels`
-- Door rugs drawn on the wall face beside doorways.
-- Three new sections with their own rosters and guardians, plus lore hooks.
-- Burn/freeze/mud hazards reused on the new floors.
+## Task 3 - `world-and-levels` (done)
+- Doorway hangings on the wall face beside every door, rolled from a decoration-only RNG (ADR-240).
+- Two new sections: The Chitin Vault and The Thunder Vault, taking the descent to 27 sections, with a run-version migration (ADR-241).
 
-## Task 4 - `music-muse`
-- A music manifest (biome/room/battle variants) with prompts per theme.
-- `Sound` gains looping track playback with crossfade and a battle/ambient
-  switch driven by room state.
-- `scripts/generate_music.py` drives the Muse project; without provider keys it
-  reports what is missing instead of writing fake audio.
+## Task 4 - `music-muse` (done)
+- 33 themed tracks in one manifest, looping playback with a crossfade, battle and ambient switching by room state,
+  procedural fallback when a track is missing, and the menu keeping its hand-tuned ambience (ADR-242).
+- `scripts/generate_music.py` drives the Muse project; rendering needs provider keys.
