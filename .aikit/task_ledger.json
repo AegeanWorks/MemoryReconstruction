@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "world-and-levels",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1794903592.4903946,
     "owner": "kilo:1",
     "started_by": "kilo:1",
@@ -14,41 +14,12 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ]
+    ],
+    "completed_at": 1794903617.6446714,
+    "completed_head": "bdff20f55a8984b4858a6cf20d9f2246793679a5",
+    "completed_tree": "678fb334b4f75d5c032de44793bc7199d4d27c99"
   },
   "checkpoints": [
-    {
-      "task_id": "bestiary-habitats",
-      "phase": "phase 4",
-      "phase_num": 4,
-      "description": "[1/2] Verified: all 97 ids report at least one habitat; Memory Echo resolves to sections 1, 2, 24 and 25; a guardian reports its own section only (Reliquary Warden section 22, The Gilded Reliquary); sealed cards show the road and hide health/damage/XP while recorded ones show 30/17/15; Enter and Space both toggle aria-expanded and the open class. 958 tests across 202 files, 490 mechanics, lint/typecheck/build clean, 8/8 gates, and the palette contrast floor test stays green at 0.72 alpha. Edge at 1280x720 and 390x844: detail block readable, 308.8px card in a 358.8px panel ending 374.4px, no overflow, 0 console errors.",
-      "files_affected": [
-        ".aikit/codebase_map.md",
-        ".aikit/decisions.md",
-        ".aikit/task_ledger.json",
-        ".aikit/task_ledger_archive.jsonl",
-        "README.md",
-        "docs/IMPROVEMENT_CYCLES.md",
-        "docs/UI_REVIEW.md",
-        "src/sim/content.ts",
-        "src/ui/Screens.ts",
-        "src/ui/ui.css",
-        "docs/qa/cycle105-bestiary-detail-1280x720.png",
-        "docs/qa/cycle105-bestiary-detail-390x844.png",
-        "tests/bestiary-habitats.test.ts"
-      ],
-      "status": "in_progress",
-      "timestamp": 1794855269.5372458,
-      "timestamp_str": "2026-11-16 21:54:29",
-      "agent": "kilo:1",
-      "checklists": "passed",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "bestiary-habitats",
       "phase": "completed",
@@ -634,6 +605,23 @@
           "path": "projects/MemoryReconstruction"
         }
       ]
+    },
+    {
+      "task_id": "world-and-levels",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'world-and-levels' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794903617.713751,
+      "timestamp_str": "2026-11-17 11:20:17",
+      "agent": "kilo:1",
+      "head": "bdff20f55a8984b4858a6cf20d9f2246793679a5",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
