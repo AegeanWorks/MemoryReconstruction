@@ -3,8 +3,8 @@
   "active_task": {
     "task_id": "freeze-sources",
     "last_phase": "phase 4",
-    "active_phase": 4,
-    "status": "in_progress",
+    "active_phase": 5,
+    "status": "completed",
     "updated_at": 1794904608.4783452,
     "owner": "kilo:1",
     "started_by": "kilo:1",
@@ -14,33 +14,12 @@
         "name": "MemoryReconstruction",
         "path": "projects/MemoryReconstruction"
       }
-    ]
+    ],
+    "completed_at": 1794904682.732595,
+    "completed_head": "0b95510988276b03e93aa1b44b9cbc958c0d2443",
+    "completed_tree": "6b958e7cbfd3316dee496e7f28ab90f66ef90759"
   },
   "checkpoints": [
-    {
-      "task_id": "combat-expansion",
-      "phase": "phase 2",
-      "phase_num": 2,
-      "description": "[1/4] Combat expansion, milestone 1: enemies and the player carry burn, freeze and mud status (timers, damage-over-time ticks, movement slow, freeze shatter bonus); bolts test against the drawn sprite radius so edge hits register. Plan covers four milestones: statuses, frenzy/berserker stances with a red screen, five new enemy archetypes, then evidence. Remaining requests are split into three follow-up tasks in docs/ROADMAP_COMBAT_EXPANSION.md.",
-      "files_affected": [],
-      "status": "in_progress",
-      "timestamp": 1794857537.4104986,
-      "timestamp_str": "2026-11-16 22:32:17",
-      "agent": "kilo:1",
-      "impact_assessment": {
-        "why": "The player asked for elemental statuses, a frenzy/berserker risk-reward stance, new enemy behaviours, and a fixed bolt hitbox that only registered near an enemy's centre.",
-        "benefits": "Elemental combat gives every damage source a second layer, frenzy adds a voluntary risk/reward choice, new archetypes diversify rooms, and bolt hits match what the player sees.",
-        "risks": "contract: Enemy and Player gain status fields (RunState saves player; enemies are rebuilt each floor); dependency: none; concurrency: none; state: old runs default to no status; balance: slow and DoT change clear times.",
-        "mitigation": "Pure sim tests per status, defaults on restore, bounded durations, and a browser pass at desktop and phone widths before the UI milestones close."
-      },
-      "plan_digest": "0dd494d948affe45e9ccdb33dc4468f630ad1b4736c559bee9c0e6e405fa419d",
-      "workspaces": [
-        {
-          "name": "MemoryReconstruction",
-          "path": "projects/MemoryReconstruction"
-        }
-      ]
-    },
     {
       "task_id": "combat-expansion",
       "phase": "phase 4",
@@ -626,6 +605,23 @@
           "path": "projects/MemoryReconstruction"
         }
       ]
+    },
+    {
+      "task_id": "freeze-sources",
+      "phase": "completed",
+      "phase_num": 5,
+      "description": "Task 'freeze-sources' completed successfully.",
+      "status": "completed",
+      "timestamp": 1794904682.810386,
+      "timestamp_str": "2026-11-17 11:38:02",
+      "agent": "kilo:1",
+      "head": "0b95510988276b03e93aa1b44b9cbc958c0d2443",
+      "delivery": {
+        "roots": [
+          "."
+        ],
+        "forced": false
+      }
     }
   ]
 }
