@@ -6,15 +6,15 @@
 ---
 
 ## 📊 Codebase Metrics
-- **Total Python Modules**: `7`
+- **Total Python Modules**: `8`
 - **Total Classes**: `0`
-- **Total Top-Level Functions**: `106`
+- **Total Top-Level Functions**: `113`
 - **Total Class Methods**: `0`
-- **Total Source Lines**: `5032`
+- **Total Source Lines**: `5313`
 
 ## 🧭 Map Coverage
-- **Indexed**: python (`7` module(s))
-- **Not indexed by this map**: javascript (`1` file(s)), typescript (`281` file(s))
+- **Indexed**: python (`8` module(s))
+- **Not indexed by this map**: javascript (`1` file(s)), typescript (`282` file(s))
 
 > Only Python symbols are catalogued. A language above is reported as not indexed, never as verified by this map.
 
@@ -188,5 +188,21 @@
 
 **Functions:**
 - `def main(argv)`
+
+---
+
+### [`scripts/synthesize_music.py`](scripts/synthesize_music.py)
+> *Synthesize the game's soundtrack locally, with no provider keys.*
+
+**Size**: `281` lines (`10984` bytes)
+
+**Functions:**
+- `def beat_seconds(bpm)`
+- `def midi_to_hz(semitone, root)`
+- `def render(track)` - *Render one track into a mono float buffer that loops seamlessly.*
+- `def write_wav(path, pcm)`
+- `def readTracks()`
+- `def verify(tracks)` - *Check every manifest track has a playable, non-silent file.*
+- `def main()`
 
 ---

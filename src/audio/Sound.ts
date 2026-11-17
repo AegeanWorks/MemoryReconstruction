@@ -774,25 +774,41 @@ export class Sound {
         },
       };
     };
-    const url = musicUrls(track.id)[0];
-    const cached = this.trackBuffers.get(url);
-    if (cached) {
-      play(cached);
+    // A track may be shipped as OGG, MP3 or WAV, so try each in that order and
+    // keep the first that decodes. The synth script writes WAV; Muse can export
+    // either of the others.
+    const urls = musicUrls(track.id);
+    const cachedUrl = urls.find((url) => this.trackBuffers.has(url));
+    if (cachedUrl) {
+      play(this.trackBuffers.get(cachedUrl)!);
       return;
     }
-    if (this.missingTracks.has(url)) {
+    if (urls.every((url) => this.missingTracks.has(url))) {
       this.playAmbience(track.biome === 'boss' ? 'void' : track.biome, track.mode === 'battle');
       return;
     }
-    void this.loadTrack(url).then((buffer) => {
-      if (!buffer) {
-        this.missingTracks.add(url);
+    void this.loadFirstTrack(urls).then((loaded) => {
+      if (!loaded) {
+        for (const url of urls) this.missingTracks.add(url);
         this.playAmbience(track.biome === 'boss' ? 'void' : track.biome, track.mode === 'battle');
         return;
       }
-      this.trackBuffers.set(url, buffer);
-      play(buffer);
+      this.trackBuffers.set(loaded.url, loaded.buffer);
+      play(loaded.buffer);
     });
+  }
+
+  /** Tries each candidate URL in order; the first that decodes wins. */
+  private async loadFirstTrack(
+    urls: readonly string[]
+  ): Promise<{ url: string; buffer: AudioBuffer } | undefined> {
+    for (const url of urls) {
+      if (this.missingTracks.has(url)) continue;
+      const buffer = await this.loadTrack(url);
+      if (buffer) return { url, buffer };
+      this.missingTracks.add(url);
+    }
+    return undefined;
   }
 
   /** Fetches and decodes one track; undefined when the file is absent or broken. */

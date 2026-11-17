@@ -4716,3 +4716,21 @@ In Edge at 1280x720 the running game's sound object switched `ambienceKey` throu
 plus the rhythm), so the battle layer really runs. 0 console errors. Calm audio is unchanged.
 ### Gate results
 See the task summary.
+
+## Cycle 121 - Synthesized soundtrack shipped as real audio
+### FIND
+Music only played if Muse tracks had been rendered, which needs provider keys; without them every room fell back to a
+WebAudio pad, so the game shipped without a soundtrack. The player asked to use a synth.
+### IMPLEMENT
+- `scripts/synthesize_music.py`: a stdlib-only renderer writing 33 mono 16-bit WAV loops into `assets/music/`, with
+  `--force` and `--verify`.
+- `src/audio/Sound.ts`: `loadFirstTrack` tries OGG, MP3 then WAV so WAV-only shipping actually loads, remembering a
+  missing URL once.
+- `assets/music/*.wav`: 33 rendered loops (8 s, 12 s for the guardian theme), about 11 MB total.
+- Tests: `music-synth` (6).
+### RECORD
+`python scripts/synthesize_music.py` rendered 33 tracks; `--verify` reported "33/33 tracks playable" with peaks around
+29490. In Edge at 1280x720 the running game's sound object loaded `ruins-ambient` and then `ruins-battle`, with
+`trackBuffers` reaching 2 and the memo recording only the absent OGG and MP3 URLs, so the WAVs really play. 0 console errors.
+### Gate results
+See the task summary.
